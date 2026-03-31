@@ -16,78 +16,74 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
   --mono:'Share Tech Mono',monospace;--head:'Barlow Condensed',sans-serif;
 }
 
-/* ── PASSWORD GATE ─────────────────────────────────────── */
+/* ─── PASSWORD GATE ─── */
 #gate{
-  position:fixed;inset:0;background:#050a12;
+  position:fixed;inset:0;z-index:99999;
+  background:#050a12;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:99999;gap:1.5rem;
+  gap:1.5rem;
 }
-.gate-logo{font-family:var(--head);font-size:3rem;font-weight:900;color:#fff;letter-spacing:0.05em;}
+#gate::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 40% at 50% 40%,rgba(0,212,255,0.07) 0%,transparent 70%);
+  pointer-events:none;
+}
+.gate-logo{font-family:var(--head);font-size:3rem;font-weight:900;color:#fff;letter-spacing:0.04em;}
 .gate-logo span{color:var(--cyan);}
-.gate-tag{font-family:var(--mono);font-size:0.72rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;}
+.gate-sub{font-family:var(--mono);font-size:0.75rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
 .gate-box{
   background:var(--bg2);border:1px solid #1a3a6e;border-radius:0.6rem;
-  padding:2rem 2.5rem;display:flex;flex-direction:column;gap:1.2rem;
-  min-width:22rem;margin-top:1rem;
+  padding:2rem 2.5rem;display:flex;flex-direction:column;gap:1rem;
+  min-width:22rem;text-align:center;
 }
-.gate-label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;}
+.gate-box label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;text-align:left;}
 .gate-input{
   width:100%;font-family:var(--mono);font-size:1rem;
-  background:var(--bg3);border:1px solid #1a3a6e;color:var(--text);
+  background:#020810;border:1px solid #1a3a6e;color:var(--text);
   border-radius:0.3rem;padding:0.7rem 1rem;outline:none;
-  letter-spacing:0.08em;
-  transition:border-color 0.15s;
+  letter-spacing:0.08em;transition:border-color 0.15s;
 }
 .gate-input:focus{border-color:var(--cyan);}
 .gate-input.error{border-color:var(--red);animation:shake 0.3s ease;}
-@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px)};}
 .gate-btn{
   width:100%;font-family:var(--head);font-size:1rem;font-weight:700;
   letter-spacing:0.1em;text-transform:uppercase;
-  background:var(--cyan);color:#000;border:none;border-radius:0.3rem;
-  padding:0.8rem;cursor:pointer;transition:opacity 0.15s;
+  background:var(--cyan);color:#000;border:none;
+  border-radius:0.3rem;padding:0.75rem;cursor:pointer;
+  transition:background 0.15s,transform 0.1s;
 }
-.gate-btn:hover{opacity:0.85;}
-.gate-error{font-family:var(--mono);font-size:0.75rem;color:var(--red);text-align:center;min-height:1rem;}
-.gate-scanline{
-  position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,0.015) 2px,rgba(0,212,255,0.015) 4px);
-}
-
-/* ── APP (oculto hasta autenticar) ─────────────────────── */
+.gate-btn:hover{background:#00b8e0;transform:translateY(-1px);}
+.gate-btn:active{transform:translateY(0);}
+.gate-error{font-family:var(--mono);font-size:0.75rem;color:var(--red);height:1rem;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}</style>
+<style>
+/* ─── MAIN APP (hidden until auth) ─── */
 #app{display:none;}
-
-/* ── TOP BAR ────────────────────────────────────────────── */
 .topbar{display:flex;align-items:center;justify-content:space-between;background:#020810;border-bottom:1px solid #1a3a6e;padding:0.6rem 2rem;gap:1rem;}
 .topbar-brand{font-family:var(--mono);color:var(--cyan);font-size:1.05rem;letter-spacing:0.1em;}
 .topbar-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);}
+.topbar-right{display:flex;gap:1.5rem;align-items:center;}
 #clock{font-family:var(--mono);font-size:0.85rem;color:var(--cyan);}
-
-/* ── HERO ───────────────────────────────────────────────── */
+.logout-btn{font-family:var(--mono);font-size:0.65rem;color:var(--muted);background:none;border:1px solid #1a3a6e;border-radius:0.2rem;padding:0.25rem 0.6rem;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.15s;}
+.logout-btn:hover{color:var(--red);border-color:var(--red);}
 .hero{padding:3rem 2rem 2rem;border-bottom:1px solid #1a3a6e;background:linear-gradient(180deg,#020810 0%,#050a12 100%);text-align:center;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(0,212,255,0.06) 0%,transparent 70%);pointer-events:none;}
 .hero-tag{font-family:var(--mono);font-size:0.75rem;color:var(--cyan);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;opacity:0.7;}
 .hero-title{font-family:var(--head);font-size:3.5rem;font-weight:900;color:#fff;letter-spacing:0.04em;line-height:1;}
 .hero-title span{color:var(--cyan);}
 .hero-sub{font-family:var(--head);font-size:1.1rem;font-weight:300;color:var(--muted);margin-top:0.5rem;letter-spacing:0.08em;}
-
-/* ── STATS BAR ──────────────────────────────────────────── */
 .statsbar{display:flex;border-bottom:1px solid #0d1f35;background:var(--bg2);}
 .statsbar-item{flex:1;padding:0.8rem 1.5rem;border-right:1px solid #0d1f35;display:flex;flex-direction:column;gap:0.2rem;}
 .statsbar-item:last-child{border-right:none;}
 .sb-lbl{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
 .sb-val{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--cyan);}
 .sb-val.gold{color:var(--gold);}.sb-val.green{color:var(--green);}.sb-val.red{color:var(--red);}
-
-/* ── FILTERS ────────────────────────────────────────────── */
 .filters{display:flex;gap:0.5rem;padding:1.2rem 2rem;border-bottom:1px solid #0d1f35;flex-wrap:wrap;align-items:center;}
 .filter-label{font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-right:0.5rem;}
 .filter-btn{font-family:var(--head);font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:var(--bg2);border:1px solid #1a3a6e;color:var(--muted);border-radius:0.25rem;padding:0.35rem 0.9rem;cursor:pointer;transition:all 0.15s;}
 .filter-btn:hover,.filter-btn.active{background:var(--cyan);color:#000;border-color:var(--cyan);}
 .search-box{margin-left:auto;font-family:var(--mono);font-size:0.8rem;background:var(--bg2);border:1px solid #1a3a6e;color:var(--text);border-radius:0.25rem;padding:0.35rem 0.8rem;outline:none;width:14rem;}
 .search-box::placeholder{color:var(--muted);}.search-box:focus{border-color:var(--cyan);}
-
-/* ── MAIN ───────────────────────────────────────────────── */
 .main{padding:1.5rem 2rem;}
 .section-hdr{display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;border-left:3px solid var(--cyan);padding-left:0.8rem;}
 .section-hdr.etf-hdr{border-color:var(--gold);}.section-hdr.short-hdr{border-color:var(--red);}
@@ -95,8 +91,6 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
 .section-hdr.etf-hdr h2{color:var(--gold);}.section-hdr.short-hdr h2{color:var(--red);}
 .section-count{font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-left:auto;}
 .section-divider{border:none;border-top:1px solid #0d1f35;margin:2rem 0;}
-
-/* ── REPORT CARDS ───────────────────────────────────────── */
 .report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(22rem,1fr));gap:1rem;margin-bottom:0.5rem;}
 .rcard{background:var(--bg2);border:1px solid #1a3a6e;border-radius:0.5rem;padding:1rem 1.2rem;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0.6rem;transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;position:relative;overflow:hidden;}
 .rcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan);opacity:0;transition:opacity 0.15s;}
@@ -130,25 +124,24 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
 .hidden{display:none!important;}
 .footer{text-align:center;padding:2rem;border-top:1px solid #1a3a6e;font-family:var(--mono);font-size:0.8rem;color:var(--muted);margin-top:2rem;}
 .footer span{color:var(--gold);}
-@media(max-width:600px){.hero-title{font-size:2.2rem;}.statsbar{flex-wrap:wrap;}.statsbar-item{min-width:50%;}.main{padding:1rem;}.gate-box{min-width:90vw;padding:1.5rem;}}
+@media(max-width:600px){.hero-title{font-size:2.2rem;}.statsbar{flex-wrap:wrap;}.statsbar-item{min-width:50%;}.main{padding:1rem;}.topbar-right{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- ═══ PASSWORD GATE ═══════════════════════════════════════ -->
+<!-- ══ PASSWORD GATE ══════════════════════════════════════════ -->
 <div id="gate">
-  <div class="gate-scanline"></div>
   <div class="gate-logo"><span>@</span>PATONET</div>
-  <div class="gate-tag">// RESEARCH TERMINAL · ACCESO RESTRINGIDO //</div>
+  <div class="gate-sub">// Research Terminal — Acceso restringido //</div>
   <div class="gate-box">
-    <div class="gate-label">Contraseña de acceso</div>
-    <input type="password" class="gate-input" id="gateInput" placeholder="············" autocomplete="off">
-    <div class="gate-error" id="gateError"></div>
-    <button class="gate-btn" id="gateBtn">INGRESAR →</button>
+    <label>Contraseña de acceso</label>
+    <input type="password" id="pwInput" class="gate-input" placeholder="••••••••••••••" autocomplete="off">
+    <button class="gate-btn" id="pwBtn">INGRESAR →</button>
+    <div class="gate-error" id="pwError"></div>
   </div>
 </div>
 
-<!-- ═══ APP ═════════════════════════════════════════════════ -->
+<!-- ══ MAIN APP ═══════════════════════════════════════════════ -->
 <div id="app">
 
 <div class="topbar">
@@ -156,7 +149,10 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
     <div class="topbar-brand">@PATONET · RESEARCH TERMINAL</div>
     <div class="topbar-sub">INVESTMENT ANALYSIS · BLOOMBERG-STYLE REPORTS</div>
   </div>
-  <div id="clock"></div>
+  <div class="topbar-right">
+    <div id="clock"></div>
+    <button class="logout-btn" id="logoutBtn">⏻ SALIR</button>
+  </div>
 </div>
 
 <div class="hero">
@@ -205,44 +201,47 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
 
 <script>
 // ════════════════════════════════════════════════════════════
-// AUTH — SHA-256 del password, nunca texto plano en el código
+// AUTH — SHA-256 del password, nunca el texto plano
 // ════════════════════════════════════════════════════════════
-const PWD_HASH = '6eaccd5c0713d3e761400698f588bd569e795eade7e574d0a555a77de6d45713';
-const SESSION_KEY = 'rt_auth';
+const PWD_HASH = "6eaccd5c0713d3e761400698f588bd569e795eade7e574d0a555a77de6d45713";
+const SESSION_KEY = "pt_auth";
 
 async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-async function tryUnlock() {
-  const val = document.getElementById('gateInput').value;
+async function tryLogin() {
+  const val = document.getElementById("pwInput").value;
   const hash = await sha256(val);
-  if(hash === PWD_HASH) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+  if (hash === PWD_HASH) {
+    sessionStorage.setItem(SESSION_KEY, "1");
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
     render();
   } else {
-    const inp = document.getElementById('gateInput');
-    const err = document.getElementById('gateError');
-    inp.classList.add('error');
-    err.textContent = '— Contraseña incorrecta —';
-    setTimeout(()=>{ inp.classList.remove('error'); inp.value=''; }, 800);
+    const inp = document.getElementById("pwInput");
+    inp.classList.add("error");
+    document.getElementById("pwError").textContent = "Contraseña incorrecta.";
+    setTimeout(() => { inp.classList.remove("error"); inp.value=""; inp.focus(); }, 600);
   }
 }
 
-// Si ya autenticó en esta sesión, mostrar directo
-if(sessionStorage.getItem(SESSION_KEY) === '1') {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+// Check session on load
+if (sessionStorage.getItem(SESSION_KEY) === "1") {
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
 }
 
-document.getElementById('gateBtn').addEventListener('click', tryUnlock);
-document.getElementById('gateInput').addEventListener('keydown', e => { if(e.key==='Enter') tryUnlock(); });
+document.getElementById("pwBtn").addEventListener("click", tryLogin);
+document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key==="Enter") tryLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+});
 
 // ════════════════════════════════════════════════════════════
-// REGISTRO DE INFORMES — actualizado automáticamente
+// REGISTRO DE INFORMES
 // ════════════════════════════════════════════════════════════
 const REPORTS = [
   {
@@ -270,85 +269,75 @@ const TYPE_LABEL = {equity:"EQUITY", etf:"ETF", short:"SHORT"};
 
 function buildCard(r) {
   const v = VERDICTS[r.verdict] || VERDICTS.neutral;
-  const upsideClass = r.upside && r.upside.startsWith('+') ? 'pos' : 'neg';
+  const upsideClass = r.upside && r.upside.startsWith("+") ? "pos" : "neg";
   return `
-    <a class="rcard ${r.type}" href="${r.url}" target="_blank">
-      <div class="rcard-top">
-        <div class="rcard-ticker">$${r.ticker}</div>
-        <div class="rcard-badges">
-          <span class="badge ${v.cls}">${v.label}</span>
-          <span class="badge badge-type">${TYPE_LABEL[r.type]||r.type}</span>
-        </div>
+  <a class="rcard ${r.type}" href="${r.url}" target="_blank">
+    <div class="rcard-top">
+      <div class="rcard-ticker">$${r.ticker}</div>
+      <div class="rcard-badges">
+        <span class="badge ${v.cls}">${v.label}</span>
+        <span class="badge badge-type">${TYPE_LABEL[r.type]||r.type}</span>
       </div>
-      <div class="rcard-name">${r.name}</div>
-      <div class="rcard-desc">${r.desc}</div>
-      <div class="rcard-meta">
-        ${r.price?`<div class="meta-item"><div class="meta-lbl">Precio</div><div class="meta-val">${r.price}</div></div>`:''}
-        ${r.target?`<div class="meta-item"><div class="meta-lbl">Objetivo</div><div class="meta-val">${r.target}</div></div>`:''}
-        ${r.upside?`<div class="meta-item"><div class="meta-lbl">Potencial</div><div class="meta-val ${upsideClass}">${r.upside}</div></div>`:''}
-      </div>
-      <div class="rcard-footer">
-        <span class="rcard-date">${r.date}</span>
-        <span class="rcard-arrow">↗</span>
-      </div>
-    </a>`;
+    </div>
+    <div class="rcard-name">${r.name}</div>
+    <div class="rcard-desc">${r.desc}</div>
+    <div class="rcard-meta">
+      ${r.price?`<div class="meta-item"><div class="meta-lbl">Precio</div><div class="meta-val">${r.price}</div></div>`:""}
+      ${r.target?`<div class="meta-item"><div class="meta-lbl">Objetivo</div><div class="meta-val">${r.target}</div></div>`:""}
+      ${r.upside?`<div class="meta-item"><div class="meta-lbl">Potencial</div><div class="meta-val ${upsideClass}">${r.upside}</div></div>`:""}
+    </div>
+    <div class="rcard-footer">
+      <span class="rcard-date">${r.date}</span>
+      <span class="rcard-arrow">↗</span>
+    </div>
+  </a>`;
 }
 
-function render(filter='all', query='') {
-  const grids = {
-    equity: document.getElementById('grid-equity'),
-    etf:    document.getElementById('grid-etf'),
-    short:  document.getElementById('grid-short')
-  };
+function render(filter="all", query="") {
+  const grids = {equity:document.getElementById("grid-equity"), etf:document.getElementById("grid-etf"), short:document.getElementById("grid-short")};
   const counts = {equity:0, etf:0, short:0};
-  Object.values(grids).forEach(g => g.innerHTML='');
+  Object.values(grids).forEach(g=>g.innerHTML="");
   const q = query.toLowerCase();
   REPORTS.forEach(r => {
-    if(filter !== 'all' && r.type !== filter) return;
+    if(filter!=="all" && r.type!==filter) return;
     if(q && !r.ticker.toLowerCase().includes(q) && !r.name.toLowerCase().includes(q)) return;
     grids[r.type].innerHTML += buildCard(r);
     counts[r.type]++;
   });
   Object.keys(grids).forEach(t => {
-    if(!grids[t].innerHTML) grids[t].innerHTML = '<div class="empty-state">— Sin informes en esta categoría —</div>';
+    if(!grids[t].innerHTML) grids[t].innerHTML="<div class='empty-state'>— Sin informes en esta categoría —</div>";
   });
-  document.getElementById('sb-total').textContent  = counts.equity+counts.etf+counts.short;
-  document.getElementById('sb-equity').textContent = counts.equity;
-  document.getElementById('sb-etf').textContent    = counts.etf;
-  document.getElementById('sb-short').textContent  = counts.short;
-  document.getElementById('sb-buy').textContent    = REPORTS.filter(r=>r.verdict==='buy'||r.verdict==='accumulate').length;
-  document.getElementById('count-equity').textContent = counts.equity+' informe(s)';
-  document.getElementById('count-etf').textContent    = counts.etf+' informe(s)';
-  document.getElementById('count-short').textContent  = counts.short+' informe(s)';
-  ['etf','short'].forEach(t=>{
-    const show = filter==='all'||filter===t;
-    document.getElementById('section-'+t).classList.toggle('hidden',!show&&counts[t]===0);
-    document.getElementById('divider-'+t).classList.toggle('hidden',!show&&counts[t]===0);
+  const total = counts.equity+counts.etf+counts.short;
+  document.getElementById("sb-total").textContent = total;
+  document.getElementById("sb-equity").textContent = counts.equity;
+  document.getElementById("sb-etf").textContent = counts.etf;
+  document.getElementById("sb-short").textContent = counts.short;
+  document.getElementById("sb-buy").textContent = REPORTS.filter(r=>r.verdict==="buy"||r.verdict==="accumulate").length;
+  document.getElementById("count-equity").textContent = counts.equity+" informe(s)";
+  document.getElementById("count-etf").textContent = counts.etf+" informe(s)";
+  document.getElementById("count-short").textContent = counts.short+" informe(s)";
+  ["etf","short"].forEach(t=>{
+    document.getElementById("section-"+t).classList.toggle("hidden", filter!=="all" && filter!==t && counts[t]===0);
+    document.getElementById("divider-"+t).classList.toggle("hidden", filter!=="all" && filter!==t && counts[t]===0);
   });
 }
 
-// Filters & search
-let activeFilter = 'all';
-document.querySelectorAll('.filter-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+let activeFilter="all";
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
     activeFilter=btn.dataset.filter;
-    render(activeFilter,document.getElementById('searchBox').value);
+    render(activeFilter,document.getElementById("searchBox").value);
   });
 });
-document.getElementById('searchBox').addEventListener('input',e=>render(activeFilter,e.target.value));
+document.getElementById("searchBox").addEventListener("input",e=>render(activeFilter,e.target.value));
 
-// Clock
 function updateClock(){
   const now=new Date();
-  document.getElementById('clock').textContent=
-    now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' ECT';
+  document.getElementById("clock").textContent=now.toLocaleTimeString("es-EC",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})+" ECT";
 }
 updateClock(); setInterval(updateClock,1000);
-
-// Render solo si ya autenticado
-if(sessionStorage.getItem(SESSION_KEY)==='1') render();
 </script>
 </body>
 </html>
