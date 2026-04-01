@@ -251,7 +251,7 @@ const REPORTS = [
             type: 'equity',
             verdict: 'accumulate',
             price: 103.43,
-            upside: 12.5,
+            upside: '+12.5%',
             target: 116.34,
             date: '2026-04-01',
             url: 'equities/InformePDF_MRVL_103.43_01-04-2026.pdf'
@@ -263,7 +263,7 @@ const REPORTS = [
         type: "equity",
         verdict: "accumulate",
         price: 99.10,
-        upside: 58,
+        upside: '+58.0%',
         target: 157,
         date: "31/03/2026",
         url: "equities/InformePDF_TMDX_99.10_31-03-2026.pdf"
@@ -294,7 +294,7 @@ const TYPE_LABEL = {equity:"EQUITY", etf:"ETF", short:"SHORT"};
 
 function buildCard(r) {
   const v = VERDICTS[r.verdict] || VERDICTS.neutral;
-  const upsideClass = r.upside && r.upside.startsWith("+") ? "pos" : "neg";
+  const upsideStr = r.upside ? (typeof r.upside === "number" ? (r.upside >= 0 ? "+"+r.upside.toFixed(1)+"%" : r.upside.toFixed(1)+"%") : String(r.upside)) : ""; const upsideClass = upsideStr.startsWith("+") ? "pos" : "neg";
   return `
   <a class="rcard ${r.type}" href="${r.url}" target="_blank">
     <div class="rcard-top">
@@ -309,7 +309,7 @@ function buildCard(r) {
     <div class="rcard-meta">
       ${r.price?`<div class="meta-item"><div class="meta-lbl">Precio</div><div class="meta-val">${r.price}</div></div>`:""}
       ${r.target?`<div class="meta-item"><div class="meta-lbl">Objetivo</div><div class="meta-val">${r.target}</div></div>`:""}
-      ${r.upside?`<div class="meta-item"><div class="meta-lbl">Potencial</div><div class="meta-val ${upsideClass}">${r.upside}</div></div>`:""}
+      ${upsideStr?`<div class="meta-item"><div class="meta-lbl">Potencial</div><div class="meta-val ${upsideClass}">${upsideStr}</div></div>`:""}
     </div>
     <div class="rcard-footer">
       <span class="rcard-date">${r.date}</span>
