@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>$MRVL · Marvell Technology · @patonet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:clamp(10px,1.15vw,17px)}
+body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'Courier New',monospace}
+
+/* ─── CSS VARS ─── */
+:root{
+  --bg:#050a12;--bg2:#080f1c;--bg3:#0a1628;--bg4:#0d1f35;
+  --cyan:#00d4ff;--green:#00ff9d;--gold:#ffd700;--red:#ff3a3a;
+  --orange:#ffbb00;--teal:#00838f;--navy:#0d1428;--blue:#1a3a6e;
+  --txt:#c8d8f0;--muted:#94a3b8;
+}
+
+/* ─── LAYOUT ─── */
+.wrap{max-width:100%;padding:1rem;display:flex;flex-direction:column;gap:1.2rem}
+.zone{width:100%;padding:1.2rem;background:var(--bg2);border-radius:0.5rem;border:1px solid #1a2a4a;overflow:hidden}
+.zone-title{font-size:0.75rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.8rem;border-bottom:1px solid #1a2a4a;padding-bottom:0.4rem}
+
+/* ─── ZONE 1 ─── */
+.z1-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+.company-block{display:flex;flex-direction:column;gap:0.5rem}
+.logo-row{display:flex;align-items:center;gap:0.8rem}
+#triggerLogo{height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem}
+#logoFallback{display:none;width:3.5rem;height:3.5rem;background:var(--blue);border-radius:0.4rem;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:var(--cyan);cursor:pointer}
+#triggerNombre{font-size:1.8rem;font-weight:bold;color:#fff;cursor:pointer;line-height:1.1}
+.company-sector{font-size:0.8rem;color:var(--muted);margin-top:0.1rem}
+#triggerFrase{font-style:italic;font-size:0.9rem;color:var(--cyan);background:var(--bg4);padding:0.5rem 0.8rem;border-left:3px solid var(--cyan);cursor:pointer;border-radius:0 0.3rem 0.3rem 0;margin-top:0.3rem}
+.price-block{display:flex;flex-direction:column;align-items:flex-end;gap:0.6rem}
+.price-main{font-size:2.2rem;font-weight:bold;color:#fff;font-family:'Courier New',monospace}
+.price-delta{font-size:0.9rem;color:var(--green)}
+.range52{width:100%;margin-top:0.3rem}
+.range-label{font-size:0.75rem;color:var(--muted);margin-bottom:0.3rem}
+.verdict-row{display:flex;align-items:center;gap:0.8rem;margin-top:0.3rem}
+.verdict-badge{padding:0.5rem 1.2rem;border-radius:0.4rem;font-weight:bold;font-size:0.95rem;background:var(--teal);color:#fff;letter-spacing:0.05em}
+.score-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;margin-top:0.5rem}
+.score-card{background:var(--bg4);border:1px solid var(--blue);border-radius:0.4rem;padding:0.5rem 0.7rem;text-align:center}
+.score-card .sv{font-size:1.3rem;font-weight:bold;color:var(--cyan);font-family:'Courier New',monospace}
+.score-card .sl{font-size:0.72rem;color:var(--muted)}
+.ia-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem}
+.ia-label{font-size:0.85rem;font-weight:bold;color:#00c853}
+
+/* ─── ZONE 2 ─── */
+.z2-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:0.8rem}
+.stat-group{background:var(--bg3);border-radius:0.4rem;padding:0.8rem;border:1px solid #1a2a4a}
+.group-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.6rem}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(7rem,1fr));gap:0.4rem}
+.stat-card{background:var(--bg4);border-radius:0.3rem;padding:0.5rem 0.6rem}
+.stat-val{font-size:1.15rem;font-weight:bold;font-family:'Courier New',monospace;color:#fff}
+.stat-label{font-size:0.72rem;color:var(--muted);margin-top:0.1rem}
+.tri{font-size:0.6rem;vertical-align:middle;margin-left:0.2rem}
+.tri-g{color:var(--green)}.tri-y{color:var(--orange)}.tri-r{color:var(--red)}
+
+/* ─── ZONE 3 ─── */
+.zona3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;width:100%;align-items:start}
+.zona3-chart{display:flex;flex-direction:column;width:100%;min-height:0}
+.zona3-chart .chart-wrap{position:relative;width:100%;aspect-ratio:4/3}
+.zona3-chart .chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.chart-title{font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem;text-align:center}
+.chart-legend{margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center}
+.leg-item{display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;color:var(--muted)}
+.leg-dot{width:0.7rem;height:0.7rem;border-radius:0.1rem;flex-shrink:0}
+
+/* ─── ZONE 4 ─── */
+.z4-wrap{display:flex;flex-direction:column;gap:0.8rem}
+.z4-chart-wrap{position:relative;width:100%;height:16rem}
+.z4-chart-wrap canvas{width:100%!important;height:100%!important}
+.consensus-bar{display:flex;align-items:center;gap:1rem;background:var(--bg4);padding:0.7rem 1rem;border-radius:0.4rem;flex-wrap:wrap}
+.con-target{font-size:1.2rem;font-weight:bold;color:var(--green);font-family:'Courier New',monospace}
+.con-upside{font-size:0.9rem;color:var(--green)}
+.con-dist{display:flex;gap:0.5rem;margin-left:auto;flex-wrap:wrap}
+.con-pill{font-size:0.75rem;padding:0.2rem 0.5rem;border-radius:0.2rem;font-weight:bold}
+
+/* ─── ZONE 5 ─── */
+.z5-spider{width:100%;margin-bottom:1rem}
+.z5-scorecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:0.8rem}
+.feroldi-group{background:var(--bg3);border:1px solid var(--blue);border-radius:0.5rem;padding:0.9rem}
+.fg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem}
+.fg-name{font-size:0.85rem;font-weight:bold;color:var(--cyan)}
+.fg-avg{font-size:1.3rem;font-weight:bold;color:var(--gold);font-family:'Courier New',monospace}
+.feroldi-row{position:relative;cursor:pointer;padding:0.3rem 0;border-bottom:1px solid #1a2a4a}
+.feroldi-row:last-child{border-bottom:none}
+.feroldi-row:hover{background:rgba(0,212,255,0.05)}
+.fr-line{display:flex;align-items:center;gap:0.5rem}
+.fr-name{font-size:0.82rem;color:var(--txt);flex:1}
+.fr-score{font-size:1.1rem;font-weight:bold;color:var(--gold);font-family:'Courier New',monospace;min-width:1.5rem;text-align:right}
+.z5-total{background:var(--bg4);border:1px solid var(--gold);border-radius:0.4rem;padding:0.7rem 1rem;text-align:center;margin-top:0.8rem;font-size:1rem;font-weight:bold;color:var(--gold)}
+
+/* ─── ZONE 6 ─── */
+.z6-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.risk-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.risk-table th{background:var(--navy);color:#fff;padding:0.4rem 0.5rem;text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em}
+.risk-table td{padding:0.35rem 0.5rem;border-bottom:1px solid #1a2a4a;vertical-align:middle}
+.risk-table tr:nth-child(even) td{background:rgba(26,42,110,0.2)}
+.badge-risk{padding:0.15rem 0.4rem;border-radius:0.2rem;font-size:0.7rem;font-weight:bold}
+.comp-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.comp-table th{background:var(--navy);color:#fff;padding:0.4rem 0.5rem;text-align:center;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em}
+.comp-table td{padding:0.3rem 0.4rem;border-bottom:1px solid #1a2a4a;vertical-align:middle;text-align:center}
+.comp-table tr.highlight-mrvl td{background:rgba(0,212,255,0.06);font-weight:bold}
+.comp-table tr:hover td{background:rgba(0,212,255,0.04);cursor:pointer}
+.bar-prog{height:0.25rem;background:var(--blue);border-radius:0.1rem;margin-top:0.15rem}
+.bar-prog-fill{height:100%;border-radius:0.1rem}
+.gauge-consensus{display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:0.8rem}
+.z6-final{background:var(--bg3);border:1px solid var(--teal);border-radius:0.5rem;padding:1rem;margin-top:0.8rem}
+.final-tesis{font-size:0.85rem;line-height:1.6;color:var(--txt);margin-top:0.5rem}
+.brand-footer{text-align:center;font-size:1rem;color:var(--gold);font-weight:bold;padding:0.8rem;border-top:1px solid var(--blue);margin-top:0.5rem}
+
+/* ─── POPUPS ─── */
+#execPopup,#iaPopup,#feroldiPopup,#compPopup{
+  display:none;position:fixed;background:var(--bg3);
+  border-radius:0.6rem;z-index:10000;color:var(--txt);
+  box-shadow:0 0 30px rgba(0,212,255,0.25);line-height:1.55
+}
+#execPopup{border:2px solid var(--cyan);padding:1.2rem;max-width:34rem;max-height:80vh;overflow-y:auto;top:50%;left:50%;transform:translate(-50%,-50%)}
+#iaPopup{border:2px solid #00c853;padding:1.2rem;max-width:34rem;max-height:80vh;overflow-y:auto;top:50%;left:50%;transform:translate(-50%,-50%)}
+#feroldiPopup{border:1px solid var(--cyan);padding:0.9rem;max-width:22rem;font-size:0.85rem;pointer-events:none}
+#compPopup{border:1px solid var(--cyan);padding:1rem;max-width:30rem;font-size:0.85rem;pointer-events:none}
+.popup-title{font-weight:bold;font-size:1rem;color:var(--cyan);margin-bottom:0.6rem}
+.popup-close{float:right;cursor:pointer;color:var(--muted);font-size:1.1rem;line-height:1}
+
+@media(max-width:900px){
+  .z1-grid,.zona3,.z6-grid{grid-template-columns:1fr}
+  .price-block{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════ ZONA 1 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="z1-grid">
+    <!-- LEFT -->
+    <div class="company-block">
+      <div class="logo-row">
+        <img id="triggerLogo"
+          src="https://logo.clearbit.com/marvell.com"
+          onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=marvell.com&sz=128';this.onerror=function(){this.style.display='none';document.getElementById('logoFallback').style.display='flex'};"
+          style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem" alt="MRVL">
+        <div id="logoFallback" style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:0.4rem;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer">MRV</div>
+        <div>
+          <div id="triggerNombre">Marvell Technology</div>
+          <div class="company-sector">NASDAQ: MRVL · Semiconductores · AI Infrastructure</div>
+        </div>
+      </div>
+      <div id="triggerFrase">"El arquitecto invisible del tráfico de datos de IA: chips que mueven bits a velocidades imposibles para el silicio genérico."</div>
+      <div class="ia-row">
+        <svg id="triggerIA" viewBox="0 0 80 200" width="3.5rem" height="auto" style="cursor:pointer;display:inline-block;vertical-align:middle;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7))">
+          <rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+          <rect x="8" y="8" width="64" height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/>
+          <circle cx="16" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="16" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <rect x="8" y="70" width="64" height="3" fill="#222"/>
+          <rect x="8" y="127" width="64" height="3" fill="#222"/>
+          <!-- ROJO - tenue (verde encendido) -->
+          <circle cx="40" cy="42" r="22" fill="#2d0a0a"/>
+          <circle cx="40" cy="42" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="34" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- NARANJA - tenue -->
+          <circle cx="40" cy="100" r="22" fill="#3d2800"/>
+          <circle cx="40" cy="100" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="92" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- VERDE - encendido -->
+          <circle cx="40" cy="158" r="22" fill="#00c853" filter="drop-shadow(0 0 10px #00c853)"/>
+          <circle cx="40" cy="158" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="150" rx="7" ry="5" fill="white" opacity="0.35"/>
+        </svg>
+        <div>
+          <div class="ia-label">Riesgo IA: BAJO</div>
+          <div style="font-size:0.75rem;color:var(--muted)">La IA impulsa el negocio (hover para detalle)</div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div class="price-block">
+      <div>
+        <div class="price-main">$103.43</div>
+        <div class="price-delta">▲ +$0.66 · +0.64% vs. prev. cierre</div>
+      </div>
+      <!-- 52W Range SVG -->
+      <div class="range52">
+        <div class="range-label">Rango 52 semanas — Precio por encima del 52W high</div>
+        <svg viewBox="0 0 320 40" width="100%" height="auto">
+          <rect x="20" y="16" width="280" height="6" rx="3" fill="#1a2a4a"/>
+          <!-- min marker -->
+          <circle cx="20" cy="19" r="5" fill="#ff3a3a"/>
+          <text x="20" y="36" font-size="8" fill="#ff3a3a" text-anchor="middle" font-family="Courier New">$47.09</text>
+          <!-- max marker -->
+          <circle cx="298" cy="19" r="5" fill="#00ff9d"/>
+          <text x="298" y="36" font-size="8" fill="#00ff9d" text-anchor="middle" font-family="Courier New">$102.77</text>
+          <!-- current price marker — slightly beyond max (101%) -->
+          <circle cx="304" cy="19" r="6" fill="#00d4ff" filter="url(#glow)"/>
+          <defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+          <text x="304" y="9" font-size="7.5" fill="#00d4ff" text-anchor="middle" font-family="Courier New" font-weight="bold">$103.43</text>
+        </svg>
+        <div style="font-size:0.72rem;color:var(--cyan);margin-top:0.2rem">▲ El precio supera el máximo de 52 semanas (+$0.66)</div>
+      </div>
+      <!-- Verdict -->
+      <div class="verdict-row">
+        <div class="verdict-badge">✔ ACUMULAR</div>
+        <div style="font-size:0.78rem;color:var(--muted)">2 tramos · $103–107 y $85–95</div>
+      </div>
+      <!-- Score cards -->
+      <div class="score-cards">
+        <div class="score-card">
+          <div class="sv">119/160</div>
+          <div class="sl">Score Feroldi</div>
+          <!-- mini gauge -->
+          <svg viewBox="0 0 300 180" width="100%" height="auto" style="display:block">
+            <defs>
+              <linearGradient id="gaugeMainGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#e53935"/>
+                <stop offset="40%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#00c853"/>
+              </linearGradient>
+            </defs>
+            <path d="M 25 145 A 125 125 0 0 1 275 145" fill="none" stroke="#1a2a4a" stroke-width="24"/>
+            <path d="M 25 145 A 125 125 0 0 1 275 145" fill="none" stroke="url(#gaugeMainGrad)" stroke-width="22"/>
+            <line x1="150" y1="145" x2="226.2" y2="65.7" stroke="#ffd700" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="150" cy="145" r="5" fill="#ffd700"/>
+            <text x="150" y="135" font-size="20" fill="#ffd700" text-anchor="middle" font-weight="bold" font-family="Courier New">74.4%</text>
+          </svg>
+        </div>
+        <div class="score-card">
+          <div class="sv">74.4%</div>
+          <div class="sl">Del máximo</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem">Post-debate<br>3 rondas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ZONA 2 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="zone-title">Key Stats</div>
+  <div class="z2-groups">
+    <!-- VALORACIÓN -->
+    <div class="stat-group">
+      <div class="group-title">Valoración</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">33.7x<span class="tri tri-y">◆</span></div><div class="stat-label">P/E TTM GAAP</div></div>
+        <div class="stat-card"><div class="stat-val">24x<span class="tri tri-g">▲</span></div><div class="stat-label">P/E Fwd FY27</div></div>
+        <div class="stat-card"><div class="stat-val">0.62<span class="tri tri-g">▲</span></div><div class="stat-label">PEG Ratio</div></div>
+        <div class="stat-card"><div class="stat-val">$90.2B<span class="tri tri-g">▲</span></div><div class="stat-label">Market Cap</div></div>
+        <div class="stat-card"><div class="stat-val">$3.07<span class="tri tri-y">◆</span></div><div class="stat-label">EPS TTM GAAP</div></div>
+        <div class="stat-card"><div class="stat-val">29.8x<span class="tri tri-y">◆</span></div><div class="stat-label">EV/EBITDA</div></div>
+      </div>
+    </div>
+    <!-- RENTABILIDAD -->
+    <div class="stat-group">
+      <div class="group-title">Rentabilidad</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">51.7%<span class="tri tri-y">◆</span></div><div class="stat-label">Mg. Bruto GAAP</div></div>
+        <div class="stat-card"><div class="stat-val">59.0%<span class="tri tri-g">▲</span></div><div class="stat-label">Mg. Bruto non-GAAP</div></div>
+        <div class="stat-card"><div class="stat-val">~17.9%<span class="tri tri-y">◆</span></div><div class="stat-label">Mg. Operativo</div></div>
+        <div class="stat-card"><div class="stat-val">18.0%<span class="tri tri-g">▲</span></div><div class="stat-label">ROE</div></div>
+        <div class="stat-card"><div class="stat-val">6.0%<span class="tri tri-r">▼</span></div><div class="stat-label">ROIC (&lt;WACC)</div></div>
+        <div class="stat-card"><div class="stat-val">1.2%<span class="tri tri-r">▼</span></div><div class="stat-label">FCF Yield hoy</div></div>
+      </div>
+    </div>
+    <!-- CRECIMIENTO -->
+    <div class="stat-group">
+      <div class="group-title">Crecimiento</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">+42%<span class="tri tri-g">▲</span></div><div class="stat-label">Revenue YoY FY26</div></div>
+        <div class="stat-card"><div class="stat-val">+>30%<span class="tri tri-g">▲</span></div><div class="stat-label">Guía FY27</div></div>
+        <div class="stat-card"><div class="stat-val">~$11B<span class="tri tri-g">▲</span></div><div class="stat-label">Revenue FY27E</div></div>
+        <div class="stat-card"><div class="stat-val">~$15B<span class="tri tri-g">▲</span></div><div class="stat-label">Revenue FY28E</div></div>
+        <div class="stat-card"><div class="stat-val">+81%<span class="tri tri-g">▲</span></div><div class="stat-label">EPS YoY FY26</div></div>
+        <div class="stat-card"><div class="stat-val">4.0%<span class="tri tri-g">▲</span></div><div class="stat-label">FCF Yield FY28E</div></div>
+      </div>
+    </div>
+    <!-- DIVIDENDO Y RIESGO -->
+    <div class="stat-group">
+      <div class="group-title">Dividendo y Riesgo</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">0.23%<span class="tri tri-r">▼</span></div><div class="stat-label">Div. Yield</div></div>
+        <div class="stat-card"><div class="stat-val">$0.24<span class="tri tri-y">◆</span></div><div class="stat-label">Div. Anual</div></div>
+        <div class="stat-card"><div class="stat-val">1.98<span class="tri tri-r">▼</span></div><div class="stat-label">Beta (1Y)</div></div>
+        <div class="stat-card"><div class="stat-val">$72.98B<span class="tri tri-y">◆</span></div><div class="stat-label">Ent. Value</div></div>
+        <div class="stat-card"><div class="stat-val">2.01<span class="tri tri-g">▲</span></div><div class="stat-label">Current Ratio</div></div>
+        <div class="stat-card"><div class="stat-val">0.34<span class="tri tri-g">▲</span></div><div class="stat-label">Deuda/Equity</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ZONA 3 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="zone-title">Rendimiento Financiero FY2026</div>
+  <div class="zona3">
+    <!-- Col 1: Revenue + NI -->
+    <div class="zona3-chart">
+      <div class="chart-title">Crecimiento y Rentabilidad — Q1 FY26 – Q4 FY26</div>
+      <div class="chart-wrap"><canvas id="chartRevenue"></canvas></div>
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#1a3a6e"></div>Revenue</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>Net Income (op.)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ff8c00;height:0.2rem;width:1.2rem;border-radius:1rem"></div>Margen Neto %</div>
+      </div>
+    </div>
+    <!-- Col 2: Waterfall -->
+    <div class="zona3-chart">
+      <div class="chart-title">Conversión de Ingresos — Q4 FY26</div>
+      <div class="chart-wrap"><canvas id="chartWaterfall"></canvas></div>
+      <div class="chart-legend" id="waterfallLegend"></div>
+    </div>
+    <!-- Col 3: Pie -->
+    <div class="zona3-chart">
+      <div class="chart-title">Composición de Ingresos — Q4 FY26</div>
+      <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+      <div class="chart-legend" style="margin-top:0.5rem">
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>Data Center ($1,651M · 74%)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ffd700"></div>Comunic. &amp; Otros ($568M · 26%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ZONA 4 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="zone-title">Analistas y Evolución del Precio — Últimas 52 semanas</div>
+  <div class="z4-wrap">
+    <div class="z4-chart-wrap"><canvas id="chartPrice"></canvas></div>
+    <div class="consensus-bar">
+      <div>
+        <div class="con-target">Target Consenso: $116.34</div>
+        <div class="con-upside">▲ +12.5% desde precio actual · 32 analistas · Strong Buy</div>
+      </div>
+      <div class="con-dist">
+        <div class="con-pill" style="background:#00c853;color:#000">Strong Buy: 47%</div>
+        <div class="con-pill" style="background:#76c442;color:#000">Buy: 31%</div>
+        <div class="con-pill" style="background:#ffd700;color:#000">Hold: 22%</div>
+        <div class="con-pill" style="background:#444;color:#fff">Sell: 0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ZONA 5 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="zone-title">Perfil Feroldi — Marco de 16 Puntos (Score Consenso Post-Debate: 119/160)</div>
+  <!-- Spider -->
+  <div class="z5-spider">
+    <div style="text-align:center;font-size:0.95rem;font-weight:bold;color:var(--cyan);margin-bottom:0.5rem">Perfil Competitivo Feroldi</div>
+    <svg viewBox="0 0 600 400" width="100%" height="auto">
+      <!-- Background pentagons (grid) -->
+      <polygon points="300,90 403.5,158.4 361.8,279.2 238.2,279.2 196.5,158.4" fill="none" stroke="#1a2a4a" stroke-width="0.5"/>
+      <polygon points="300,116.7 388.1,170.6 352.9,258.6 247.1,258.6 211.9,170.6" fill="none" stroke="#1a2a4a" stroke-width="0.5"/>
+      <polygon points="300,144 372.5,182.8 344.1,237.9 255.9,237.9 227.5,182.8" fill="none" stroke="#1a2a4a" stroke-width="0.5"/>
+      <!-- Axis lines -->
+      <line x1="300" y1="200" x2="300" y2="60" stroke="#1a2a4a" stroke-width="0.8"/>
+      <line x1="300" y1="200" x2="433.1" y2="156.7" stroke="#1a2a4a" stroke-width="0.8"/>
+      <line x1="300" y1="200" x2="382.3" y2="313.3" stroke="#1a2a4a" stroke-width="0.8"/>
+      <line x1="300" y1="200" x2="217.7" y2="313.3" stroke="#1a2a4a" stroke-width="0.8"/>
+      <line x1="300" y1="200" x2="166.9" y2="156.7" stroke="#1a2a4a" stroke-width="0.8"/>
+      <!-- Data polygon -->
+      <polygon points="300,83.3 373.2,176.2 349.4,268 236.2,287.8 215.7,172.6"
+        fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="2"/>
+      <!-- Axis vertices -->
+      <circle cx="300" cy="83.3" r="5" fill="#00d4ff"/>
+      <circle cx="373.2" cy="176.2" r="5" fill="#00d4ff"/>
+      <circle cx="349.4" cy="268" r="5" fill="#00d4ff"/>
+      <circle cx="236.2" cy="287.8" r="5" fill="#00d4ff"/>
+      <circle cx="215.7" cy="172.6" r="5" fill="#00d4ff"/>
+      <!-- Axis endpoint dots -->
+      <circle cx="300" cy="60" r="3" fill="#1a2a4a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="433.1" cy="156.7" r="3" fill="#1a2a4a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="382.3" cy="313.3" r="3" fill="#1a2a4a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="217.7" cy="313.3" r="3" fill="#1a2a4a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="166.9" cy="156.7" r="3" fill="#1a2a4a" stroke="#00d4ff" stroke-width="1"/>
+      <!-- Labels -->
+      <text x="300" y="50" text-anchor="middle" font-size="11" fill="#c8d8f0" font-family="Courier New">Crecimiento</text>
+      <text x="300" y="43" text-anchor="middle" font-size="9" fill="#ffd700" font-family="Courier New">8.3/10</text>
+      <text x="451" y="154" text-anchor="start" font-size="11" fill="#c8d8f0" font-family="Courier New">Rentabilidad</text>
+      <text x="451" y="165" text-anchor="start" font-size="9" fill="#ffd700" font-family="Courier New">5.5/10</text>
+      <text x="388" y="330" text-anchor="middle" font-size="11" fill="#c8d8f0" font-family="Courier New">Solidez Fin.</text>
+      <text x="388" y="342" text-anchor="middle" font-size="9" fill="#ffd700" font-family="Courier New">6.0/10</text>
+      <text x="212" y="330" text-anchor="middle" font-size="11" fill="#c8d8f0" font-family="Courier New">Estrategia</text>
+      <text x="212" y="342" text-anchor="middle" font-size="9" fill="#ffd700" font-family="Courier New">7.75/10</text>
+      <text x="155" y="148" text-anchor="end" font-size="11" fill="#c8d8f0" font-family="Courier New">Ret. Accionista</text>
+      <text x="155" y="159" text-anchor="end" font-size="9" fill="#ffd700" font-family="Courier New">6.3/10</text>
+      <!-- Center -->
+      <circle cx="300" cy="200" r="3" fill="#00d4ff"/>
+    </svg>
+  </div>
+  <!-- Scorecard -->
+  <div class="z5-scorecard" id="scorecard"></div>
+  <div class="z5-total">Score Total: 119 / 160 · 74.4% del máximo posible · Post-Debate 3 Rondas</div>
+</div>
+
+<!-- ═══════════════════════════════ ZONA 6 ═══════════════════════════════ -->
+<div class="zone">
+  <div class="zone-title">Riesgos, Catalizadores, Consenso, Competidores y Veredicto</div>
+  <!-- Risks + Catalysts -->
+  <div class="z6-grid">
+    <div>
+      <div style="font-size:0.78rem;color:var(--cyan);font-weight:bold;margin-bottom:0.5rem">Riesgos Críticos</div>
+      <table class="risk-table">
+        <thead><tr><th>Riesgo</th><th>Descripción</th><th>Nivel</th></tr></thead>
+        <tbody id="riskTable"></tbody>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:0.78rem;color:var(--cyan);font-weight:bold;margin-bottom:0.5rem">Catalizadores 24 meses</div>
+      <table class="risk-table">
+        <thead><tr><th>Catalizador</th><th>Fecha</th><th>Impacto</th></tr></thead>
+        <tbody id="catalystTable"></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Consensus Gauge + Analyst Table -->
+  <div class="z6-grid" style="margin-top:1rem">
+    <div class="gauge-consensus">
+      <div style="font-size:0.78rem;color:var(--cyan);font-weight:bold">Consenso de Analistas</div>
+      <svg viewBox="0 0 400 240" width="100%" height="auto" style="max-width:22rem">
+        <defs>
+          <linearGradient id="consGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e53935"/>
+            <stop offset="25%" stop-color="#ff8c00"/>
+            <stop offset="50%" stop-color="#ffd700"/>
+            <stop offset="75%" stop-color="#76c442"/>
+            <stop offset="100%" stop-color="#00c853"/>
+          </linearGradient>
+        </defs>
+        <path d="M 20 185 A 180 180 0 0 1 380 185" fill="none" stroke="#1a2a4a" stroke-width="32"/>
+        <path d="M 20 185 A 180 180 0 0 1 380 185" fill="none" stroke="url(#consGrad)" stroke-width="30"/>
+        <!-- Labels -->
+        <text x="10" y="210" font-size="9" fill="#e53935" font-family="Courier New" text-anchor="middle">Venta</text>
+        <text x="10" y="220" font-size="9" fill="#e53935" font-family="Courier New" text-anchor="middle">fuerte</text>
+        <text x="80" y="150" font-size="9" fill="#ff8c00" font-family="Courier New" text-anchor="middle">Venta</text>
+        <text x="200" y="60" font-size="9" fill="#ffd700" font-family="Courier New" text-anchor="middle">Neutral</text>
+        <text x="320" y="150" font-size="9" fill="#76c442" font-family="Courier New" text-anchor="middle">Compra</text>
+        <text x="390" y="210" font-size="9" fill="#00c853" font-family="Courier New" text-anchor="middle">Compra</text>
+        <text x="390" y="220" font-size="9" fill="#00c853" font-family="Courier New" text-anchor="middle">fuerte</text>
+        <!-- Needle (Strong Buy = 8.5/10, angle=27°) -->
+        <line x1="200" y1="185" x2="315.8" y2="131" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="200" cy="185" r="7" fill="white"/>
+        <text x="200" y="220" font-size="14" fill="#00c853" text-anchor="middle" font-weight="bold" font-family="Courier New">STRONG BUY</text>
+        <text x="200" y="235" font-size="9" fill="#94a3b8" text-anchor="middle" font-family="Courier New">32 analistas · Target promedio $116.34</text>
+      </svg>
+      <!-- Analyst mini-table -->
+      <table class="risk-table" style="width:100%;margin-top:0.5rem">
+        <thead><tr><th>Banco</th><th>Rating</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>JPMorgan</td><td style="color:#00c853">Compra</td><td style="color:#00ff9d;font-family:monospace">$135</td></tr>
+          <tr><td>Susquehanna</td><td style="color:#00c853">Compra</td><td style="color:#00ff9d;font-family:monospace">$140</td></tr>
+          <tr><td>Rosenblatt</td><td style="color:#00c853">Compra</td><td style="color:#00ff9d;font-family:monospace">$140</td></tr>
+          <tr><td>Wolfe Research</td><td style="color:#00c853">Compra</td><td style="color:#00ff9d;font-family:monospace">$130</td></tr>
+          <tr><td>Stifel Nicolaus</td><td style="color:#00c853">Compra</td><td style="color:#00ff9d;font-family:monospace">$120</td></tr>
+          <tr><td>Bank of America</td><td style="color:#76c442">Compra ↑</td><td style="color:#00ff9d;font-family:monospace">$110</td></tr>
+          <tr><td>Benchmark</td><td style="color:#76c442">Compra ↑</td><td style="color:#00ff9d;font-family:monospace">$130</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Competitor table -->
+    <div>
+      <div style="font-size:0.78rem;color:var(--cyan);font-weight:bold;margin-bottom:0.5rem">Análisis Comparativo vs. Competidores</div>
+      <table class="comp-table" id="compTable">
+        <thead>
+          <tr>
+            <th>Empresa</th><th>Mkt Cap</th><th>P/E TTM</th><th>Mg. Bruto</th><th>Mg. Neto</th><th>Rango 52W</th>
+          </tr>
+        </thead>
+        <tbody id="compBody"></tbody>
+      </table>
+      <div style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem">* NM MRVL inflado por venta Automotive Q3. Dato operacional ~9-10%. Hover para comparativa.</div>
+    </div>
+  </div>
+  <!-- Final verdict -->
+  <div class="z6-final">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div class="verdict-badge" style="font-size:1.2rem;padding:0.6rem 1.6rem">✔ ACUMULAR</div>
+      <div style="font-size:0.8rem;color:var(--muted)">Score: 119/160 · 74.4% · Semáforo IA: 🟢 VERDE</div>
+    </div>
+    <div class="final-tesis">
+      A $103.43, Marvell no es barata por FCF yield presente (1.2%), pero la tesis no es de valor — es de crecimiento contractual. Si los $15B de FY2028 se materializan, el FCF yield sube al 4% y el múltiplo actual es razonable. El KPI crítico a monitorear: margen bruto non-GAAP trimestral (alerta si cae por debajo del 57%). Próxima prueba de fuego: earnings Q1 FY2027 el 28 de mayo de 2026. Entrada en dos tramos: 40% en rango $103–107 y 60% en retroceso a $85–95. Price target 12M: $115–120. Price target 24M: $140–160.
+    </div>
+  </div>
+  <div class="brand-footer">@patonet · $MRVL · Marvell Technology, Inc. · 01/04/2026 · Score: 119/160 · ACUMULAR</div>
+</div>
+
+</div><!-- end wrap -->
+
+<!-- POPUPS -->
+<div id="execPopup">
+  <div class="popup-close" id="execClose">✕</div>
+  <div class="popup-title">Resumen Ejecutivo — $MRVL</div>
+  <div id="execPopupText" style="font-size:0.88rem;line-height:1.6"></div>
+</div>
+
+<div id="iaPopup">
+  <div class="popup-close" id="iaClose">✕</div>
+  <div class="popup-title" style="color:#00c853">Semáforo IA — VERDE</div>
+  <div id="iaPopupText" style="font-size:0.88rem;line-height:1.6"></div>
+</div>
+
+<div id="feroldiPopup"></div>
+<div id="compPopup"></div>
+
+<script>
+// ═══════════════════════════ DATA CONSTANTS ═══════════════════════════
+const EXEC_TEXT = `Marvell Technology es un diseñador de semiconductores fabless especializado en infraestructura de datos: chips de interconexión de alta velocidad, silicio personalizado (XPU) para hiperscaladores, controladores de almacenamiento y conmutadores para centros de datos. Ha ejecutado una transformación estratégica notable (2022–2026), desinvirtiendo negocios de menor margen —incluyendo la venta del negocio Automotive Ethernet por $2.5B en agosto de 2025— para concentrarse en el segmento de datos AI. En FY2026, data center superó $6B (74% del total, +46% YoY). Las ventajas competitivas descansan en IP de SerDes de alta velocidad, liderazgo first-to-market en cada generación PAM4 (800G, 1.6T, próximamente 3.2T) y lock-in contractual de 3–5 años. La inversión de Nvidia de $2B (2026) valida la posición estratégica. Los riesgos principales: concentración en hiperscaladores, compresión de márgenes por mix shift hacia custom silicon y delays potenciales en CPO (Celestial AI). Veredicto: ACUMULAR en dos tramos.`;
+
+const IA_TEXT = `SEMÁFORO VERDE — La IA es el motor estructural del negocio. Marvell no usa la IA como palanca de eficiencia: ES la infraestructura que hace posible la IA.\n\nOportunidades clave: Custom silicon duplicó en FY2026 y se espera duplique en FY2028. AEC/retimers: de $200M base a potencial $1B+ en 2 años. CPO via Celestial AI: TAM >$10B para 2030. Sin chips Marvell no existe comunicación entre GPUs en los clusters de entrenamiento.\n\nAmenazas principales: Nvidia compite en switching con Spectrum-X (dualidad partner/competidor). LPO (Linear Drive Optics) puede eliminar el DSP en intra-rack de corto alcance. Verticalización de hyperscalers.\n\nRiesgo más subestimado: compresión de márgenes brutos por mix shift hacia custom silicon (GM baja de 62% a 59% y seguirá bajando).\n\nFactor que cambiaría el veredicto a NARANJA: evidencia de que un segundo hyperscaler Tier-1 abandona a Marvell para diseño interno de chips de conectividad.`;
+
+const FEROLDI_DATA = [
+  {g:'Crecimiento', pts:[
+    {n:1,name:'Industry',s:8,t:'TAM secular masivo (PAM4, CPO, DCI). Competencia intensa pero ciclos de diseño de 3–5 años crean oligopolios de facto. Ciclicidad latente del CAPEX de hyperscalers es el único riesgo de industria real. Nota 8/10 (bajada de 9 por ciclicidad latente).'},
+    {n:3,name:'Historical Growth',s:9,t:'FY2026: +42% YoY a $8.195B. 4/4 trimestres superando guidance en FY2026. Aceleración Q1→Q4. Fuente: demanda AI estructural + market share en cada generación PAM. Proyección FY2027 >30%, FY2028 ~40%. Nota 9/10.'},
+    {n:14,name:'Optionality',s:7,t:'CPO via Celestial AI (TAM >$10B 2030), AEC/retimers (>2x FY2027), 100T switch, 3.2T PAM (400G/lane ya demostrado), DCI a los 5 hyperscalers. Riesgo LPO (Linear Receive extiende alcance más allá de lo esperado) reduce de 9 a 7. Nota 7/10.'},
+    {n:13,name:'Outlook',s:9,t:'Guidance excedido en los 4 trimestres de FY2026. Triple elevación del FY2027 outlook en 6 meses ($9.5B→$10B→$11B). CEO usa lenguaje de bookings ya firmados. FY2028 $15B con non-GAAP EPS >$5. Visibilidad contractual excepcional. Nota 9/10.'},
+  ]},
+  {g:'Rentabilidad', pts:[
+    {n:7,name:'Profitability',s:6,t:'GAAP NI FY2026 $2.67B (inflado por venta Automotive). NI operacional ~$970M, NM ~10%. Non-GAAP NM 30%. FCF real ajustado por SBC ~$1.1B (yield 1.2%). Compresión latente por mix shift hacia custom silicon (GM GAAP: 50→52%). Bajada de 7 a 6 por tendencia de compresión. Nota 6/10.'},
+    {n:11,name:'Capital Allocation',s:5,t:'ROIC 6% vs. WACC estimado 10–11% = destrucción de valor económico hoy. Argumento: ROIC mejorará a 12–15% cuando $15B escalen sobre base de activos fija. Inphi ($10B) generó el negocio de $6B de data center, evidencia de M&A efectivo. Capital Allocation 6→5 post-debate. Nota 5/10.'},
+  ]},
+  {g:'Solidez Financiera', pts:[
+    {n:6,name:'Capital Intensity',s:6,t:'Modelo fabless: sin CAPEX de manufactura. R&D GAAP ~25–30% del revenue (extraordinariamente alto, reflejo de complejidad). Intensidad de capital vía M&A (Inphi $10B, Celestial AI, XConn). CAPEX bajo pero R&D compensa. Goodwill acumulado drena ROIC. Nota 6/10.'},
+    {n:8,name:'Balance Sheet',s:7,t:'Post-Automotive Ethernet ($2.5B, Aug 2025): balance fortalecido. Debt/Equity 0.34, Current Ratio 2.01. Goodwill significativo de Inphi. Celestial AI + XConn añaden goodwill adicional. Sin riesgo de solvencia inminente. Nota 7/10.'},
+    {n:12,name:'SBC/Dilution',s:5,t:'Gap GAAP/non-GAAP en NI: ~$1.5B diferencia FY2026 (SBC + amortización intangibles). Dilución anual +0.40% en acciones (moderada vs. sector). SBC es un impuesto real al accionista aunque la dilución cuantificada sea controlada. Bajada de 6 a 5 post-debate. Nota 5/10.'},
+  ]},
+  {g:'Estrategia y Ventaja', pts:[
+    {n:2,name:'Business Model',s:8,t:'Fabless + NRE (non-recurring engineering) + producto. Lock-in de 3–5 años por diseño co-integrado con roadmaps de hyperscalers. 74% data center en Q4 FY2026. Tres vectores: scale-out (PAM4), scale-across (DCI), scale-up (CPO). No hay SaaS puro pero recurrencia alta en ciclos de producto. Nota 8/10.'},
+    {n:5,name:'Moat',s:7,t:'IP SerDes de 200Gbps/lane (liderazgo generacional). First-to-market en 800G y 1.6T. Lock-in por co-diseño con hyperscalers (2–3 años para cambiar proveedor). Sin embargo, custom silicon es precio-aceptador (hyperscalers tienen poder de negociación). Bajada de 8 a 7 por compresión de pricing power. Nota 7/10.'},
+    {n:10,name:'Management',s:8,t:'Matt Murphy (CEO desde 2016): transformó MRVL de conglomerado a puro-play data center en 8 años. Venta Automotive a 3.4x MOIC. Track record de beats y M&A estratégico. Comunicación: guidance conservador consistentemente superado. Red flag: gap GAAP/non-GAAP elevado, ventas de ejecutivos en 2026. Nota 8/10.'},
+    {n:4,name:'Hist. Value Creation',s:7,t:'Desde IPO (2000): +687% total. Desde mínimo Apr 2025 ($47.09) a hoy ($103.43): +120% en 12 meses. Sin embargo, precio actual aún por debajo de ATH $127.48 (Ene 2025). Retorno FY2025 a accionistas: $933M (recompras + dividendo). Prioridad management: M&A > retorno directo. Nota 7/10.'},
+  ]},
+  {g:'Ret. Accionista', pts:[
+    {n:4,name:'Hist. Value Creation (dup)',s:7,t:'Ver grupo Estrategia.',},
+    {n:9,name:'Capital Return',s:5,t:'Dividendo anual $0.24 (yield 0.23%) — simbólico. Recompras modestas vs. tamaño empresa. FY2025: $933M retornados. Prioridad: M&A estratégico. Comparación: AVGO retorna ~$11B/año. Sin red de seguridad de dividendo significativa. Nota 5/10.'},
+    {n:16,name:'Valuation',s:7,t:'P/E TTM GAAP 33.7x (inflado). P/E Forward FY2027 non-GAAP ~24x. P/E FY2028 <21x. PEG 0.62. FCF Yield hoy 1.2% → FY2028 4.0%. BofA: cotiza a 16x CY2027E vs. peers a 29x. Razonable para tasa de crecimiento pero no barato. Precio entrada preferido: $85–95. Nota 7/10.'},
+    {n:15,name:'Risks',s:4,t:'Concentración top-3 hyperscalers >60% data center. Verticalización Amazon/Google. Delays CPO Celestial AI. Dependencia TSMC (geopolítica Taiwan). LPO amenaza segmento intra-rack (Linear Receive extiende alcance). Nvidia dual-role (partner + competidor en switching). Bajada de 5 a 4 post-debate. Nota 4/10.'},
+  ]}
+];
+
+const RISKS_DATA = [
+  ['Concentración hyperscaler','Top 3 clientes >60% data center revenue','ALTO','#ff3a3a'],
+  ['Verticalización Amazon/Google','Diseño interno de chips de conectividad','ALTO','#ff3a3a'],
+  ['Delays CPO Celestial AI','Timeline FY2028 $500M muy ambicioso','ALTO','#ff3a3a'],
+  ['Compresión márgenes brutos','Mix custom silicon: GM GAAP baja de 52%','MEDIO','#ffbb00'],
+  ['Ciclicidad CAPEX IA','Moderación inversión hyperscalers post-2028','MEDIO','#ffbb00'],
+  ['Geopolítica Taiwan/TSMC','Dependencia 100% fundición TSMC','MEDIO','#ffbb00'],
+  ['LPO vs DSP','Desintermediación intra-rack por Linear Receive','MEDIO','#ffbb00'],
+];
+
+const CATALYSTS_DATA = [
+  ['Q1 FY2027 earnings ($2.4B guía)','28 mayo 2026','MUY ALTO','#ff3a3a'],
+  ['Ramp 1.6T vs. 800G','Q2–Q3 FY2027','ALTO','#ffbb00'],
+  ['Celestial AI CPO producción','H2 FY2027','ALTO','#ffbb00'],
+  ['100T switch sampling','H1 FY2027','MEDIO','#00d4ff'],
+  ['AEC/retimers >2x FY2027','FY2027 anual','MEDIO','#00d4ff'],
+  ['FY2028 guidance update','Enero 2027','MUY ALTO','#ff3a3a'],
+];
+
+const COMP_DATA = [
+  {name:'MRVL',full:'Marvell Technology',price:103.43,cap:'$90.2B',pe:'33.7x',gm:'51.7%',nm:'32.6%*',lo:47.09,hi:102.77,pct:98,highlight:true,
+   detail:'MRVL es la referencia. Custom silicon + PAM4 + DCI. Crecimiento 42% FY2026. Valuation más atractiva que AVGO en forward PE. Mayor riesgo de concentración de clientes. Veredicto: ACUMULAR.'},
+  {name:'AVGO',full:'Broadcom Inc.',price:307,cap:'$1.45T',pe:'60.3x',gm:'67%',nm:'36%',lo:138.10,hi:414.61,pct:61,
+   detail:'AVGO: moat más diversificado (semiconductor + software infraestructura). Custom silicon con >70% market share. 106% crecimiento AI revenue Q1 FY2026. Mayor escala, mayor liquidez, menor concentración de clientes. Pero cotiza a 60x PE TTM vs MRVL 34x. Menos asimétrico.'},
+  {name:'ALAB',full:'Astera Labs',price:113,cap:'$19B',pe:'95x',gm:'76%',nm:'26%',lo:47.13,hi:262.90,pct:31,
+   detail:'ALAB: pure-play de conectividad AI (PCIe, CXL, retimers). Márgenes brutos superiores al 76%. Pero cotiza a 95x PE y cayó 60% desde picos 2025. Menor escala que MRVL. Mayor upside si ejecuta pero mayor riesgo.'},
+  {name:'CRDO',full:'Credo Technology',price:149,cap:'~$12B',pe:'N/D',gm:'63%',nm:'-5%',lo:45,hi:180,pct:77,
+   detail:'CRDO: especialista en AEC y SerDes de alta velocidad. Competidor directo de MRVL en AEC/retimers. Revenue creciendo rápidamente pero aún no rentable en GAAP. 10x menor escala que MRVL. Mayor concentración de riesgo.'},
+  {name:'NVDA',full:'Nvidia Corp.',price:177,cap:'$4.32T',pe:'~40x',gm:'74%',nm:'55%',lo:85,hi:178,pct:98,
+   detail:'NVDA: ecosistema completo GPU. Invirtió $2B en MRVL como partner estratégico. Compite con MRVL en switching (Spectrum-X). El rey del sector pero cotiza a máximos y la inversión en MRVL reconoce que necesita la conectividad de Marvell.'},
+];
+
+// ═══════════════════════════ CHART.JS CHARTS ═══════════════════════════
+// Zone 3 — Col 1: Revenue + NI
+const revenueData = [1895, 2006, 2075, 2219];
+const niData = [177.9, 194.8, 202, 396.1];
+const nmData = [9.4, 9.7, 9.7, 17.8];
+const allVals = [...revenueData, ...niData];
+const yValMin = 0;
+const yValMax = Math.max(...allVals) * 1.15;
+function fmtM(v){return Math.abs(v)>=1000?(v/1000).toFixed(1)+'B':Math.round(v)+'M'}
+
+new Chart(document.getElementById('chartRevenue'),{
+  data:{
+    labels:['Q1 FY26','Q2 FY26','Q3 FY26*','Q4 FY26'],
+    datasets:[
+      {type:'bar',label:'Revenue',data:revenueData,backgroundColor:'#1a3a6e',yAxisID:'yVal'},
+      {type:'bar',label:'Net Income',data:niData,backgroundColor:'#00d4ff',yAxisID:'yVal'},
+      {type:'line',label:'Net Margin %',data:nmData,borderColor:'#ff8c00',pointBackgroundColor:'#ff8c00',pointRadius:4,fill:false,yAxisID:'yMg',tension:0.3},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){
+      if(ctx.dataset.yAxisID==='yMg') return ctx.dataset.label+': '+ctx.raw.toFixed(1)+'%';
+      return ctx.dataset.label+': $'+fmtM(ctx.raw);
+    }}}},
+    scales:{
+      yMg:{type:'linear',position:'left',ticks:{color:'#ff8c00',font:{size:9},callback:v=>v.toFixed(0)+'%'},grid:{color:'#1a2a4a'}},
+      yVal:{type:'linear',position:'right',min:yValMin,max:yValMax,ticks:{color:'#c8d8f0',font:{size:9},callback:v=>'$'+fmtM(v)},grid:{drawOnChartArea:false}},
+      x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'#1a2a4a'}}
+    }
+  }
+});
+
+// Zone 3 — Col 2: Waterfall Q4 FY26
+const wfLabels = ['Revenue','COGS','Mg. Bruto','Op. Exp.','Op. Income','No Oper.','Impuestos','Net Income'];
+const wfColors = ['#1a3a6e','#ff3a3a','#00ff9d','#ff3a3a','#00d4ff','#ffbb00','#ff6b6b','#ffd700'];
+// Floating bars [bottom, top]
+const wfData = [
+  [0,2219],    // Revenue
+  [1147,2219], // COGS (going down)
+  [0,1147],    // Gross Profit
+  [328,1147],  // OpEx
+  [0,328],     // Op Income
+  [328,378],   // Non-Op (interest etc)
+  [358,378],   // Taxes (very low/neg here)
+  [0,396],     // Net Income
+];
+// Build legend
+const wfLeg = document.getElementById('waterfallLegend');
+wfLabels.forEach((l,i)=>{
+  const d=document.createElement('div');d.className='leg-item';
+  d.innerHTML=`<div class='leg-dot' style='background:${wfColors[i]}'></div>${l}`;
+  wfLeg.appendChild(d);
+});
+
+new Chart(document.getElementById('chartWaterfall'),{
+  type:'bar',
+  data:{
+    labels:wfLabels,
+    datasets: wfData.map((d,i)=>({
+      label:wfLabels[i],data:wfData.map((_,j)=>j===i?d:null),
+      backgroundColor:wfColors[i],
+      borderSkipped:false,
+    }))
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(ctx){
+        const d=ctx.raw;if(!d) return null;
+        const val=Math.abs(d[1]-d[0]);return ctx.dataset.label+': $'+fmtM(val);
+      }}}
+    },
+    scales:{
+      x:{ticks:{color:'#94a3b8',font:{size:8}},grid:{color:'#1a2a4a'}},
+      y:{ticks:{color:'#94a3b8',font:{size:8},callback:v=>'$'+fmtM(v)},grid:{color:'#1a2a4a'},min:0,max:2500}
+    }
+  }
+});
+
+// Zone 3 — Col 3: Pie
+new Chart(document.getElementById('chartPie'),{
+  type:'doughnut',
+  data:{
+    labels:['Data Center','Comunicaciones & Otros'],
+    datasets:[{data:[1651,568],backgroundColor:['#00d4ff','#ffd700'],borderColor:'#050a12',borderWidth:2}]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(ctx){return ctx.label+': $'+fmtM(ctx.raw)+' ('+ctx.raw===1651?'74':'26'+'%)';}}}
+    }
+  }
+});
+
+// Zone 4 — Price chart 52W
+const priceLabels = ['Abr 25','May 25','Jun 25','Jul 25','Ago 25','Sep 25','Oct 25','Nov 25','Dic 25','Ene 26','Feb 26','Mar 26','Abr 26'];
+const priceData = [55, 62, 73, 84, 88, 93, 88, 83, 98, 80, 82, 90, 103.43];
+const ptLength = priceLabels.length;
+
+const ptDatasets = [
+  {type:'line',label:'$MRVL',data:priceData,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.08)',fill:true,pointRadius:3,pointBackgroundColor:'#00d4ff',tension:0.35,yAxisID:'y'},
+  // Price targets as horizontal lines
+  {type:'line',label:'JPMorgan $135',data:Array(ptLength).fill(135),borderColor:'#00ff9d',borderWidth:1.5,borderDash:[8,4],pointRadius:0,fill:false,yAxisID:'y'},
+  {type:'line',label:'Susquehanna $140',data:Array(ptLength).fill(140),borderColor:'#00c853',borderWidth:1.5,borderDash:[8,4],pointRadius:0,fill:false,yAxisID:'y'},
+  {type:'line',label:'Stifel $120',data:Array(ptLength).fill(120),borderColor:'#76c442',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,yAxisID:'y'},
+  {type:'line',label:'BofA $110',data:Array(ptLength).fill(110),borderColor:'#ffd700',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,yAxisID:'y'},
+];
+
+const chartPrice = new Chart(document.getElementById('chartPrice'),{
+  data:{labels:priceLabels,datasets:ptDatasets},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false}
+    },
+    scales:{
+      y:{ticks:{color:'#94a3b8',font:{size:9},callback:v=>'$'+v},grid:{color:'#1a2a4a'},min:40,max:155},
+      x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'#1a2a4a'}}
+    }
+  }
+});
+
+// Draw target labels on chart (afterDraw plugin)
+const afterDrawPlugin = {
+  id:'afterDraw',
+  afterDraw(chart){
+    const ctx = chart.ctx;
+    const yScale = chart.scales.y;
+    const targets = [{val:135,label:'JPMorgan $135 ↑',color:'#00ff9d'},{val:140,label:'Susquehanna $140 ↑',color:'#00c853'},{val:120,label:'Stifel $120',color:'#76c442'},{val:110,label:'BofA $110',color:'#ffd700'}];
+    ctx.save();
+    ctx.font = '9px Courier New';
+    targets.forEach(t=>{
+      const yPx = yScale.getPixelForValue(t.val);
+      ctx.fillStyle = t.color;
+      ctx.fillText(t.label, chart.chartArea.right - 80, yPx - 3);
+    });
+    ctx.restore();
+  }
+};
+Chart.register(afterDrawPlugin);
+
+// ═══════════════════════════ SCORECARD BUILD ═══════════════════════════
+const scorecard = document.getElementById('scorecard');
+const scoreGradId = (n)=>'sg'+n;
+
+// Gauge SVG generator
+function gaugesvg(score, id){
+  const a = 180 - (score/10)*180;
+  const r = a * Math.PI/180;
+  const nx = (100 + 65*Math.cos(r)).toFixed(1);
+  const ny = (105 - 65*Math.sin(r)).toFixed(1);
+  return `<svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:10rem;margin:0 auto">
+    <defs>
+      <linearGradient id="${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#e53935"/>
+        <stop offset="25%" stop-color="#ff8c00"/>
+        <stop offset="50%" stop-color="#ffd700"/>
+        <stop offset="75%" stop-color="#76c442"/>
+        <stop offset="100%" stop-color="#00c853"/>
+      </linearGradient>
+    </defs>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#${id})" stroke-width="20" stroke-linecap="butt"/>
+    <line x1="100" y1="105" x2="${nx}" y2="${ny}" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="105" r="4" fill="#ffd700"/>
+  </svg>`;
+}
+
+FEROLDI_DATA.forEach(group=>{
+  if(group.g === 'Ret. Accionista') {
+    // filter out duplicate
+    group.pts = group.pts.filter(p=>p.n !== 4);
+  }
+  const div = document.createElement('div');
+  div.className='feroldi-group';
+  const avg = (group.pts.reduce((a,p)=>a+p.s,0)/group.pts.length).toFixed(1);
+  let rows = group.pts.map((pt,i)=>`
+    <div class="feroldi-row" data-tooltip="${pt.t.replace(/"/g,'&quot;')}">
+      <div class="fr-line">
+        <span class="fr-name">${pt.n}. ${pt.name}</span>
+        <span class="fr-score">${pt.s}</span>
+      </div>
+      ${gaugesvg(pt.s,'g'+pt.n+'_'+i)}
+    </div>
+  `).join('');
+  div.innerHTML=`
+    <div class="fg-header">
+      <span class="fg-name">${group.g}</span>
+      <span class="fg-avg">${avg}</span>
+    </div>
+    ${rows}
+  `;
+  scorecard.appendChild(div);
+});
+
+// ═══════════════════════════ RISK & CATALYST TABLES ═══════════════════════════
+const riskTable = document.getElementById('riskTable');
+RISKS_DATA.forEach(r=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td style="font-weight:bold;font-size:0.78rem">${r[0]}</td><td style="font-size:0.78rem">${r[1]}</td><td><span class="badge-risk" style="background:${r[3]};color:${r[3]==='#ffbb00'?'#000':'#fff'}">${r[2]}</span></td>`;
+  riskTable.appendChild(tr);
+});
+
+const catalystTable = document.getElementById('catalystTable');
+CATALYSTS_DATA.forEach(c=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td style="font-size:0.78rem">${c[0]}</td><td style="font-size:0.78rem;color:#00d4ff;font-family:monospace">${c[1]}</td><td><span class="badge-risk" style="background:${c[3]};color:${c[3]==='#ffbb00'?'#000':'#fff'}">${c[2]}</span></td>`;
+  catalystTable.appendChild(tr);
+});
+
+// ═══════════════════════════ COMPETITOR TABLE ═══════════════════════════
+const compBody = document.getElementById('compBody');
+COMP_DATA.forEach(c=>{
+  const pct = Math.max(2,Math.min(98,c.pct));
+  const tr=document.createElement('tr');
+  if(c.highlight) tr.className='highlight-mrvl';
+  tr.dataset.detail=c.detail;
+  tr.innerHTML=`
+    <td style="text-align:left;font-weight:bold">${c.name}<br><span style="font-size:0.65rem;color:#94a3b8">${c.full}</span></td>
+    <td>${c.cap}</td>
+    <td>${c.pe}</td>
+    <td>${c.gm}</td>
+    <td>${c.nm}</td>
+    <td style="min-width:8rem">
+      <svg viewBox="0 0 100 8" width="100%" style="display:block">
+        <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+        <circle cx="${pct}" cy="4" r="3.5" fill="#00d4ff"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;margin-top:0.1rem">
+        <span style="color:#ff3a3a">$${c.lo}</span>
+        <span style="color:#00d4ff">${pct}%</span>
+        <span style="color:#00ff9d">$${c.hi}</span>
+      </div>
+    </td>
+  `;
+  compBody.appendChild(tr);
+});
+
+// ═══════════════════════════ POPUP SYSTEM ═══════════════════════════
+// Exec popup (logo, nombre, frase)
+const execPopup = document.getElementById('execPopup');
+const iaPopup = document.getElementById('iaPopup');
+const feroldiPopup = document.getElementById('feroldiPopup');
+const compPopup = document.getElementById('compPopup');
+
+document.getElementById('execPopupText').textContent = EXEC_TEXT;
+document.getElementById('iaPopupText').textContent = IA_TEXT;
+
+let execTimer = null, iaTimer = null;
+
+function showPopup(el){ el.style.display='block'; }
+function hidePopup(el){ el.style.display='none'; }
+
+['triggerLogo','triggerNombre','triggerFrase'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('mouseenter',()=>{ if(execTimer) clearTimeout(execTimer); showPopup(execPopup); });
+  el.addEventListener('mouseleave',()=>{ execTimer=setTimeout(()=>hidePopup(execPopup),350); });
+  el.addEventListener('click',()=>{ showPopup(execPopup); });
+});
+execPopup.addEventListener('mouseenter',()=>{ if(execTimer) clearTimeout(execTimer); });
+execPopup.addEventListener('mouseleave',()=>{ execTimer=setTimeout(()=>hidePopup(execPopup),350); });
+document.getElementById('execClose').addEventListener('click',()=>hidePopup(execPopup));
+
+// IA popup
+const triggerIA = document.getElementById('triggerIA');
+triggerIA.addEventListener('mouseenter',()=>{ if(iaTimer) clearTimeout(iaTimer); showPopup(iaPopup); });
+triggerIA.addEventListener('mouseleave',()=>{ iaTimer=setTimeout(()=>hidePopup(iaPopup),350); });
+triggerIA.addEventListener('click',()=>{ showPopup(iaPopup); });
+iaPopup.addEventListener('mouseenter',()=>{ if(iaTimer) clearTimeout(iaTimer); });
+iaPopup.addEventListener('mouseleave',()=>{ iaTimer=setTimeout(()=>hidePopup(iaPopup),350); });
+document.getElementById('iaClose').addEventListener('click',()=>hidePopup(iaPopup));
+
+// Feroldi row popups
+document.querySelectorAll('.feroldi-row').forEach(row=>{
+  row.addEventListener('mouseenter',e=>{
+    feroldiPopup.textContent = row.getAttribute('data-tooltip')||'';
+    feroldiPopup.style.display='block';
+    feroldiPopup.style.left=Math.min(e.clientX+15,window.innerWidth-370)+'px';
+    feroldiPopup.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mousemove',e=>{
+    feroldiPopup.style.left=Math.min(e.clientX+15,window.innerWidth-370)+'px';
+    feroldiPopup.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mouseleave',()=>feroldiPopup.style.display='none');
+});
+
+// Competitor row popups
+document.querySelectorAll('#compBody tr').forEach(tr=>{
+  tr.addEventListener('mouseenter',e=>{
+    const detail=tr.dataset.detail||'';
+    compPopup.innerHTML=`<div style="font-weight:bold;color:#00d4ff;margin-bottom:0.4rem">${tr.querySelector('td').textContent.trim().split('\n')[0]}</div>${detail}`;
+    compPopup.style.display='block';
+    compPopup.style.left=Math.min(e.clientX+15,window.innerWidth-320)+'px';
+    compPopup.style.top=Math.min(e.clientY+10,window.innerHeight-200)+'px';
+  });
+  tr.addEventListener('mousemove',e=>{
+    compPopup.style.left=Math.min(e.clientX+15,window.innerWidth-320)+'px';
+    compPopup.style.top=Math.min(e.clientY+10,window.innerHeight-200)+'px';
+  });
+  tr.addEventListener('mouseleave',()=>compPopup.style.display='none');
+});
+
+// Close popups on outside click
+document.addEventListener('click',e=>{
+  if(!execPopup.contains(e.target)&&!['triggerLogo','triggerNombre','triggerFrase'].includes(e.target.id)) hidePopup(execPopup);
+  if(!iaPopup.contains(e.target)&&e.target.id!=='triggerIA') hidePopup(iaPopup);
+});
+</script>
+</body>
+</html>
