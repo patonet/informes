@@ -1,7 +1,7 @@
-# PROMPT 2 — GENERADOR DE INFORMES @PATONET
-# Cargado automaticamente por Prompt 1 cuando el usuario escribe INFOGRAFIA, PDF, 1, 2, 3 o TODO
-# Token GitHub: sustituir {{GITHUB_TOKEN}} por el token real de @patonet al ejecutar
-# URL de este archivo: https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt2_generador.txt
+# PROMPT 2 — GENERADOR DE INFORMES v2.0 @PATONET
+# CAMBIOS v2: Menu INFORMES · Barra performance Yahoo Finance API · GitHub universal
+# Token GitHub: sustituir {{GITHUB_TOKEN}} por el token real al ejecutar
+# URL: https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt2_generador.txt
 
 PROMPT 2 — GENERADOR DE INFORMES
 
@@ -182,7 +182,42 @@ precio+veredicto+scores derecha]. Toda la zona usa la Regla R3.
 
 -   Barra de rango 52 semanas: SVG responsivo con marcador minimo en
     rojo, maximo en verde, precio actual en cian. Etiquetas en 0.8rem.
-    Texto: el precio esta al X% del rango anual.
+    Texto: el precio esta al X% del rango anual. BARRA DE PERFORMANCE
+    HISTORICA — elemento obligatorio en el encabezado despues de la
+    barra 52W. Muestra los retornos en 8 periodos exactamente como
+    TradingView: 1 dia · 5 dias · 1 mes · 6 meses · En el ano · 1 ano ·
+    5 anos · Desde IPO. IMPLEMENTACION EXACTA CON YAHOO FINANCE API —
+    codigo JS a incluir en el script del HTML: async function
+    loadPerformance(ticker, currentPrice) { try { const url =
+    \`https://query1.finance.yahoo.com/v8/finance/chart/\${ticker}?interval=1d&range=5y\`;
+    const r = await fetch(url); const d = await r.json(); const result =
+    d.chart.result[0]; const ts = result.timestamp; const cl =
+    result.indicators.quote[0].close; const today = new Date();
+    today.setHours(0,0,0,0); const getClose = (daysAgo) => { const
+    target = new Date(today); target.setDate(today.getDate() - daysAgo);
+    let best = null, bestDiff = Infinity; for (let i = 0; i < ts.length;
+    i++) { const d = new Date(ts[i]*1000); d.setHours(0,0,0,0); const
+    diff = Math.abs(d - target); if (diff < bestDiff && cl[i]) {
+    bestDiff = diff; best = cl[i]; } } return best; }; const ytdRef =
+    (() => { const y = new Date(today.getFullYear(), 0, 1); let best =
+    null, bestDiff = Infinity; for (let i = 0; i < ts.length; i++) {
+    const d = new Date(ts[i]*1000); d.setHours(0,0,0,0); const diff =
+    Math.abs(d - y); if (diff < bestDiff && cl[i]) { bestDiff = diff;
+    best = cl[i]; } } return best; })(); const ipoRef = cl.find(v => v);
+    // primer cierre disponible const pct = (ref) => ref ?
+    (((currentPrice - ref) / ref) * 100).toFixed(2) : null; return [ {
+    label: '1 dia', pct: pct(getClose(1)) }, { label: '5 dias', pct:
+    pct(getClose(5)) }, { label: '1 mes', pct: pct(getClose(30)) }, {
+    label: '6 meses', pct: pct(getClose(182)) }, { label: 'En el
+    ano',pct: pct(ytdRef) }, { label: '1 ano', pct: pct(getClose(365))
+    }, { label: '5 anos', pct: pct(getClose(1825)) }, { label: 'Desde
+    IPO',pct: pct(ipoRef) } ]; } catch(e) { return null; } } Llamar
+    loadPerformance(TICKER, precioActual) al cargar el HTML y renderizar
+    la barra. Estilos: fondo #080f1c, separadores entre periodos 1px
+    #1a2a4a, etiqueta superior 0.75rem color #94a3b8, valor inferior
+    0.9rem bold — verde (#00c853) si positivo, rojo (#e53935) si
+    negativo. Si una celda devuelve null mostrar N/D en color #555.
+    Misma barra incluir en la primera pagina del PDF.
 
 -   VEREDICTO CON MATICES — CINCO OPCIONES POSIBLES (seleccionar la mas
     adecuada segun el analisis):
@@ -791,27 +826,33 @@ D. Reglas de datos, nombre de archivo y cierre
   bloque al final de cada informe: '---\n\n✅ Informe
   completado.\n\nRevisa el analisis con calma. Si deseas ajustar algun
   punto, agregar contexto o rebatir algun argumento, escribelo ahora y
-  lo incorporo.\n\nCuando estes conforme, escribe **INFOGRAFIA** para
-  generar tu visualizacion interactiva.\n\n---\n\n📄 **¿Deseas guardar
-  el informe en PDF?** Escribe **PDF** y lo genero y subo a
-  GitHub.\n\n---\n\n📊 **Diagramas opcionales disponibles:**\n\n**1** —
-  DIAGRAMA: Como gana dinero $TICKER (segmentos, sub-productos, flujos y
-  palancas ocultas)\n**2** — DIAGRAMA: KPIs que impulsan las ganancias
-  de $TICKER (arbol de metricas interactivo)\n**3** — AMBOS
-  DIAGRAMAS\n\n*Escribe el numero para generarlo, o ignora si no los
-  necesitas.*'
+  lo incorporo.\n\n---\n\nEscribe **INFORMES** para desplegar el menu de
+  generacion de reportes.'
 
-  ACTIVACION: INFOGRAFIA activa la Fase 2 (infografia HTML) Y la sube
-  automaticamente a GitHub. Los numeros 1, 2 o 3 activan los diagramas
-  opcionales y los suben automaticamente a GitHub. La palabra PDF activa
-  la generacion del PDF y su publicacion en GitHub. Nada se activa sin
-  comando del usuario. Toda subida a GitHub actualiza el dashboard
-  index.html y reporta URLs como hipervinculos clicables en Markdown.
+  ACTIVACION DEL MENU: cuando el usuario escribe INFORMES (en cualquier
+  formato), mostrar EXACTAMENTE este menu de opciones antes de esperar
+  la eleccion: "📂 MENU DE GENERACION DE INFORMES\n\n🗂
+  Visualizacion\n[INFOGRAFIA] — Infografia HTML interactiva · Bloomberg
+  style\n\n📄 Documento\n[PDF] — Informe PDF con diseno profesional\n\n🏗
+  Diagramas opcionales\n[1] — Como gana dinero $TICKER (modelo de
+  negocio completo)\n[2] — KPIs que impulsan las ganancias de $TICKER
+  (arbol de metricas)\n[3] — Ambos diagramas\n\n⚡ Todo en uno\n[TODO] —
+  PDF + Infografia + ambos diagramas\n\nEscribe el comando entre
+  corchetes para activar." — REGLA UNIVERSAL DE GITHUB: TODO lo que se
+  genere (INFOGRAFIA, PDF, Diagrama 1, Diagrama 2, cualquier
+  combinacion) se entrega al usuario Y se sube automaticamente a GitHub
+  sin excepcion. No hay entregas locales sin subida. Despues de cada
+  generacion: (a) subir el archivo a GitHub en la carpeta correcta, (b)
+  actualizar index.html si aplica, (c) reportar URL directa como
+  hipervinculo clicable usando https://patonet.github.io/informes/...
 
 E. Diagramas opcionales (activados por 1, 2 o 3)
 
-  Estos diagramas NO se generan automaticamente. Solo si el usuario
-  escribe 1, 2 o 3 despues de leer el informe.
+  Los diagramas se generan SOLO cuando el usuario lo solicita via el
+  menu INFORMES. Al generarse: entrega local opcional + subida
+  automatica a GitHub en diagramas/equities/ (o etfs/, shorts/) SIN
+  EXCEPCION. Esta regla aplica a Diagrama 1, Diagrama 2 y la combinacion
+  de ambos.
 
 DIAGRAMA 1 — Como gana dinero $TICKER:
 
