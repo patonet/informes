@@ -307,8 +307,13 @@ const TYPE_LABEL = {equity:"EQUITY", etf:"ETF", short:"SHORT"};
 function buildCard(r) {
   const v = VERDICTS[r.verdict] || VERDICTS.neutral;
   const upsideStr = r.upside ? (typeof r.upside === "number" ? (r.upside >= 0 ? "+"+r.upside.toFixed(1)+"%" : r.upside.toFixed(1)+"%") : String(r.upside)) : ""; const upsideClass = upsideStr.startsWith("+") ? "pos" : "neg";
+  const BASE = "https://patonet.github.io/informes/";
+  const htmlBtn = r.url ? `<a class="rcard-btn btn-html" href="${BASE}${r.url}" target="_blank">📊 HTML</a>` : "";
+  const pdfBtn  = r.pdfUrl ? `<a class="rcard-btn btn-pdf"  href="${BASE}${r.pdfUrl}"  target="_blank">📄 PDF</a>` : "";
+  const d1Btn   = r.diag1Url ? `<a class="rcard-btn btn-diag" href="${BASE}${r.diag1Url}" target="_blank">🏗️ Biz</a>` : "";
+  const d2Btn   = r.diag2Url ? `<a class="rcard-btn btn-diag" href="${BASE}${r.diag2Url}" target="_blank">📈 KPIs</a>` : "";
   return `
-  <a class="rcard ${r.type}" href="${r.url}" target="_blank">
+  <div class="rcard ${r.type}">
     <div class="rcard-top">
       <div class="rcard-ticker">$${r.ticker}</div>
       <div class="rcard-badges">
@@ -325,9 +330,9 @@ function buildCard(r) {
     </div>
     <div class="rcard-footer">
       <span class="rcard-date">${r.date}</span>
-      <span class="rcard-arrow">↗</span>
     </div>
-  </a>`;
+    <div class="rcard-btns">${htmlBtn}${pdfBtn}${d1Btn}${d2Btn}</div>
+  </div>`;
 }
 
 function render(filter="all", query="") {
