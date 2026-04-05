@@ -1,7 +1,5 @@
-# PROMPT 2 — GENERADOR DE INFORMES v2.0 @PATONET
-# CAMBIOS v2: Menu INFORMES · Barra performance Yahoo Finance API · GitHub universal
-# Token GitHub: sustituir {{GITHUB_TOKEN}} por el token real al ejecutar
-# URL: https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt2_generador.txt
+# PROMPT 2 - GENERADOR DE INFORMES v3.0
+# v3: Perf bar estatica, Waterfall flotante, SOTP 20%, Sankey, SL/TP, Cover 1pg
 
 PROMPT 2 — GENERADOR DE INFORMES
 
@@ -184,11 +182,42 @@ precio+veredicto+scores derecha]. Toda la zona usa la Regla R3.
     rojo, maximo en verde, precio actual en cian. Etiquetas en 0.8rem.
     Texto: el precio esta al X% del rango anual. BARRA DE PERFORMANCE
     HISTORICA — elemento obligatorio en el encabezado despues de la
-    barra 52W. Muestra los retornos en 8 periodos exactamente como
-    TradingView: 1 dia · 5 dias · 1 mes · 6 meses · En el ano · 1 ano ·
-    5 anos · Desde IPO. IMPLEMENTACION EXACTA CON YAHOO FINANCE API —
-    codigo JS a incluir en el script del HTML: async function
-    loadPerformance(ticker, currentPrice) { try { const url =
+    barra 52W. Muestra retornos en 8 periodos: 1 dia · 5 dias · 1 mes ·
+    6 meses · En el ano · 1 ano · 5 anos · Desde IPO. IMPLEMENTACION:
+    los retornos NO se calculan en tiempo real via API (Yahoo Finance
+    bloquea CORS desde GitHub Pages). En cambio, Claude calcula los
+    valores durante la Fase 0 usando web_search y los embebe como
+    constantes estaticas en el HTML: PASO 1 — Durante Fase 0, ejecutar
+    estas busquedas especificas para obtener precios historicos
+    exactos: - web_search("[TICKER] stock price 1 day ago close") -
+    web_search("[TICKER] stock price 5 days ago close [FECHA]") -
+    web_search("[TICKER] stock close price 1 month ago [MES-1 ANO]") -
+    web_search("[TICKER] stock close price 6 months ago [MES-6 ANO]") -
+    web_search("[TICKER] stock close price January 2 [ANO ACTUAL]
+    YTD") - web_search("[TICKER] stock close price 1 year ago
+    [ANO-1]") - web_search("[TICKER] stock close price 5 years ago
+    [ANO-5] OR IPO price history") - Fuente preferida: Macrotrends,
+    Stockanalysis history tab, Wisesheets PASO 2 — Con los precios
+    obtenidos, calcular retorno% = ((precioActual - precioRef) /
+    precioRef) * 100 PASO 3 — Embeber en el HTML como objeto JS
+    estatico: const PERF_DATA = [ { label: "1 dia", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "5 dias", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "1 mes", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "6 meses", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "En el ano",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "1 ano",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "5 anos",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "Desde
+    IPO", pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" } ]; // Si no se
+    pudo verificar un precio, usar null para mostrar N/D REGLA
+    ANTI-ALUCINACION: NUNCA inventar o estimar un precio de referencia.
+    Si la busqueda no retorna el precio exacto de ese dia: pct = null
+    (mostrara N/D). Es preferible mostrar N/D que un dato incorrecto.
+    Estilos: fondo #080f1c, separadores 1px #1a2a4a, etiqueta 0.75rem
+    #94a3b8, valor 0.9rem bold verde #00c853 si positivo, rojo #e53935
+    si negativo, gris #555 si null. Misma barra incluir en primera
+    pagina del PDF. async function loadPerformance(ticker, currentPrice)
+    { try { const url =
     \`https://query1.finance.yahoo.com/v8/finance/chart/\${ticker}?interval=1d&range=5y\`;
     const r = await fetch(url); const d = await r.json(); const result =
     d.chart.result[0]; const ts = result.timestamp; const cl =
@@ -420,44 +449,37 @@ garantizada):
 -   Color de cada barra segun su naturaleza — NO usar etiquetas
     genericas 'Positivo'/'Negativo':
 
-  Colores del waterfall — cada barra tiene su propio color y etiqueta:
-  Revenue: azul oscuro #1a3a6e — etiqueta 'Revenue' COGS: rojo #ff3a3a —
-  etiqueta 'COGS' (costo, negativo) Gross Profit: verde #00ff9d —
-  etiqueta 'Margen Bruto' Op Expenses: rojo #ff3a3a — etiqueta 'Op.
-  Exp.' (gasto operativo, negativo) Op Income: azul claro #00d4ff —
-  etiqueta 'Op. Income' Non-Op: amarillo #ffbb00 — etiqueta 'No
-  Operativo' (puede ser positivo o negativo) Taxes: rojo claro #ff6b6b —
-  etiqueta 'Impuestos' (negativo) Net Income: dorado #ffd700 si
-  positivo, rojo #ff3a3a si negativo — etiqueta 'Net Income' LEYENDA del
-  grafico: una entrada por cada barra con su color real — NO una leyenda
-  generica de 'Positivo' y 'Negativo'. Cada entrada muestra [cuadro de
-  color] + [nombre de la partida]. Implementar con datasets individuales
-  (uno por barra) para que Chart.js genere la leyenda correctamente, o
-  con un plugin personalizado de leyenda si se usa chart de barras
-  unico.
+  Colores del waterfall y LOGICA DE BARRAS FLOTANTES (obligatorio):
+  IMPLEMENTAR como barras flotantes [base, top] — NO barras desde cero.
+  Cada dataset tiene un unico punto activo en su posicion X y null en el
+  resto. Logica exacta: Revenue [0, rev]: barra azul #1a3a6e, desde 0
+  hasta revenue total. COGS [grossProfit, revenue]: barra roja #ff3a3a
+  flotante, muestra el costo como la parte superior de Revenue. Gross
+  Profit [0, grossProfit]: barra verde #00ff9d, subtotal despues de
+  COGS. Op.Exp [opIncome, grossProfit]: barra roja #ff6b35 flotante,
+  muestra gastos operativos. Op.Income [0, opIncome]: barra cyan
+  #00d4ff, subtotal operativo. Si negativo: [opIncome, 0] barra roja.
+  No-Oper. [opIncome, ebt]: barra amarilla #ffd700 si positivo, roja si
+  negativo. Impuestos [netIncome, ebt]: barra salmon #ff8c7a flotante.
+  Net Income [0, netIncome]: barra dorada #ffd700 si positivo, roja si
+  negativo, desde 0. Escala Y: siempre desde 0 (o ligeramente negativo
+  si hay perdidas). Etiqueta sobre cada barra con valor absoluto en $M o
+  $B. COLUMNA 3 — Composicion del ingreso (dona / pastel):
 
--   Valor exacto encima de cada barra. Etiqueta del nombre de la partida
-    debajo o dentro de la barra.
+-   POSICION FIJA: tercera columna del grid. Usa exactamente el mismo
+    wrapper .zona3-chart con .chart-wrap y canvas absoluto. El tamano
+    del pastel queda controlado por aspect-ratio:4/3, igual que las
+    otras columnas. El pastel NO puede ser mas grande que las barras.
 
--   Titulo: Conversion de Ingresos a Utilidad — [Q? FY??]
+-   Primera opcion: por segmento de negocio o geografia. Segunda opcion
+    si no hay datos: Margen Bruto / Margen Operativo / Margen Neto como
+    porcentaje del ingreso.
 
--   COLUMNA 3 — Composicion del ingreso (dona / pastel):
+-   Colores distintos por porcion. Porcentaje visible en tooltip al
+    hover. Leyenda debajo del canvas, fuera del chart-wrap.
 
-    -   POSICION FIJA: tercera columna del grid. Usa exactamente el
-        mismo wrapper .zona3-chart con .chart-wrap y canvas absoluto. El
-        tamano del pastel queda controlado por aspect-ratio:4/3, igual
-        que las otras columnas. El pastel NO puede ser mas grande que
-        las barras.
-
-    -   Primera opcion: por segmento de negocio o geografia. Segunda
-        opcion si no hay datos: Margen Bruto / Margen Operativo / Margen
-        Neto como porcentaje del ingreso.
-
-    -   Colores distintos por porcion. Porcentaje visible en tooltip al
-        hover. Leyenda debajo del canvas, fuera del chart-wrap.
-
-    -   Titulo: Composicion de Ingresos o Estructura de Margenes segun
-        el caso.
+-   Titulo: Composicion de Ingresos o Estructura de Margenes segun el
+    caso.
 
 ZONA 4 — Analistas y evolucion del precio (52 semanas)
 
@@ -779,41 +801,48 @@ D. Reglas de datos, nombre de archivo y cierre
     InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf. DISENO VISUAL DEL PDF
     — INSTRUCCION CRITICA: el PDF se genera como HTML que luego se
     convierte. USAR EXACTAMENTE ESTA PLANTILLA DE ESTRUCTURA: PAGINA 1 —
-    PORTADA: fondo con gradiente diagonal de #0d1428 a #162447. Tres
-    formas triangulares decorativas SVG (una grande teal #00d4ff
-    arriba-derecha, una navy #1a3a6e arriba-izquierda, una gris #667788
-    en el centro-derecha). Logo de la empresa centrado-superior con
-    Clearbit. Titulo: "Informe Profesional de $TICKER · Metodo Feroldi"
-    en blanco bold 32pt. Subtitulo: nombre completo de la empresa en
-    teal 18pt. Precio actual con barra relativa 52W en blanco. Badge de
-    veredicto grande con fondo de color solido. Score Feroldi. Fecha y
-    @patonet en gris claro 10pt al pie. PAGINA 2 en adelante — cada
-    pagina tiene: (a) Header con franja teal de 8px de alto + logo
-    pequeno a la izquierda + "$TICKER · Informe Feroldi" a la derecha en
-    teal monospace 9pt; (b) footer con linea teal 1px + "Informe
-    confidencial para @patonet · No constituye asesoramiento financiero"
-    en gris 8pt + numero de pagina. SECCIONES: cada bloque del informe
-    (A, B, C, D, E, F, G) en su propia seccion con: titulo del bloque en
-    caja de color (#0d1428 fondo, texto teal, border-left 5px solido
-    teal, padding 8px 12px, border-radius 4px, font-size 14pt bold).
-    Cuerpo del bloque en texto negro #1a1a1a, font-size 10.5pt,
-    line-height 1.4, margin 12px 0. TABLA FEROLDI (Bloque G): header de
-    tabla fondo #0d1428 texto blanco bold, filas pares fondo #f0f7ff,
-    filas impares blanco, borde #dde3f0 1px, celdas padding 6px 10px,
-    valores numericos en font monospace bold con color semaforico (verde
-    si >=7, amarillo si 4-6, rojo si <4). SECCION VERDICTS / SCORES:
-    badge de veredicto con fondo segun tipo (COMPRAR=#00c853, COMPRAR EN
-    RETROCESOS=#1565C0, ACUMULAR=#00838f, NEUTRAL=#5d4037, NO
-    COMPRAR=#e53935), texto blanco bold, border-radius 4px, padding 4px
-    16px, font-size 12pt. SECCION OOB (Bloque C): caja con borde
-    izquierdo naranja #ff8c00 de 5px, fondo #fffbf0, titulo en naranja
-    bold. SECCION RESUMEN DE DEBATE OOB: si hubo debate posterior al
-    informe (con Gemini, supervisor u otra IA), incluir una seccion
-    adicional "Resumen del Debate y Conclusiones" con: (i) argumentos
-    del supervisor o Gemini, (ii) contraargumentos propios, (iii)
-    cambios aceptados con justificacion, (iv) conclusion final
-    reconciliada. Esta seccion va despues del Bloque G, con caja de
-    borde izquierdo purpura #7c3aed. EVITAR: texto plano sin estilos,
+    PORTADA (UNA SOLA PAGINA — COMPRESION OBLIGATORIA): todo el
+    contenido de la portada debe caber en exactamente 1 pagina A4 sin
+    scroll. CSS obligatorio: @page{size:A4 portrait;margin:0}
+    html,body{margin:0;padding:0;background:#0d1428!important;height:100%;}
+    El div portada:
+    height:100vh;max-height:297mm;width:100%;background:linear-gradient(135deg,#0d1428
+    0%,#162447 60%,#1a3a6e
+    100%);display:flex;flex-direction:column;justify-content:space-between;padding:1.5rem
+    2rem;box-sizing:border-box;overflow:hidden. ESTRUCTURA COMPACTA en 5
+    secciones verticales: (1) Header: logo 50px + nombre empresa en
+    14pt; (2) Titulo: "Informe Profesional $TICKER · Feroldi" en 20pt
+    blanco bold; (3) Franja de precio: precio actual grande + barra
+    52W + badge veredicto + score en UNA SOLA FILA horizontal; (4) Barra
+    de performance: 8 periodos en UNA FILA horizontal compacta (font
+    10pt); (5) Footer: fecha + @patonet en 9pt gris. Formas geometricas
+    SVG decorativas ligeras en esquinas — NO ocupar espacio vertical.
+    PAGINA 2 en adelante — cada pagina tiene: (a) Header con franja teal
+    de 8px de alto + logo pequeno a la izquierda + "$TICKER · Informe
+    Feroldi" a la derecha en teal monospace 9pt; (b) footer con linea
+    teal 1px + "Informe confidencial para @patonet · No constituye
+    asesoramiento financiero" en gris 8pt + numero de pagina. SECCIONES:
+    cada bloque del informe (A, B, C, D, E, F, G) en su propia seccion
+    con: titulo del bloque en caja de color (#0d1428 fondo, texto teal,
+    border-left 5px solido teal, padding 8px 12px, border-radius 4px,
+    font-size 14pt bold). Cuerpo del bloque en texto negro #1a1a1a,
+    font-size 10.5pt, line-height 1.4, margin 12px 0. TABLA FEROLDI
+    (Bloque G): header de tabla fondo #0d1428 texto blanco bold, filas
+    pares fondo #f0f7ff, filas impares blanco, borde #dde3f0 1px, celdas
+    padding 6px 10px, valores numericos en font monospace bold con color
+    semaforico (verde si >=7, amarillo si 4-6, rojo si <4). SECCION
+    VERDICTS / SCORES: badge de veredicto con fondo segun tipo
+    (COMPRAR=#00c853, COMPRAR EN RETROCESOS=#1565C0, ACUMULAR=#00838f,
+    NEUTRAL=#5d4037, NO COMPRAR=#e53935), texto blanco bold,
+    border-radius 4px, padding 4px 16px, font-size 12pt. SECCION OOB
+    (Bloque C): caja con borde izquierdo naranja #ff8c00 de 5px, fondo
+    #fffbf0, titulo en naranja bold. SECCION RESUMEN DE DEBATE OOB: si
+    hubo debate posterior al informe (con Gemini, supervisor u otra IA),
+    incluir una seccion adicional "Resumen del Debate y Conclusiones"
+    con: (i) argumentos del supervisor o Gemini, (ii) contraargumentos
+    propios, (iii) cambios aceptados con justificacion, (iv) conclusion
+    final reconciliada. Esta seccion va despues del Bloque G, con caja
+    de borde izquierdo purpura #7c3aed. EVITAR: texto plano sin estilos,
     paginas en blanco sin contenido, letras montadas sobre imagenes,
     bloques cortados a la mitad entre paginas (usar page-break-inside:
     avoid en secciones cortas).
@@ -851,8 +880,28 @@ E. Diagramas opcionales (activados por 1, 2 o 3)
   Los diagramas se generan SOLO cuando el usuario lo solicita via el
   menu INFORMES. Al generarse: entrega local opcional + subida
   automatica a GitHub en diagramas/equities/ (o etfs/, shorts/) SIN
-  EXCEPCION. Esta regla aplica a Diagrama 1, Diagrama 2 y la combinacion
-  de ambos.
+  EXCEPCION. Esta regla aplica a los tres diagramas y cualquier
+  combinacion. DIAGRAMA 3 — FLUJO SANKEY DE INGRESOS Y GASTOS: HTML
+  interactivo que muestra como fluye el dinero del revenue hasta el Net
+  Income, estilo Meta Q4 FY25 Income Statement. Estructura de
+  columnas: - Columna 1 (FUENTES): segmentos de revenue con valor
+  absoluto y % YoY. Cada segmento como bloque vertical proporcional a su
+  tamano. Logos o iconos si aplica. - Columna 2 (REVENUE TOTAL): bloque
+  central con el revenue total del periodo mas reciente. - Columna 3
+  (CONVERSION): division entre Gross Profit (verde) y Cost of Revenue
+  (rojo). Mostrar margen bruto %. - Columna 4 (GASTOS OPERATIVOS):
+  subdivision de Gross Profit en Operating Profit (verde) y Operating
+  Expenses (rojo). Mostrar margen operativo %. - Columna 5 (RESULTADO
+  FINAL): Net Income (verde si positivo, rojo si negativo) y otros items
+  (impuestos, no-operativos). Conexiones entre columnas: bandas SVG con
+  bezier curves proporcionales al valor — verde para flujos positivos,
+  rojo para costos/gastos. Etiquetas en cada bloque: nombre, valor en $B
+  o $M, % del revenue, variacion YoY%. Interactividad: hover sobre cada
+  banda resalta el flujo completo de ese elemento e muestra tooltip con
+  detalles. Estilo: fondo claro #f8f9fa o fondo dark #050a12 segun
+  paleta del informe. Tipografia sans-serif moderna. Responsive. Nombre
+  de archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html Subir
+  a: diagramas/equities/ (o etfs/, shorts/).
 
 DIAGRAMA 1 — Como gana dinero $TICKER:
 
@@ -975,11 +1024,14 @@ anadir AL INICIO el nuevo objeto. FORMATO EXACTO OBLIGATORIO — { ticker:
 "equities/Informe_AAPL_189.45_15-04-2026.html", pdfUrl:
 "pdfs/equities/InformePDF_AAPL_189.45_15-04-2026.pdf", diag1Url:
 "diagramas/equities/Diagrama_ComoGanaDinero_AAPL_189.45_15-04-2026.html",
-diag2Url: "diagramas/equities/Diagrama_KPIs_AAPL_189.45_15-04-2026.html"
-}. pdfUrl, diag1Url y diag2Url son opcionales — incluir solo si ese
-archivo fue generado. REGLAS: price/upside/target/date como strings con
-formato indicado; url apunta al HTML infografia; type solo "equity",
-"etf" o "short". Tabla de veredictos: COMPRAR→"buy" | COMPRAR EN
+diag2Url:
+"diagramas/equities/Diagrama_KPIs_AAPL_189.45_15-04-2026.html",
+diag3Url:
+"diagramas/equities/Diagrama_Sankey_AAPL_189.45_15-04-2026.html" }.
+pdfUrl, diag1Url y diag2Url son opcionales — incluir solo si ese archivo
+fue generado. REGLAS: price/upside/target/date como strings con formato
+indicado; url apunta al HTML infografia; type solo "equity", "etf" o
+"short". Tabla de veredictos: COMPRAR→"buy" | COMPRAR EN
 RETROCESOS→"pullback" | ACUMULAR→"accumulate" | NEUTRAL→"neutral" | NO
 COMPRAR→"nobuy" | CORTO→"short". c) PUT index.html con el nuevo
 contenido y SHA.
