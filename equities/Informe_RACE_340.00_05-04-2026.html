@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferrari NV · $RACE · @patonet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:clamp(10px,1.15vw,17px);}
+body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'Segoe UI',Arial,sans-serif;}
+.infog{max-width:1400px;margin:0 auto;padding:1rem;}
+/* ZONA 1 */
+.z1{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;padding:1.5rem;background:linear-gradient(135deg,#0d1428 60%,#162447);border-bottom:2px solid #00d4ff;}
+.z1-left{}
+.logo-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;}
+.logo-row img{height:3.5rem;width:auto;object-fit:contain;border-radius:0.3rem;cursor:pointer;}
+.logo-fallback{width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:0.4rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer;}
+.company-name{font-size:2rem;font-weight:bold;color:#fff;cursor:pointer;}
+.company-sub{font-size:0.85rem;color:#94a3b8;margin-top:0.2rem;}
+.frase{font-style:italic;color:#00d4ff;background:#0d1f35;padding:0.6rem 1rem;border-left:3px solid #00d4ff;border-radius:0 0.3rem 0.3rem 0;margin-top:0.8rem;font-size:0.95rem;line-height:1.5;cursor:pointer;}
+.z1-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.8rem;}
+.price-big{font-size:2.5rem;font-weight:bold;color:#fff;font-family:monospace;text-align:right;}
+.price-sub{font-size:0.85rem;color:#94a3b8;text-align:right;}
+.range-wrap{width:100%;}
+.range-label{display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:0.3rem;}
+.range-bar{position:relative;height:0.6rem;background:#1a2a4a;border-radius:0.3rem;width:100%;}
+.range-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(to right,#ff3a3a,#ffd700,#00c853);border-radius:0.3rem;}
+.range-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:1rem;height:1rem;background:#00d4ff;border-radius:50%;border:2px solid #fff;}
+.range-pct{font-size:0.78rem;color:#00d4ff;text-align:center;margin-top:0.3rem;}
+.perf-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:0.15rem;background:#080f1c;border-radius:0.4rem;padding:0.5rem;width:100%;}
+.perf-cell{text-align:center;padding:0.3rem 0.1rem;}
+.perf-label{font-size:0.7rem;color:#94a3b8;display:block;}
+.perf-val{font-size:0.85rem;font-weight:bold;font-family:monospace;display:block;}
+.pos{color:#00c853;}.neg{color:#e53935;}.nd{color:#555;}
+.scores-row{display:flex;gap:1rem;align-items:center;justify-content:flex-end;flex-wrap:wrap;}
+.score-card{background:#0d1f35;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.6rem 1rem;text-align:center;}
+.score-val{font-size:1.6rem;font-weight:bold;color:#ffd700;font-family:monospace;}
+.score-lbl{font-size:0.75rem;color:#94a3b8;}
+.verdict-badge{padding:0.5rem 1.2rem;border-radius:0.4rem;font-weight:bold;font-size:1rem;background:#00838f;color:#fff;}
+/* POPUP */
+#execPopup,#iaPopup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1628;border:2px solid #00d4ff;border-radius:0.8rem;padding:1.5rem;max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.95rem;color:#c8d8f0;box-shadow:0 0 40px rgba(0,212,255,0.3);}
+#iaPopup{border-color:#00c853;}
+#execPopup h3{color:#00d4ff;margin-bottom:0.8rem;}
+#iaPopup h3{color:#00c853;margin-bottom:0.8rem;}
+/* ZONA 2 */
+.z2{padding:1.5rem;background:#050a12;}
+.z2-title{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:0.8rem;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem;}
+.stat-group{background:#080f1c;border-radius:0.4rem;padding:0.8rem;}
+.stat-group-title{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:0.5rem;}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;}
+.stat-card{background:#0d1828;border-radius:0.3rem;padding:0.5rem;text-align:center;}
+.stat-val{font-size:1.1rem;font-weight:bold;font-family:monospace;color:#00d4ff;}
+.stat-lbl{font-size:0.72rem;color:#94a3b8;}
+/* ZONA 3 */
+.z3{padding:1.5rem;background:#080f1c;}
+.zona3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;width:100%;align-items:start;}
+.zona3-chart{display:flex;flex-direction:column;width:100%;min-height:0;}
+.zona3-chart h4{font-size:0.9rem;color:#c8d8f0;margin-bottom:0.5rem;text-align:center;}
+.zona3-chart .chart-wrap{position:relative;width:100%;aspect-ratio:4/3;}
+.zona3-chart .chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+/* ZONA 4 */
+.z4{padding:1.5rem;background:#050a12;}
+.z4 h3{font-size:1rem;color:#00d4ff;margin-bottom:1rem;}
+.price-chart-wrap{position:relative;width:100%;aspect-ratio:4/1.5;}
+.price-chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+.analyst-summary{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;}
+.consensus-gauge{text-align:center;}
+.analyst-table{overflow-x:auto;}
+.analyst-table table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.analyst-table th{background:#0d1428;color:#fff;padding:0.4rem 0.6rem;text-align:left;}
+.analyst-table td{padding:0.4rem 0.6rem;border-bottom:1px solid #1a2a4a;}
+.analyst-table tr:nth-child(even){background:#080f1c;}
+/* ZONA 5 */
+.z5{padding:1.5rem;background:#080f1c;}
+.z5 h3{font-size:1rem;color:#00d4ff;margin-bottom:1rem;text-align:center;}
+.spider-wrap{width:100%;max-width:600px;margin:0 auto;}
+.scorecard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.5rem;}
+.score-group{background:#0a1628;border:1px solid #1a3a6e;border-radius:0.5rem;padding:1rem;}
+.score-group-header{font-size:0.95rem;font-weight:bold;color:#00d4ff;margin-bottom:0.5rem;}
+.score-group-avg{font-size:1.5rem;font-weight:bold;color:#ffd700;font-family:monospace;}
+.feroldi-row{cursor:pointer;display:flex;align-items:center;gap:0.5rem;padding:0.25rem 0;border-bottom:1px solid #0d1828;}
+.feroldi-row:last-child{border-bottom:none;}
+.feroldi-name{font-size:0.85rem;flex:1;}
+.feroldi-score-val{font-size:1.1rem;font-weight:bold;color:#ffd700;font-family:monospace;min-width:2rem;text-align:right;}
+.feroldi-total{background:#0d1428;padding:0.8rem;border-radius:0.4rem;text-align:center;margin-top:1rem;font-size:1rem;font-weight:bold;color:#ffd700;}
+#feroldiPopup{display:none;position:fixed;background:#0d1f35;border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;font-size:0.9rem;color:#c8d8f0;z-index:9999;pointer-events:none;box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;}
+/* ZONA 6 */
+.z6{padding:1.5rem;background:#050a12;}
+.z6-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.risk-table,.catalyst-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.risk-table th,.catalyst-table th{background:#0d1428;color:#fff;padding:0.5rem 0.6rem;text-align:left;}
+.risk-table td,.catalyst-table td{padding:0.45rem 0.6rem;border-bottom:1px solid #1a2a4a;}
+.risk-table tr:nth-child(even),.catalyst-table tr:nth-child(even){background:#080f1c;}
+.alto{color:#ff3a3a;font-weight:bold;}.medio{color:#ffbb00;font-weight:bold;}.bajo{color:#00ff9d;font-weight:bold;}
+.competitor-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:1.5rem;}
+.competitor-table th{background:#0d1428;color:#fff;padding:0.5rem 0.6rem;}
+.competitor-table td{padding:0.45rem 0.6rem;border-bottom:1px solid #1a2a4a;text-align:center;}
+.competitor-table tr:first-child td{background:#0d1f35;font-weight:bold;}
+.competitor-table tr:nth-child(even):not(:first-child){background:#080f1c;}
+.mini-bar{height:0.4rem;background:#1a2a4a;border-radius:0.2rem;margin-top:0.2rem;}
+.mini-bar-fill{height:100%;background:#00d4ff;border-radius:0.2rem;}
+.range-mini svg{width:100%;display:block;}
+.verdict-final{background:#0d1428;border-radius:0.6rem;padding:1.5rem;text-align:center;margin-top:1.5rem;}
+.verdict-final .vf-badge{display:inline-block;background:#00838f;color:#fff;font-weight:bold;font-size:1.3rem;padding:0.6rem 2rem;border-radius:0.5rem;margin-bottom:0.8rem;}
+.verdict-final .vf-tesis{font-size:0.95rem;color:#c8d8f0;line-height:1.6;}
+.brand-footer{text-align:center;font-size:1rem;font-weight:bold;color:#ffd700;padding:1rem;border-top:1px solid #1a2a4a;margin-top:1rem;}
+@media(max-width:900px){.z1,.zona3,.analyst-summary,.z6-grid{grid-template-columns:1fr;}.z1-right{align-items:flex-start;}.perf-bar{grid-template-columns:repeat(4,1fr);}}
+</style>
+</head>
+<body>
+<!-- POPUPS -->
+<div id="execPopup"><h3>Resumen Ejecutivo</h3><div id="execPopupText"></div></div>
+<div id="iaPopup"><h3>🟢 Semáforo IA: VERDE</h3><div id="iaPopupText"></div></div>
+<div id="feroldiPopup"></div>
+
+<div class="infog">
+<!-- ═══════════════════════════════ ZONA 1 ═══════════════════════════════ -->
+<section class="z1">
+  <div class="z1-left">
+    <div class="logo-row">
+      <img id="triggerLogo" src="https://logo.clearbit.com/ferrari.com"
+        onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';"
+        alt="RACE">
+      <div id="logoFallback" style="display:none" class="logo-fallback">F</div>
+      <div>
+        <div id="triggerNombre" class="company-name">Ferrari N.V.</div>
+        <div class="company-sub">NYSE: RACE &nbsp;·&nbsp; Consumer Discretionary &nbsp;·&nbsp; Ultra-Luxury Automotive &nbsp;·&nbsp; 05/04/2026</div>
+      </div>
+    </div>
+    <div id="triggerFrase" class="frase">
+      "Ferrari es esencialmente una empresa de lujo que vende escasez manufacturada, con la Fórmula 1 como motor de marketing permanente y las personalizaciones como máquina de crecimiento de márgenes sin necesidad de aumentar volumen."
+    </div>
+  </div>
+  <div class="z1-right">
+    <div>
+      <div class="price-big">$340.00</div>
+      <div class="price-sub">Precio ref. usuario &nbsp;|&nbsp; Mercado actual: ~$313 / €295</div>
+    </div>
+    <div class="range-wrap">
+      <div class="range-label">
+        <span style="color:#ff3a3a">Mín 52W: $312.51</span>
+        <span style="color:#00d4ff">13.3% del rango</span>
+        <span style="color:#00c853">Máx 52W: $519.10</span>
+      </div>
+      <div class="range-bar">
+        <div class="range-fill" style="width:100%"></div>
+        <div class="range-dot" style="left:13.3%"></div>
+      </div>
+      <div class="range-pct">$RACE cotiza en el cuartil inferior de su rango anual</div>
+    </div>
+    <div class="perf-bar" id="perfBar">
+      <div class="perf-cell"><span class="perf-label">1 día</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">5 días</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">1 mes</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">6 meses</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">En el año</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">1 año</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">5 años</span><span class="perf-val nd">—</span></div>
+      <div class="perf-cell"><span class="perf-label">Desde IPO</span><span class="perf-val nd">—</span></div>
+    </div>
+    <div class="scores-row">
+      <div class="score-card"><div class="score-val">127/160</div><div class="score-lbl">Score Feroldi</div></div>
+      <div class="score-card"><div class="score-val">79.4%</div><div class="score-lbl">% del máximo</div></div>
+      <div class="verdict-badge">ACUMULAR CON DISCIPLINA</div>
+      <!-- SEMÁFORO IA -->
+      <div style="display:flex;align-items:center;gap:0.5rem;cursor:pointer" id="triggerIA">
+        <svg viewBox="0 0 80 200" width="3rem" height="auto" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7))">
+          <rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+          <rect x="8" y="8" width="64" height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/>
+          <circle cx="16" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="16" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <rect x="8" y="70" width="64" height="3" fill="#222"/>
+          <rect x="8" y="127" width="64" height="3" fill="#222"/>
+          <!-- ROJO tenue -->
+          <circle cx="40" cy="42" r="22" fill="#2d0a0a"/>
+          <circle cx="40" cy="42" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="34" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- NARANJA tenue -->
+          <circle cx="40" cy="100" r="22" fill="#3d2800"/>
+          <circle cx="40" cy="100" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="92" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- VERDE encendido -->
+          <circle cx="40" cy="158" r="22" fill="#00c853" filter="drop-shadow(0 0 10px #00c853)"/>
+          <circle cx="40" cy="158" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="150" rx="7" ry="5" fill="white" opacity="0.35"/>
+        </svg>
+        <span style="color:#00c853;font-weight:bold;font-size:0.9rem;">Riesgo IA:<br>BAJO</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ZONA 2 ═══════════════════════════════ -->
+<section class="z2">
+  <div class="z2-title">Key Stats — Datos Verificados FY2025</div>
+  <div class="stats-grid">
+    <div class="stat-group">
+      <div class="stat-group-title">Valoración</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">33.5x</div><div class="stat-lbl">P/E TTM</div></div>
+        <div class="stat-card"><div class="stat-val">~34x</div><div class="stat-lbl">P/E Forward 2026</div></div>
+        <div class="stat-card"><div class="stat-val">$10.14</div><div class="stat-lbl">EPS TTM (USD)</div></div>
+        <div class="stat-card"><div class="stat-val">~$60.7B</div><div class="stat-lbl">Market Cap</div></div>
+      </div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-group-title">Rentabilidad</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">~51%</div><div class="stat-lbl">Margen Bruto</div></div>
+        <div class="stat-card"><div class="stat-val">29.5%</div><div class="stat-lbl">Margen EBIT</div></div>
+        <div class="stat-card"><div class="stat-val">38.8%</div><div class="stat-lbl">Margen EBITDA</div></div>
+        <div class="stat-card"><div class="stat-val">22.4%</div><div class="stat-lbl">Margen Neto</div></div>
+      </div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-group-title">Crecimiento</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">+7%</div><div class="stat-lbl">Revenue YoY</div></div>
+        <div class="stat-card"><div class="stat-val">+12%</div><div class="stat-lbl">EBIT YoY</div></div>
+        <div class="stat-card"><div class="stat-val">+7%</div><div class="stat-lbl">ASP CAGR 7Y</div></div>
+        <div class="stat-card"><div class="stat-val">€440K</div><div class="stat-lbl">ASP 2025 (€)</div></div>
+      </div>
+    </div>
+    <div class="stat-group">
+      <div class="stat-group-title">Balance &amp; FCF</div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-val">€32M</div><div class="stat-lbl">Deuda Neta Ind.</div></div>
+        <div class="stat-card" style="border:1px solid #ffbb00"><div class="stat-val" style="color:#ffbb00">€1.25B*</div><div class="stat-lbl">FCF Limpio Est.</div></div>
+        <div class="stat-card"><div class="stat-val">2.30</div><div class="stat-lbl">Current Ratio</div></div>
+        <div class="stat-card"><div class="stat-val">0.52</div><div class="stat-lbl">Beta (1Y)</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:0.78rem;color:#94a3b8;margin-top:0.6rem;">* FCF limpio estimado: €1,538M reportado menos ~€286M anticipos de clientes (depósitos F80 / Purosangue reconocidos en Other Liabilities FY2025)</div>
+</section>
+
+<!-- ═══════════════════════════════ ZONA 3 ═══════════════════════════════ -->
+<section class="z3">
+  <h3 style="font-size:1rem;color:#00d4ff;margin-bottom:1rem;">Rendimiento Financiero FY2025</h3>
+  <div class="zona3">
+    <div class="zona3-chart">
+      <h4>Crecimiento y Rentabilidad — Q1–Q4 FY2025</h4>
+      <div class="chart-wrap"><canvas id="chartGrowth"></canvas></div>
+    </div>
+    <div class="zona3-chart">
+      <h4>Conversión de Ingresos — Q4 FY2025</h4>
+      <div class="chart-wrap"><canvas id="chartWaterfall"></canvas></div>
+    </div>
+    <div class="zona3-chart">
+      <h4>Composición de Ingresos FY2025</h4>
+      <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ZONA 4 ═══════════════════════════════ -->
+<section class="z4">
+  <h3>Evolución del Precio y Consenso de Analistas</h3>
+  <div class="price-chart-wrap"><canvas id="chartPrice"></canvas></div>
+  <div class="analyst-summary">
+    <div class="consensus-gauge">
+      <svg viewBox="0 0 400 240" width="100%" height="auto">
+        <defs>
+          <linearGradient id="gaugeConsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e53935"/>
+            <stop offset="25%" stop-color="#ff8c00"/>
+            <stop offset="50%" stop-color="#ffd700"/>
+            <stop offset="75%" stop-color="#76c442"/>
+            <stop offset="100%" stop-color="#00c853"/>
+          </linearGradient>
+        </defs>
+        <path d="M 40 190 A 160 160 0 0 1 360 190" fill="none" stroke="#1a2a4a" stroke-width="40" stroke-linecap="butt"/>
+        <path d="M 40 190 A 160 160 0 0 1 360 190" fill="none" stroke="url(#gaugeConsGrad)" stroke-width="38" stroke-linecap="butt"/>
+        <text x="30" y="215" font-size="11" fill="#94a3b8">Venta fuerte</text>
+        <text x="130" y="140" font-size="11" fill="#94a3b8">Neutral</text>
+        <text x="290" y="215" font-size="11" fill="#94a3b8" text-anchor="end">Compra fuerte</text>
+        <!-- Aguja: consenso ~7.5/10 = Compra. angle = 180-(7.5/10)*180=45°, rad=0.785, nx=200+130*cos(0.785)=291, ny=190-130*sin(0.785)=98 -->
+        <line x1="200" y1="190" x2="291" y2="98" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="200" cy="190" r="8" fill="#ffffff"/>
+        <text x="200" y="170" font-size="20" fill="#76c442" font-weight="bold" text-anchor="middle">COMPRA</text>
+        <text x="200" y="188" font-size="13" fill="#94a3b8" text-anchor="middle">Consenso de analistas</text>
+      </svg>
+    </div>
+    <div class="analyst-table">
+      <table>
+        <tr><th>Banco</th><th>Rating</th><th>Target</th></tr>
+        <tr><td>UBS</td><td style="color:#00c853;font-weight:bold">COMPRAR</td><td style="color:#00d4ff;font-family:monospace">$554</td></tr>
+        <tr><td>J.P. Morgan</td><td style="color:#00c853;font-weight:bold">COMPRAR</td><td style="color:#00d4ff;font-family:monospace">~$520</td></tr>
+        <tr><td>Goldman Sachs</td><td style="color:#00c853;font-weight:bold">COMPRAR</td><td style="color:#00d4ff;font-family:monospace">$454</td></tr>
+        <tr><td>Bankinter</td><td style="color:#00c853;font-weight:bold">COMPRAR</td><td style="color:#00d4ff;font-family:monospace">€463</td></tr>
+        <tr><td>Jefferies</td><td style="color:#ffbb00;font-weight:bold">MANTENER</td><td style="color:#ffbb00;font-family:monospace">€310</td></tr>
+        <tr style="background:#0d1f35"><td><b>Consenso (16)</b></td><td style="color:#76c442;font-weight:bold">COMPRA MOD.</td><td style="color:#ffd700;font-family:monospace;font-weight:bold">$437.82</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ZONA 5 ═══════════════════════════════ -->
+<section class="z5">
+  <h3>Perfil Feroldi — Score: 127/160 (79.4%)</h3>
+  <div class="spider-wrap">
+    <svg viewBox="0 0 600 400" width="100%" height="auto">
+      <text x="300" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#00d4ff">Perfil Competitivo Feroldi</text>
+      <!-- Spider axes & grid -->
+      <g opacity="0.3" stroke="#1a2a4a">
+        <!-- 5 axes from center (300,220) -->
+        <!-- Axis 1: top    300,60  -->
+        <line x1="300" y1="220" x2="300" y2="60" stroke="#1a2a4a"/>
+        <!-- Axis 2: right  490,330 -->
+        <line x1="300" y1="220" x2="490" y2="330" stroke="#1a2a4a"/>
+        <!-- Axis 3: right-bottom 415,390 -->
+        <line x1="300" y1="220" x2="415" y2="380" stroke="#1a2a4a"/>
+        <!-- Axis 4: left-bottom 185,380 -->
+        <line x1="300" y1="220" x2="185" y2="380" stroke="#1a2a4a"/>
+        <!-- Axis 5: left  110,330 -->
+        <line x1="300" y1="220" x2="110" y2="330" stroke="#1a2a4a"/>
+        <!-- Grid at 50% -->
+        <polygon points="300,140 395,275 358,300 242,300 205,275" fill="none" stroke="#1a2a4a" stroke-dasharray="4,4"/>
+      </g>
+      <!-- Data polygon: scores normalized 0-10 per axis -->
+      <!-- Axis 1 Crecimiento (3,13,14): avg(8,8,9)=8.33 → 8.33/10 * 160 units from center -->
+      <!-- Axis 2 Rentabilidad (7,11): avg(8,8)=8 -->
+      <!-- Axis 3 Solidez (6,8,12): avg(7,9,8)=8 -->
+      <!-- Axis 4 Estrategia (1,2,5,10): avg(8,9,9,9)=8.75 -->
+      <!-- Axis 5 Retorno (4,9,16): avg(8,8,6)=7.33 -->
+      <!-- Scale 160 units max. Points: -->
+      <!-- A1: 300,220 - 8.33/10*160 up = 300, 220-133=87 -->
+      <!-- A2: center + 8/10*160 at angle ~54°: 300+160*0.8*sin(54°)=300+103.6=404, 220+160*0.8*cos(54°)=220+75=295 -->
+      <!-- A3: 9/10 * center+160 at angle ~126°: dx=160*0.8*sin(126°)=103, dy=160*0.8*cos(126°)=75. 300+103=403, 220+75=295... adjusting manually -->
+      <polygon points="300,87 425,295 376,358 224,358 175,295"
+               fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="2"/>
+      <!-- Labels -->
+      <text x="300" y="52" text-anchor="middle" font-size="12" fill="#c8d8f0">Crecimiento</text>
+      <text x="300" y="63" text-anchor="middle" font-size="11" fill="#ffd700">8.33</text>
+      <text x="498" y="338" text-anchor="start" font-size="12" fill="#c8d8f0">Rentabilidad</text>
+      <text x="498" y="350" text-anchor="start" font-size="11" fill="#ffd700">8.0</text>
+      <text x="420" y="392" text-anchor="middle" font-size="12" fill="#c8d8f0">Solidez Fin.</text>
+      <text x="420" y="404" text-anchor="middle" font-size="11" fill="#ffd700">8.0</text>
+      <text x="180" y="392" text-anchor="middle" font-size="12" fill="#c8d8f0">Estrategia</text>
+      <text x="180" y="404" text-anchor="middle" font-size="11" fill="#ffd700">8.75</text>
+      <text x="102" y="338" text-anchor="end" font-size="12" fill="#c8d8f0">Retorno Acc.</text>
+      <text x="102" y="350" text-anchor="end" font-size="11" fill="#ffd700">7.33</text>
+    </svg>
+  </div>
+  <div class="scorecard-grid">
+    <!-- GRUPO: Estrategia y Ventaja -->
+    <div class="score-group">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div class="score-group-header">Estrategia y Ventaja</div>
+        <div class="score-group-avg">8.75</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="INDUSTRY (8/10): Ultra-premium, demanda inelástica, barreras de entrada infranqueables (heritage F1, marca, comunidad). TAM limitado por diseño propio. Pocos competidores directos cotizados. No se puede replicar el moat con dinero.">
+        <span class="feroldi-name">1. Industry</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="BUSINESS MODEL (9/10): Made-to-order. Toda la producción tiene dueño antes de fabricarse. Personalización (20% revenue de coches) con márgenes ultra-altos. Ferrari Financial Services: €1.6B receivables, impago ~0%. Modelo de batería actualizable (SaaS físico). Escasez activa como herramienta competitiva.">
+        <span class="feroldi-name">2. Business Model</span><span class="feroldi-score-val" style="color:#00c853">9</span></div>
+      <div class="feroldi-row" data-tooltip="MOAT (9/10): Marca global única, 75+ años heritage F1, gestión activa de la escasez, efecto Veblen, lista de espera 3 años, 90.000 clientes activos (+20% desde 2022). Precio medio por coche: €274K→€440K CAGR 7%. Patentes de sonido EV en desarrollo. Celdas de SK On (no IP propia): riesgo menor, pero justifica bajar de 10/10.">
+        <span class="feroldi-name">5. Moat</span><span class="feroldi-score-val" style="color:#00c853">9</span></div>
+      <div class="feroldi-row" data-tooltip="MANAGEMENT (9/10): Vigna 80%+ variable comp vinculado a éxito EV (FCF, emisiones, cotización). Inventor sensor Nintendo Wii. Lideró STMicro. Decisión de e-Building + e-Cells Lab + SK On = integración vertical estratégica. Devuelve prototipos si 'no se siente Ferrari'. Legado personal ligado al Luce.">
+        <span class="feroldi-name">10. Management</span><span class="feroldi-score-val" style="color:#00c853">9</span></div>
+    </div>
+    <!-- GRUPO: Rentabilidad -->
+    <div class="score-group">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div class="score-group-header">Rentabilidad</div>
+        <div class="score-group-avg">8.0</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="PROFITABILITY (8/10): EBITDA 38.8%, EBIT 29.5%, Margen Neto 22.4%. Mejor margen EBITDA de cualquier OEM del mundo. FCF Industrial reportado €1,538M. FCF limpio estimado ~€1,250M (€286M son depósitos de clientes). Sigue siendo outstanding pero no el 9/10 original.">
+        <span class="feroldi-name">7. Profitability</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="CAPITAL ALLOCATION (8/10): ROIC estimado 25-30% >> WACC ~8-9%. e-Building €200M + e-Cells Lab = IP propia sobre EV. El retorno de esta inversión es sólido estratégicamente pero aún no demostrado en P&L. Vigna no ha hecho acquisitions arriesgadas. Disciplina capital ejemplar.">
+        <span class="feroldi-name">11. Capital Allocation</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+    </div>
+    <!-- GRUPO: Solidez Financiera -->
+    <div class="score-group">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div class="score-group-header">Solidez Financiera</div>
+        <div class="score-group-avg">8.0</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="CAPITAL INTENSITY (7/10): CapEx FY2025 ~€950M (~13% revenue). R&D expensado ~€650M. Pero e-Building completado (jun 2024), pico de capex superado. FCF conversion ~55% EBITDA. Más intensivo que lujo puro pero bien financiado.">
+        <span class="feroldi-name">6. Capital Intensity</span><span class="feroldi-score-val" style="color:#ffbb00">7</span></div>
+      <div class="feroldi-row" data-tooltip="BALANCE SHEET (9/10): Deuda Neta Industrial solo €32M sobre €2.77B EBITDA = prácticamente caja neta. Current Ratio 2.30. Goodwill €785M estático (desde IPO 2015). Sin acquisitions que distorsionen el balance. D/E 0.74 incluye deuda de financial services (low-risk). Fortaleza financiera clase mundial.">
+        <span class="feroldi-name">8. Balance Sheet</span><span class="feroldi-score-val" style="color:#00c853">9</span></div>
+      <div class="feroldi-row" data-tooltip="SBC (8/10): Baja dilución vs. tech USA. Buybacks activos reducen share count neto. Vigna 0.02% de las acciones + 80% comp variable = incentivos bien alineados. Opacidad europea menor que en USA pero sin señales de dilución agresiva.">
+        <span class="feroldi-name">12. SBC</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+    </div>
+    <!-- GRUPO: Crecimiento -->
+    <div class="score-group">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div class="score-group-header">Crecimiento</div>
+        <div class="score-group-avg">8.33</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="HISTORICAL GROWTH (8/10): Revenue CAGR 11% desde 2018. ASP €274K→€440K CAGR 7%. FCF CAGR 22% desde 2018. EPS CAGR ~15% desde 2018. UK -49% (1,120→571 uds.) = señal de segundo orden si se replica. FCF 2025 parcialmente inflado por anticipos. Crecimiento sin volumen = cualitativo excepcional.">
+        <span class="feroldi-name">3. Historical Growth</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="OUTLOOK (8/10): Guidance FY2026: €7.5B revenue, EBIT ≥€2.22B (≥29.5%), EPS ≥€9.45. Ferrari supera guidance históricamente (cmd 2022: EPS target $4.55-4.75, resultado 2025: €9.45 ya en el primer año, +99%). Luce = evento narrativo 2026, ~200-400 uds. H1 2026 débil, recuperación H2. Order book hasta finales 2027.">
+        <span class="feroldi-name">13. Outlook</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="OPTIONALITY (9/10): Ferrari Luce (EV con Jony Ive/LoveFrom, precio base ~€500K+, premiere 25 may 2026). E-fuels como hedge regulatorio (si aprueban, EV target 2030 irrelevante). Hamilton + HP $100M/año + boutiques Iannone. Tailor Made centros en Tokio y LA (2027). Ferrari FinServ (€45-65M/año ingresos ocultos). Membresía implícita no priceada.">
+        <span class="feroldi-name">14. Optionality</span><span class="feroldi-score-val" style="color:#00c853">9</span></div>
+    </div>
+    <!-- GRUPO: Retorno al Accionista -->
+    <div class="score-group">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div class="score-group-header">Retorno al Accionista</div>
+        <div class="score-group-avg">7.33</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="VALUE CREATION (8/10): Desde IPO ~$52 en 2015 a $519 en 2025 = +900% en 10 años vs. S&P 500 ~200%. Shareholder reward €1.3B en 2025 (dividendos + buybacks). Buyback €2B completado antes de tiempo. Nuevo programa €3.5B para 2026-2030.">
+        <span class="feroldi-name">4. Value Creation</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="CAPITAL RETURN (8/10): Dividendo payout 35%→40% adj. net profit (hasta 2030). Buyback €3.5B 2026-2030 (Ferrari ya compró €217M en pocas semanas de 2026, ejecución oportunista en mínimos). Share count cayó ~9% por recompras. FCF limpio €1.25B financia el programa cómodamente.">
+        <span class="feroldi-name">9. Capital Return</span><span class="feroldi-score-val" style="color:#76c442">8</span></div>
+      <div class="feroldi-row" data-tooltip="RISKS (5/10): FX €200M headwind 2026 (EUR/USD 1.20). Anticipos €1.4B reversibles si demand shock. Concentración Maranello (único punto de falla). UK -49% en 6 años = señal de riesgo. Transición 7 modelos simultáneos en 2026. Luce = riesgo de ejecución emocional. China residual ~7%.">
+        <span class="feroldi-name">15. Risks</span><span class="feroldi-score-val" style="color:#e53935">5</span></div>
+      <div class="feroldi-row" data-tooltip="VALUATION (6/10): P/E TTM 33.5x vs. histórico 37.2x (11.6% descuento). EV/EBITDA ~20x. FCF Yield 2.7% (limpio). SOTP base: €357/acc (~$379). Consenso analistas: $437.82. Valor esperado ponderado (escenarios): €378 (~$401). NO está en 4/10 ('pagar por perfección'): está en el cuartil inferior de valoración histórica.">
+        <span class="feroldi-name">16. Valuation</span><span class="feroldi-score-val" style="color:#ffbb00">6</span></div>
+    </div>
+  </div>
+  <div class="feroldi-total">Score Feroldi Final: 127 / 160 &nbsp;·&nbsp; 79.4% del máximo posible &nbsp;·&nbsp; ACUMULAR CON DISCIPLINA</div>
+</section>
+
+<!-- ═══════════════════════════════ ZONA 6 ═══════════════════════════════ -->
+<section class="z6">
+  <div class="z6-grid">
+    <div>
+      <h3 style="font-size:0.95rem;color:#00d4ff;margin-bottom:0.7rem;">Riesgos Críticos</h3>
+      <table class="risk-table">
+        <tr><th>Riesgo</th><th>Descripción</th><th>Peso</th></tr>
+        <tr><td><b>FX / Aranceles</b></td><td>€200M headwind; producción 100% Italia; EE.UU.=25% ventas</td><td class="alto">ALTO</td></tr>
+        <tr><td><b>Transición 7 modelos</b></td><td>Operacional complejo; Luce ~200-400 uds. iniciales Q4 2026</td><td class="medio">MEDIO</td></tr>
+        <tr><td><b>Concentración Maranello</b></td><td>Único punto de falla; riesgo sísmico, incendio, huelga</td><td class="medio">MEDIO</td></tr>
+        <tr><td><b>FCF Anticipos</b></td><td>€286M de mejora FCF son depósitos, no beneficio recurrente</td><td class="medio">MEDIO</td></tr>
+        <tr><td><b>Dilución exclusividad</b></td><td>Expansión lifestyle puede erosionar percepción de marca</td><td class="bajo">BAJO</td></tr>
+        <tr><td><b>China residual</b></td><td>~7% ventas; reducción deliberada para proteger exclusividad</td><td class="bajo">BAJO</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="font-size:0.95rem;color:#00d4ff;margin-bottom:0.7rem;">Catalizadores 24 Meses</h3>
+      <table class="catalyst-table">
+        <tr><th>Catalizador</th><th>Fecha</th><th>Impacto</th></tr>
+        <tr><td><b>Q1 2026 Earnings</b></td><td style="color:#00d4ff">5 may 2026</td><td>+5-10%</td></tr>
+        <tr><td><b>Luce Premiere (Jony Ive)</b></td><td style="color:#00d4ff">25 may 2026</td><td>+10-20%</td></tr>
+        <tr><td><b>Luce deliveries iniciales</b></td><td style="color:#00d4ff">Q4 2026</td><td>Narrativo</td></tr>
+        <tr><td><b>Reducción tipos Fed/BCE</b></td><td style="color:#00d4ff">H2 2026</td><td>+10-15%</td></tr>
+        <tr><td><b>Capital Markets Day 2026</b></td><td style="color:#00d4ff">TBD 2026</td><td>+10-15%</td></tr>
+        <tr><td><b>E-fuels aprobación EU</b></td><td style="color:#00d4ff">2026-2027</td><td>EV risk off</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Competidores -->
+  <h3 style="font-size:0.95rem;color:#00d4ff;margin-top:1.5rem;margin-bottom:0.7rem;">Análisis Comparativo vs. Competidores</h3>
+  <div style="overflow-x:auto">
+  <table class="competitor-table">
+    <tr>
+      <th>Empresa</th><th>Ticker</th><th>MCap</th><th>P/E TTM</th>
+      <th>Mg. EBITDA</th><th>Mg. Neto</th><th>Precio</th><th>Rango 52W</th>
+    </tr>
+    <tr>
+      <td><b>Ferrari N.V.</b></td><td style="color:#00d4ff;font-family:monospace"><b>RACE</b></td>
+      <td><b>~$61B</b></td><td><b>33.5x</b></td>
+      <td><b>38.8%</b><div class="mini-bar"><div class="mini-bar-fill" style="width:100%"></div></div></td>
+      <td><b>22.4%</b><div class="mini-bar"><div class="mini-bar-fill" style="width:100%"></div></div></td>
+      <td style="font-family:monospace"><b>~$313</b></td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem">
+          <svg viewBox="0 0 100 8" width="100%" style="display:block">
+            <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+            <circle cx="2" cy="4" r="3.5" fill="#00d4ff"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+            <span style="color:#ff3a3a">$312</span><span style="color:#00d4ff">~2%</span><span style="color:#00c853">$519</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Porsche AG</td><td style="font-family:monospace">P911.DE</td>
+      <td>€33.8B</td><td>18.7x</td>
+      <td>~19%<div class="mini-bar"><div class="mini-bar-fill" style="width:49%"></div></div></td>
+      <td>~4%<div class="mini-bar"><div class="mini-bar-fill" style="width:18%"></div></div></td>
+      <td style="font-family:monospace">€36.31</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem">
+          <svg viewBox="0 0 100 8" width="100%" style="display:block">
+            <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+            <circle cx="4" cy="4" r="3.5" fill="#00d4ff"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+            <span style="color:#ff3a3a">€36</span><span style="color:#00d4ff">~4%</span><span style="color:#00c853">€120 ATH</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Aston Martin</td><td style="font-family:monospace">AML.L</td>
+      <td>£400M</td><td style="color:#e53935">N/D (pérd.)</td>
+      <td>N/D<div class="mini-bar"><div class="mini-bar-fill" style="width:5%"></div></div></td>
+      <td style="color:#e53935">Negativo<div class="mini-bar"><div class="mini-bar-fill" style="width:2%"></div></div></td>
+      <td style="font-family:monospace">~40p</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem">
+          <svg viewBox="0 0 100 8" width="100%" style="display:block">
+            <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+            <circle cx="3" cy="4" r="3.5" fill="#e53935"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+            <span style="color:#ff3a3a">36p</span><span style="color:#e53935">~4%</span><span style="color:#00c853">89p</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Hermès Intl.</td><td style="font-family:monospace">RMS.PA</td>
+      <td>~€200B</td><td style="color:#e53935">~55x</td>
+      <td>~42%<div class="mini-bar"><div class="mini-bar-fill" style="width:100%"></div></div></td>
+      <td>~24%<div class="mini-bar"><div class="mini-bar-fill" style="width:100%"></div></div></td>
+      <td style="font-family:monospace">~€2,500</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem">
+          <svg viewBox="0 0 100 8" width="100%" style="display:block">
+            <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+            <circle cx="55" cy="4" r="3.5" fill="#00d4ff"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+            <span style="color:#ff3a3a">€2K</span><span style="color:#00d4ff">55%</span><span style="color:#00c853">€2.9K</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>LVMH</td><td style="font-family:monospace">MC.PA</td>
+      <td>~€270B</td><td>~22x</td>
+      <td>~28%<div class="mini-bar"><div class="mini-bar-fill" style="width:72%"></div></div></td>
+      <td>~12%<div class="mini-bar"><div class="mini-bar-fill" style="width:54%"></div></div></td>
+      <td style="font-family:monospace">~€545</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem">
+          <svg viewBox="0 0 100 8" width="100%" style="display:block">
+            <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+            <circle cx="35" cy="4" r="3.5" fill="#00d4ff"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem">
+            <span style="color:#ff3a3a">€512</span><span style="color:#00d4ff">35%</span><span style="color:#00c853">€690</span>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+  </div>
+  <div style="font-size:0.78rem;color:#94a3b8;margin-top:0.5rem;">Nota: Ferrari compara mejor con Hermès (empresa de lujo puro) que con Porsche (OEM de mayor volumen). LVMH incluido como referencia de plataforma de lujo multi-marca.</div>
+
+  <!-- Escenarios -->
+  <h3 style="font-size:0.95rem;color:#00d4ff;margin-top:1.5rem;margin-bottom:0.7rem;">Escenarios de Valoración</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;">
+    <div style="background:#1a0a0a;border:1px solid #e53935;border-radius:0.5rem;padding:1rem;text-align:center;">
+      <div style="color:#e53935;font-weight:bold;font-size:1rem;">🔴 Bear (20%)</div>
+      <div style="font-size:0.85rem;color:#c8d8f0;margin:0.5rem 0;">FCF normaliza €1.1B; Luce neutral</div>
+      <div style="font-size:1.8rem;font-weight:bold;color:#e53935;font-family:monospace;">~$260</div>
+    </div>
+    <div style="background:#0d1f0d;border:1px solid #ffbb00;border-radius:0.5rem;padding:1rem;text-align:center;">
+      <div style="color:#ffbb00;font-weight:bold;font-size:1rem;">🟡 Base (55%)</div>
+      <div style="font-size:0.85rem;color:#c8d8f0;margin:0.5rem 0;">FCF limpio €1.25B; EPS +10%</div>
+      <div style="font-size:1.8rem;font-weight:bold;color:#ffd700;font-family:monospace;">~$373</div>
+    </div>
+    <div style="background:#0a1f0a;border:1px solid #00c853;border-radius:0.5rem;padding:1rem;text-align:center;">
+      <div style="color:#00c853;font-weight:bold;font-size:1rem;">🟢 Bull (25%)</div>
+      <div style="font-size:0.85rem;color:#c8d8f0;margin:0.5rem 0;">Luce EV moat + e-fuels + Hamilton</div>
+      <div style="font-size:1.8rem;font-weight:bold;color:#00c853;font-family:monospace;">~$572</div>
+    </div>
+    <div style="background:#0d1428;border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;text-align:center;">
+      <div style="color:#00d4ff;font-weight:bold;font-size:1rem;">⚖️ Valor Esperado</div>
+      <div style="font-size:0.85rem;color:#c8d8f0;margin:0.5rem 0;">Ponderado por probabilidad</div>
+      <div style="font-size:1.8rem;font-weight:bold;color:#00d4ff;font-family:monospace;">~$401</div>
+    </div>
+  </div>
+
+  <!-- Veredicto final -->
+  <div class="verdict-final">
+    <div class="vf-badge">⚖️ ACUMULAR CON DISCIPLINA</div>
+    <div class="vf-tesis">
+      Ferrari a €295/~$313 cotiza al 11.6% de descuento respecto a su múltiplo histórico (P/E 33x vs. 37x promedio), con el negocio FY2025 en máximos históricos y el buyback de €3.5B activo comprando agresivamente en mínimos.
+      El FCF limpio ajustado es ~€1.25B (no €1.538B). El Luce será un evento narrativo en 2026 (~200-400 uds.). El orden book cubre hasta finales de 2027.
+      Tramo 1 ($335-$345) y Tramo 2 ($300-$315) simultáneamente en rango. Tramo 3 condicionado a premiere del Luce (25 mayo 2026).
+    </div>
+  </div>
+  <div class="brand-footer">Informe confidencial para @patonet &nbsp;·&nbsp; $RACE &nbsp;·&nbsp; $340.00 &nbsp;·&nbsp; 05/04/2026</div>
+</section>
+</div><!-- end infog -->
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+const DATA = {
+  execSummary: `Ferrari N.V. es la única empresa del mundo que combina de forma estructural una economía de empresa de lujo con un catalizador tecnológico permanente: la Fórmula 1. Su modelo no consiste en fabricar automóviles; consiste en gestionar una lista de espera con disciplina obsesiva. Con 13.640 unidades en 2025 (volumen deliberadamente plano), generó €7.146B en ingresos (+7% YoY), €2.110B en EBIT (29.5%) y un FCF industrial de €1.538B (+50% YoY). FCF limpio ajustado: ~€1.25B (€286M son anticipos de clientes). Márgenes EBITDA del 38.8% rivalizan con Hermès. Riesgos: FX €200M headwind, transición EV (Luce premiere 25 mayo 2026), concentración en Maranello, aranceles EE.UU.`,
+  iaSummary: `La IA no representa amenaza existencial para Ferrari. El moat de Ferrari es emocional, identitario y hereditario —no tecnológico— lo que lo hace prácticamente inmune a la disrupción por IA generativa. Ferrari usa IA en simulación de F1 (telemetría tiempo real) y optimización de personalización (miles de combinaciones). Ninguna IA puede replicar 75 años de heritage de F1, el waitlist de 3 años ni los 90.000 Ferraristi. Mayor oportunidad: Luce como expansión de ASP a €500K-800K por unidad (con diseño de Jony Ive/LoveFrom). Mayor riesgo IA: erosión generacional del deseo de conducir en 15-20 años (no afecta tesis 2-3 años). Semáforo: VERDE.`,
+  quarterly: {
+    labels: ['Q1 2025','Q2 2025','Q3 2025','Q4 2025'],
+    revenue: [1791, 1785, 1768, 1802],
+    netIncome: [412, 425, 382, 381],
+    margin: [23.0, 23.8, 21.6, 21.1]
+  },
+  waterfall: {
+    revenue: 1802,
+    cogs: -1030,
+    grossProfit: 772,
+    opEx: -259,
+    opIncome: 513,
+    nonOp: -50,
+    taxes: -82,
+    netIncome: 381
+  },
+  segments: { labels: ['Cars & Spare Parts','Sponsorship & Brand','Other'], data: [85, 11, 4] },
+  priceHistory: {
+    labels: ['Abr 25','May 25','Jun 25','Jul 25','Ago 25','Sep 25','Oct 25','Nov 25','Dic 25','Ene 26','Feb 26','Mar 26','Abr 26'],
+    prices: [370, 380, 400, 415, 430, 460, 519, 480, 440, 390, 370, 330, 313]
+  },
+  targets: [
+    {label:'UBS $554',value:554,color:'#00c853'},
+    {label:'JPM $520',value:520,color:'#76c442'},
+    {label:'GS $454',value:454,color:'#00d4ff'},
+    {label:'BKT €463',value:463,color:'#00d4ff'},
+    {label:'JEF €310',value:310,color:'#ffbb00'},
+    {label:'Consenso $438',value:438,color:'#ffd700'},
+  ]
+};
+
+// ── POPUPS ───────────────────────────────────────────────────────────────────
+(function(){
+  const execP = document.getElementById('execPopup');
+  const execTx = document.getElementById('execPopupText');
+  const iaP = document.getElementById('iaPopup');
+  const iaTx = document.getElementById('iaPopupText');
+  let hTimer = null;
+  function show(popup, txt, txEl){ if(hTimer){clearTimeout(hTimer);hTimer=null;} txEl.textContent=txt; popup.style.display='block'; }
+  function hide(popup){ hTimer=setTimeout(()=>{popup.style.display='none';},350); }
+  function cancel(){ if(hTimer){clearTimeout(hTimer);hTimer=null;} }
+  ['triggerLogo','triggerNombre','triggerFrase'].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    el.addEventListener('mouseenter',()=>show(execP,DATA.execSummary,execTx));
+    el.addEventListener('mouseleave',()=>hide(execP));
+  });
+  execP.addEventListener('mouseenter',cancel); execP.addEventListener('mouseleave',()=>hide(execP));
+  const ia=document.getElementById('triggerIA');
+  if(ia){ ia.addEventListener('mouseenter',()=>show(iaP,DATA.iaSummary,iaTx)); ia.addEventListener('mouseleave',()=>hide(iaP)); }
+  iaP.addEventListener('mouseenter',cancel); iaP.addEventListener('mouseleave',()=>hide(iaP));
+  document.addEventListener('click',e=>{if(!execP.contains(e.target))execP.style.display='none';if(!iaP.contains(e.target))iaP.style.display='none';});
+})();
+
+// ── FEROLDI POPUPS ───────────────────────────────────────────────────────────
+(function(){
+  const fp=document.getElementById('feroldiPopup');
+  if(!fp)return;
+  document.querySelectorAll('.feroldi-row').forEach(row=>{
+    row.addEventListener('mouseenter',e=>{fp.textContent=row.getAttribute('data-tooltip')||'';fp.style.display='block';fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';});
+    row.addEventListener('mousemove',e=>{fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';});
+    row.addEventListener('mouseleave',()=>{fp.style.display='none';});
+  });
+})();
+
+// ── PERFORMANCE BAR ──────────────────────────────────────────────────────────
+async function loadPerformance(ticker, currentPrice){
+  try{
+    const url=`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5y`;
+    const r=await fetch(url); const d=await r.json();
+    const result=d.chart.result[0]; const ts=result.timestamp; const cl=result.indicators.quote[0].close;
+    const today=new Date(); today.setHours(0,0,0,0);
+    const getClose=(daysAgo)=>{const target=new Date(today);target.setDate(today.getDate()-daysAgo);let best=null,bestDiff=Infinity;for(let i=0;i<ts.length;i++){const d=new Date(ts[i]*1000);d.setHours(0,0,0,0);const diff=Math.abs(d-target);if(diff<bestDiff&&cl[i]){bestDiff=diff;best=cl[i];}}return best;};
+    const ytdRef=(()=>{const y=new Date(today.getFullYear(),0,1);let best=null,bestDiff=Infinity;for(let i=0;i<ts.length;i++){const d=new Date(ts[i]*1000);d.setHours(0,0,0,0);const diff=Math.abs(d-y);if(diff<bestDiff&&cl[i]){bestDiff=diff;best=cl[i];}}return best;})();
+    const ipoRef=cl.find(v=>v);
+    const pct=(ref)=>ref?(((currentPrice-ref)/ref)*100).toFixed(2):null;
+    return [{label:'1 día',pct:pct(getClose(1))},{label:'5 días',pct:pct(getClose(5))},{label:'1 mes',pct:pct(getClose(30))},{label:'6 meses',pct:pct(getClose(182))},{label:'En el año',pct:pct(ytdRef)},{label:'1 año',pct:pct(getClose(365))},{label:'5 años',pct:pct(getClose(1825))},{label:'Desde IPO',pct:pct(ipoRef)}];
+  }catch(e){return null;}
+}
+loadPerformance('RACE',313).then(data=>{
+  if(!data)return;
+  const cells=document.querySelectorAll('#perfBar .perf-cell');
+  data.forEach((item,i)=>{
+    if(!cells[i])return;
+    const valEl=cells[i].querySelector('.perf-val');
+    if(item.pct===null){valEl.textContent='N/D';valEl.className='perf-val nd';}
+    else{const v=parseFloat(item.pct);valEl.textContent=(v>=0?'+':'')+v+'%';valEl.className='perf-val '+(v>=0?'pos':'neg');}
+  });
+});
+
+// ── CHART GROWTH ─────────────────────────────────────────────────────────────
+const allVals=[...DATA.quarterly.revenue,...DATA.quarterly.netIncome];
+const dataMin=Math.min(...allVals); const dataMax=Math.max(...allVals);
+const padding=(dataMax-dataMin)*0.15;
+const yValMin=dataMin<0?dataMin-padding:0; const yValMax=dataMax+padding;
+const fmt=v=>Math.abs(v)>=1000?(v/1000).toFixed(1)+'B':v.toFixed(0)+'M';
+new Chart(document.getElementById('chartGrowth'),{
+  type:'bar',
+  data:{labels:DATA.quarterly.labels,datasets:[
+    {label:'Revenue',data:DATA.quarterly.revenue,backgroundColor:'#1a3a6e',yAxisID:'yVal'},
+    {label:'Net Income',data:DATA.quarterly.netIncome,backgroundColor:'#00d4ff',yAxisID:'yVal'},
+    {label:'Net Margin %',data:DATA.quarterly.margin,type:'line',borderColor:'#ff8c00',pointRadius:4,fill:false,yAxisID:'yMg',tension:0.3}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:'#c8d8f0'}}},
+    scales:{yMg:{type:'linear',position:'left',title:{display:true,text:'Margen %',color:'#ff8c00'},ticks:{color:'#ff8c00',callback:v=>v.toFixed(1)+'%'},grid:{color:'#1a2a4a'}},
+      yVal:{type:'linear',position:'right',title:{display:true,text:'€M',color:'#c8d8f0'},ticks:{color:'#c8d8f0',callback:v=>'€'+fmt(v)},grid:{drawOnChartArea:false},min:yValMin,max:yValMax}}}
+});
+
+// ── CHART WATERFALL ──────────────────────────────────────────────────────────
+const wf=DATA.waterfall;
+const wfLabels=['Revenue','COGS','G. Profit','Op. Exp.','Op. Income','No-Op.','Impuestos','Net Income'];
+const wfColors=['#1a3a6e','#ff3a3a','#00ff9d','#ff3a3a','#00d4ff','#ffbb00','#ff6b6b','#ffd700'];
+const wfData=[wf.revenue,wf.cogs,wf.grossProfit,wf.opEx,wf.opIncome,wf.nonOp,wf.taxes,wf.netIncome];
+new Chart(document.getElementById('chartWaterfall'),{
+  type:'bar',
+  data:{labels:wfLabels,datasets:[{data:wfData,backgroundColor:wfColors,borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'€'+ctx.parsed.y+'M'}}},
+    scales:{x:{ticks:{color:'#c8d8f0',font:{size:9}}},y:{ticks:{color:'#c8d8f0',callback:v=>'€'+v+'M'},grid:{color:'#1a2a4a'}}}}
+});
+
+// ── CHART PIE ────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('chartPie'),{
+  type:'doughnut',
+  data:{labels:DATA.segments.labels,datasets:[{data:DATA.segments.data,backgroundColor:['#1a3a6e','#00838f','#ffbb00'],borderColor:'#050a12',borderWidth:2}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:'#c8d8f0'},position:'bottom'}}}
+});
+
+// ── CHART PRICE ──────────────────────────────────────────────────────────────
+const priceDatasets=[{label:'Precio RACE',data:DATA.priceHistory.prices,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.08)',fill:true,tension:0.3,pointRadius:3,yAxisID:'y'}];
+DATA.targets.forEach(t=>{
+  priceDatasets.push({label:t.label,data:Array(DATA.priceHistory.labels.length).fill(t.value),borderColor:t.color,borderWidth:1.5,borderDash:[8,4],pointRadius:0,fill:false,yAxisID:'y'});
+});
+const priceChart=new Chart(document.getElementById('chartPrice'),{
+  type:'line',
+  data:{labels:DATA.priceHistory.labels,datasets:priceDatasets},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:9},color:'#c8d8f0',boxWidth:16}},
+    tooltip:{mode:'index',intersect:false}},
+    scales:{y:{ticks:{color:'#c8d8f0',callback:v=>'$'+v},grid:{color:'#1a2a4a'}},'x':{ticks:{color:'#94a3b8',font:{size:9}}}}},
+  plugins:[{id:'targetLabels',afterDraw(chart){const{ctx,scales,chartArea}=chart;if(!scales.y)return;
+    DATA.targets.forEach(t=>{const yPx=scales.y.getPixelForValue(t.value);if(!yPx)return;ctx.fillStyle=t.color;ctx.font='9px monospace';ctx.fillText(t.label,chartArea.right+4,yPx+3);});}}]
+});
+</script>
+</body>
+</html>
