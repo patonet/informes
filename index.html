@@ -245,61 +245,43 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 // ════════════════════════════════════════════════════════════
 const REPORTS = [
   {
-    ticker: "RACE",
-    name: "Ferrari N.V.",
+    ticker: "RACE", name: "Ferrari N.V.",
     desc: "Empresa de lujo que vende escasez manufacturada con F1 como motor de marketing.",
-    type: "equity",
-    verdict: "accumulate",
-    price: "$340.00",
-    upside: "+18%",
-    target: "$401.00",
-    date: "05 Apr 2026",
+    type: "equity", verdict: "accumulate",
+    price: "$340.00", upside: "+18%", target: "$401.00", date: "05 Apr 2026",
     url: "equities/Informe_RACE_340.00_05-04-2026.html",
     pdfUrl: "pdfs/equities/InformePDF_RACE_340.00_05-04-2026.pdf"
   },
-    {
-      ticker: "MELI",
-      name: "MercadoLibre, Inc.",
-      desc: "E-commerce + Fintech dominante en LatAm. 28 trimestres >30% YoY. Ecosistema marketplace + crédito + logística.",
-      type: "equity",
-      verdict: "accumulate",
-      price: "$1,715.52",
-      upside: "+59.3%",
-      target: "$2,733.00",
-      date: "02 Apr 2026",
-      url: "equities/Informe_MELI_1715.52_02-04-2026.html"
-    },
-        {
-            ticker: 'MRVL',
-            name: 'Marvell Technology, Inc.',
-            desc: 'AI Infrastructure · Semiconductores · Custom Silicon + Interconnect',
-            type: 'equity',
-            verdict: 'accumulate',
-            price: 103.43,
-            upside: '+12.5%',
-            target: 116.34,
-            date: '2026-04-01',
-            url: 'equities/InformePDF_MRVL_103.43_01-04-2026.pdf'
-        },
-    {
-        ticker: "TMDX",
-        name: "TransMedics Group",
-        desc: "Monopolio en perfusión normotérmica multiorgánica (OCS/NOP). 26% del mercado nacional de trasplantes EE.UU. Guidance FY2026: +20-25%.",
-        type: "equity",
-        verdict: "accumulate",
-        price: 99.10,
-        upside: '+58.0%',
-        target: 157,
-        date: "31/03/2026",
-        url: "equities/InformePDF_TMDX_99.10_31-03-2026.pdf"
-    },
-   
   {
-    ticker:"AVAV", name:"AeroVironment Inc.",
-    desc:"Drones militares y soluciones ISR para defensa y seguridad nacional.",
-    type:"equity", verdict:"buy",
-    price:"$176.97", upside:"+27.4%", target:"$225.00",
-    date:"30 Mar 2026", url:"equities/Informe_AVAV_176_97_300326.html"
+    ticker: "MELI", name: "MercadoLibre, Inc.",
+    desc: "E-commerce + Fintech dominante en LatAm. 28 trimestres >30% YoY. Ecosistema marketplace + crédito + logística.",
+    type: "equity", verdict: "accumulate",
+    price: "$1,715.52", upside: "+59.3%", target: "$2,733.00", date: "02 Apr 2026",
+    url: "equities/Informe_MELI_1715.52_02-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_MELI_1715.52_02-04-2026.pdf"
+  },
+  {
+    ticker: "MRVL", name: "Marvell Technology, Inc.",
+    desc: "AI Infrastructure · Semiconductores · Custom Silicon + Interconnect.",
+    type: "equity", verdict: "accumulate",
+    price: "$103.43", upside: "+12.5%", target: "$116.34", date: "01 Apr 2026",
+    url: "equities/Informe_MRVL_103.43_01-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_MRVL_103.43_01-04-2026.pdf"
+  },
+  {
+    ticker: "TMDX", name: "TransMedics Group",
+    desc: "Monopolio en perfusión normotérmica multiorgánica (OCS/NOP). 26% del mercado nacional de trasplantes EE.UU.",
+    type: "equity", verdict: "accumulate",
+    price: "$99.10", upside: "+58.0%", target: "$157.00", date: "31 Mar 2026",
+    url: "equities/Informe_TMDX_99.10_31-03-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_TMDX_99.10_31-03-2026.pdf"
+  },
+  {
+    ticker: "AVAV", name: "AeroVironment Inc.",
+    desc: "Drones militares y soluciones ISR para defensa y seguridad nacional.",
+    type: "equity", verdict: "buy",
+    price: "$176.97", upside: "+27.4%", target: "$225.00", date: "30 Mar 2026",
+    url: "equities/Informe_AVAV_176_97_300326.html"
   }
 ];
 
