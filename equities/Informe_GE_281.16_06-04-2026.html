@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GE Aerospace · $281.16 · Informe Feroldi | @patonet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* === R1: ROOT FLUID === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: clamp(10px, 1.15vw, 17px); }
+body { width: 100%; min-height: 100vh; background: #050a12; color: #c8d8f0; font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.4; overflow-x: hidden; }
+
+/* SCANLINES */
+body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:999; }
+
+/* HEADER GLOBAL */
+.info-header { background: #020710; border-bottom: 1px solid #0d2040; padding: 0.4rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+.info-header .brand { font-size: 0.85rem; color: #ffd700; font-weight: bold; letter-spacing: 0.1em; }
+.info-header .ts { font-size: 0.78rem; color: #94a3b8; font-family: 'Courier New', monospace; }
+
+/* ZONA */
+.zona { width: 100%; padding: 1.5rem; border-bottom: 2px solid #0a1825; overflow: hidden; }
+.zona-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: #00d4ff; border-bottom: 1px solid #1a3a6e; padding-bottom: 0.4rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; }
+.zona-title::before { content: ''; display: block; width: 0.3rem; height: 1rem; background: #00d4ff; border-radius: 0.1rem; }
+
+/* ===== ZONA 1 ===== */
+.z1-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; align-items: start; }
+.z1-logo-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
+.company-logo { height: 3.5rem; width: auto; object-fit: contain; cursor: pointer; border-radius: 0.3rem; filter: drop-shadow(0 0 8px rgba(0,212,255,0.3)); }
+.logo-fallback { width: 3.5rem; height: 3.5rem; background: #1a3a6e; border-radius: 0.4rem; display: none; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold; color: #00d4ff; cursor: pointer; }
+.company-name { font-size: 2rem; font-weight: 800; color: #fff; cursor: pointer; line-height: 1.1; letter-spacing: -0.02em; }
+.company-name:hover { color: #00d4ff; }
+.company-meta { font-size: 0.85rem; color: #94a3b8; margin-top: 0.2rem; }
+.frase-cursiva { font-style: italic; font-size: 1rem; color: #00d4ff; background: #050f20; border-left: 3px solid #00d4ff; padding: 0.6rem 1rem; cursor: pointer; border-radius: 0 0.3rem 0.3rem 0; margin-top: 0.6rem; transition: background 0.2s; }
+.frase-cursiva:hover { background: #0a1f3a; }
+
+/* 52W BAR */
+.barra-52w { margin-top: 1rem; }
+.barra-52w-labels { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem; }
+.lbl-min { color: #ff3a3a; } .lbl-max { color: #00ff9d; }
+.barra-track { position: relative; height: 0.45rem; background: #1a2a4a; border-radius: 0.25rem; }
+.barra-fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg,#ff3a3a,#ffd700,#00ff9d); border-radius: 0.25rem; width: 64.4%; }
+.barra-marker { position: absolute; top: -0.3rem; left: 64.4%; width: 1rem; height: 1rem; background: #00d4ff; border-radius: 50%; transform: translateX(-50%); border: 2px solid #050a12; box-shadow: 0 0 6px #00d4ff; }
+.barra-pct { font-size: 0.8rem; color: #00d4ff; margin-top: 0.3rem; font-family:'Courier New',monospace; }
+
+/* PERF BAR */
+.perf-bar { display: grid; grid-template-columns: repeat(8,1fr); gap: 0.15rem; background: #080f1c; border-radius: 0.4rem; padding: 0.6rem 0.4rem; margin-top: 0.8rem; border: 1px solid #0d1f35; }
+.perf-cell { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; padding: 0.25rem 0.1rem; border-right: 1px solid #1a2a4a; }
+.perf-cell:last-child { border-right: none; }
+.perf-lbl { font-size: 0.72rem; color: #94a3b8; text-align: center; }
+.perf-val { font-size: 0.88rem; font-weight: bold; font-family: 'Courier New', monospace; }
+.pos { color: #00c853; } .neg { color: #e53935; } .nd { color: #555; }
+
+/* PRICE PANEL */
+.z1-price-panel { display: flex; flex-direction: column; gap: 1rem; }
+.price-main { font-size: 2.6rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; line-height: 1; }
+.price-delta { font-size: 1rem; font-family: 'Courier New', monospace; color: #ff3a3a; }
+.verdict-badge { padding: 0.6rem 1.5rem; border-radius: 0.4rem; font-size: 0.95rem; font-weight: bold; text-align: center; letter-spacing: 0.06em; background: #1565C0; color: #fff; display: inline-block; box-shadow: 0 0 20px rgba(21,101,192,0.4); }
+.score-ia-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.score-card { background: #0d1f35; border: 1px solid #1a3a6e; border-radius: 0.4rem; padding: 0.5rem 0.8rem; text-align: center; }
+.score-val { font-size: 1.8rem; font-weight: bold; color: #ffd700; font-family: 'Courier New', monospace; }
+.score-lbl { font-size: 0.72rem; color: #94a3b8; margin-top: 0.1rem; }
+.ia-row { display: flex; align-items: center; gap: 0.5rem; }
+.ia-text { font-size: 0.88rem; font-weight: bold; color: #00c853; }
+
+/* GAUGE circular */
+.gauge-circular { display: block; margin: 0 auto; }
+
+/* ===== ZONA 2 ===== */
+.z2-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; }
+.z2-group { background: #080f1c; border-radius: 0.4rem; padding: 0.8rem; border: 1px solid #0d1f35; }
+.z2-group-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid #0d1f35; }
+.z2-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.z2-card { background: #0d1828; padding: 0.5rem 0.6rem; border-radius: 0.3rem; }
+.z2-val { font-size: 1.25rem; font-family: 'Courier New', monospace; font-weight: bold; color: #fff; }
+.z2-lbl { font-size: 0.78rem; color: #94a3b8; margin-top: 0.1rem; }
+.ind { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; margin-left: 0.3rem; vertical-align: middle; }
+.ind-g { background: #00ff9d; } .ind-y { background: #ffbb00; } .ind-r { background: #ff3a3a; }
+
+/* ===== ZONA 3 ===== */
+.zona3-inner { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; width: 100%; align-items: start; }
+.zona3-chart { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+.zona3-chart h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.5rem; text-align: center; }
+.zona3-chart .chart-wrap { position: relative; width: 100%; aspect-ratio: 4/3; }
+.zona3-chart .chart-wrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.legend-custom { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.4rem; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: #94a3b8; }
+.leg-box { width: 0.7rem; height: 0.7rem; border-radius: 0.1rem; }
+
+/* ===== ZONA 4 ===== */
+.z4-chart-wrap { position: relative; width: 100%; aspect-ratio: 16/5; margin-bottom: 1rem; }
+.z4-chart-wrap canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.z4-analyst-summary { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; padding: 1rem; background: #080f1c; border-radius: 0.4rem; border: 1px solid #0d1f35; }
+.z4-consensus { font-size: 1.3rem; font-weight: bold; color: #00ff9d; font-family: 'Courier New', monospace; }
+.z4-target-label { font-size: 0.85rem; color: #94a3b8; }
+.z4-rat-wrap { display: flex; gap: 0.4rem; align-items: flex-end; }
+.rat-col { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.rat-fill { width: 1.4rem; border-radius: 0.2rem 0.2rem 0 0; }
+.rat-lbl { font-size: 0.7rem; color: #94a3b8; }
+.rat-num { font-size: 0.82rem; font-weight: bold; }
+.analyst-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.5rem; margin-top: 0.8rem; }
+.analyst-item { display: flex; justify-content: space-between; align-items: center; background: #0a1628; padding: 0.4rem 0.6rem; border-radius: 0.3rem; font-size: 0.83rem; }
+.analyst-bank { color: #94a3b8; }
+.analyst-rating { font-weight: bold; color: #00d4ff; }
+.analyst-pt { font-family: 'Courier New', monospace; font-weight: bold; color: #00ff9d; }
+
+/* ===== ZONA 5 ===== */
+.z5-spider-title { font-size: 1.2rem; font-weight: bold; color: #00d4ff; text-align: center; margin-bottom: 1rem; }
+.z5-spider-wrap { width: 100%; max-width: 40rem; margin: 0 auto; }
+.z5-scorecard { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.feroldi-group-card { background: #0a1628; border: 1px solid #1a3a6e; border-radius: 0.5rem; padding: 1rem; }
+.fg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid #1a3a6e; }
+.fg-name { font-size: 0.92rem; font-weight: bold; color: #00d4ff; }
+.fg-avg { font-size: 1.5rem; font-weight: bold; color: #ffd700; font-family: 'Courier New', monospace; }
+.feroldi-row { cursor: pointer; padding: 0.3rem 0.2rem; border-radius: 0.2rem; transition: background 0.15s; }
+.feroldi-row:hover { background: #0d1f35; }
+.fr-name { font-size: 0.83rem; color: #c8d8f0; margin-bottom: 0.15rem; }
+.fr-score-num { text-align: center; font-size: 1.1rem; font-weight: bold; color: #ffd700; font-family: 'Courier New', monospace; }
+.z5-totals { margin-top: 1.5rem; padding: 1rem 1.5rem; background: #0d1f35; border-radius: 0.4rem; display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; border: 1px solid #1a3a6e; }
+.z5-tot-val { font-size: 1.6rem; font-weight: bold; color: #ffd700; font-family: 'Courier New', monospace; }
+.z5-tot-lbl { font-size: 0.83rem; color: #94a3b8; text-align: center; }
+
+/* ===== ZONA 6 ===== */
+.z6-rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+.z6-tbl-title { font-size: 0.95rem; font-weight: bold; color: #00d4ff; margin-bottom: 0.7rem; }
+.z6-tbl { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.z6-tbl th { background: #0d1f35; color: #94a3b8; padding: 0.45rem 0.6rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.z6-tbl td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #0a1628; }
+.z6-tbl tr:hover td { background: #0a1628; }
+.badge-a { color: #ff3a3a; font-weight: bold; }
+.badge-m { color: #ffbb00; font-weight: bold; }
+.badge-b { color: #00ff9d; font-weight: bold; }
+.badge-bm { color: #76c442; font-weight: bold; }
+
+/* ANALYST GAUGE */
+.z6-gauge-section { display: flex; flex-direction: column; align-items: center; margin: 1.5rem 0; gap: 0.8rem; }
+.gauge-analyst-svg { width: 100%; max-width: 22rem; }
+.gauge-consensus-label { font-size: 1.4rem; font-weight: bold; color: #00c853; }
+
+/* COMPETITORS */
+.comp-tbl-wrap { overflow-x: auto; }
+.comp-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.comp-tbl th { background: #0d1f35; color: #94a3b8; padding: 0.5rem 0.6rem; text-align: left; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.comp-tbl td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #0a1628; white-space: nowrap; }
+.comp-tbl .main-row td { background: #0d1f35; border-left: 3px solid #00d4ff; }
+.comp-tbl tr:hover td { background: #0a1628; cursor: pointer; }
+.comp-logo-img { height: 1.2rem; width: auto; vertical-align: middle; margin-right: 0.35rem; }
+.price-up { color: #00c853; font-family: 'Courier New', monospace; }
+.price-dn { color: #e53935; font-family: 'Courier New', monospace; }
+.pe-ok { color: #00c853; } .pe-hi { color: #ff3a3a; }
+.peg-ok { color: #00c853; } .peg-mid { color: #ffbb00; } .peg-hi { color: #ff3a3a; }
+.rng-wrap { display: flex; flex-direction: column; gap: 0.2rem; min-width: 8rem; }
+.rng-labels { display: flex; justify-content: space-between; font-size: 0.68rem; margin-top: 0.1rem; }
+
+/* FINAL VERDICT */
+.z6-verdict { margin-top: 1.5rem; padding: 1.5rem 2rem; background: #0a1628; border-radius: 0.6rem; border: 1px solid #1565C0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.8rem; }
+.z6-verdict-badge { font-size: 1.4rem; font-weight: bold; padding: 0.6rem 2.5rem; border-radius: 0.4rem; background: #1565C0; color: #fff; box-shadow: 0 0 30px rgba(21,101,192,0.5); }
+.z6-thesis { font-size: 0.95rem; color: #c8d8f0; max-width: 52rem; line-height: 1.6; }
+.z6-sl-tp { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 0.5rem; }
+.sl-tp-item { background: #080f1c; border: 1px solid #1a3a6e; border-radius: 0.4rem; padding: 0.5rem 1rem; text-align: center; }
+.sl-tp-label { font-size: 0.75rem; color: #94a3b8; }
+.sl-tp-val { font-size: 1.1rem; font-weight: bold; font-family: 'Courier New', monospace; }
+.z6-brand { font-size: 1rem; font-weight: bold; color: #ffd700; margin-top: 0.5rem; letter-spacing: 0.05em; }
+
+/* POPUPS */
+.popup-box { display: none; position: fixed; background: #0a1628; border: 2px solid #00d4ff; border-radius: 0.8rem; padding: 1.5rem; max-width: 36rem; max-height: 80vh; overflow-y: auto; z-index: 10000; font-size: 0.93rem; color: #c8d8f0; box-shadow: 0 0 40px rgba(0,212,255,0.3); line-height: 1.6; }
+.popup-box h3 { color: #00d4ff; margin-bottom: 0.8rem; font-size: 1.1rem; }
+#feroldiPopup { position: fixed; display: none; background: #0d1f35; border: 1px solid #00d4ff; border-radius: 0.5rem; padding: 1rem; max-width: 22rem; font-size: 0.88rem; color: #c8d8f0; z-index: 9999; pointer-events: none; box-shadow: 0 0 20px rgba(0,212,255,0.2); line-height: 1.5; }
+#iaPopup { border-color: #00c853; box-shadow: 0 0 40px rgba(0,200,83,0.3); }
+#compPopup { max-width: 32rem; font-size: 0.88rem; line-height: 1.6; }
+#compPopup h3 { font-size: 1rem; }
+
+@media (max-width: 768px) {
+  .z1-grid { grid-template-columns: 1fr; }
+  .zona3-inner { grid-template-columns: 1fr; }
+  .z6-rc-grid { grid-template-columns: 1fr; }
+  .perf-bar { grid-template-columns: repeat(4,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ POPUPS ============ -->
+<div id="execPopup" class="popup-box">
+  <h3>📋 Resumen Ejecutivo — GE Aerospace</h3>
+  <div id="execPopupText"></div>
+</div>
+<div id="iaPopup" class="popup-box" style="border-color:#00c853;box-shadow:0 0 40px rgba(0,200,83,0.3)">
+  <h3 style="color:#00c853">🟢 Semáforo IA — Veredicto: VERDE</h3>
+  <div id="iaPopupText"></div>
+</div>
+<div id="compPopup" class="popup-box">
+  <h3 id="compPopupTitle">Comparativa vs GE Aerospace</h3>
+  <div id="compPopupText"></div>
+</div>
+<div id="feroldiPopup"></div>
+
+<!-- ============ INFO HEADER ============ -->
+<div class="info-header">
+  <span class="brand">@patonet · SISTEMA FEROLDI + BUFFETT + MUNGER</span>
+  <span class="ts">GE Aerospace · NYSE:GE · 6 Abr 2026 · Precio base: $281.16</span>
+</div>
+
+<!-- ============ ZONA 1: IDENTIDAD ============ -->
+<section class="zona">
+  <div class="zona-title">Identidad & Precio</div>
+  <div class="z1-grid">
+
+    <!-- IZQUIERDA -->
+    <div>
+      <div class="z1-logo-row">
+        <img id="triggerLogo" class="company-logo"
+          src="https://logo.clearbit.com/geaerospace.com"
+          onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';"
+          alt="GE">
+        <div id="logoFallback" class="logo-fallback">GE</div>
+        <div>
+          <div id="triggerNombre" class="company-name">GE Aerospace</div>
+          <div class="company-meta">Industriales · Aeroespacial & Defensa · NYSE: GE</div>
+        </div>
+      </div>
+      <div id="triggerFrase" class="frase-cursiva">
+        "GE Aerospace es esencialmente una empresa de software de alto margen disfrazada de fabricante industrial: el motor es la plataforma, el servicio es el modelo de negocio."
+      </div>
+      <!-- 52W Bar -->
+      <div class="barra-52w">
+        <div class="barra-52w-labels">
+          <span class="lbl-min">52W Mín: $159.36</span>
+          <span style="color:#94a3b8;font-size:0.8rem">Rango Anual</span>
+          <span class="lbl-max">52W Máx: $348.48</span>
+        </div>
+        <div class="barra-track">
+          <div class="barra-fill"></div>
+          <div class="barra-marker"></div>
+        </div>
+        <div class="barra-pct">● Precio actual al 64.4% del rango anual</div>
+      </div>
+      <!-- Performance Bar -->
+      <div class="perf-bar" id="perfBar">
+        <div class="perf-cell"><span class="perf-lbl">1 día</span><span class="perf-val neg" id="p1d">-3.94%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">5 días</span><span class="perf-val neg" id="p5d">Carg…</span></div>
+        <div class="perf-cell"><span class="perf-lbl">1 mes</span><span class="perf-val neg" id="p1m">Carg…</span></div>
+        <div class="perf-cell"><span class="perf-lbl">6 meses</span><span class="perf-val" id="p6m">Carg…</span></div>
+        <div class="perf-cell"><span class="perf-lbl">En el año</span><span class="perf-val neg" id="pytd">-8.72%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">1 año</span><span class="perf-val pos" id="p1y">+40.95%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">5 años</span><span class="perf-val pos" id="p5y">Carg…</span></div>
+        <div class="perf-cell"><span class="perf-lbl">Desde IPO</span><span class="perf-val pos" id="pipo">+268%</span></div>
+      </div>
+    </div>
+
+    <!-- DERECHA -->
+    <div class="z1-price-panel">
+      <div>
+        <div class="price-main">$281.16</div>
+        <div class="price-delta">▼ -$11.49 (-3.94%) hoy</div>
+      </div>
+      <div class="verdict-badge">🔵 COMPRAR EN RETROCESOS</div>
+
+      <div class="score-ia-row">
+        <div class="score-card">
+          <div class="score-val">85%</div>
+          <div class="score-lbl">Score Feroldi</div>
+        </div>
+        <div class="score-card">
+          <div class="score-val">136/160</div>
+          <div class="score-lbl">Puntuación</div>
+        </div>
+        <!-- Gauge circular SVG -->
+        <svg viewBox="0 0 120 70" width="7rem" height="auto" class="gauge-circular">
+          <defs><linearGradient id="gaugeG" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e53935"/>
+            <stop offset="50%" stop-color="#ffd700"/>
+            <stop offset="100%" stop-color="#00c853"/>
+          </linearGradient></defs>
+          <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="#1a2a4a" stroke-width="12" stroke-linecap="butt"/>
+          <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="url(#gaugeG)" stroke-width="10" stroke-linecap="butt"/>
+          <!-- 85% → angle = 180-(0.85*180) = 27° → radians = 27*π/180 = 0.471 rad → nx=60+45*cos(180°-27°)=60+45*cos(153°)=60-40.1=19.9, ny=60-45*sin(153°)=60-20.4=39.6 -->
+          <line x1="60" y1="60" x2="20" y2="40" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="3" fill="#ffd700"/>
+          <text x="60" y="56" text-anchor="middle" fill="#ffd700" font-size="10" font-weight="bold" font-family="Courier New">85%</text>
+        </svg>
+      </div>
+
+      <!-- IA Semáforo -->
+      <div class="ia-row">
+        <svg id="triggerIA" viewBox="0 0 80 200" width="3.5rem" height="auto" style="cursor:pointer;display:inline-block;vertical-align:middle;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7))">
+          <rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+          <rect x="8" y="8" width="64" height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/>
+          <circle cx="16" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="16" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <circle cx="64" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+          <rect x="8" y="70" width="64" height="3" fill="#222"/>
+          <rect x="8" y="127" width="64" height="3" fill="#222"/>
+          <!-- ROJO tenue (riesgo BAJO) -->
+          <circle cx="40" cy="42" r="22" fill="#2d0a0a"/>
+          <circle cx="40" cy="42" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="34" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- NARANJA tenue -->
+          <circle cx="40" cy="100" r="22" fill="#3d2800"/>
+          <circle cx="40" cy="100" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="92" rx="7" ry="5" fill="white" opacity="0.05"/>
+          <!-- VERDE encendido -->
+          <circle cx="40" cy="158" r="22" fill="#00c853" filter="drop-shadow(0 0 10px #00c853)"/>
+          <circle cx="40" cy="158" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+          <ellipse cx="33" cy="150" rx="7" ry="5" fill="white" opacity="0.35"/>
+        </svg>
+        <div>
+          <div class="ia-text">IA: VERDE</div>
+          <div style="font-size:0.75rem;color:#94a3b8">Riesgo Bajo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ZONA 2: KEY STATS ============ -->
+<section class="zona">
+  <div class="zona-title">Key Statistics</div>
+  <div class="z2-grid">
+    <!-- VALORACIÓN -->
+    <div class="z2-group">
+      <div class="z2-group-title">📊 Valoración</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">34.5x<span class="ind ind-y"></span></div><div class="z2-lbl">P/E TTM</div></div>
+        <div class="z2-card"><div class="z2-val">2.84<span class="ind ind-r"></span></div><div class="z2-lbl">PEG Ratio</div></div>
+        <div class="z2-card"><div class="z2-val">$8.15<span class="ind ind-g"></span></div><div class="z2-lbl">EPS TTM</div></div>
+        <div class="z2-card"><div class="z2-val">$293B<span class="ind ind-g"></span></div><div class="z2-lbl">Market Cap</div></div>
+      </div>
+    </div>
+    <!-- RENTABILIDAD -->
+    <div class="z2-group">
+      <div class="z2-group-title">💰 Rentabilidad</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">~27%<span class="ind ind-g"></span></div><div class="z2-lbl">Margen Bruto</div></div>
+        <div class="z2-card"><div class="z2-val">20.7%<span class="ind ind-g"></span></div><div class="z2-lbl">Margen EBITDA</div></div>
+        <div class="z2-card"><div class="z2-val">19.0%<span class="ind ind-g"></span></div><div class="z2-lbl">Margen Neto</div></div>
+        <div class="z2-card"><div class="z2-val">44.7%<span class="ind ind-g"></span></div><div class="z2-lbl">ROE</div></div>
+        <div class="z2-card"><div class="z2-val">29.0%<span class="ind ind-g"></span></div><div class="z2-lbl">ROIC</div></div>
+        <div class="z2-card"><div class="z2-val">~8%<span class="ind ind-g"></span></div><div class="z2-lbl">ROA</div></div>
+      </div>
+    </div>
+    <!-- CRECIMIENTO -->
+    <div class="z2-group">
+      <div class="z2-group-title">📈 Crecimiento</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">+18.5%<span class="ind ind-g"></span></div><div class="z2-lbl">Revenue YoY</div></div>
+        <div class="z2-card"><div class="z2-val">+33%<span class="ind ind-g"></span></div><div class="z2-lbl">Net Income YoY</div></div>
+        <div class="z2-card"><div class="z2-val">+15%<span class="ind ind-g"></span></div><div class="z2-lbl">EPS Proj 2026</div></div>
+        <div class="z2-card"><div class="z2-val">$190B<span class="ind ind-g"></span></div><div class="z2-lbl">Backlog</div></div>
+      </div>
+    </div>
+    <!-- BALANCE & RIESGO -->
+    <div class="z2-group">
+      <div class="z2-group-title">⚖️ Balance & Riesgo</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">0.67%<span class="ind ind-y"></span></div><div class="z2-lbl">Dividend Yield</div></div>
+        <div class="z2-card"><div class="z2-val">1.37<span class="ind ind-r"></span></div><div class="z2-lbl">Beta (1Y)</div></div>
+        <div class="z2-card"><div class="z2-val">1.14<span class="ind ind-y"></span></div><div class="z2-lbl">D/E Ratio</div></div>
+        <div class="z2-card"><div class="z2-val">28.5x<span class="ind ind-y"></span></div><div class="z2-lbl">EV/EBITDA</div></div>
+        <div class="z2-card"><div class="z2-val">$7.7B<span class="ind ind-g"></span></div><div class="z2-lbl">FCF FY2025</div></div>
+        <div class="z2-card"><div class="z2-val">1.04x<span class="ind ind-y"></span></div><div class="z2-lbl">Current Ratio</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ZONA 3: CHARTS ============ -->
+<section class="zona">
+  <div class="zona-title">Rendimiento Financiero</div>
+  <div class="zona3-inner">
+    <!-- COLUMNA 1: Quarterly -->
+    <div class="zona3-chart">
+      <h3>Ingresos & Rentabilidad — Q1–Q4 FY2025</h3>
+      <div class="chart-wrap"><canvas id="chartQ"></canvas></div>
+      <div class="legend-custom">
+        <div class="leg-item"><div class="leg-box" style="background:#1a3a6e"></div>Revenue</div>
+        <div class="leg-item"><div class="leg-box" style="background:#00d4ff"></div>Net Income</div>
+        <div class="leg-item"><div class="leg-box" style="background:#ff8c00;height:3px;border-radius:1px;width:1rem;margin-top:0.25rem"></div>Margen Neto %</div>
+      </div>
+    </div>
+    <!-- COLUMNA 2: Waterfall -->
+    <div class="zona3-chart">
+      <h3>Conversión Ingresos → Utilidad — Q4 FY2025</h3>
+      <div class="chart-wrap"><canvas id="chartWF"></canvas></div>
+    </div>
+    <!-- COLUMNA 3: Segments -->
+    <div class="zona3-chart">
+      <h3>Composición de Ingresos (FY2025 adj.)</h3>
+      <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+      <div class="legend-custom" style="margin-top:0.6rem">
+        <div class="leg-item"><div class="leg-box" style="background:#00d4ff"></div>CES (78%)</div>
+        <div class="leg-item"><div class="leg-box" style="background:#ffd700"></div>DPT (22%)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ZONA 4: PRECIO & ANALISTAS ============ -->
+<section class="zona">
+  <div class="zona-title">Evolución del Precio & Consenso de Analistas</div>
+  <div class="z4-chart-wrap"><canvas id="chartPrice"></canvas></div>
+  <div class="z4-analyst-summary">
+    <div>
+      <div style="font-size:0.75rem;color:#94a3b8">Consenso (19 analistas)</div>
+      <div class="z4-consensus">⭐ STRONG BUY</div>
+    </div>
+    <div>
+      <div style="font-size:0.75rem;color:#94a3b8">PT Consenso</div>
+      <div class="z4-consensus" style="color:#ffd700">~$356–$362</div>
+    </div>
+    <div>
+      <div style="font-size:0.75rem;color:#94a3b8">Upside desde $281</div>
+      <div class="z4-consensus" style="color:#00ff9d">+26.6%</div>
+    </div>
+    <div class="z4-rat-wrap" style="align-items:flex-end">
+      <div class="rat-col"><div class="rat-fill" style="height:5rem;background:#e53935"></div><div class="rat-lbl">Venta</div><div class="rat-num" style="color:#e53935">2</div></div>
+      <div class="rat-col"><div class="rat-fill" style="height:1.5rem;background:#ffd700"></div><div class="rat-lbl">Neutro</div><div class="rat-num" style="color:#ffd700">1</div></div>
+      <div class="rat-col"><div class="rat-fill" style="height:8rem;background:#00c853"></div><div class="rat-lbl">Compra</div><div class="rat-num" style="color:#00c853">16</div></div>
+    </div>
+  </div>
+  <div class="analyst-list" style="margin-top:1rem">
+    <div class="analyst-item"><span class="analyst-bank">Citigroup</span><span class="analyst-rating">Buy ↑</span><span class="analyst-pt">$380</span></div>
+    <div class="analyst-item"><span class="analyst-bank">UBS</span><span class="analyst-rating">Buy ↑</span><span class="analyst-pt">$370</span></div>
+    <div class="analyst-item"><span class="analyst-bank">JP Morgan</span><span class="analyst-rating">Overweight</span><span class="analyst-pt">$335</span></div>
+    <div class="analyst-item"><span class="analyst-bank">Morgan Stanley</span><span class="analyst-rating">Overweight (nuevo)</span><span class="analyst-pt">N/D</span></div>
+    <div class="analyst-item"><span class="analyst-bank">BofA Securities</span><span class="analyst-rating">Buy</span><span class="analyst-pt">N/D</span></div>
+    <div class="analyst-item"><span class="analyst-bank">Daiwa</span><span class="analyst-rating" style="color:#ffbb00">Neutral ⚠</span><span class="analyst-pt">N/D</span></div>
+  </div>
+</section>
+
+<!-- ============ ZONA 5: FEROLDI SPIDER + SCORECARD ============ -->
+<section class="zona">
+  <div class="zona-title">Perfil Competitivo Feroldi — 16 Puntos</div>
+  <div class="z5-spider-title">Análisis Multidimensional GE Aerospace</div>
+  <!-- Spider Chart usando Chart.js Radar -->
+  <div class="z5-spider-wrap">
+    <canvas id="chartSpider" style="width:100%;max-height:22rem;"></canvas>
+  </div>
+
+  <!-- SCORECARD 5 grupos -->
+  <div class="z5-scorecard">
+    <!-- Crecimiento -->
+    <div class="feroldi-group-card">
+      <div class="fg-header">
+        <span class="fg-name">📈 Crecimiento</span>
+        <span class="fg-avg">8.3</span>
+      </div>
+      <div class="feroldi-row" data-tooltip="3. HISTORICAL GROWTH — 8/10: Revenue +21% adj FY2025; EPS CAGR 5Y ~34%; FCF CAGR ~52%. Crecimiento excepcional pero con maduración esperada en 2027+.">
+        <div class="fr-name">3. Crecimiento Histórico</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g3)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="154" y2="57" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">8</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="13. OUTLOOK — 8/10: Guidance formal con rangos estrechos. EPS 2026: $7.10-$7.40 (+15%). Revenue: low double-digit. FCF: $8.0-8.4B. Beat rate >80% en últimos 5 trimestres.">
+        <div class="fr-name">13. Outlook & Guidance</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g13" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g13)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="154" y2="57" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">8</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="14. OPTIONALITY — 9/10: Pipeline excepcional. RISE engine (2035+), GE9X/777X, eVTOL (BETA Technologies), drones CCA para USAF. Opcionalidades múltiples no priceadas.">
+        <div class="fr-name">14. Opcionalidad</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g14" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g14)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+    </div>
+
+    <!-- Rentabilidad -->
+    <div class="feroldi-group-card">
+      <div class="fg-header">
+        <span class="fg-name">💰 Rentabilidad</span>
+        <span class="fg-avg">9.0</span>
+      </div>
+      <div class="feroldi-row" data-tooltip="7. PROFITABILITY — 9/10: Owner Earnings ~$8.59B, Margen neto 19%, FCF >$7.7B. FCF conversion >100%. Buffett B1: OE-GAAP FCF diferencia 10.4% — dentro del umbral.">
+        <div class="fr-name">7. Rentabilidad</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g7" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g7)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="11. CAPITAL ALLOCATION — 9/10: ROIC 29% vs WACC ~8.5% = spread +20pp. Buybacks $7B en 2025. Reinversión $3B R&D. Buffett B3: ROTC ~53% — excepcional.">
+        <div class="fr-name">11. Asignación Capital</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g11" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g11)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+    </div>
+
+    <!-- Solidez Financiera -->
+    <div class="feroldi-group-card">
+      <div class="fg-header">
+        <span class="fg-name">🏦 Solidez Financiera</span>
+        <span class="fg-avg">7.7</span>
+      </div>
+      <div class="feroldi-row" data-tooltip="6. CAPITAL INTENSITY — 8/10: CapEx ~3% de ventas (~$1.3B). Modelo de servicios es capital-ligero. I+D $3B/año es el 'CapEx invisible' que crea el moat.">
+        <div class="fr-name">6. Intensidad Capital</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g6" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g6)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="154" y2="57" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">8</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="8. BALANCE SHEET — 7/10: Net Debt $9.6B, D/E 1.14, Net Debt/EBITDA 1.0x. Current Ratio ajustado 1.04x. Deuda heredada del conglomerado anterior, pero trayectoria mejorado.">
+        <div class="fr-name">8. Balance General</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g8" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g8)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="143" y2="44" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">7</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="12. SBC — 8/10: Dilución neta negativa (-1.12% en el año). Buybacks >SBC emitidos. Métricas de activación alineadas con creación de valor: EPS adj, FCF, ROIC.">
+        <div class="fr-name">12. Stock Compensation</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g12" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g12)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="154" y2="57" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">8</div>
+      </div>
+    </div>
+
+    <!-- Estrategia -->
+    <div class="feroldi-group-card">
+      <div class="fg-header">
+        <span class="fg-name">🏰 Estrategia & Ventaja</span>
+        <span class="fg-avg">9.5</span>
+      </div>
+      <div class="feroldi-row" data-tooltip="1. INDUSTRY — 9/10: Duopolio CFM/P&W en narrowbody. Barreras astronómicas. Crecimiento +3-5% anual estructural. Defensa como colchón anticíclico.">
+        <div class="fr-name">1. Industria</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g1)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="2. BUSINESS MODEL — 10/10: Modelo navaja-maquinilla perfecto. Backlog $190B = 4.5x revenue anual. Servicios MRO con márgenes 30-40%. Recurrencia casi perfecta.">
+        <div class="fr-name">2. Modelo de Negocio</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g2)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="180" y2="105" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">10</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="5. MOAT — 10/10: Switching costs prohibitivos + 2.3B horas datos de vuelo + 80K motores instalados + certificaciones FAA/EASA multiaño + ecosystem lock-in. Moat múltiple excepcional.">
+        <div class="fr-name">5. Foso Competitivo</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g5)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="180" y2="105" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">10</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="10. MANAGEMENT — 9/10: Larry Culp = track record Danaher (+350% en 14 años). FLIGHT DECK lean operativo. Sin Imperativo Institucional detectado. Trian incrementó participación Feb 2026.">
+        <div class="fr-name">10. Management</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g10" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g10)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+    </div>
+
+    <!-- Retorno Accionista -->
+    <div class="feroldi-group-card">
+      <div class="fg-header">
+        <span class="fg-name">💎 Retorno Accionista</span>
+        <span class="fg-avg">8.0</span>
+      </div>
+      <div class="feroldi-row" data-tooltip="4. HISTORICAL VALUE CREATION — 8/10: GE Aerospace +650% desde mínimo 2020. +268% en 3 años. Dividendo de $0.01 a $0.47/Q (+4600%). Trian incrementó posición Feb 2026.">
+        <div class="fr-name">4. Creación de Valor Histórica</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g4)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="154" y2="57" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">8</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="9. CAPITAL RETURN — 9/10: Programa $24B buybacks 2024-2026. Dividendo $0.47/Q (forward yield 0.67%). Target: >70% FCF devuelto post-2026. Dilución neta negativa.">
+        <div class="fr-name">9. Retorno de Capital</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g9" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g9)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="163" y2="72" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">9</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="15. RISKS — 6/10: Boeing MAX dependencia, GE9X pérdidas duplicándose en 2026, war in Iran + oil>$100, tariffs $500M+, P&W GTF eventual recovery. Riesgos reales pero gestionables.">
+        <div class="fr-name">15. Riesgos</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g15" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g15)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="100" y2="25" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">6</div>
+      </div>
+      <div class="feroldi-row" data-tooltip="16. VALUATION — 7/10: 38.8x EPS adj fwd 2026. SOTP base: $283. Precio actual $281.16 = valoración justa sin prima de opcionalidad. No barato pero razonable por calidad excepcional.">
+        <div class="fr-name">16. Valoración</div>
+        <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto"><defs><linearGradient id="g16" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/></linearGradient></defs><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/><path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#g16)" stroke-width="20" stroke-linecap="butt"/><line x1="100" y1="105" x2="143" y2="44" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="105" r="4" fill="#ffd700"/></svg>
+        <div class="fr-score-num">7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Totals bar -->
+  <div class="z5-totals">
+    <div class="z5-tot-val" style="font-size:0.9rem;color:#94a3b8">Puntuación Global Feroldi:</div>
+    <div>
+      <div class="z5-tot-val">136/160</div>
+      <div class="z5-tot-lbl">Score Absoluto</div>
+    </div>
+    <div>
+      <div class="z5-tot-val">85%</div>
+      <div class="z5-tot-lbl">% del Máximo Posible</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ZONA 6: RIESGOS, ANALISTAS, COMPETIDORES, VEREDICTO ============ -->
+<section class="zona">
+  <div class="zona-title">Riesgos · Catalizadores · Consenso · Competidores · Veredicto</div>
+
+  <!-- Riesgos y Catalizadores -->
+  <div class="z6-rc-grid">
+    <div>
+      <div class="z6-tbl-title">🚨 Riesgos Críticos</div>
+      <table class="z6-tbl">
+        <thead><tr><th>Riesgo</th><th>Descripción</th><th>Nivel</th></tr></thead>
+        <tbody>
+          <tr><td>Boeing 737 MAX</td><td>Nueva crisis FAA o quiebra; afecta LEAP-1B</td><td class="badge-a">ALTO</td></tr>
+          <tr><td>Recesión + oil>$120</td><td>Aerolíneas recortan flota y shop visits</td><td class="badge-a">ALTO</td></tr>
+          <tr><td>GE9X pérdidas</td><td>Se duplican en 2026; 777X retrasos continuos</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>P&W GTF recovery</td><td>Si resuelve durabilidad, pierde GE share</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>Tariffs insumos</td><td>$500M impacto adicional si Section 232</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>Supply chain</td><td>Delinquency spare parts +50%; Melrose warning</td><td class="badge-bm">BAJO-M</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="z6-tbl-title">🚀 Catalizadores 24 Meses</div>
+      <table class="z6-tbl">
+        <thead><tr><th>Catalizador</th><th>Fecha</th><th>Impacto</th></tr></thead>
+        <tbody>
+          <tr><td>Q1 2026 earnings beat</td><td>21 Abr 2026</td><td class="badge-a">+5-8%</td></tr>
+          <tr><td>LEAP OE rentabilidad</td><td>Q2 2026</td><td class="badge-m">+3-5%</td></tr>
+          <tr><td>Inversión $1B EE.UU.</td><td>Q3-Q4 2026</td><td class="badge-m">Re-rating</td></tr>
+          <tr><td>Boeing 777X certificación</td><td>2026-2027</td><td class="badge-a">+$5-8 EPS</td></tr>
+          <tr><td>RISE engine avanza</td><td>2027-2028</td><td class="badge-a">Múltiplo 45x+</td></tr>
+          <tr><td>Presupuesto defensa FY27</td><td>Sem 2 2026</td><td class="badge-m">DPT aceleración</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Analyst consensus gauge -->
+  <div class="z6-gauge-section">
+    <div class="z6-tbl-title">📊 Gauge de Consenso de Analistas (19 firmas)</div>
+    <svg class="gauge-analyst-svg" viewBox="0 0 400 240" width="100%" height="auto">
+      <defs>
+        <linearGradient id="gaugeConsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#e53935"/>
+          <stop offset="25%" stop-color="#ff8c00"/>
+          <stop offset="50%" stop-color="#ffd700"/>
+          <stop offset="75%" stop-color="#76c442"/>
+          <stop offset="100%" stop-color="#00c853"/>
+        </linearGradient>
+      </defs>
+      <!-- Arco fondo -->
+      <path d="M 40 180 A 160 160 0 0 1 360 180" fill="none" stroke="#1a2a4a" stroke-width="32" stroke-linecap="butt"/>
+      <!-- Arco coloreado -->
+      <path d="M 40 180 A 160 160 0 0 1 360 180" fill="none" stroke="url(#gaugeConsGrad)" stroke-width="28" stroke-linecap="butt"/>
+      <!-- Etiquetas del arco -->
+      <text x="30" y="200" fill="#94a3b8" font-size="11" text-anchor="middle">Venta</text>
+      <text x="30" y="215" fill="#94a3b8" font-size="11" text-anchor="middle">fuerte</text>
+      <text x="115" y="105" fill="#94a3b8" font-size="11" text-anchor="middle">Venta</text>
+      <text x="200" y="60" fill="#94a3b8" font-size="11" text-anchor="middle">Neutral</text>
+      <text x="285" y="105" fill="#94a3b8" font-size="11" text-anchor="middle">Compra</text>
+      <text x="370" y="200" fill="#94a3b8" font-size="11" text-anchor="middle">Compra</text>
+      <text x="370" y="215" fill="#94a3b8" font-size="11" text-anchor="middle">fuerte</text>
+      <!-- Aguja — strong buy ≈ 8.5/10 → angle = 180-(8.5*18) = 180-153 = 27° → cos(180-27)=cos(153°)=-0.891, sin(153°)=0.454 -->
+      <!-- nx = 200 + 140*cos(27°*π/180 from right) → needle points toward "Compra fuerte" -->
+      <!-- Score 8.5 → angulo = 180 - (8.5/10)*180 = 27° from right → 
+           x = 200 + 130*cos((180-27)*π/180) = 200 + 130*cos(153°) = 200 - 115.8 = 84.2
+           Correcting: angle FROM LEFT at 0, so score 8.5 means 8.5/10 of the way from left to right
+           angle_from_left = (8.5/10)*180 = 153° (measuring from left horizontal)
+           In SVG: θ = π - 153°*π/180 = 27° above horizontal on right side
+           x = 200 + 130*cos(27°) = 200 + 115.8 = 315.8
+           y = 180 - 130*sin(27°) = 180 - 59 = 121 -->
+      <line x1="200" y1="180" x2="316" y2="121" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="200" cy="180" r="8" fill="#fff"/>
+      <!-- Texto debajo -->
+      <text x="200" y="215" fill="#00c853" font-size="18" font-weight="bold" text-anchor="middle">STRONG BUY</text>
+      <text x="200" y="235" fill="#94a3b8" font-size="11" text-anchor="middle">16 Buy · 1 Hold · 2 Sell · PT consenso: ~$356-$362</text>
+    </svg>
+  </div>
+
+  <!-- Competitors Table -->
+  <div style="margin-bottom:1.5rem">
+    <div class="z6-comp-title">🏆 Análisis Comparativo vs Competidores del Sector</div>
+    <div class="comp-tbl-wrap">
+      <table class="comp-tbl">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Precio</th>
+            <th>Mkt Cap</th>
+            <th>P/E TTM</th>
+            <th>PEG</th>
+            <th>Margen Neto</th>
+            <th>Rango 52W</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="main-row" data-comp="GE">
+            <td><img src="https://logo.clearbit.com/geaerospace.com" class="comp-logo-img" onerror="this.style.display='none'"><strong>GE Aerospace (GE)</strong></td>
+            <td class="price-dn"><strong>$281.16</strong></td>
+            <td><strong>$293B</strong></td>
+            <td class="pe-hi"><strong>34.5x</strong></td>
+            <td class="peg-hi"><strong>2.84</strong></td>
+            <td class="pos"><strong>19.0%</strong></td>
+            <td><div class="rng-wrap"><svg viewBox="0 0 100 8" width="100%" style="display:block"><rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/><circle cx="64" cy="4" r="3.5" fill="#00d4ff"/></svg><div class="rng-labels"><span style="color:#ff3a3a">$159</span><span style="color:#00d4ff;font-size:0.65rem">64%</span><span style="color:#00ff9d">$348</span></div></div></td>
+          </tr>
+          <tr data-comp="RTX" style="cursor:pointer" onclick="showComp('RTX')">
+            <td><img src="https://logo.clearbit.com/rtx.com" class="comp-logo-img" onerror="this.style.display='none'">RTX Corp (RTX)</td>
+            <td class="price-up">$196.21</td>
+            <td>$263B</td>
+            <td class="pe-hi">39.0x</td>
+            <td class="peg-hi">N/D</td>
+            <td style="color:#ffbb00">6.7%</td>
+            <td><div class="rng-wrap"><svg viewBox="0 0 100 8" width="100%" style="display:block"><rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/><circle cx="83" cy="4" r="3.5" fill="#00d4ff"/></svg><div class="rng-labels"><span style="color:#ff3a3a">$112</span><span style="color:#00d4ff;font-size:0.65rem">83%</span><span style="color:#00ff9d">$214</span></div></div></td>
+          </tr>
+          <tr data-comp="HON" style="cursor:pointer" onclick="showComp('HON')">
+            <td><img src="https://logo.clearbit.com/honeywell.com" class="comp-logo-img" onerror="this.style.display='none'">Honeywell (HON)</td>
+            <td class="price-up">$228.78</td>
+            <td>$145B</td>
+            <td class="pe-hi">32.0x</td>
+            <td class="peg-hi">3.24</td>
+            <td style="color:#ffbb00">12.6%</td>
+            <td><div class="rng-wrap"><svg viewBox="0 0 100 8" width="100%" style="display:block"><rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/><circle cx="72" cy="4" r="3.5" fill="#00d4ff"/></svg><div class="rng-labels"><span style="color:#ff3a3a">$179</span><span style="color:#00d4ff;font-size:0.65rem">72%</span><span style="color:#00ff9d">$248</span></div></div></td>
+          </tr>
+          <tr data-comp="LMT" style="cursor:pointer" onclick="showComp('LMT')">
+            <td><img src="https://logo.clearbit.com/lockheedmartin.com" class="comp-logo-img" onerror="this.style.display='none'">Lockheed Martin (LMT)</td>
+            <td class="price-up">$621.00</td>
+            <td>$143B</td>
+            <td class="pe-ok">29.0x</td>
+            <td class="peg-ok">1.15</td>
+            <td style="color:#ffbb00">6.7%</td>
+            <td><div class="rng-wrap"><svg viewBox="0 0 100 8" width="100%" style="display:block"><rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/><circle cx="75" cy="4" r="3.5" fill="#00d4ff"/></svg><div class="rng-labels"><span style="color:#ff3a3a">$410</span><span style="color:#00d4ff;font-size:0.65rem">75%</span><span style="color:#00ff9d">$692</span></div></div></td>
+          </tr>
+          <tr data-comp="BA" style="cursor:pointer" onclick="showComp('BA')">
+            <td><img src="https://logo.clearbit.com/boeing.com" class="comp-logo-img" onerror="this.style.display='none'">Boeing (BA)</td>
+            <td style="color:#ffbb00">~$234</td>
+            <td>N/D</td>
+            <td style="color:#ff3a3a">N/M</td>
+            <td style="color:#ff3a3a">N/M</td>
+            <td class="price-dn">Negativo</td>
+            <td><div style="font-size:0.78rem;color:#555">N/D suficiente</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Final Verdict -->
+  <div class="z6-verdict">
+    <div class="z6-verdict-badge">🔵 COMPRAR EN RETROCESOS</div>
+    <div class="z6-thesis">
+      GE Aerospace es uno de los mejores negocios industriales del mercado público: moat múltiple (switching costs + 2.3B horas de datos + 80K motores instalados), FCF $7.7B creciendo a $8.2B+ en 2026, y backlog de $190B que garantiza visibilidad de 4.5 años. A $281.16, la acción cotiza a 38.8x EPS adj fwd — premium justificado para un negocio con ROIC de 29% y Owner Earnings de $8.6B. El retroceso del -19% desde ATH ($348) es macroinducido (guerra Irán + oil + tariffs), no fundamental. Inicia posición pequeña hoy y escala agresivamente hacia $250-260. Próximo catalizador: Q1 2026 earnings call, <strong>21 de abril de 2026</strong>.
+    </div>
+    <div class="z6-sl-tp">
+      <div class="sl-tp-item"><div class="sl-tp-label">Entrada Ideal</div><div class="sl-tp-val" style="color:#00d4ff">$255-$265</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">Stop Loss</div><div class="sl-tp-val" style="color:#ff3a3a">$225 (-20%)</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">Take Profit 1</div><div class="sl-tp-val" style="color:#00ff9d">$330 (+17%)</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">Take Profit 2</div><div class="sl-tp-val" style="color:#00ff9d">$360 (+28%)</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">Next Earnings</div><div class="sl-tp-val" style="color:#ffd700">21 Abr 2026</div></div>
+    </div>
+    <div class="z6-brand">Informe confidencial para @patonet · Método Feroldi + Buffett + Munger · No constituye asesoramiento financiero</div>
+  </div>
+</section>
+
+<!-- ============ SCRIPTS ============ -->
+<script>
+// ============ DATOS CONSTANTES ============
+const EXEC_SUMMARY = `GE Aerospace es la empresa de motores de aviación más importante del mundo, operando un negocio de altísima calidad económica construido sobre un activo casi imposible de replicar: una flota instalada de ~80,000 motores de avión que generan décadas de ingresos de mantenimiento recurrente. La empresa gana dinero de dos formas: vendiendo motores nuevos (bajo margen, estratégico) y cobrando por repararlos, inspeccionarlos y suministrar piezas de repuesto durante 20-30 años (márgenes 30-40%). Este modelo de "navaja-maquinilla" produce un foso económico extraordinario porque el costo de cambio para las aerolíneas es prohibitivo.
+
+La empresa ha ejecutado uno de los turnarounds más espectaculares de la historia corporativa bajo Larry Culp: de un conglomerado disfuncional valorado en $70B en 2018 a un pure-play aeroespacial valorado en ~$293B hoy. Backlog: $190B (4.5x revenue anual). FCF FY2025: $7.7B. EPS adj 2026 guidance: $7.10-$7.40 (+15%).
+
+El retroceso actual (-19% desde ATH $348) es macroinducido. La tesis fundamental se mantiene intacta.
+
+"GE Aerospace es esencialmente una empresa de software de alto margen disfrazada de fabricante industrial: el motor es la plataforma, el servicio es el modelo de negocio."`;
+
+const IA_ANALYSIS = `SEMÁFORO IA: 🟢 VERDE — La IA beneficia a GE Aerospace y refuerza su moat.
+
+GE posee el activo de datos de vuelo más grande e irrepetible del mundo (2.3 billones de horas de vuelo), lo que convierte cada nuevo contrato de motor en un punto adicional de entrenamiento de sus modelos predictivos.
+
+OPORTUNIDADES IA CLAVE:
+• Dataset 2.3B horas vuelo = moat tecnológico de primera clase no reflejado en el balance
+• Partnership con Palantir (mar 2026): AI para readiness militar y optimización producción
+• AI Wingmate: mantenimiento predictivo que puede monetizarse como SaaS
+• Network effect: más motores → más datos → mejor IA → más clientes
+
+AMENAZAS IA IDENTIFICADAS:
+• Desintermediación MRO por startups de AI (12-24 meses)
+• Fuga de ingenieros aeroespaciales hacia tech/SpaceX
+• Si GE subcontrata demasiado (Palantir), cede el valor del dato
+
+FACTOR QUE CAMBIARÍA EL VEREDICTO A NARANJA: Si Rolls-Royce desarrolla un dataset de vuelo comparable en widebody y lanza una plataforma de MRO AI superior.
+
+El factor clave: el que tiene los datos, tiene el poder en la era de la IA industrial.`;
+
+const COMP_DATA = {
+  RTX: { name: 'RTX Corp (Raytheon)', description: `RTX es el rival más cercano a GE en el ecosistema aeroespacial, con tres divisiones: Collins Aerospace, Pratt & Whitney y Raytheon Missiles & Defense.
+
+VS GE AEROSPACE:
+• RTX tiene P&W GTF que compite directamente con LEAP en A320neo — PERO el GTF ha sufrido crisis de retiros 2023-2025 por polvos de titanio defectuosos, lo que ha sido un regalo estructural para GE/CFM
+• GE tiene mayor margen neto (19% vs 6.7%) — ventaja sustancial en rentabilidad
+• RTX tiene mayor diversificación (misiles, aviónica) pero menor pureza del modelo de negocio
+• Backlog RTX $268B vs GE $190B — RTX es más grande pero más complejo
+• GE crece más rápido (+21% rev) que RTX (+11% orgánico)
+• Valoración: RTX a 39x P/E vs GE a 34.5x — GE más barato para mayor crecimiento
+CONCLUSIÓN: GE gana en crecimiento, margen y pureza del modelo.` },
+  HON: { name: 'Honeywell International', description: `Honeywell es un conglomerado industrial en proceso de desconglomeración, con negocios en aviación, automatización industrial y soluciones de eficiencia energética.
+
+VS GE AEROSPACE:
+• HON está en transición activa (spin-off de negocios), lo que crea incertidumbre estructural
+• GE tiene mayor margen neto (19% vs 12.6%) — mejor calidad de earnings
+• HON tiene P/E 32x — más barato que GE, pero con menor crecimiento y más complejidad
+• GE tiene moat más profundo en su segmento core (aviation) vs HON que está más diversificado
+• HON PEG 3.24 vs GE 2.84 — ambos no baratos por PEG, pero GE crece más rápido
+• HON dividendo yield mayor (~2%) vs GE (0.67%) — para inversores de ingreso, HON gana
+CONCLUSIÓN: GE gana en calidad, crecimiento y moat; HON para inversores de dividendo.` },
+  LMT: { name: 'Lockheed Martin Corp', description: `Lockheed Martin es el mayor contratista de defensa del mundo (F-35, Black Hawk, sistemas espaciales). Negocio 95% defensa/gobierno.
+
+VS GE AEROSPACE:
+• LMT está más expuesto a ciclos de presupuesto gubernamental; GE tiene split comercial/defensa 78/22%
+• LMT PEG 1.15 — SIGNIFICATIVAMENTE más barato que GE (2.84) en términos de PEG
+• LMT margen neto 6.7% vs GE 19% — GE es mucho más rentable por dólar de revenue
+• LMT crece más lento (+4% revenue) vs GE (+21%) — GE en ciclo de expansión
+• LMT backlog $193.6B vs GE $190B — comparable en visibilidad
+• LMT dividendo 2.20% — atractivo para ingreso vs GE 0.67%
+• LMT ofrece menor riesgo de valoración; GE ofrece mayor upside y crecimiento
+CONCLUSIÓN: LMT más barato por PEG; GE superior en crecimiento y rentabilidad.` },
+  BA: { name: 'Boeing Company', description: `Boeing es el mayor fabricante de aviones del mundo y cliente crítico de GE Aerospace (LEAP-1B exclusivo en 737 MAX).
+
+VS GE AEROSPACE:
+• Boeing es un RIESGO para GE, no solo un competidor: GE depende de Boeing para ~35% de entregas LEAP-1B
+• Boeing tiene pérdidas masivas (P/E N/M) vs GE con 19% de margen neto
+• Boeing tiene deuda >$50B; GE tiene net debt $9.6B (mucho más manejable)
+• Boeing ha sufrido crisis de calidad (737 MAX, problemas 777X) que afectan directamente el negocio de GE
+• Si Boeing resuelve sus problemas y entrega 777X en volumen, GE gana (GE9X pasa de pérdida a profit)
+• Si Boeing empeora, GE enfrenta su mayor riesgo de concentración
+RIESGO CRÍTICO: La quiebra o nueva crisis de certificación de Boeing es el bear case #1 para GE.` }
+};
+
+// ============ POPUPS ============
+const execPopup = document.getElementById('execPopup');
+const execTx = document.getElementById('execPopupText');
+const iaPopup = document.getElementById('iaPopup');
+const iaTx = document.getElementById('iaPopupText');
+const compPopup = document.getElementById('compPopup');
+const compTitle = document.getElementById('compPopupTitle');
+const compTx = document.getElementById('compPopupText');
+const fpop = document.getElementById('feroldiPopup');
+let hideTimers = {};
+
+function showPopup(popup, text, el) {
+  if (hideTimers[popup.id]) { clearTimeout(hideTimers[popup.id]); delete hideTimers[popup.id]; }
+  if (popup === execPopup) execTx.innerHTML = text.replace(/\n/g,'<br>');
+  else if (popup === iaPopup) iaTx.innerHTML = text.replace(/\n/g,'<br>');
+  popup.style.display = 'block';
+  if (el) {
+    const r = el.getBoundingClientRect();
+    popup.style.left = Math.min(r.left, window.innerWidth - 400) + 'px';
+    popup.style.top = Math.min(r.bottom + 8, window.innerHeight - 300) + 'px';
+  } else {
+    popup.style.left = '50%';
+    popup.style.top = '50%';
+    popup.style.transform = 'translate(-50%,-50%)';
+  }
+}
+function scheduleHide(popup) {
+  hideTimers[popup.id] = setTimeout(() => { popup.style.display = 'none'; delete hideTimers[popup.id]; }, 300);
+}
+
+['triggerLogo','triggerNombre','triggerFrase'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('mouseenter', e => showPopup(execPopup, EXEC_SUMMARY, el));
+  el.addEventListener('mouseleave', () => scheduleHide(execPopup));
+});
+execPopup.addEventListener('mouseenter', () => { if(hideTimers.execPopup) { clearTimeout(hideTimers.execPopup); delete hideTimers.execPopup; }});
+execPopup.addEventListener('mouseleave', () => scheduleHide(execPopup));
+
+const triggerIA = document.getElementById('triggerIA');
+if (triggerIA) {
+  triggerIA.addEventListener('mouseenter', e => showPopup(iaPopup, IA_ANALYSIS, triggerIA));
+  triggerIA.addEventListener('mouseleave', () => scheduleHide(iaPopup));
+}
+iaPopup.addEventListener('mouseenter', () => { if(hideTimers.iaPopup) { clearTimeout(hideTimers.iaPopup); delete hideTimers.iaPopup; }});
+iaPopup.addEventListener('mouseleave', () => scheduleHide(iaPopup));
+
+document.addEventListener('click', e => {
+  [execPopup, iaPopup, compPopup].forEach(p => { if (!p.contains(e.target)) p.style.display = 'none'; });
+});
+
+function showComp(ticker) {
+  const d = COMP_DATA[ticker];
+  if (!d) return;
+  compTitle.textContent = '📊 ' + d.name + ' vs GE Aerospace';
+  compTx.innerHTML = d.description.replace(/\n/g,'<br>');
+  compPopup.style.display = 'block';
+  compPopup.style.left = '50%';
+  compPopup.style.top = '50%';
+  compPopup.style.transform = 'translate(-50%,-50%)';
+}
+
+// Feroldi popup
+document.querySelectorAll('.feroldi-row').forEach(row => {
+  row.addEventListener('mouseenter', e => {
+    fpop.textContent = row.getAttribute('data-tooltip') || '';
+    fpop.style.display = 'block';
+    fpop.style.left = Math.min(e.clientX + 15, window.innerWidth - 350) + 'px';
+    fpop.style.top = Math.min(e.clientY + 10, window.innerHeight - 200) + 'px';
+  });
+  row.addEventListener('mousemove', e => {
+    fpop.style.left = Math.min(e.clientX + 15, window.innerWidth - 350) + 'px';
+    fpop.style.top = Math.min(e.clientY + 10, window.innerHeight - 200) + 'px';
+  });
+  row.addEventListener('mouseleave', () => { fpop.style.display = 'none'; });
+});
+
+// ============ CHART QUARTERLY (ZONA 3 COL 1) ============
+(function() {
+  const labels = ['Q1 2025','Q2 2025','Q3 2025','Q4 2025'];
+  const revenue = [11.04, 11.0, 11.1, 12.72];
+  const netIncome = [2.06, 1.95, 2.16, 2.53];
+  const margin = [18.7, 17.7, 19.5, 19.9];
+  const allVals = [...revenue, ...netIncome];
+  const yValMin = 0;
+  const yValMax = Math.max(...allVals) * 1.15;
+  new Chart(document.getElementById('chartQ'), {
+    data: {
+      labels,
+      datasets: [
+        { type:'bar', label:'Revenue ($B)', data:revenue, backgroundColor:'#1a3a6e', yAxisID:'yVal', borderRadius:3 },
+        { type:'bar', label:'Net Income ($B)', data:netIncome, backgroundColor:'#00d4ff', yAxisID:'yVal', borderRadius:3 },
+        { type:'line', label:'Margen Neto %', data:margin, borderColor:'#ff8c00', backgroundColor:'transparent', yAxisID:'yMg', pointRadius:4, pointBackgroundColor:'#ff8c00', borderWidth:2, tension:0.3 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y >= 10 ? '$'+ctx.parsed.y.toFixed(2)+'B' : ctx.parsed.y.toFixed(1) + (ctx.datasetIndex===2?'%':' $B')) }}},
+      scales:{
+        yMg:{ type:'linear', position:'left', ticks:{ color:'#ff8c00', callback:v=>v.toFixed(1)+'%', font:{size:10} }, grid:{ color:'#1a2a4a' }, title:{ display:true, text:'Margen %', color:'#ff8c00', font:{size:10} }},
+        yVal:{ type:'linear', position:'right', min:yValMin, max:yValMax, ticks:{ color:'#c8d8f0', callback:v=>'$'+v.toFixed(1)+'B', font:{size:10} }, grid:{ drawOnChartArea:false }, title:{ display:true, text:'USD $B', color:'#c8d8f0', font:{size:10} }}
+      }
+    }
+  });
+})();
+
+// ============ WATERFALL Q4 2025 ============
+(function() {
+  const wfLabels = ['Revenue','COGS','Margen Bruto','Op. Exp.','Op. Income','No Operativo','Impuestos','Net Income'];
+  const wfColors = ['#1a3a6e','#ff3a3a','#00ff9d','#ff3a3a','#00d4ff','#ffbb00','#ff6b6b','#ffd700'];
+  const wfData = [12.72, -9.0, 3.72, -1.45, 2.27, 0.75, -0.49, 2.53];
+  new Chart(document.getElementById('chartWF'), {
+    type:'bar',
+    data:{ labels:wfLabels, datasets:[{ data:wfData, backgroundColor:wfColors, borderRadius:3, borderSkipped:false }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => { const v=ctx.parsed.y; return (v>=0?'+':'')+v.toFixed(2)+'B USD'; }}}},
+      scales:{
+        x:{ ticks:{ color:'#94a3b8', font:{size:9} }, grid:{ color:'#0a1825' }},
+        y:{ ticks:{ color:'#c8d8f0', callback:v=>'$'+v.toFixed(1)+'B', font:{size:10} }, grid:{ color:'#1a2a4a' }}
+      }
+    }
+  });
+})();
+
+// ============ PIE SEGMENTOS ============
+(function() {
+  new Chart(document.getElementById('chartPie'), {
+    type:'doughnut',
+    data:{
+      labels:['CES (Motores Comerciales & Servicios)','DPT (Defensa & Propulsión)'],
+      datasets:[{ data:[78,22], backgroundColor:['#00d4ff','#ffd700'], borderColor:['#050a12'], borderWidth:3, hoverOffset:8 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'60%',
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ctx.label + ': ' + ctx.parsed + '%' }}}
+    }
+  });
+})();
+
+// ============ PRICE CHART (ZONA 4) — Yahoo Finance API ============
+async function loadPriceChart() {
+  const currentPrice = 281.16;
+  let labels = [], prices = [];
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/GE?interval=1d&range=1y`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const ts = d.chart.result[0].timestamp;
+    const cl = d.chart.result[0].indicators.quote[0].close;
+    ts.forEach((t,i) => { if(cl[i]) { const dt = new Date(t*1000); labels.push(dt.toISOString().slice(0,7)); prices.push(+cl[i].toFixed(2)); }});
+    // Update perf bar
+    const updatePerf = (elId, ref) => { if(!ref) return; const p = ((currentPrice-ref)/ref*100).toFixed(2); const el=document.getElementById(elId); if(el){ el.textContent=(p>0?'+':'')+p+'%'; el.className='perf-val '+(p>0?'pos':'neg'); }};
+    const getClose = daysAgo => { const target=new Date(); target.setDate(target.getDate()-daysAgo); let best=null,bestDiff=Infinity; ts.forEach((t,i)=>{ if(!cl[i])return; const diff=Math.abs(new Date(t*1000)-target); if(diff<bestDiff){bestDiff=diff;best=cl[i];}}); return best; };
+    updatePerf('p5d', getClose(5));
+    updatePerf('p1m', getClose(30));
+    updatePerf('p6m', getClose(182));
+    updatePerf('p5y', getClose(1825));
+  } catch(e) {
+    // Fallback static data
+    const months = ['Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar'];
+    const staticPrices = [200,185,178,193,210,225,248,270,295,315,345,310];
+    months.forEach((m,i) => { labels.push(m+' '+(i<9?'25':'26')); prices.push(staticPrices[i]); });
+    ['p5d','p1m','p6m','p5y'].forEach(id => {
+      const el=document.getElementById(id);
+      if(el){ const staticMap={p5d:'-8.00%',p1m:'-17.47%',p6m:'-8.72%',p5y:'+268%'}; el.textContent=staticMap[id]||'N/D'; el.className='perf-val '+(id==='p5y'?'pos':'neg'); }
+    });
+  }
+  labels.push('Hoy');
+  prices.push(currentPrice);
+  const targets = [
+    { value:380, label:'Citi $380', color:'#00ff9d' },
+    { value:370, label:'UBS $370', color:'#00c853' },
+    { value:335, label:'JPM $335', color:'#76c442' },
+    { value:356, label:'Cons. $356', color:'#ffd700' }
+  ];
+  const datasets = [
+    { type:'line', label:'GE Aerospace', data:prices, borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.08)', borderWidth:2.5, pointRadius:0, pointHoverRadius:5, fill:true, tension:0.3, yAxisID:'y' },
+    ...targets.map(t => ({ type:'line', label:t.label, data:Array(labels.length).fill(t.value), borderColor:t.color, borderWidth:1.5, borderDash:[8,4], pointRadius:0, pointHoverRadius:0, fill:false, yAxisID:'y' }))
+  ];
+  new Chart(document.getElementById('chartPrice'), {
+    data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ labels:{ color:'#94a3b8', font:{size:11} }},
+        tooltip:{ callbacks:{ label: ctx => ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(2) }}
+      },
+      scales:{
+        y:{ ticks:{ color:'#c8d8f0', callback:v=>'$'+v, font:{size:10} }, grid:{ color:'#1a2a4a' }},
+        x:{ ticks:{ color:'#94a3b8', font:{size:9}, maxTicksLimit:12 }, grid:{ color:'#0a1825' }}
+      }
+    }
+  });
+}
+loadPriceChart();
+
+// ============ SPIDER CHART (ZONA 5) ============
+(function() {
+  new Chart(document.getElementById('chartSpider'), {
+    type:'radar',
+    data:{
+      labels:['📈 Crecimiento\n(8.3)','💰 Rentabilidad\n(9.0)','🏦 Solidez\n(7.7)','🏰 Estrategia\n(9.5)','💎 Retorno\n(8.0)'],
+      datasets:[{
+        label:'GE Aerospace',
+        data:[8.33, 9.0, 7.67, 9.5, 8.0],
+        backgroundColor:'rgba(0,212,255,0.15)',
+        borderColor:'#00d4ff',
+        borderWidth:2.5,
+        pointBackgroundColor:'#00d4ff',
+        pointRadius:5,
+        pointHoverRadius:7
+      },{
+        label:'Benchmark S&P500',
+        data:[6,6,6,6,6],
+        backgroundColor:'rgba(148,163,184,0.05)',
+        borderColor:'#94a3b8',
+        borderWidth:1.5,
+        borderDash:[4,4],
+        pointBackgroundColor:'#94a3b8',
+        pointRadius:3
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:12} }}},
+      scales:{
+        r:{
+          min:0, max:10,
+          ticks:{ stepSize:2, color:'#94a3b8', backdropColor:'transparent', font:{size:10} },
+          grid:{ color:'#1a2a4a' },
+          angleLines:{ color:'#1a3a6e' },
+          pointLabels:{ color:'#00d4ff', font:{size:12, weight:'bold'} }
+        }
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
