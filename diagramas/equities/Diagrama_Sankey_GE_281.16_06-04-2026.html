@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GE Aerospace · Sankey · Flujo de Dinero FY2025 | @patonet</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: clamp(10px, 1.1vw, 16px); }
+body { background: #050a12; color: #c8d8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:999; }
+
+.header { background: #020710; border-bottom: 2px solid #0d2040; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; }
+.header h1 span { color: #00d4ff; }
+.header .meta { font-size: 0.82rem; color: #94a3b8; text-align: right; }
+.header .brand { font-size: 0.9rem; color: #ffd700; font-weight: bold; }
+
+.subtitle { padding: 0.8rem 2rem; background: #080f1c; border-bottom: 1px solid #0d1f35; font-size: 0.88rem; color: #94a3b8; display: flex; gap: 2rem; flex-wrap: wrap; }
+.subtitle strong { color: #00d4ff; }
+
+.sankey-container { flex: 1; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+.sankey-title { font-size: 1.1rem; font-weight: bold; color: #00d4ff; margin-bottom: 1.5rem; text-align: center; letter-spacing: 0.05em; text-transform: uppercase; }
+.sankey-wrapper { width: 100%; max-width: 1100px; position: relative; }
+
+svg#sankey { width: 100%; height: auto; display: block; }
+
+.legend-section { margin-top: 1.5rem; padding: 1rem 2rem; background: #080f1c; border-radius: 0.5rem; border: 1px solid #0d1f35; max-width: 1100px; width: 100%; }
+.legend-title { font-size: 0.85rem; font-weight: bold; color: #94a3b8; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.6rem; }
+.legend-item { display: flex; align-items: center; gap: 0.6rem; }
+.legend-dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; flex-shrink: 0; }
+.legend-text { font-size: 0.82rem; color: #c8d8f0; }
+.legend-val { font-size: 0.82rem; font-family: 'Courier New', monospace; color: #ffd700; margin-left: auto; }
+
+.tooltip-box { position: fixed; background: #0a1628; border: 1px solid #00d4ff; border-radius: 0.5rem; padding: 0.8rem 1rem; font-size: 0.88rem; color: #c8d8f0; max-width: 20rem; pointer-events: none; z-index: 9999; display: none; line-height: 1.5; box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+
+.footer { padding: 0.8rem 2rem; background: #020710; border-top: 1px solid #0d2040; text-align: center; font-size: 0.8rem; color: #94a3b8; }
+.footer strong { color: #ffd700; }
+
+/* Animate flows */
+@keyframes flowAnim {
+  0% { stroke-dashoffset: 100; opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.4; }
+}
+.flow-path { stroke-dasharray: 100; animation: flowAnim 3s linear infinite; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>GE <span>Aerospace</span> · Flujo de Dinero FY2025</h1>
+    <div style="font-size:0.82rem;color:#94a3b8;margin-top:0.2rem">Diagrama Sankey · Método Feroldi · @patonet</div>
+  </div>
+  <div class="meta">
+    <div class="brand">@patonet</div>
+    <div>NYSE: GE · $281.16 · 6 Abr 2026</div>
+    <div>Revenue Total FY2025: $45.86B (GAAP)</div>
+  </div>
+</div>
+
+<div class="subtitle">
+  <span>💰 Revenue Total: <strong>$45.86B</strong></span>
+  <span>📊 Operating Profit: <strong>$9.1B</strong></span>
+  <span>🏦 Net Income: <strong>$8.70B</strong></span>
+  <span>💵 Free Cash Flow: <strong>$7.7B</strong></span>
+  <span>📦 Backlog Total: <strong>$190B</strong></span>
+</div>
+
+<div class="sankey-container">
+  <div class="sankey-title">🔄 ¿Cómo fluye el dinero en GE Aerospace? — FY2025</div>
+  <div class="sankey-wrapper">
+    <svg id="sankey" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Gradients for each flow -->
+        <linearGradient id="gCES" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gDPT" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffd700" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gSvc" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="gEqp" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00a8cc" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="gCosts" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0.4"/>
+        </linearGradient>
+        <linearGradient id="gOp" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1a3a6e" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gNI" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#ffd700" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gFCF" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffd700" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#00c853" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gDiv" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00c853" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gBbk" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00c853" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#76c442" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="gTax" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0.6"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ===================== LAYER 1: FUENTES DE INGRESO ===================== -->
+      <!-- CES Services Node -->
+      <rect x="10" y="30" width="130" height="165" rx="6" fill="#1a3a6e" stroke="#00d4ff" stroke-width="1.5"/>
+      <text x="75" y="55" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="bold">CES SERVICIOS</text>
+      <text x="75" y="72" text-anchor="middle" fill="#94a3b8" font-size="9">Aftermarket · MRO</text>
+      <text x="75" y="88" text-anchor="middle" fill="#94a3b8" font-size="9">Shop Visits · Spare Parts</text>
+      <text x="75" y="108" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="bold">$26.8B</text>
+      <text x="75" y="125" text-anchor="middle" fill="#94a3b8" font-size="9">58.5% del revenue total</text>
+      <text x="75" y="140" text-anchor="middle" fill="#00d4ff" font-size="9">Margen: ~30-40%</text>
+      <text x="75" y="157" text-anchor="middle" fill="#ffd700" font-size="9">LEAP: 1,800+ unidades</text>
+      <text x="75" y="173" text-anchor="middle" fill="#94a3b8" font-size="8">CFM56 · GE90 · GEnx</text>
+
+      <!-- CES Equipment Node -->
+      <rect x="10" y="215" width="130" height="120" rx="6" fill="#0d2a4e" stroke="#00a8cc" stroke-width="1.5"/>
+      <text x="75" y="238" text-anchor="middle" fill="#00a8cc" font-size="11" font-weight="bold">CES EQUIPOS</text>
+      <text x="75" y="254" text-anchor="middle" fill="#94a3b8" font-size="9">Motores Nuevos OEM</text>
+      <text x="75" y="274" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="bold">$9.1B</text>
+      <text x="75" y="291" text-anchor="middle" fill="#94a3b8" font-size="9">19.8% del revenue total</text>
+      <text x="75" y="307" text-anchor="middle" fill="#ffbb00" font-size="9">Margen: ~1-5% (bajo)</text>
+      <text x="75" y="322" text-anchor="middle" fill="#94a3b8" font-size="8">LEAP · GE9X · GEnx</text>
+
+      <!-- DPT Node -->
+      <rect x="10" y="355" width="130" height="130" rx="6" fill="#1a2a0a" stroke="#ffd700" stroke-width="1.5"/>
+      <text x="75" y="378" text-anchor="middle" fill="#ffd700" font-size="11" font-weight="bold">DEFENSA DPT</text>
+      <text x="75" y="394" text-anchor="middle" fill="#94a3b8" font-size="9">Motores Militares</text>
+      <text x="75" y="410" text-anchor="middle" fill="#94a3b8" font-size="9">F110 · F404 · F414</text>
+      <text x="75" y="430" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="bold">$9.96B</text>
+      <text x="75" y="447" text-anchor="middle" fill="#94a3b8" font-size="9">21.7% del revenue total</text>
+      <text x="75" y="463" text-anchor="middle" fill="#ffd700" font-size="9">Margen: ~14%</text>
+      <text x="75" y="479" text-anchor="middle" fill="#94a3b8" font-size="8">USAF · India · Arabia</text>
+
+      <!-- ===================== LAYER 2: REVENUE TOTAL ===================== -->
+      <rect x="280" y="80" width="145" height="370" rx="8" fill="#0d1f35" stroke="#1a3a6e" stroke-width="2"/>
+      <text x="353" y="108" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">REVENUE TOTAL</text>
+      <text x="353" y="126" text-anchor="middle" fill="#94a3b8" font-size="9">FY2025 (GAAP)</text>
+      <rect x="295" y="135" width="115" height="2" fill="#1a3a6e"/>
+      <text x="353" y="165" text-anchor="middle" fill="#00ff9d" font-size="20" font-weight="bold">$45.86B</text>
+      <text x="353" y="185" text-anchor="middle" fill="#94a3b8" font-size="9">+18.5% vs FY2024</text>
+      <text x="353" y="210" text-anchor="middle" fill="#00d4ff" font-size="10">Backlog: $190B</text>
+      <text x="353" y="228" text-anchor="middle" fill="#94a3b8" font-size="9">≈ 4.5x revenue anual</text>
+      <rect x="295" y="245" width="115" height="2" fill="#1a3a6e"/>
+      <text x="353" y="265" text-anchor="middle" fill="#94a3b8" font-size="9">80,000 motores</text>
+      <text x="353" y="280" text-anchor="middle" fill="#94a3b8" font-size="9">instalados globalmente</text>
+      <text x="353" y="300" text-anchor="middle" fill="#94a3b8" font-size="9">2.3B horas de vuelo</text>
+      <text x="353" y="315" text-anchor="middle" fill="#ffd700" font-size="9">acumuladas (dataset IA)</text>
+      <text x="353" y="340" text-anchor="middle" fill="#94a3b8" font-size="9">Órdenes FY2025:</text>
+      <text x="353" y="356" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="bold">$66.2B (+32%)</text>
+      <text x="353" y="380" text-anchor="middle" fill="#94a3b8" font-size="9">Q4 2025 órdenes:</text>
+      <text x="353" y="396" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="bold">$27B (+74%)</text>
+      <text x="353" y="425" text-anchor="middle" fill="#94a3b8" font-size="9">Empleados: 57,000</text>
+      <text x="353" y="440" text-anchor="middle" fill="#ffd700" font-size="9">Rev/empleado: $805K</text>
+
+      <!-- ===================== LAYER 3: ESTRUCTURA DE COSTOS ===================== -->
+      <!-- Costos Node -->
+      <rect x="530" y="80" width="130" height="200" rx="6" fill="#1a0a0a" stroke="#ff3a3a" stroke-width="1.5"/>
+      <text x="595" y="107" text-anchor="middle" fill="#ff3a3a" font-size="11" font-weight="bold">COSTOS & GASTOS</text>
+      <rect x="545" y="115" width="100" height="2" fill="#ff3a3a" opacity="0.4"/>
+      <text x="595" y="140" text-anchor="middle" fill="#ff6b6b" font-size="10">COGS</text>
+      <text x="595" y="156" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">$32.1B</text>
+      <text x="595" y="175" text-anchor="middle" fill="#ff6b6b" font-size="10">SGA + R&D</text>
+      <text x="595" y="191" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">$4.66B</text>
+      <text x="595" y="213" text-anchor="middle" fill="#94a3b8" font-size="9">R&D: $3B/año</text>
+      <text x="595" y="229" text-anchor="middle" fill="#94a3b8" font-size="9">(moat invisible)</text>
+      <rect x="545" y="245" width="100" height="2" fill="#ff3a3a" opacity="0.4"/>
+      <text x="595" y="263" text-anchor="middle" fill="#ff3a3a" font-size="14" font-weight="bold">$36.76B</text>
+      <text x="595" y="280" text-anchor="middle" fill="#94a3b8" font-size="9">80.2% del revenue</text>
+
+      <!-- Operating Profit Node -->
+      <rect x="530" y="305" width="130" height="140" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="1.5"/>
+      <text x="595" y="330" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="bold">OP. PROFIT</text>
+      <text x="595" y="348" text-anchor="middle" fill="#94a3b8" font-size="9">Operating Income</text>
+      <text x="595" y="368" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="bold">$9.1B</text>
+      <text x="595" y="388" text-anchor="middle" fill="#94a3b8" font-size="9">Margen: 19.8%</text>
+      <text x="595" y="407" text-anchor="middle" fill="#94a3b8" font-size="9">+25% vs FY2024</text>
+      <text x="595" y="430" text-anchor="middle" fill="#ffd700" font-size="9">ROIC: 28.96%</text>
+
+      <!-- ===================== LAYER 4: NET INCOME & FCF ===================== -->
+      <!-- Net Income Node -->
+      <rect x="730" y="200" width="125" height="155" rx="6" fill="#0a1820" stroke="#00d4ff" stroke-width="1.5"/>
+      <text x="793" y="225" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="bold">NET INCOME</text>
+      <text x="793" y="242" text-anchor="middle" fill="#94a3b8" font-size="9">Beneficio Neto (GAAP)</text>
+      <text x="793" y="268" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="bold">$8.70B</text>
+      <text x="793" y="288" text-anchor="middle" fill="#94a3b8" font-size="9">+32.8% vs FY2024</text>
+      <text x="793" y="308" text-anchor="middle" fill="#94a3b8" font-size="9">Margen: 19.0%</text>
+      <text x="793" y="327" text-anchor="middle" fill="#ffd700" font-size="9">EPS: $8.15</text>
+      <text x="793" y="344" text-anchor="middle" fill="#ffd700" font-size="9">EPS adj: ~$6.27</text>
+
+      <!-- Taxes Node -->
+      <rect x="730" y="380" width="125" height="80" rx="6" fill="#1a0a0a" stroke="#ff6b6b" stroke-width="1.5"/>
+      <text x="793" y="400" text-anchor="middle" fill="#ff6b6b" font-size="11" font-weight="bold">IMPUESTOS</text>
+      <text x="793" y="418" text-anchor="middle" fill="#ff3a3a" font-size="15" font-weight="bold">$1.41B</text>
+      <text x="793" y="437" text-anchor="middle" fill="#94a3b8" font-size="9">Tasa efectiva ~14%</text>
+      <text x="793" y="452" text-anchor="middle" fill="#94a3b8" font-size="9">+ Ajustes no-cash</text>
+
+      <!-- ===================== LAYER 5: ALLOCACIÓN DE FCF ===================== -->
+      <!-- FCF Node -->
+      <rect x="730" y="60" width="125" height="115" rx="6" fill="#0a1a0a" stroke="#ffd700" stroke-width="1.5"/>
+      <text x="793" y="83" text-anchor="middle" fill="#ffd700" font-size="11" font-weight="bold">FREE CASH FLOW</text>
+      <text x="793" y="99" text-anchor="middle" fill="#94a3b8" font-size="9">FY2025</text>
+      <text x="793" y="119" text-anchor="middle" fill="#ffd700" font-size="18" font-weight="bold">$7.7B</text>
+      <text x="793" y="137" text-anchor="middle" fill="#00ff9d" font-size="9">+24% vs FY2024</text>
+      <text x="793" y="152" text-anchor="middle" fill="#94a3b8" font-size="9">Conversión: >100%</text>
+      <text x="793" y="167" text-anchor="middle" fill="#94a3b8" font-size="9">CapEx: ~$1.3B (3%)</text>
+
+      <!-- Dividends -->
+      <rect x="900" y="30" width="95" height="90" rx="6" fill="#0a1a10" stroke="#00c853" stroke-width="1.5"/>
+      <text x="948" y="52" text-anchor="middle" fill="#00c853" font-size="10" font-weight="bold">DIVIDENDOS</text>
+      <text x="948" y="68" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="bold">~$1.5B</text>
+      <text x="948" y="84" text-anchor="middle" fill="#94a3b8" font-size="8">$0.47/Q (2026)</text>
+      <text x="948" y="98" text-anchor="middle" fill="#94a3b8" font-size="8">+30% YoY</text>
+      <text x="948" y="112" text-anchor="middle" fill="#ffd700" font-size="8">Yield: 0.67%</text>
+
+      <!-- Buybacks -->
+      <rect x="900" y="140" width="95" height="90" rx="6" fill="#0a100a" stroke="#76c442" stroke-width="1.5"/>
+      <text x="948" y="162" text-anchor="middle" fill="#76c442" font-size="10" font-weight="bold">BUYBACKS</text>
+      <text x="948" y="178" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="bold">~$6.2B</text>
+      <text x="948" y="194" text-anchor="middle" fill="#94a3b8" font-size="8">Prog. $7B (2025)</text>
+      <text x="948" y="208" text-anchor="middle" fill="#94a3b8" font-size="8">Dilución: -1.12%</text>
+      <text x="948" y="222" text-anchor="middle" fill="#ffd700" font-size="8">$24B prog 24-26</text>
+
+      <!-- ===================== FLUJOS / PATHS ===================== -->
+
+      <!-- CES Services → Revenue (ancho proporcional a $26.8B = 58.5%) -->
+      <path d="M 140 80 C 200 80 220 185 280 185" fill="none" stroke="url(#gCES)" stroke-width="55" opacity="0.6"/>
+
+      <!-- CES Equipment → Revenue (proporcional a $9.1B = 19.8%) -->
+      <path d="M 140 270 C 200 270 220 290 280 290" fill="none" stroke="url(#gEqp)" stroke-width="18" opacity="0.6"/>
+
+      <!-- DPT → Revenue (proporcional a $9.96B = 21.7%) -->
+      <path d="M 140 420 C 200 420 220 370 280 370" fill="none" stroke="url(#gDPT)" stroke-width="20" opacity="0.6"/>
+
+      <!-- Revenue → Costos (proporcional a $36.76B = 80.2%) -->
+      <path d="M 425 170 C 470 170 480 160 530 160" fill="none" stroke="url(#gCosts)" stroke-width="160" opacity="0.5"/>
+
+      <!-- Revenue → Operating Profit (proporcional a $9.1B = 19.8%) -->
+      <path d="M 425 390 C 470 390 480 370 530 360" fill="none" stroke="url(#gOp)" stroke-width="37" opacity="0.7"/>
+
+      <!-- Operating Profit → Net Income -->
+      <path d="M 660 345 C 690 345 700 300 730 300" fill="none" stroke="url(#gNI)" stroke-width="35" opacity="0.7"/>
+
+      <!-- Operating Profit → Taxes -->
+      <path d="M 660 420 C 690 420 700 420 730 420" fill="none" stroke="url(#gTax)" stroke-width="15" opacity="0.6"/>
+
+      <!-- Net Income → FCF -->
+      <path d="M 730 230 C 710 230 710 150 730 140" fill="none" stroke="url(#gFCF)" stroke-width="30" opacity="0.7"/>
+
+      <!-- FCF → Dividends -->
+      <path d="M 855 95 C 870 95 880 80 900 75" fill="none" stroke="url(#gDiv)" stroke-width="12" opacity="0.7"/>
+
+      <!-- FCF → Buybacks -->
+      <path d="M 855 110 C 870 110 880 170 900 185" fill="none" stroke="url(#gBbk)" stroke-width="48" opacity="0.7"/>
+
+      <!-- ===================== LABELS SOBRE FLUJOS ===================== -->
+      <text x="210" y="125" text-anchor="middle" fill="#00d4ff" font-size="9" font-weight="bold">$26.8B</text>
+      <text x="210" y="268" text-anchor="middle" fill="#00a8cc" font-size="9" font-weight="bold">$9.1B</text>
+      <text x="210" y="395" text-anchor="middle" fill="#ffd700" font-size="9" font-weight="bold">$9.96B</text>
+      <text x="478" y="128" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">$36.76B</text>
+      <text x="478" y="374" text-anchor="middle" fill="#00ff9d" font-size="10" font-weight="bold">$9.1B</text>
+      <text x="695" y="298" text-anchor="middle" fill="#00ff9d" font-size="9" font-weight="bold">$8.7B</text>
+      <text x="695" y="420" text-anchor="middle" fill="#ff6b6b" font-size="9" font-weight="bold">$1.41B</text>
+
+      <!-- ===================== CAPA DE MÉTRICAS CLAVE ===================== -->
+      <rect x="10" y="510" width="980" height="75" rx="6" fill="#080f1c" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="500" y="530" text-anchor="middle" fill="#94a3b8" font-size="9" letter-spacing="0.1em" text-transform="uppercase">MÉTRICAS CLAVE DEL CICLO DE VALOR</text>
+      <line x1="10" y1="538" x2="990" y2="538" stroke="#1a2a4a" stroke-width="1"/>
+
+      <text x="85" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">Owner Earnings</text>
+      <text x="85" y="573" text-anchor="middle" fill="#ffd700" font-size="12" font-weight="bold">$8.59B</text>
+
+      <text x="220" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">ROTC (Buffett)</text>
+      <text x="220" y="573" text-anchor="middle" fill="#00ff9d" font-size="12" font-weight="bold">~53%</text>
+
+      <text x="350" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">ROIC</text>
+      <text x="350" y="573" text-anchor="middle" fill="#00ff9d" font-size="12" font-weight="bold">28.96%</text>
+
+      <text x="475" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">FCF Yield (precio)</text>
+      <text x="475" y="573" text-anchor="middle" fill="#ffd700" font-size="12" font-weight="bold">2.74%</text>
+
+      <text x="600" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">P/E TTM</text>
+      <text x="600" y="573" text-anchor="middle" fill="#ffbb00" font-size="12" font-weight="bold">34.5x</text>
+
+      <text x="720" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">EV/EBITDA</text>
+      <text x="720" y="573" text-anchor="middle" fill="#ffbb00" font-size="12" font-weight="bold">28.5x</text>
+
+      <text x="845" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">Net Debt / EBITDA</text>
+      <text x="845" y="573" text-anchor="middle" fill="#00ff9d" font-size="12" font-weight="bold">1.0x</text>
+
+      <text x="945" y="558" text-anchor="middle" fill="#94a3b8" font-size="9">Mkt Cap</text>
+      <text x="945" y="573" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">$293B</text>
+
+      <!-- TITLE OVERLAY -->
+      <text x="500" y="22" text-anchor="middle" fill="#1a3a6e" font-size="8" font-style="italic">De la fuente al accionista — cada $100 de revenue entregado a GE se convierte en $19 de beneficio neto y ~$17 de flujo libre de caja</text>
+    </svg>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="legend-section">
+    <div class="legend-title">Leyenda de Segmentos y Flujos</div>
+    <div class="legend-grid">
+      <div class="legend-item"><div class="legend-dot" style="background:#00d4ff"></div><span class="legend-text">CES Servicios (MRO, aftermarket)</span><span class="legend-val">$26.8B · 58.5%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00a8cc"></div><span class="legend-text">CES Equipos (motores nuevos OEM)</span><span class="legend-val">$9.1B · 19.8%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffd700"></div><span class="legend-text">DPT Defensa & Propulsión</span><span class="legend-val">$9.96B · 21.7%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff3a3a"></div><span class="legend-text">Costos & Gastos Operativos (COGS + SGA + R&D)</span><span class="legend-val">$36.76B · 80.2%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00ff9d"></div><span class="legend-text">Operating Profit</span><span class="legend-val">$9.1B · 19.8%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00d4ff"></div><span class="legend-text">Net Income GAAP</span><span class="legend-val">$8.70B · 19.0%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div><span class="legend-text">Impuestos + Ajustes</span><span class="legend-val">$1.41B</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffd700"></div><span class="legend-text">Free Cash Flow (FCF)</span><span class="legend-val">$7.7B · Conversión >100%</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00c853"></div><span class="legend-text">Dividendos a accionistas</span><span class="legend-val">~$1.5B · $0.47/Q</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#76c442"></div><span class="legend-text">Recompra de acciones (Buybacks)</span><span class="legend-val">~$6.2B · Prog $7B FY2025</span></div>
+    </div>
+    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #1a2a4a;font-size:0.8rem;color:#94a3b8">
+      <strong style="color:#00d4ff">💡 Insight clave:</strong> Por cada $100 de revenue que entra en GE Aerospace, $80.2 cubren costos operativos y $19.8 se convierten en Operating Profit. De ese profit, $8.7B (19% del revenue total) llega como beneficio neto y $7.7B como Free Cash Flow. El 100%+ de conversión FCF/NI demuestra la calidad del negocio. El 80%+ del FCF ($6.2B+$1.5B) se devuelve directamente a accionistas via buybacks y dividendos.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>@patonet</strong> · Diagrama Sankey GE Aerospace · Método Feroldi + Buffett + Munger · $GE $281.16 · 6 Abr 2026 · No constituye asesoramiento financiero
+</div>
+
+<div class="tooltip-box" id="tooltip"></div>
+
+<script>
+// Tooltip on hover for SVG nodes (optional enhancement)
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('rect[stroke]').forEach(rect => {
+  rect.style.cursor = 'pointer';
+  rect.addEventListener('mouseenter', e => {
+    tooltip.style.display = 'block';
+    tooltip.style.left = Math.min(e.clientX + 15, window.innerWidth - 220) + 'px';
+    tooltip.style.top = Math.min(e.clientY - 10, window.innerHeight - 150) + 'px';
+  });
+  rect.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+});
+</script>
+</body>
+</html>
