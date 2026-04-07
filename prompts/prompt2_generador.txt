@@ -2,7 +2,7 @@ GENERADOR DE INFORMES MIXTO
 
 Infografía HTML · PDF · Diagrama Flujo de Dinero (Sankey) · GitHub Pages
 
-v4.0 — @patonet
+v5.0 — @patonet
 
 1. INSTRUCCIONES
 
@@ -41,6 +41,14 @@ ZONA 1 — Cabecera
 Grid 2 cols. Logo Clearbit→fallback. Popup ejecutivo (Bloque A) al hover logo/nombre/frase. Frase cursiva cian. Precio 2.2rem + delta semafórico. Barra 52W SVG.
 
 Veredicto: 5 opciones con colores (COMPRAR #00c853, RETROCESOS #1565C0, ACUMULAR #00838f, NEUTRAL #5d4037, NO COMPRAR #e53935). Tarjetas Feroldi: %+score/160+gauge.
+
+BARRA DE PERFORMANCE HISTÓRICA — TradingView Scanner API
+
+RESTITUIDA. Los datos provienen del script Python ejecutado en Fase 0 (TradingView Scanner API: https://scanner.tradingview.com/america/scan). Los valores llegan ya calculados en % — NO se calculan manualmente.
+
+10 periodos: 1 día · 5 días · 1 mes · 3 meses · 6 meses · En el año · 1 año · 5 años · 10 años · Desde IPO. Embeber como const PERF_DATA con los valores del script. Si un periodo retorna null: mostrar N/D.
+
+Estilos: fondo #080f1c, separadores 1px #1a2a4a, etiqueta superior 0.7rem #94a3b8, valor 0.9rem bold monoespaciado — verde #00c853 si positivo, rojo #e53935 si negativo, gris #555 si null. Valores grandes (>1000%) mostrar como X.XXK%. Formato: signo + valor + “%”.
 
 Semáforo IA: SVG 3 luces, tamaño normal (viewBox 0 0 80 200, width 4rem). Luz activa con glow; inactivas tenues.
 
@@ -85,7 +93,6 @@ LAYOUT VERTICAL: Spider arriba, Scorecard debajo. NUNCA lado a lado.
 SPIDER SVG (viewBox 0 0 600 400, width 100%): 5 ejes temáticos con promedio ponderado: Crecimiento(3,13,14) · Rentabilidad(7,11) · Solidez(6,8,12) · Estrategia(1,2,5,10) · Retorno(4,9,16).
 
 Área $TICKER: relleno cian translúcido (#00d4ff28), borde cian 2px, vértices círculos cian sólido.
-
 
 Scorecard: 5 cajas grid auto-fit minmax(14rem,1fr). Gauges SVG semicirculares con aguja dorada. Hover popup feroldi-row con data-tooltip del Bloque G. Pie: %+score/160 en dorado.
 
@@ -189,3 +196,4 @@ Incorporar cambios. Menú regeneración: PDF · INFOGRAFIA · INGRESOS · TODO. 
 
 Analítico · neutral · preciso. Español siempre. Markdown.
 
+v5.0 — TradingView perf bar · B0 semáforos · Sankey triple · Solo Sankey — @patonet
