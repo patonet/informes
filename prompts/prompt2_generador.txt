@@ -1,8 +1,8 @@
 GENERADOR DE INFORMES MIXTO
 
-Infografía · PDF · Diagrama Flujo de Dinero · GitHub Pages
+Infografía HTML · PDF · Diagrama Flujo de Dinero (Sankey) · GitHub Pages
 
-v3.0 — @patonet
+v4.0 — @patonet
 
 1. INSTRUCCIONES
 
@@ -10,207 +10,169 @@ Se activa DESPUÉS del Prompt 1. Datos del informe pegado — no re-buscar salvo
 
 Tipos: EQUITY · ETF · SHORT (paleta roja #ff1744). Tipo se detecta del Bloque A.
 
-LINKS: SIEMPRE https://patonet.github.io/informes/... NUNCA github.com/blob/... Todos clicables.
+LINKS: SIEMPRE https://patonet.github.io/informes/... NUNCA github.com. Todos clicables.
 
-Carpetas GitHub: equities/etfs/shorts/ · pdfs/equities/etfs/shorts/ · diagramas/equities/etfs/shorts/.
+Carpetas: equities/etfs/shorts/ · pdfs/equities/etfs/shorts/ · diagramas/equities/etfs/shorts/.
 
 Nombres: Informe_[TICKER]_[PRECIO]_[DD-MM-AAAA].html · InformePDF_...pdf · Diagrama_Sankey_...html.
 
 TODO lo que se genere se sube a GitHub sin excepción.
 
-Menú: [INFOGRAFIA] · [PDF] · [INGRESOS] · [TODO]
+Comandos: [INFOGRAFIA] [PDF] [INGRESOS] [TODO]. Único diagrama disponible: Flujo de Dinero (Sankey).
 
 2. INFOGRAFÍA HTML
 
-2.A Estilo y datos
+2.A Estilo
 
 Generar SOLO con comando INFOGRAFIA. const DATA = {...} al inicio del script.
 
--   Paleta: fondo #050a12, texto #c8d8f0, cian #00d4ff, verde #00ff9d, dorado #ffd700, rojo #ff3a3a, amarillo #ffbb00. SHORT: cian → #ff1744.
+-   Paleta: fondo #050a12, texto #c8d8f0, cian #00d4ff, verde #00ff9d, dorado #ffd700, rojo #ff3a3a. SHORT: cian→#ff1744.
 
--   Mínimo 0.8rem en todo. @patonet en 1rem dorado.
+-   Mínimo 0.8rem. @patonet 1rem dorado.
 
 2.B Responsividad
 
-R1: html{font-size:clamp(10px,1.15vw,17px)}. R2: SOLO rem/em/%/vw/fr, PROHIBIDO px excepto border. R3: width:100% padding:1.5rem overflow:hidden. R4: Grids con fr/auto-fit. R5: Canvas responsive:true. R6: Gauges viewBox. R7: Verificar todo px antes de cerrar </style>.
+R1: html{font-size:clamp(10px,1.15vw,17px)}. R2: SOLO rem/em/%/fr, PROHIBIDO px excepto border. R3: width:100% padding:1.5rem. R4: Grids fr/auto-fit. R5: Canvas responsive:true. R6: Gauges viewBox. R7: Verificar px antes de </style>.
 
 2.C Estructura de 6 Zonas
 
 ZONA 1 — Cabecera
 
-Grid 2 cols [logo+identidad | precio+veredicto+scores]. Logo Clearbit → Google Favicons → div iniciales. Popup ejecutivo: fixed centrado, fondo #0a1628, borde 2px #00d4ff, contiene Bloque A. Triggers: mouseenter logo/nombre/frase.
+Grid 2 cols. Logo Clearbit→fallback. Popup ejecutivo (Bloque A) al hover logo/nombre/frase. Frase cursiva cian. Precio 2.2rem + delta semafórico. Barra 52W SVG.
 
-Frase resumen cursiva cian. Precio 2.2rem + delta semafórico. Barra 52W SVG.
+Veredicto: 5 opciones con colores (COMPRAR #00c853, RETROCESOS #1565C0, ACUMULAR #00838f, NEUTRAL #5d4037, NO COMPRAR #e53935). Tarjetas Feroldi: %+score/160+gauge.
 
-PERF BAR: leer % directamente de StockAnalysis/TradingView. 8 periodos embebidos como const PERF_DATA. null = N/D.
+Semáforo IA: SVG 3 luces, tamaño normal (viewBox 0 0 80 200, width 4rem). Luz activa con glow; inactivas tenues.
 
-Veredicto: 5 opciones con colores. Tarjetas Feroldi: %+score/160+gauge. Semáforo IA: SVG 3 luces.
+Mini-semáforos Bloque 0 (Kaufman/Munger/Buffett)
 
-NUEVO — Semáforos Bloque 0 (Kaufman/Munger/Buffett)
+OBLIGATORIO. 4 mini-semáforos SVG al 30% del tamaño del semáforo IA (viewBox 0 0 80 200, width 1.2rem). Misma estructura visual (carcasa bisel, 3 luces rojo/naranja/verde) pero reducido. Luces apagadas en color tenue opaco; la luz que corresponde al resultado ENCENDIDA con glow.
 
-OBLIGATORIO en la infografía y en el PDF. Mostrar junto al semáforo IA o inmediatamente debajo.
+Disposición: fila horizontal junto al semáforo IA o inmediatamente debajo. Cada mini-semáforo tiene:
 
-4 mini-semáforos SVG (tamaño 50% del semáforo IA): B0.1 Círculo de Competencia · B0.2 Simplicidad · B0.3 Predictibilidad · B0 Veredicto General. Cada mini-semáforo usa el mismo diseño SVG del semáforo IA (carcasa bisel, 3 luces) pero más pequeño (viewBox=“0 0 50 130”, width=“2.5rem”). El color encendido corresponde al resultado: VERDE = luz verde, AMARILLO = luz naranja, ROJO = luz roja.
+-   Etiqueta superior: “B0.1” “B0.2” “B0.3” “Veredicto” en 0.65rem #94a3b8.
 
-Debajo de cada mini-semáforo: etiqueta corta (ej: “B0.1 Competencia”) en 0.7rem #94a3b8 + resultado (“VERDE”) en 0.8rem bold en el color de la luz encendida.
+-   Título debajo: “Competencia” “Simplicidad” “Predictibilidad” “General” en 0.7rem bold color de la luz encendida.
 
-Al final de los 4 semáforos, texto: “Pre-filtro Kaufman/Munger/Buffett: [PROCEDER/CAUTELA/TOO HARD]” en 0.85rem.
+-   Resultado: “VERDE”/“AMARILLO”/“ROJO” en 0.7rem bold en el color correspondiente.
 
-Popup al hover sobre los 4 semáforos: descripción breve de cada sub-filtro y su resultado, extraída del output del Bloque 0 del informe.
+POPUP al hover sobre cada mini-semáforo: descripción de 2-3 líneas con la justificación del resultado, extraída del output del Bloque 0 del informe. Popup: fondo #0a1628, borde 1px solid del color de la luz, border-radius 0.5rem, padding 0.8rem, max-width 20rem, z-index 9999.
+
+Texto debajo de los 4 semáforos: “Pre-filtro Kaufman/Munger/Buffett: [PROCEDER/CAUTELA/TOO HARD]” en 0.8rem.
 
 ZONA 2 — Key Stats
 
-Grid 4 subgrupos: VALORACIÓN · RENTABILIDAD · CRECIMIENTO · DIVIDENDO/RIESGO. Cards: valor 1.3rem + etiqueta + triángulo semafórico.
+Grid 4 subgrupos: VALORACIÓN(P/E,PEG,EPS,MktCap) · RENTABILIDAD(Márgenes,ROE,ROA) · CRECIMIENTO(Revenue/EPS Growth) · DIVIDENDO/RIESGO(Yield,Beta). Cards con triángulo semafórico.
 
 ZONA 3 — Gráficos financieros
 
-CSS: .zona3 grid 1fr 1fr 1fr. aspect-ratio:4/3. Chart.js: maintainAspectRatio:false.
+Grid 1fr 1fr 1fr, aspect-ratio:4/3, maintainAspectRatio:false.
 
--   COL 1: Revenue (#1a3a6e) + Net Income (#00d4ff) eje Y derecho compartido. Margen % eje izquierdo línea naranja. Límites dinámicos (soporta negativos).
+-   COL 1: Revenue+NI eje Y derecho compartido, Margen% eje izq naranja. Límites dinámicos.
 
--   COL 2: Waterfall flotante. Revenue→COGS→Gross→OpExp→OpIncome→NonOp→Tax→NI.
+-   COL 2: Waterfall flotante Revenue→NI.
 
--   COL 3: Composición ingresos (dona). Leyenda debajo.
+-   COL 3: Dona composición ingresos.
 
 ZONA 4 — Analistas y precio 52W
 
-Targets como datasets line (NO plugin-annotation). Guard: if(!scales.y) return.
+Targets como datasets line (NO plugin-annotation). Guard if(!scales.y) return.
 
-ZONA 5 — Perfil Feroldi
+ZONA 5 — Perfil Feroldi (Spider + Scorecard)
 
-Spider SVG 5 ejes + Scorecard 5 cajas con gauges + Hover popup con data-tooltip del Bloque G.
+LAYOUT VERTICAL: Spider arriba, Scorecard debajo. NUNCA lado a lado.
+
+SPIDER SVG (viewBox 0 0 600 400, width 100%): 5 ejes temáticos con promedio ponderado: Crecimiento(3,13,14) · Rentabilidad(7,11) · Solidez(6,8,12) · Estrategia(1,2,5,10) · Retorno(4,9,16).
+
+Área $TICKER: relleno cian translúcido (#00d4ff28), borde cian 2px, vértices círculos cian sólido.
+
+BENCHMARK S&P500: dibujar una SEGUNDA área en el mismo spider con los scores promedio del S&P500 como referencia. Valores de referencia estándar para el benchmark: Crecimiento=5.5, Rentabilidad=6.0, Solidez=6.5, Estrategia=5.0, Retorno=6.0. Área gris translúcida (#94a3b820), borde gris punteado (#94a3b8, strokeDasharray 6,4, strokeWidth 1.5), vértices círculos grises pequeños. Leyenda: cuadro cian = $TICKER, cuadro gris punteado = “Benchmark S&P500”.
+
+Scorecard: 5 cajas grid auto-fit minmax(14rem,1fr). Gauges SVG semicirculares con aguja dorada. Hover popup feroldi-row con data-tooltip del Bloque G. Pie: %+score/160 en dorado.
 
 ZONA 6 — Riesgos, Analistas, Competidores, Veredicto
 
-A) Riesgos/Catalizadores tablas. B) Gauge consenso analistas. C) Tabla 5 competidores + $TICKER. ETF: Top 10 Holdings. SHORT: Squeeze Risk. D) Veredicto badge + tesis 3 líneas + @patonet 1rem dorado.
+A) Riesgos/Catalizadores. B) Gauge consenso analistas. C) Tabla competidores (ETF: Top 10 Holdings; SHORT: Squeeze Risk). D) Veredicto badge + tesis + @patonet dorado.
 
 3. DISEÑO VISUAL DEL PDF
 
-TÍTULO: “Informe Profesional de $TICKER usando el método Feroldi”
+TÍTULO: “Informe Profesional de $TICKER · Método Feroldi”
 
-REFERENCIA DE CALIDAD: los PDFs existentes en el repositorio (MELI, AVAV, MRVL, TMDX, GE) son el estándar mínimo. El PDF debe ser un documento visualmente atractivo tipo corporate flyer de boutique de inversión, NO un documento de texto plano.
+REFERENCIA: los PDFs en el repositorio (MELI, AVAV, MRVL, GE) son el estándar mínimo. El PDF debe ser visualmente atractivo tipo corporate flyer de boutique de inversión.
 
-3.1 Página 1 — PORTADA
+3.1 Portada (1 página A4)
 
-CSS: @page{size:A4 portrait;margin:0} html,body{margin:0;padding:0;background:#0d1428!important;height:100%}
+background:linear-gradient(135deg,#0d1428,#162447,#1a3a6e). 5 secciones: (1) Logo+nombre 14pt. (2) Título 20pt bold. (3) Precio+barra 52W+badge veredicto+Score Feroldi+PEG en 1 fila. (4) Fila B0: 4 círculos color (verde/amarillo) con etiqueta B0.1/B0.2/B0.3/Veredicto en 9pt. (5) Fecha+@patonet 9pt gris. SVG decorativos en esquinas.
 
-Div portada: height:100vh; max-height:297mm; width:100%; background:linear-gradient(135deg,#0d1428 0%,#162447 60%,#1a3a6e 100%); display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem 2rem; overflow:hidden.
+3.2 Páginas siguientes
 
-5 secciones verticales compactas:
+HEADER: franja teal 8px + logo 30px + “$TICKER · Informe Feroldi” teal monospace 9pt. FOOTER: línea teal 1px + “Informe confidencial @patonet” + nº página.
 
--   (1) Header: logo Clearbit 50px + nombre empresa 14pt blanco bold.
+Cada bloque A–I: título en caja #0d1428 texto teal border-left 5px teal 14pt bold. Cuerpo #1a1a1a 10.5pt line-height 1.4.
 
--   (2) Título: “Informe Profesional de $TICKER · Método Feroldi” en 20pt blanco bold.
+TABLA FEROLDI: header #0d1428 blanco bold, filas alternas #f0f7ff, scores semafóricos (≥7 verde, 4-6 amarillo, <4 rojo) monospace bold.
 
--   (3) Franja principal: precio actual 28pt bold blanco + barra SVG rango 52W (marcadores rojo/verde/cian) + badge veredicto (COMPRAR #00c853, RETROCESOS #1565C0, ACUMULAR #00838f, NEUTRAL #5d4037, NO COMPRAR #e53935) + Score Feroldi (ej: “119/160 · 74.4%”) + PEG Ratio — TODO EN UNA FILA horizontal.
+Secciones especiales: OOB=borde naranja fondo #fffbf0 · IA=borde cian fondo #f0f8ff · CEO=cita cursiva borde gris · SOTP=escenarios coloreados · Bloque I=degradado por tamaño · Debate=borde púrpura #7c3aed.
 
--   (4) Barra performance: 8 periodos en 1 fila compacta (font 10pt). Verde positivo, rojo negativo.
+Bloque 0 en PDF: primera sección del cuerpo, caja borde verde #00c853 fondo #f0fff0, tabla 4 filas con círculos color.
 
--   (5) Footer: fecha + “@patonet · Informe confidencial” en 9pt gris.
+El PDF es la versión COMPLETA formateada del informe, NO un resumen. EVITAR texto plano, páginas en blanco, letras montadas, bloques cortados. Tipografía sans-serif, monospace para números, espaciado 1.3 líneas.
 
-SVG decorativos geométricos ligeros en esquinas (triángulos teal translúcidos). No ocupar espacio vertical.
+4. DIAGRAMA DEL FLUJO DE DINERO (Sankey)
 
-NUEVO — BLOQUE 0 EN PORTADA: incluir una fila compacta con los 4 resultados del pre-filtro: B0.1 [VERDE/AMARILLO] · B0.2 [VERDE/AMARILLO] · B0.3 [VERDE/AMARILLO] · Veredicto [PROCEDER/CAUTELA]. Usar círculos pequeños de color (verde #00c853, amarillo #ffd700) + etiqueta corta. Va entre la barra de performance y el footer, en font 9pt.
+Comando: INGRESOS. Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html en diagramas/equities/ (o etfs/, shorts/).
 
-3.2 Páginas siguientes — ESTRUCTURA DE CADA PÁGINA
-
-HEADER: franja horizontal teal (#00838f) de 8px de alto en el borde superior + logo pequeño (30px) a la izquierda + “$TICKER · Informe Feroldi” a la derecha en teal monospace 9pt. Margen inferior 12px.
-
-FOOTER: línea horizontal teal 1px + “Informe confidencial para @patonet · No constituye asesoramiento financiero” en gris #999 8pt + número de página a la derecha.
-
-CUERPO: cada bloque del informe (A–I) en su propia sección con:
-
--   TÍTULO del bloque: caja con fondo #0d1428, texto teal (#00d4ff), border-left 5px sólido teal, padding 8px 12px, border-radius 4px, font-size 14pt bold, margin-bottom 12px.
-
--   TEXTO del cuerpo: color #1a1a1a, font-size 10.5pt, line-height 1.4, margin 8px 0. Párrafos bien separados.
-
--   TABLAS: header fondo #0d1428 texto blanco bold 9pt, filas pares fondo #f0f7ff, filas impares blanco, borde #dde3f0 1px, celdas padding 6px 10px. Valores numéricos en font monospace bold.
-
-3.3 Secciones especiales con estilos diferenciados
-
-Tabla Feroldi (Bloque G)
-
-Header fondo #0d1428 texto blanco. Columnas: Nº · Dimensión · Score · Comentario. Scores con color semafórico: ≥7 verde #00c853, 4-6 amarillo #ffd700, <4 rojo #e53935. Font monospace bold para scores.
-
-Veredicto y Score
-
-Badge de veredicto: fondo según tipo (mismos colores de portada), texto blanco bold, border-radius 4px, padding 4px 16px, font-size 12pt. Score Feroldi grande: 16pt bold. Ambos en una fila horizontal centrada.
-
-Sección OOB (Bloque C)
-
-Caja con borde izquierdo naranja #ff8c00 de 5px, fondo #fffbf0, padding 12px 16px, border-radius 4px. Título en naranja bold.
-
-Sección Análisis IA (Bloque D)
-
-Caja con borde izquierdo cian #00d4ff de 5px, fondo #f0f8ff. Semáforo IA como círculo de color grande (20px) junto al veredicto.
-
-Sección CEO (Bloque E)
-
-Cita textual del CEO en caja con fondo #f5f5f5, borde izquierdo gris #ccc de 4px, font-style italic, padding 12px.
-
-Sección SOTP (Bloque F) — si aplica
-
-Tabla de segmentos con colores por segmento. Escenarios Bear/Base/Bull en cajas con bordes rojo/azul/verde respectivamente.
-
-Sección Bloque I (Cierre de Portafolio)
-
-Tabla de tamaño de posición con fondo degradado según tamaño (verde para GRANDE, amarillo para MEDIANA, naranja para PEQUEÑA, gris para STARTER, rojo para CERO). Exit Criteria en tabla con triggers numerados.
-
-Resumen Debate OOB — si hubo debate
-
-Caja con borde izquierdo púrpura #7c3aed de 5px. Título: “Resumen del Debate y Conclusiones”. Contenido: argumentos del supervisor, contraargumentos, cambios aceptados, conclusión reconciliada. Tabla de cambios: columnas Aspecto · Original · Post-debate · Motivo.
-
-Bloque 0 (Pre-filtro) en PDF
-
-Incluir como primera sección del cuerpo del PDF (después de la portada). Caja con borde izquierdo verde #00c853 de 5px, fondo #f0fff0. Título: “Pre-filtro Conductual (Kaufman/Munger/Buffett)”. Tabla con 4 filas: B0.1 · B0.2 · B0.3 · Veredicto. Columnas: Sub-filtro · Resultado · Detalle. Círculos de color junto al resultado.
-
-3.4 Reglas generales del PDF
-
-EVITAR: texto plano sin estilos, páginas en blanco sin contenido, letras montadas sobre imágenes, bloques cortados a la mitad entre páginas (usar page-break-inside: avoid en secciones cortas), fuentes genéricas. El PDF debe parecer producido por una boutique de inversión, no por un procesador de texto básico.
-
-Tipografía: Helvetica/Arial sans-serif para cuerpo. Monospace para números. Espaciado 1.3 líneas mínimo.
-
-Cada sección del informe debe tener suficiente contenido y detalle. NO comprimir ni resumir el informe escrito. El PDF es la versión completa y formateada del informe, no un resumen.
-
-4. DIAGRAMA DEL FLUJO DE DINERO
-
-Comando: INGRESOS. Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html en diagramas/.
+REFERENCIA VISUAL: https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html es el modelo visual. Mantener ese diseño (bandas SVG bezier, cajas con bordes de color, fondo oscuro) pero con los números VERIFICADOS.
 
 PROTOCOLO DE VERIFICACIÓN TRIPLE — OBLIGATORIO ANTES DE DIBUJAR
 
-El Sankey DEBE reconciliar con los estados financieros oficiales. TODOS los números se verifican contra 3 fuentes ANTES de generar el HTML:
+TODOS los números se cruzan contra 3 fuentes ANTES de generar el HTML:
 
--   FUENTE 1: SEC EDGAR 10-K / 10-Q (fuente primaria y definitiva).
+-   FUENTE 1: SEC EDGAR 10-K / 10-Q (verdad oficial y definitiva).
 
 -   FUENTE 2: StockAnalysis.com income statement.
 
 -   FUENTE 3: Macrotrends.net o Yahoo Finance financials.
 
-Reglas de reconciliación:
+Reglas de reconciliación que DEBEN cumplirse:
 
--   La suma de TODOS los segmentos de revenue (incluyendo Corporate & Other, Eliminations, etc.) DEBE ser EXACTAMENTE igual al Revenue Total GAAP. Si no cuadra, hay un segmento faltante — buscarlo.
+-   Suma de TODOS los segmentos de revenue (incluyendo Corporate & Other, Eliminations) = Revenue Total GAAP exacto. Si no cuadra → buscar segmento faltante.
 
--   COGS + SGA + R&D + Other expenses DEBE reconciliar con “Total costs and expenses” del 10-K.
+-   COGS + SGA + R&D + Other = “Total costs and expenses” del 10-K.
 
--   Revenue − Total costs + Other income − Interest = Pre-tax profit. Verificar que la cadena cierra.
+-   Revenue − Total costs + Other income = Pre-tax profit. Verificar cadena.
 
--   El Free Cash Flow NO es un flujo lineal del P&L — es una métrica non-GAAP de caja. Mostrarlo como KPI paralelo, nunca como si “saliera” del Net Income directamente.
+-   Free Cash Flow es NON-GAAP, se muestra como KPI PARALELO, nunca como flujo lineal del P&L.
 
--   Si un rubro tiene discrepancia >2% entre las 3 fuentes: usar el dato del 10-K como verdad oficial.
+-   Si discrepancia >2% entre fuentes → usar dato del 10-K.
 
-NUNCA inventar un split de segmento que la empresa no reporta. Si GE reporta CES total pero no desglosa servicios/equipos en el 10-K, NO fabricar ese desglose. Usar los segmentos exactos que la empresa reporta oficialmente.
+NUNCA inventar un split de segmento que la empresa no reporta. Usar los segmentos EXACTOS del 10-K.
 
 4.1 Estructura del diagrama
 
-5 columnas: (1) FUENTES — segmentos de revenue con valor y % YoY, incluyendo TODOS los segmentos (Corporate & Other si existe). (2) REVENUE TOTAL GAAP. (3) CONVERSIÓN — Costos y gastos (rojo) con desglose COGS + SGA + R&D vs Other income/loss (separado). (4) PROFIT — Pre-tax profit (con cadena de reconciliación visible). (5) RESULTADO — Impuestos + Net Income atribuible a accionistas + FCF como KPI paralelo + Capital retornado (dividendos + buybacks).
+Topbar con KPIs headline: Revenue Total · Operating Profit · Net Income · Free Cash Flow · Backlog (si aplica).
 
-Conexiones: bandas SVG bezier proporcionales. Verde flujos positivos, rojo costos. Hover tooltip.
+MÉTRICAS CLAVE en banner superior: PEG Ratio · Score Feroldi (ej: “136/160 · 85%”) · Veredicto en 1 palabra con color badge.
 
-MÉTRICAS CLAVE: banner superior con PEG · Score Feroldi (ej: 136/160 · 85%) · Veredicto en 1 palabra con color badge.
+5 columnas con flujo Sankey:
+
+-   COL 1 — FUENTES: segmentos de revenue con valor absoluto, % del total y % YoY. Incluir TODOS los segmentos (Corporate & Other si existe). Cada segmento como bloque vertical proporcional.
+
+-   COL 2 — REVENUE TOTAL GAAP: bloque central con total, crecimiento YoY, backlog, órdenes.
+
+-   COL 3 — CONVERSIÓN: Costos y gastos (rojo) con desglose COGS+SGA+R&D. Other income/loss como partida SEPARADA si existe. Margen bruto %.
+
+-   COL 4 — PROFIT: Pre-tax profit con cadena de reconciliación visible. Impuestos con tasa efectiva.
+
+-   COL 5 — RESULTADO: Net Income atribuible + FCF como KPI paralelo (NO lineal del P&L) + Capital retornado (dividendos + buybacks con cifras exactas).
+
+Conexiones: bandas SVG bezier proporcionales al valor. Verde flujos positivos, rojo costos. Hover tooltip con detalle.
 
 4.2 Tabla de auditoría
 
-Incluir al pie del diagrama una tabla de auditoría con columnas: Rubro · Valor usado · Fuente 10-K · Estado (✅ Correcto / ⚠ Ajustado / ❌ Corregido). Esto garantiza transparencia y permite verificación rápida.
+OBLIGATORIA al pie del diagrama: columnas Rubro · Valor usado · Fuente 10-K · Estado (✅ Correcto / ⚠ Ajustado / ❌ Corregido).
+
+Notas metodológicas: explicar puente contable revenue→net income, por qué FCF es paralelo, qué incluye el “other income”.
 
 Responsive. Español. Si falta dato: “No divulgado”.
 
@@ -218,14 +180,14 @@ Responsive. Español. Si falta dato: “No divulgado”.
 
 GitHub User: patonet | Repo: informes | Token: {{GITHUB_TOKEN}}
 
-Paso 1: PUT cada archivo a ruta correspondiente (GET SHA si existe). Paso 2: Actualizar REPORTS en index.html. Formato: { ticker, name, desc, type, verdict, price:“$X”, upside:“+/-X%”, target:“$X”, date:“DD Mon YYYY”, url, pdfUrl, diag3Url }. Veredictos: buy/pullback/accumulate/neutral/nobuy/short. Paso 3: Reportar links clicables https://patonet.github.io/informes/...
+Paso 1: PUT cada archivo (GET SHA si existe). Paso 2: Actualizar REPORTS en index.html con { ticker, name, desc, type, verdict, price:“$X”, upside:“+/-X%”, target:“$X”, date:“DD Mon YYYY”, url, pdfUrl, diag3Url }. Veredictos: buy/pullback/accumulate/neutral/nobuy/short. Paso 3: Links clicables https://patonet.github.io/informes/...
 
 6. PROTOCOLO POST-DEBATE
 
-Incorporar cambios sin defender original. Menú regeneración: PDF · INFOGRAFIA · INGRESOS · TODO. Sobrescribir en GitHub (GET SHA + PUT).
+Incorporar cambios. Menú regeneración: PDF · INFOGRAFIA · INGRESOS · TODO. Sobrescribir en GitHub.
 
 7. TONO Y ESTILO
 
-Analítico · neutral · preciso. Cero marketing. Español siempre. Markdown.
+Analítico · neutral · preciso. Español siempre. Markdown.
 
-v3.0 — Sankey verificación triple · Bloque 0 semáforos · PDF restaurado completo — @patonet
+v4.0 — B0 semáforos 30% · Spider+S&P500 · Sankey verificación triple · Sin perf bar · Solo Sankey — @patonet
