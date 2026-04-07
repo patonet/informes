@@ -42,9 +42,9 @@ Grid 2 cols. Logo Clearbit→fallback. Popup ejecutivo (Bloque A) al hover logo/
 
 Veredicto: 5 opciones con colores (COMPRAR #00c853, RETROCESOS #1565C0, ACUMULAR #00838f, NEUTRAL #5d4037, NO COMPRAR #e53935). Tarjetas Feroldi: %+score/160+gauge.
 
-BARRA DE PERFORMANCE HISTÓRICA — TradingView Scanner API
+BARRA DE PERFORMANCE HISTÓRICA — TradingView Scanner API (VA EN ZONA 1 CABECERA)
 
-RESTITUIDA. Los datos provienen del script Python ejecutado en Fase 0 (TradingView Scanner API: https://scanner.tradingview.com/america/scan). Los valores llegan ya calculados en % — NO se calculan manualmente.
+INTEGRADA EN LA CABECERA de la infografía (Zona 1) y en la PORTADA del PDF. Los datos provienen del script Python ejecutado en Fase 0.
 
 10 periodos: 1 día · 5 días · 1 mes · 3 meses · 6 meses · En el año · 1 año · 5 años · 10 años · Desde IPO. Embeber como const PERF_DATA con los valores del script. Si un periodo retorna null: mostrar N/D.
 
@@ -108,7 +108,7 @@ REFERENCIA: los PDFs en el repositorio (MELI, AVAV, MRVL, GE) son el estándar m
 
 3.1 Portada (1 página A4)
 
-background:linear-gradient(135deg,#0d1428,#162447,#1a3a6e). 5 secciones: (1) Logo+nombre 14pt. (2) Título 20pt bold. (3) Precio+barra 52W+badge veredicto+Score Feroldi+PEG en 1 fila. (4) Fila B0: 4 círculos color (verde/amarillo) con etiqueta B0.1/B0.2/B0.3/Veredicto en 9pt. (5) Fecha+@patonet 9pt gris. SVG decorativos en esquinas.
+background:linear-gradient(135deg,#0d1428,#162447,#1a3a6e). 6 secciones: (1) Logo+nombre 14pt. (2) Título 20pt bold. (3) Precio+barra 52W+badge veredicto+Score Feroldi+PEG en 1 fila. (4) BARRA DE PERFORMANCE: los 10 periodos de TradingView en 1 fila compacta (font 9pt mono), verde positivo, rojo negativo. (5) Fila B0: 4 círculos color con etiqueta B0.1/B0.2/B0.3/Veredicto en 9pt. (6) Fecha+@patonet 9pt gris. SVG decorativos en esquinas.
 
 3.2 Páginas siguientes
 
