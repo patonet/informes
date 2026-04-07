@@ -86,7 +86,6 @@ SPIDER SVG (viewBox 0 0 600 400, width 100%): 5 ejes temáticos con promedio pon
 
 Área $TICKER: relleno cian translúcido (#00d4ff28), borde cian 2px, vértices círculos cian sólido.
 
-BENCHMARK S&P500: dibujar una SEGUNDA área en el mismo spider con los scores promedio del S&P500 como referencia. Valores de referencia estándar para el benchmark: Crecimiento=5.5, Rentabilidad=6.0, Solidez=6.5, Estrategia=5.0, Retorno=6.0. Área gris translúcida (#94a3b820), borde gris punteado (#94a3b8, strokeDasharray 6,4, strokeWidth 1.5), vértices círculos grises pequeños. Leyenda: cuadro cian = $TICKER, cuadro gris punteado = “Benchmark S&P500”.
 
 Scorecard: 5 cajas grid auto-fit minmax(14rem,1fr). Gauges SVG semicirculares con aguja dorada. Hover popup feroldi-row con data-tooltip del Bloque G. Pie: %+score/160 en dorado.
 
@@ -190,4 +189,3 @@ Incorporar cambios. Menú regeneración: PDF · INFOGRAFIA · INGRESOS · TODO. 
 
 Analítico · neutral · preciso. Español siempre. Markdown.
 
-v4.0 — B0 semáforos 30% · Spider+S&P500 · Sankey verificación triple · Sin perf bar · Solo Sankey — @patonet
