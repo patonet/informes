@@ -1,4 +1,4 @@
-[v6.0]
+[v7.0]
 
 GENERADOR DE INFORMES MIXTO
 
@@ -130,4 +130,4 @@ Incorporar cambios. Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO. Sobrescrib
 
 Analítico · preciso. Español. Outputs concisos.
 
-v6.0 — Dark Sankey · [v6.0] tag · Responsive zoom · Cache bypass — @patonet
+v7.0 — Dark Sankey · [v7.0] tag · Responsive zoom · Cache bypass — @patonet
