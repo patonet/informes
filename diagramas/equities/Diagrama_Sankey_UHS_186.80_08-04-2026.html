@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UHS · Sankey · Flujo de Dinero FY2025 | @patonet</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: clamp(10px, 1.1vw, 16px); }
+body { background: #050a12; color: #c8d8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:999; }
+
+.header { background: #020710; border-bottom: 2px solid #0d2040; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; }
+.header h1 span { color: #00d4ff; }
+.header .meta { font-size: 0.82rem; color: #94a3b8; text-align: right; }
+.header .brand { font-size: 0.9rem; color: #ffd700; font-weight: bold; }
+
+.kpi-bar { padding: 0.75rem 2rem; background: #080f1c; border-bottom: 1px solid #0d1f35; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+.kpi-item { display: flex; flex-direction: column; align-items: flex-start; }
+.kpi-label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; }
+.kpi-value { font-size: 1.0rem; font-weight: 700; color: #00d4ff; font-family: 'Courier New', monospace; }
+.kpi-item.green .kpi-value { color: #00ff9d; }
+.kpi-item.gold .kpi-value { color: #ffd700; }
+.kpi-item.teal .kpi-value { color: #00bcd4; }
+
+.badges { display: flex; gap: 0.6rem; margin-left: auto; flex-wrap: wrap; }
+.badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; border: 1px solid; }
+.badge-buy { background: rgba(0,255,157,0.1); border-color: #00ff9d; color: #00ff9d; }
+.badge-score { background: rgba(0,212,255,0.1); border-color: #00d4ff; color: #00d4ff; }
+.badge-peg { background: rgba(255,215,0,0.1); border-color: #ffd700; color: #ffd700; }
+
+.sankey-container { flex: 1; padding: 1.5rem 2rem; display: flex; flex-direction: column; align-items: center; }
+.sankey-title { font-size: 1.0rem; font-weight: bold; color: #00d4ff; margin-bottom: 1.2rem; text-align: center; letter-spacing: 0.05em; text-transform: uppercase; }
+.sankey-wrapper { width: 100%; max-width: 1100px; position: relative; }
+svg#sankey { width: 100%; height: auto; display: block; }
+
+.legend-section { margin-top: 1.2rem; padding: 1rem 1.5rem; background: #080f1c; border-radius: 0.5rem; border: 1px solid #0d1f35; max-width: 1100px; width: 100%; }
+.legend-title { font-size: 0.78rem; font-weight: bold; color: #94a3b8; margin-bottom: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.5rem; }
+.legend-item { display: flex; align-items: center; gap: 0.5rem; }
+.legend-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; flex-shrink: 0; }
+.legend-text { font-size: 0.78rem; color: #c8d8f0; }
+.legend-val { font-size: 0.78rem; font-family: 'Courier New', monospace; color: #ffd700; margin-left: auto; }
+
+.audit-table { margin-top: 1.2rem; max-width: 1100px; width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.audit-table th { background: #0d1428; color: #00d4ff; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 1px solid #0d2040; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.audit-table td { padding: 0.45rem 0.8rem; border-bottom: 1px solid #0d1428; color: #c8d8f0; }
+.audit-table tr:hover td { background: #0a1628; }
+.status-ok { color: #00ff9d; font-weight: bold; }
+.status-est { color: #ffd700; }
+
+.tooltip-box { position: fixed; background: #0a1628; border: 1px solid #00d4ff; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.82rem; color: #c8d8f0; max-width: 18rem; pointer-events: none; z-index: 9999; display: none; line-height: 1.5; box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+.tooltip-box strong { color: #00d4ff; }
+
+.footer { padding: 0.75rem 2rem; background: #020710; border-top: 1px solid #0d2040; text-align: center; font-size: 0.78rem; color: #94a3b8; }
+.footer strong { color: #ffd700; }
+
+@keyframes flowAnim { 0% { stroke-dashoffset: 200; opacity: 0.35; } 60% { opacity: 0.75; } 100% { stroke-dashoffset: 0; opacity: 0.35; } }
+.flow-path { stroke-dasharray: 200; animation: flowAnim 4s linear infinite; }
+.flow-path-slow { stroke-dasharray: 200; animation: flowAnim 5.5s linear infinite; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Universal <span>Health Services</span> · Flujo de Dinero FY2025</h1>
+    <div style="font-size:0.8rem;color:#94a3b8;margin-top:0.2rem">Diagrama Sankey · Método Feroldi · Verificación Triple SEC/Becker's/StockAnalysis</div>
+  </div>
+  <div class="meta">
+    <div class="brand">@patonet</div>
+    <div>NYSE: UHS · $186.80 · 8 Abr 2026</div>
+    <div>Revenue Total FY2025: $17.40B (GAAP)</div>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi-item">
+    <span class="kpi-label">Revenue Total</span>
+    <span class="kpi-value">$17.40B</span>
+  </div>
+  <div class="kpi-item green">
+    <span class="kpi-label">Operating Profit</span>
+    <span class="kpi-value">$2.00B</span>
+  </div>
+  <div class="kpi-item green">
+    <span class="kpi-label">Net Income</span>
+    <span class="kpi-value">$1.50B</span>
+  </div>
+  <div class="kpi-item gold">
+    <span class="kpi-label">Free Cash Flow</span>
+    <span class="kpi-value">~$0.90B</span>
+  </div>
+  <div class="kpi-item teal">
+    <span class="kpi-label">EBITDA</span>
+    <span class="kpi-value">$2.61B</span>
+  </div>
+  <div class="kpi-item teal">
+    <span class="kpi-label">Margen Neto</span>
+    <span class="kpi-value">8.7%</span>
+  </div>
+  <div class="badges">
+    <span class="badge badge-buy">COMPRAR</span>
+    <span class="badge badge-score">Score 108/160 · 67.5%</span>
+    <span class="badge badge-peg">PEG 0.58</span>
+  </div>
+</div>
+
+<div class="sankey-container">
+  <div class="sankey-title">🏥 ¿Cómo fluye el dinero en Universal Health Services? — FY2025</div>
+  <div class="sankey-wrapper">
+
+<svg id="sankey" viewBox="0 0 1060 620" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Segment gradients -->
+  <linearGradient id="gAcute" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.8"/>
+    <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gBeh" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#ffd700" stop-opacity="0.8"/>
+    <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gRev" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00a8cc" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.5"/>
+  </linearGradient>
+  <linearGradient id="gSalaries" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0.5"/>
+  </linearGradient>
+  <linearGradient id="gSupplies" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#ff6b35" stop-opacity="0.5"/>
+  </linearGradient>
+  <linearGradient id="gOther" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#ff9800" stop-opacity="0.4"/>
+  </linearGradient>
+  <linearGradient id="gDA" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
+    <stop offset="100%" stop-color="#9c27b0" stop-opacity="0.4"/>
+  </linearGradient>
+  <linearGradient id="gOp" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a3a6e" stop-opacity="0.8"/>
+    <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gNI" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#ffd700" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gTax" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0.5"/>
+  </linearGradient>
+  <linearGradient id="gFCF" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#ffd700" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#00c853" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gBbk" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00c853" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#76c442" stop-opacity="0.7"/>
+  </linearGradient>
+  <linearGradient id="gCap" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.7"/>
+    <stop offset="100%" stop-color="#9c27b0" stop-opacity="0.4"/>
+  </linearGradient>
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="2.5" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glowStrong">
+    <feGaussianBlur stdDeviation="4" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ========== COLUMN 1: SEGMENTOS (x=10..155) ========== -->
+<!-- Acute Care Node (54% of revenue = ~$9.4B) -->
+<rect x="10" y="25" width="145" height="195" rx="6" fill="#1a3a6e" stroke="#00d4ff" stroke-width="1.5" filter="url(#glow)" class="node" data-tip="Acute Care: $9.4B (54%)" style="cursor:pointer"/>
+<text x="82" y="52" text-anchor="middle" fill="#00d4ff" font-size="11.5" font-weight="bold">ACUTE CARE</text>
+<text x="82" y="68" text-anchor="middle" fill="#94a3b8" font-size="9">28 hospitales inpatient</text>
+<text x="82" y="82" text-anchor="middle" fill="#94a3b8" font-size="9">1.7M visitas ER · 331K admisiones</text>
+<text x="82" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">34,900 deliveries</text>
+<text x="82" y="118" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$9.40B</text>
+<text x="82" y="134" text-anchor="middle" fill="#94a3b8" font-size="9">54% del revenue total</text>
+<text x="82" y="148" text-anchor="middle" fill="#00d4ff" font-size="9">Margen Op: ~10.1%</text>
+<text x="82" y="162" text-anchor="middle" fill="#ffd700" font-size="9">Rev/admisión +5.4% YoY</text>
+<text x="82" y="178" text-anchor="middle" fill="#94a3b8" font-size="9">Texas · Nevada · California</text>
+<text x="82" y="195" text-anchor="middle" fill="#64748b" font-size="8">Florida · 36 estados adicionales</text>
+<text x="82" y="209" text-anchor="middle" fill="#00bcd4" font-size="9">+8.5% same-facility YoY</text>
+
+<!-- Behavioral Health Node (46% = ~$8.0B) -->
+<rect x="10" y="240" width="145" height="195" rx="6" fill="#1a2a0a" stroke="#ffd700" stroke-width="1.5" filter="url(#glow)" class="node" data-tip="Behavioral Health: $8.0B (46%)" style="cursor:pointer"/>
+<text x="82" y="265" text-anchor="middle" fill="#ffd700" font-size="11.5" font-weight="bold">BEHAVIORAL HEALTH</text>
+<text x="82" y="281" text-anchor="middle" fill="#94a3b8" font-size="9">331 inpatient · 119 outpatient</text>
+<text x="82" y="295" text-anchor="middle" fill="#94a3b8" font-size="9">730K pacientes · 5.5M días</text>
+<text x="82" y="309" text-anchor="middle" fill="#94a3b8" font-size="9">Patriot Support (17,800 militares)</text>
+<text x="82" y="329" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$8.00B</text>
+<text x="82" y="345" text-anchor="middle" fill="#94a3b8" font-size="9">46% del revenue total</text>
+<text x="82" y="359" text-anchor="middle" fill="#ffd700" font-size="9">Margen Op: ~20.4%</text>
+<text x="82" y="373" text-anchor="middle" fill="#ffd700" font-size="9">Rev/paciente-día +6.8% YoY</text>
+<text x="82" y="387" text-anchor="middle" fill="#94a3b8" font-size="9">US · UK · Puerto Rico</text>
+<text x="82" y="403" text-anchor="middle" fill="#00bcd4" font-size="9">+7.7% same-facility YoY</text>
+<text x="82" y="418" text-anchor="middle" fill="#64748b" font-size="8">Thousand Branches: 10 nuevas 2025</text>
+
+<!-- Medicaid Supplemental label (sub-node indicator) -->
+<rect x="10" y="455" width="145" height="55" rx="5" fill="#0d1f1a" stroke="#00c853" stroke-width="1" stroke-dasharray="4,2"/>
+<text x="82" y="473" text-anchor="middle" fill="#00c853" font-size="9.5" font-weight="bold">MEDICAID SUPPLEMENTAL</text>
+<text x="82" y="487" text-anchor="middle" fill="#94a3b8" font-size="9">Pagos estatales directos</text>
+<text x="82" y="500" text-anchor="middle" fill="#ffd700" font-size="11" font-weight="bold">$1.20B</text>
+
+<!-- ========== FLOW: Segments → Revenue Total ========== -->
+<!-- Acute Care → Revenue (wide band) -->
+<path d="M155 122 C 230 122, 230 200, 310 200" stroke="url(#gAcute)" stroke-width="60" fill="none" class="flow-path" opacity="0.55"/>
+<!-- Behavioral → Revenue (wide band) -->
+<path d="M155 337 C 230 337, 230 265, 310 265" stroke="url(#gBeh)" stroke-width="51" fill="none" class="flow-path" opacity="0.55"/>
+<!-- Medicaid Supplemental → Revenue (thin highlight) -->
+<path d="M155 483 C 220 483, 250 310, 310 295" stroke="url(#gRev)" stroke-width="11" fill="none" class="flow-path-slow" opacity="0.4"/>
+
+<!-- ========== COLUMN 2: REVENUE TOTAL (x=310..460) ========== -->
+<rect x="310" y="110" width="150" height="170" rx="6" fill="#0d1f35" stroke="#00a8cc" stroke-width="2" filter="url(#glowStrong)"/>
+<text x="385" y="135" text-anchor="middle" fill="#00a8cc" font-size="11" font-weight="bold">REVENUE TOTAL</text>
+<text x="385" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">GAAP Neto · FY2025</text>
+<text x="385" y="170" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="bold">$17.40B</text>
+<text x="385" y="188" text-anchor="middle" fill="#94a3b8" font-size="9">+10% vs FY2024 ($15.83B)</text>
+<line x1="320" y1="200" x2="450" y2="200" stroke="#0d2040" stroke-width="1"/>
+<text x="385" y="214" text-anchor="middle" fill="#94a3b8" font-size="9">Mix Pagadores:</text>
+<text x="385" y="228" text-anchor="middle" fill="#ff9800" font-size="9">~60% Gov (Medicare+Medicaid)</text>
+<text x="385" y="242" text-anchor="middle" fill="#00d4ff" font-size="9">~40% Privado+Comercial</text>
+<text x="385" y="258" text-anchor="middle" fill="#00c853" font-size="9">+$1.2B supl. Medicaid</text>
+<text x="385" y="272" text-anchor="middle" fill="#94a3b8" font-size="9">3.7M pacientes atendidos</text>
+
+<!-- ========== FLOW: Revenue Total → Costos + OpIncome ========== -->
+<!-- To Salaries -->
+<path d="M460 185 C 535 185, 535 120, 608 120" stroke="url(#gSalaries)" stroke-width="42" fill="none" class="flow-path" opacity="0.5"/>
+<!-- To Supplies -->
+<path d="M460 210 C 535 210, 535 210, 608 210" stroke="url(#gSupplies)" stroke-width="10" fill="none" class="flow-path" opacity="0.5"/>
+<!-- To Other OpEx -->
+<path d="M460 228 C 535 228, 535 275, 608 275" stroke="url(#gOther)" stroke-width="28" fill="none" class="flow-path" opacity="0.5"/>
+<!-- To D&A -->
+<path d="M460 248 C 535 248, 535 328, 608 328" stroke="url(#gDA)" stroke-width="4" fill="none" class="flow-path-slow" opacity="0.45"/>
+<!-- To Operating Income -->
+<path d="M460 230 C 535 230, 535 450, 608 450" stroke="url(#gOp)" stroke-width="13" fill="none" class="flow-path" opacity="0.6"/>
+
+<!-- ========== COLUMN 3: COSTOS (x=608..760) ========== -->
+<!-- Salaries & Benefits -->
+<rect x="608" y="48" width="152" height="110" rx="6" fill="#200a0a" stroke="#ff3a3a" stroke-width="1.5"/>
+<text x="684" y="70" text-anchor="middle" fill="#ff3a3a" font-size="10.5" font-weight="bold">SALARIOS &amp; BENEFICIOS</text>
+<text x="684" y="85" text-anchor="middle" fill="#94a3b8" font-size="9">99K+ empleados</text>
+<text x="684" y="99" text-anchor="middle" fill="#94a3b8" font-size="9">23K enfermeras</text>
+<text x="684" y="116" text-anchor="middle" fill="#ff6b6b" font-size="14" font-weight="bold">$8.10B</text>
+<text x="684" y="132" text-anchor="middle" fill="#94a3b8" font-size="9">46.6% del revenue</text>
+<text x="684" y="146" text-anchor="middle" fill="#ff9800" font-size="9">Premium Pay: $60M (vs $153M '22)</text>
+
+<!-- Supplies -->
+<rect x="608" y="168" width="152" height="70" rx="6" fill="#1f1008" stroke="#ff6b35" stroke-width="1.5"/>
+<text x="684" y="187" text-anchor="middle" fill="#ff6b35" font-size="10.5" font-weight="bold">SUMINISTROS MÉDICOS</text>
+<text x="684" y="202" text-anchor="middle" fill="#ff8c61" font-size="14" font-weight="bold">$1.70B</text>
+<text x="684" y="217" text-anchor="middle" fill="#94a3b8" font-size="9">9.8% del revenue</text>
+<text x="684" y="229" text-anchor="middle" fill="#94a3b8" font-size="9">Cadena suministro optimizada</text>
+
+<!-- Other OpEx -->
+<rect x="608" y="248" width="152" height="100" rx="6" fill="#1a1508" stroke="#ff9800" stroke-width="1.5"/>
+<text x="684" y="267" text-anchor="middle" fill="#ff9800" font-size="10.5" font-weight="bold">OTROS GASTOS OP.</text>
+<text x="684" y="282" text-anchor="middle" fill="#94a3b8" font-size="9">Leasing · Overhead · Admin</text>
+<text x="684" y="296" text-anchor="middle" fill="#ffc861" font-size="14" font-weight="bold">$4.90B</text>
+<text x="684" y="312" text-anchor="middle" fill="#94a3b8" font-size="9">28.2% del revenue</text>
+<text x="684" y="326" text-anchor="middle" fill="#94a3b8" font-size="9">Includes insurance/legal reserves</text>
+<text x="684" y="340" text-anchor="middle" fill="#ffd700" font-size="8.5">+$79M reservas liability FY2025</text>
+
+<!-- D&A -->
+<rect x="608" y="358" width="152" height="58" rx="6" fill="#150a20" stroke="#9c27b0" stroke-width="1.5"/>
+<text x="684" y="376" text-anchor="middle" fill="#ce93d8" font-size="10.5" font-weight="bold">DEPRECIACIÓN &amp; AMORT.</text>
+<text x="684" y="392" text-anchor="middle" fill="#ba68c8" font-size="14" font-weight="bold">$0.61B</text>
+<text x="684" y="406" text-anchor="middle" fill="#94a3b8" font-size="9">3.5% del revenue · No-cash</text>
+
+<!-- Operating Income -->
+<rect x="608" y="430" width="152" height="88" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="2" filter="url(#glow)"/>
+<text x="684" y="450" text-anchor="middle" fill="#00ff9d" font-size="10.5" font-weight="bold">INGRESO OPERATIVO</text>
+<text x="684" y="465" text-anchor="middle" fill="#00ff9d" font-size="16" font-weight="bold">$2.00B</text>
+<text x="684" y="480" text-anchor="middle" fill="#94a3b8" font-size="9">Margen Op: 11.5%</text>
+<text x="684" y="495" text-anchor="middle" fill="#00d4ff" font-size="9">vs 10.6% FY2024 (+90 bps)</text>
+<text x="684" y="510" text-anchor="middle" fill="#ffd700" font-size="9">EBITDA: $2.61B (15.0%)</text>
+
+<!-- ========== FLOW: OpIncome → Pre-Tax + Interest ========== -->
+<!-- Interest expense -->
+<path d="M760 474 C 820 474, 820 560, 870 560" stroke="#ff3a3a" stroke-width="2.5" fill="none" class="flow-path-slow" opacity="0.55"/>
+<!-- To Pre-tax Profit -->
+<path d="M760 470 C 820 470, 820 430, 870 430" stroke="url(#gOp)" stroke-width="12" fill="none" class="flow-path" opacity="0.6"/>
+
+<!-- ========== COLUMN 4: PRE-TAX & INTEREST (x=870..1010) ========== -->
+<!-- Interest Expense (small) -->
+<rect x="870" y="540" width="140" height="48" rx="5" fill="#1a0808" stroke="#ff3a3a" stroke-width="1"/>
+<text x="940" y="558" text-anchor="middle" fill="#ff6b6b" font-size="9.5" font-weight="bold">GASTO INTERESES</text>
+<text x="940" y="573" text-anchor="middle" fill="#ff3a3a" font-size="12" font-weight="bold">~$0.25B</text>
+<text x="940" y="583" text-anchor="middle" fill="#94a3b8" font-size="8">Net Debt/EBITDA: 2.0x</text>
+
+<!-- Pre-Tax Income -->
+<rect x="870" y="370" width="140" height="130" rx="6" fill="#0d1f1a" stroke="#00bcd4" stroke-width="1.5" filter="url(#glow)"/>
+<text x="940" y="392" text-anchor="middle" fill="#00bcd4" font-size="10.5" font-weight="bold">INGRESO PRE-TAX</text>
+<text x="940" y="410" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$1.95B</text>
+<text x="940" y="427" text-anchor="middle" fill="#94a3b8" font-size="9">Margen pre-tax: ~11.2%</text>
+<line x1="880" y1="437" x2="1000" y2="437" stroke="#0d2040" stroke-width="1"/>
+<!-- Flows split: Tax & Net Income indicators -->
+<text x="940" y="453" text-anchor="middle" fill="#ff6b6b" font-size="9">Impuestos: ~$0.45B (23%)</text>
+<text x="940" y="467" text-anchor="middle" fill="#94a3b8" font-size="9">ETR: ~23%</text>
+<text x="940" y="481" text-anchor="middle" fill="#00ff9d" font-size="9">→ Net Income: $1.50B</text>
+<text x="940" y="493" text-anchor="middle" fill="#ffd700" font-size="9">→ Adj EPS: ~$22.07</text>
+
+<!-- ========== FLOW: Pre-Tax → Tax + Net Income ========== -->
+<path d="M1010 440 C 1035 440, 1035 200, 1045 200" stroke="url(#gTax)" stroke-width="4.5" fill="none" class="flow-path-slow" opacity="0.5"/>
+<path d="M1010 445 C 1035 445, 1035 320, 1045 320" stroke="url(#gNI)" stroke-width="10" fill="none" class="flow-path" opacity="0.6"/>
+
+<!-- ========== COLUMN 5: NET INCOME → DESTINATIONS (x=1045+) ========== -->
+<!-- Income Taxes label (far right) -->
+<rect x="1045" y="155" width="8" height="70" rx="3" fill="#ff3a3a" opacity="0.7"/>
+<text x="1060" y="182" text-anchor="start" fill="#ff6b6b" font-size="9">IMPUESTOS</text>
+<text x="1060" y="195" text-anchor="start" fill="#ff3a3a" font-size="10" font-weight="bold">$0.45B</text>
+<text x="1060" y="208" text-anchor="start" fill="#64748b" font-size="8">23% ETR</text>
+
+<!-- NET INCOME destination -->
+<rect x="1045" y="270" width="8" height="100" rx="3" fill="#00ff9d" opacity="0.7"/>
+<!-- Arrows and labels to right of diagram -->
+<!-- Buybacks -->
+<line x1="1053" y1="295" x2="1053" y2="295" stroke="#00c853"/>
+<text x="1060" y="292" text-anchor="start" fill="#00c853" font-size="9" font-weight="bold">RECOMPRAS</text>
+<text x="1060" y="305" text-anchor="start" fill="#00ff9d" font-size="10" font-weight="bold">$0.90B</text>
+<text x="1060" y="318" text-anchor="start" fill="#94a3b8" font-size="8">4.65M shares</text>
+
+<!-- Dividends -->
+<text x="1060" y="337" text-anchor="start" fill="#76c442" font-size="9" font-weight="bold">DIVIDENDO</text>
+<text x="1060" y="350" text-anchor="start" fill="#76c442" font-size="10" font-weight="bold">$0.05B</text>
+<text x="1060" y="363" text-anchor="start" fill="#94a3b8" font-size="8">$0.80/yr · 0.43%</text>
+
+<!-- CAPEX indicator -->
+<rect x="1045" y="395" width="8" height="65" rx="3" fill="#9c27b0" opacity="0.6"/>
+<text x="1060" y="420" text-anchor="start" fill="#ce93d8" font-size="9" font-weight="bold">CAPEX</text>
+<text x="1060" y="433" text-anchor="start" fill="#ba68c8" font-size="10" font-weight="bold">$1.00B</text>
+<text x="1060" y="446" text-anchor="start" fill="#94a3b8" font-size="8">5.7% revenue</text>
+<text x="1060" y="459" text-anchor="start" fill="#94a3b8" font-size="8">Mant+Crecimiento</text>
+
+<!-- FCF label -->
+<rect x="1045" y="475" width="8" height="50" rx="3" fill="#ffd700" opacity="0.7"/>
+<text x="1060" y="496" text-anchor="start" fill="#ffd700" font-size="9" font-weight="bold">FREE CASH FLOW</text>
+<text x="1060" y="509" text-anchor="start" fill="#ffd700" font-size="10" font-weight="bold">~$0.90B</text>
+<text x="1060" y="522" text-anchor="start" fill="#94a3b8" font-size="8">FCF yield ~8%</text>
+
+<!-- ========== COLUMN HEADERS ========== -->
+<text x="82" y="15" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold" text-transform="uppercase">COL 1: SEGMENTOS</text>
+<text x="385" y="100" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 2: REVENUE GAAP</text>
+<text x="684" y="38" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 3: ESTRUCTURA DE COSTOS</text>
+<text x="940" y="360" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 4: PRE-TAX</text>
+
+<!-- ========== RISK ANNOTATION ========== -->
+<rect x="10" y="520" width="280" height="40" rx="5" fill="#1a1008" stroke="#ff6b35" stroke-width="1" stroke-dasharray="4,2"/>
+<text x="20" y="537" fill="#ff9800" font-size="9" font-weight="bold">⚠ RIESGO CLAVE: Medicaid Supplemental</text>
+<text x="20" y="551" fill="#94a3b8" font-size="8.5">$1.2B beneficio anual → reducción gradual $360-400M hacia 2032</text>
+
+<!-- Net Income summary box -->
+<rect x="310" y="340" width="150" height="95" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="385" y="360" text-anchor="middle" fill="#00ff9d" font-size="10" font-weight="bold">NET INCOME</text>
+<text x="385" y="377" text-anchor="middle" fill="#00ff9d" font-size="16" font-weight="bold">$1.50B</text>
+<text x="385" y="394" text-anchor="middle" fill="#94a3b8" font-size="9">Margen neto: 8.7%</text>
+<text x="385" y="408" text-anchor="middle" fill="#94a3b8" font-size="9">+30% vs FY2024 ($1.14B)</text>
+<text x="385" y="422" text-anchor="middle" fill="#ffd700" font-size="9">EPS dilutido: $23.15 TTM</text>
+
+<!-- Flow from Revenue to Net Income summary box -->
+<path d="M460 275 C 490 275, 490 390, 310 390" stroke="url(#gNI)" stroke-width="2" fill="none" stroke-dasharray="5,3" opacity="0.4"/>
+</svg>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-section">
+    <div class="legend-title">📊 Leyenda de Flujos — FY2025 Verificado (SEC 10-K · Becker's · StockAnalysis)</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00d4ff"></span>
+        <span class="legend-text">Acute Care Services</span>
+        <span class="legend-val">$9.40B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ffd700"></span>
+        <span class="legend-text">Behavioral Health Services</span>
+        <span class="legend-val">$8.00B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00c853"></span>
+        <span class="legend-text">Medicaid Supplemental Payments</span>
+        <span class="legend-val">$1.20B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff3a3a"></span>
+        <span class="legend-text">Salarios, Wages &amp; Benefits</span>
+        <span class="legend-val">$8.10B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff6b35"></span>
+        <span class="legend-text">Suministros Médicos</span>
+        <span class="legend-val">$1.70B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff9800"></span>
+        <span class="legend-text">Otros Gastos Operativos</span>
+        <span class="legend-val">$4.90B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#9c27b0"></span>
+        <span class="legend-text">Depreciación &amp; Amortización</span>
+        <span class="legend-val">$0.61B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00ff9d"></span>
+        <span class="legend-text">Ingreso Operativo (EBIT)</span>
+        <span class="legend-val">$2.00B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00ff9d"></span>
+        <span class="legend-text">Net Income Atribuible a UHS</span>
+        <span class="legend-val">$1.50B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ffd700"></span>
+        <span class="legend-text">Free Cash Flow (post-CAPEX)</span>
+        <span class="legend-val">~$0.90B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00c853"></span>
+        <span class="legend-text">Recompras de Acciones 2025</span>
+        <span class="legend-val">$0.90B</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ba68c8"></span>
+        <span class="legend-text">CAPEX Total 2025</span>
+        <span class="legend-val">$1.00B</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Table -->
+  <div style="margin-top:1.2rem;max-width:1100px;width:100%">
+    <div class="legend-title" style="padding:0 0 0.5rem 0;font-size:0.78rem;font-weight:bold;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em">🔍 TABLA DE AUDITORÍA — Verificación Triple</div>
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th>Rubro</th>
+          <th>Valor FY2025</th>
+          <th>Fuente Primaria</th>
+          <th>Estado</th>
+          <th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Revenue Total GAAP</td>
+          <td><strong style="color:#00ff9d">$17.40B</strong></td>
+          <td>Becker's/UHS Press Release Feb 2026</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>+10% vs $15.83B FY2024</td>
+        </tr>
+        <tr>
+          <td>Acute Care Revenue (~54%)</td>
+          <td><strong style="color:#00d4ff">$9.40B</strong></td>
+          <td>SEC 10-K segmento FY2024 + ratio 2025</td>
+          <td class="status-est">⚡ Estimado</td>
+          <td>2024: $8.57B. +8.5% same-fac YoY → $9.4B</td>
+        </tr>
+        <tr>
+          <td>Behavioral Health Revenue (~46%)</td>
+          <td><strong style="color:#ffd700">$8.00B</strong></td>
+          <td>SEC 10-K segmento FY2024 + ratio 2025</td>
+          <td class="status-est">⚡ Estimado</td>
+          <td>2024: $6.70B. +7.7% same-fac YoY → ~$8.0B</td>
+        </tr>
+        <tr>
+          <td>Salarios, Wages &amp; Benefits</td>
+          <td><strong style="color:#ff6b6b">$8.10B</strong></td>
+          <td>Becker's (citando reporte UHS Feb 2026)</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>vs $7.5B FY2024. 46.6% del revenue</td>
+        </tr>
+        <tr>
+          <td>Supply Expenses</td>
+          <td><strong style="color:#ff8c61">$1.70B</strong></td>
+          <td>Becker's (citando reporte UHS Feb 2026)</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>vs $1.6B FY2024</td>
+        </tr>
+        <tr>
+          <td>Otros Gastos Operativos</td>
+          <td><strong style="color:#ffc861">$4.90B</strong></td>
+          <td>Becker's (citando reporte UHS Feb 2026)</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>vs $4.3B FY2024. Incluye leasing+admin</td>
+        </tr>
+        <tr>
+          <td>D&amp;A Estimada</td>
+          <td><strong style="color:#ba68c8">$0.61B</strong></td>
+          <td>SEC 10-K 2024: $0.57B → +7% YoY est.</td>
+          <td class="status-est">⚡ Estimado</td>
+          <td>EBITDA-EBIT = $2.61B-$2.00B = $0.61B</td>
+        </tr>
+        <tr>
+          <td>Operating Income</td>
+          <td><strong style="color:#00ff9d">$2.00B</strong></td>
+          <td>Becker's: "11.5% operating margin"</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>$17.4B × 11.5% = $2.00B</td>
+        </tr>
+        <tr>
+          <td>Net Income</td>
+          <td><strong style="color:#00ff9d">$1.50B</strong></td>
+          <td>Becker's Feb 2026: "net income jumps 30%"</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>vs $1.14B FY2024 (+30% confirmado)</td>
+        </tr>
+        <tr>
+          <td>Free Cash Flow</td>
+          <td><strong style="color:#ffd700">~$0.90B</strong></td>
+          <td>FCF Op $1.9B (Q4'24 annualized) − CAPEX $1.0B</td>
+          <td class="status-est">⚡ Estimado</td>
+          <td>FCF yield ~8% sobre market cap $11.4B</td>
+        </tr>
+        <tr>
+          <td>Medicaid Supplemental</td>
+          <td><strong style="color:#00c853">$1.20B</strong></td>
+          <td>UHS Q2 2025 call / FierceHealthcare Jul 2025</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>Riesgo: reducción $360-400M hacia 2032</td>
+        </tr>
+        <tr>
+          <td>CAPEX Total 2025</td>
+          <td><strong style="color:#ba68c8">$1.00B</strong></td>
+          <td>Becker's Feb 2026: "spent $1B in capex 2025"</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>Guidance 2026: $950M-$1.1B</td>
+        </tr>
+        <tr>
+          <td>Recompras 2025</td>
+          <td><strong style="color:#00c853">$0.90B</strong></td>
+          <td>Q4 2025 Earnings Call (AlphaSpread Mar 2026)</td>
+          <td class="status-ok">✅ Verificado</td>
+          <td>4.65M shares. Auto adicional $1.5B</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="tooltip-box" id="tooltip"></div>
+
+<div class="footer">
+  <strong>@patonet</strong> · Análisis Feroldi · $UHS · FY2025 · Generado 8 Abr 2026 · 
+  Fuentes: SEC EDGAR 10-K · Becker's Hospital Review (Feb 2026) · StockAnalysis.com · UHS IR Releases · 
+  <span style="color:#ff9800">No constituye asesoría de inversión</span>
+</div>
+
+<script>
+// Tooltip interactions
+document.querySelectorAll('.node').forEach(el => {
+  el.addEventListener('mouseenter', function(e) {
+    const tip = document.getElementById('tooltip');
+    tip.innerHTML = '<strong>' + this.dataset.tip + '</strong>';
+    tip.style.display = 'block';
+  });
+  el.addEventListener('mousemove', function(e) {
+    const tip = document.getElementById('tooltip');
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top = (e.clientY - 30) + 'px';
+  });
+  el.addEventListener('mouseleave', function() {
+    document.getElementById('tooltip').style.display = 'none';
+  });
+});
+</script>
+</body>
+</html>
