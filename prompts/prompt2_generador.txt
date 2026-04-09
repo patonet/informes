@@ -1,126 +1,110 @@
-[v7.0]
+[v8.0]
 
 GENERADOR DE INFORMES MIXTO
 
-Infografía HTML · PDF · Diagrama Flujo de Dinero · GitHub Pages
+1. REGLAS GENERALES
 
-1. INSTRUCCIONES
-
-Datos del informe pegado — no re-buscar. Tipos: EQUITY · ETF · SHORT (#ff1744).
+Datos del informe pegado. Tipos: EQUITY · ETF · SHORT. Comandos: INFOGRAFIA · PDF · INGRESOS · TODO.
 
 LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
 
-Carpetas: equities/etfs/shorts/ · pdfs/... · diagramas/...
-
-Nombres: Informe_[TICKER]_[PRECIO]_[DD-MM-AAAA].html · InformePDF_...pdf · Diagrama_Sankey_...html
-
 TODO lo que se genere se sube a GitHub sin excepción.
 
-Comandos: INFOGRAFIA · PDF · INGRESOS · TODO. Único diagrama: Flujo de Dinero (Sankey).
+Nombres de archivos
+
+Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html (ej: infografia_AAPL_189.45_15-04-2026.html)
+
+PDF: InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf
+
+Sankey: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+
+Carpetas: equities/etfs/shorts/ · pdfs/equities/... · diagramas/equities/...
 
 2. INFOGRAFÍA HTML
 
-2.A Estilo
+REFERENCIA ORO: la infografía de CRDO (https://patonet.github.io/informes/equities/Informe_CRDO_107_09_190326.html) es el ESTÁNDAR VISUAL. Replicar SU ESTRUCTURA EXACTA para cada nuevo ticker — misma CSS, mismas zonas, mismos popups, mismo semáforo — solo cambiando los DATOS. Las adiciones respecto a CRDO son: (1) barra de performance histórica y (2) mini-semáforos B0.
 
-const DATA = {...} al inicio del script.
+Elementos OBLIGATORIOS que deben estar (replicar de CRDO)
 
--   Paleta: fondo #050a12, texto #c8d8f0, cian #00d4ff, verde #00ff9d, dorado #ffd700, rojo #ff3a3a. SHORT: cian→#ff1744.
+-   LOGO de la empresa: img Clearbit con fallback Google Favicons, segundo fallback div con iniciales. id=triggerLogo.
 
--   Mínimo 0.8rem. @patonet 1rem dorado.
+-   POPUP EJECUTIVO: div#execPopup, position:fixed, centrado, fondo #0a1628, borde 2px #00d4ff. Texto del Bloque A. Se activa con mouseenter sobre triggerLogo, triggerNombre, triggerFrase. Oculta con mouseleave (delay 350ms).
 
-2.B Responsividad
+-   FRASE DEFINITORIA: id=triggerFrase, cursiva entre comillas, color cian, fondo #0d1f35, border-left 3px cian. Cursor pointer. Activa el popup ejecutivo.
 
-R1: html{font-size:clamp(10px,1.15vw,17px)}. R2: SOLO rem/em/%/fr. R3: width:100% padding:1.5rem. R4: Grids fr/auto-fit. R5: Canvas responsive:true. R6: Gauges viewBox. R7: Verificar px antes de </style>.
+-   BARRA 52W: SVG con marcador rojo (min), verde (max), cian (precio actual con posición relativa %).
 
-2.C Zonas
+-   SEMÁFORO IA: SVG id=triggerIA, viewBox 0 0 80 200, width 3.5rem. Carcasa bisel #1a1a1a. 3 luces: ROJO arriba, NARANJA centro, VERDE abajo. La luz ACTIVA tiene fill brillante + glow (drop-shadow) + reflejo elíptico opacity 0.35. Las luces INACTIVAS tienen fill tenue opaco (ej: #2d0a0a para rojo apagado, #003d1a para verde apagado) + reflejo opacity 0.05. ESTO ES CRÍTICO: las luces apagadas DEBEN verse tenues, no desaparecer.
 
-ZONA 1 — Cabecera
+-   POPUP IA: div#iaPopup con análisis completo de la Etapa F (Bloque D). Se activa con mouseenter sobre triggerIA.
 
-Logo Clearbit→fallback. Popup ejecutivo (Bloque A). Frase cursiva cian. Precio 2.2rem + delta. Barra 52W SVG.
+-   GAUGE CIRCULAR FEROLDI: SVG con arco gradiente rojo→verde, aguja dorada.
 
-BARRA DE PERFORMANCE (TradingView Scanner API): 10 periodos. const PERF_DATA. Verde positivo, rojo negativo, gris null. >1000% como X.XXK%. Integrada en Zona 1 y en portada PDF.
+-   FEROLDI SCORECARD (Zona 5): cada fila con clase feroldi-row y atributo data-tooltip con descripción completa del punto. Popup #feroldiPopup al hover.
 
-Veredicto 5 opciones. Tarjetas Feroldi %+score/160+gauge. Semáforo IA SVG 3 luces.
+-   TABLA COMPETIDORES (Zona 6): con barra SVG de rango 52W y posición relativa % para CADA competidor.
 
-4 mini-semáforos B0 al 30% tamaño IA (width 1.2rem). Etiqueta+título+resultado en color. Popup al hover con justificación del Bloque 0.
+ADICIÓN 1 — Barra de Performance Histórica
 
-ZONA 2 — Key Stats
+Título: “PERFORMANCE HISTÓRICO”. Datos de TradingView Scanner API. 8 periodos: 1D · 5D · 1M · 3M · 6M · YTD · 1Y · 5Y. Verde positivo, rojo negativo, gris N/D. Va en Zona 1, debajo de la barra 52W.
 
-Grid 4 subgrupos: VALORACIÓN · RENTABILIDAD · CRECIMIENTO · DIVIDENDO/RIESGO.
+ADICIÓN 2 — Mini-semáforos Bloque 0
 
-ZONA 3 — Gráficos
+4 mini-semáforos SVG al 30% del tamaño del semáforo IA (width 1.2rem). Misma estructura (carcasa, 3 luces con activa brillante e inactivas TENUES). B0.1 Competencia · B0.2 Simplicidad · B0.3 Predictibilidad · B0 Veredicto. Etiqueta + resultado en color. Popup al hover con justificación del Bloque 0.
 
-Grid 1fr 1fr 1fr. COL1: Revenue+NI eje compartido, Margen% naranja. COL2: Waterfall. COL3: Dona.
+Gráficos Zona 3 — REGLAS ESTRICTAS
 
-ZONA 4 — Analistas y precio 52W
+COLUMNA 1 (barras): SIEMPRE Revenue to Profit Conversion (Revenue, COGS, Gross Profit, OpExp, OpIncome, Non-Op, Taxes, Net Income). NUNCA usar barras para EPS.
 
-Targets como datasets line. Guard if(!scales.y) return.
+COLUMNA 3 (dona/pastel): SIEMPRE composición de ingresos por segmento de negocio o geografía. NUNCA usar el pastel para otra cosa.
 
-ZONA 5 — Perfil Feroldi
+COLUMNA 2 (waterfall): cascada trimestral Revenue→Net Income.
 
-Spider SVG 5 ejes (solo $TICKER, sin benchmark). Scorecard 5 cajas con gauges. Popups data-tooltip.
+Zona 1 — Debajo del precio
 
-ZONA 6 — Riesgos, Analistas, Competidores, Veredicto
+NO poner texto debajo del precio (delta %, YTD, vs ATH) si esos datos ya están en la barra de performance. Evitar duplicación.
 
-Riesgos/Catalizadores. Gauge consenso. Tabla competidores. Veredicto+tesis+@patonet.
+Responsividad
+
+R1: html{font-size:clamp(10px,1.15vw,17px)}. R2: SOLO rem/em/%/fr. R3-R7: mismas reglas de siempre.
 
 3. PDF
 
 TÍTULO: “Informe Profesional de $TICKER · Método Feroldi”
 
-Estándar visual: PDFs del repositorio (MELI, GE). Corporate flyer, NO texto plano.
+Estándar: PDFs del repositorio (MELI, GE). Corporate flyer.
 
-3.1 Portada (1 A4)
+3.1 Portada
 
-Gradiente #0d1428→#1a3a6e. 6 secciones: (1) Logo+nombre. (2) Título 20pt. (3) Precio+52W+badge+Score+PEG en 1 fila. (4) BARRA PERFORMANCE 10 periodos (9pt mono). (5) Fila B0: 4 círculos color. (6) Fecha+@patonet.
+Gradiente #0d1428→#1a3a6e. 6 secciones: (1) LOGO Clearbit + nombre 14pt. (2) Título 20pt. (3) Precio+52W+badge+Score+PEG. (4) Performance 8 periodos. (5) B0: 4 círculos color. (6) Fecha+@patonet.
 
-3.2 Páginas siguientes
+El LOGO de la empresa es OBLIGATORIO en la portada del PDF. Usar img Clearbit o fallback.
 
-Header franja teal 8px + logo + ticker. Footer línea teal + @patonet + nº página.
+3.2 Páginas
 
-Títulos bloque: caja #0d1428 texto teal border-left 5px. Cuerpo #1a1a1a 10.5pt.
+Header franja teal + logo + ticker. Footer @patonet + nº página. Tabla Feroldi con scores semafóricos. Secciones diferenciadas: OOB naranja, IA cian, CEO cursiva, SOTP coloreado, Debate púrpura, B0 verde.
 
-TABLA FEROLDI: header #0d1428 blanco, filas alternas, scores semafóricos monospace.
-
-Secciones: OOB=borde naranja · IA=borde cian · CEO=cita cursiva · SOTP=escenarios coloreados · Bloque I=degradado · Debate=borde púrpura. Bloque 0: caja borde verde, primera sección.
-
-PDF = versión COMPLETA del informe. NO resumir. EVITAR páginas en blanco, letras montadas, bloques cortados.
+PDF = versión COMPLETA. NO resumir. EVITAR páginas en blanco, bloques cortados.
 
 4. DIAGRAMA DEL FLUJO DE DINERO (Sankey)
 
 Comando: INGRESOS. Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
 
-DISEÑO OBLIGATORIO: fondo OSCURO (#0b1020 o similar dark navy). Estilo visual idéntico al de GE Aerospace (https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html): cajas con bordes de color neón, bandas SVG bezier con gradientes translúcidos, tipografía clara sobre fondo dark, topbar con KPIs, tooltips interactivos. NO usar fondo claro ni el estilo d3 básico. El HTML debe ser COMPLETAMENTE responsivo al zoom del navegador (usar rem, %, viewBox en SVG, clamp en font-size).
+DISEÑO: fondo OSCURO estilo GE (https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html). Responsivo al zoom.
 
-VERIFICACIÓN TRIPLE OBLIGATORIA
+VERIFICACIÓN TRIPLE: SEC EDGAR 10-K + StockAnalysis + Macrotrends. Suma segmentos = Revenue GAAP exacto. FCF como KPI paralelo. NUNCA inventar splits.
 
-Cruzar cada número contra 3 fuentes ANTES de generar:
-
--   FUENTE 1: SEC EDGAR 10-K (verdad oficial).
-
--   FUENTE 2: StockAnalysis.com.
-
--   FUENTE 3: Macrotrends o Yahoo Finance.
-
-Reglas: suma segmentos = Revenue Total GAAP exacto (incluir Corporate & Other). COGS+SGA+R&D = Total costs. FCF como KPI paralelo (NON-GAAP). Discrepancia >2% → usar 10-K.
-
-NUNCA inventar splits que la empresa no reporta.
-
-4.1 Estructura
-
-Topbar KPIs: Revenue · Op Profit · Net Income · FCF · Backlog.
-
-MÉTRICAS: PEG · Score Feroldi (ej: 136/160 · 85%) · Veredicto en 1 palabra con color.
-
-5 columnas Sankey: (1) Segmentos revenue. (2) Revenue Total GAAP. (3) Costos+Other Income separado. (4) Pre-tax Profit. (5) Net Income + FCF paralelo + Capital retornado.
-
-Tabla auditoría al pie: Rubro · Valor · Fuente 10-K · Estado.
+Topbar KPIs + PEG + Score Feroldi + Veredicto. 5 columnas. Tabla auditoría al pie.
 
 5. GITHUB PAGES
 
 User: patonet | Repo: informes | Token: {{GITHUB_TOKEN}}
 
-PUT cada archivo. Actualizar REPORTS en index.html: { ticker, name, desc, type, verdict, price, upside, target, date, url, pdfUrl, diag3Url }. Links clicables.
+PUT cada archivo. Actualizar REPORTS en index.html.
+
+VEREDICTOS EN REPORTS — SIEMPRE EN INGLÉS: COMPRAR→"buy" | COMPRAR EN RETROCESOS→"pullback" | ACUMULAR→"accumulate" | NEUTRAL→"neutral" | NO COMPRAR→"nobuy" | CORTO→"short". NUNCA usar el veredicto en español ("comprar", "acumular", etc.) porque el dashboard NO los reconoce y los muestra como NEUTRAL.
+
+Formato: { ticker, name, desc, type, verdict:[EN INGLÉS], price:"$X", upside:"+/-X%", target:"$X", date:"DD Mon YYYY", url:"equities/infografia_...", pdfUrl, diag3Url }. Links clicables.
 
 6. POST-DEBATE
 
@@ -130,4 +114,4 @@ Incorporar cambios. Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO. Sobrescrib
 
 Analítico · preciso. Español. Outputs concisos.
 
-v7.0 — Dark Sankey · [v7.0] tag · Responsive zoom · Cache bypass — @patonet
+v8.0 — CRDO ref · Verdict EN · Filename fix · All popups · Semáforo tenue — @patonet
