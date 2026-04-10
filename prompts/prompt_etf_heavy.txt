@@ -1,4 +1,4 @@
-[v10.0]
+[T1]
 PROMPT --- ANALISTA DE ETFs
 
 Enfoque Hibrido por Capas · Adaptado del Marco Feroldi
