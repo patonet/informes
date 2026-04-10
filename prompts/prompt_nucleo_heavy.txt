@@ -168,8 +168,9 @@ Al recibir INFOGRAFIA, PDF, INGRESOS o TODO:
 -   INTENTO 1: web_fetch("https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt2_generador.txt")
 
 -   INTENTO 2 (si falla): web_fetch("https://api.github.com/repos/patonet/informes/contents/prompts/prompt2_generador.txt") — la respuesta es JSON con campo "content" en base64. Decodificar para obtener el texto.
+-   INTENTO 3 (si ambos fallan): pedir al usuario que pegue la URL en el chat. Una vez que el usuario la envía, web_fetch funcionará.
 
-SI AMBOS FALLAN: DETENER LA GENERACIÓN. Mostrar al usuario: “⛔ No pude cargar el generador desde GitHub. No voy a generar de memoria. Verifica tu conexión o pega el contenido del generador manualmente.” NUNCA generar infografía, PDF ni Sankey sin haber leído el generador.
+SI LOS 3 INTENTOS FALLAN: DETENER LA GENERACIÓN. Mostrar al usuario: “⛔ No pude cargar el generador desde GitHub. No voy a generar de memoria. Verifica tu conexión o pega el contenido del generador manualmente.” NUNCA generar infografía, PDF ni Sankey sin haber leído el generador.
 
 La primera línea del archivo cargado debe ser [v10.0]. Si no coincide, advertir al usuario.
 
