@@ -1,4 +1,4 @@
-[v9.0]
+[v10.0]
 
 GENERADOR DE INFORMES MIXTO
 
@@ -114,4 +114,4 @@ Incorporar cambios. Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO. Sobrescrib
 
 Analítico · preciso. Español. Outputs concisos.
 
-v9.0 — CRDO ref · Verdict EN · Filename fix · All popups · Semáforo tenue — @patonet
+v10.0 — CRDO ref · Verdict EN · Filename fix · All popups · Semáforo tenue — @patonet
