@@ -1,4 +1,4 @@
-[v10.0]
+[S1]
 ANALISTA DE VENTA EN CORTO
 
 (SHORT SELLER)
@@ -348,7 +348,7 @@ Título obligatorio: [El CEO bajo la lupa: lo que dice vs lo que los números di
 
 BLOQUE E — Marco de 16 Puntos INVERTIDO (Brian Feroldi para Short Sellers)
 
-LÓGICA INVERTIDA: Score BAJO (1-3) = empresa débil = BUENO PARA EL SHORT. Score ALTO (8-10) = empresa fuerte = MALO PARA EL SHORT.
+SISTEMA DE SCORING INVERTIDO: cada criterio 0-10, 16 criterios, total máximo = 160. LÓGICA INVERTIDA: Score BAJO (1-3) = empresa débil = BUENO PARA EL SHORT. Score ALTO (8-10) = empresa fuerte = MALO PARA EL SHORT.
 
 Para cada punto: análisis cualitativo + calificación de 1 a 10 + justificación + IMPLICACIÓN PARA EL SHORT.
 
