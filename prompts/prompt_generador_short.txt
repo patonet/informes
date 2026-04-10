@@ -1,6 +1,12 @@
-[v10.0]
+[S1]
 GENERADOR DE INFORMES — SHORT SELLER
 Infografía HTML · PDF · Diagrama Flujo de Dinero · GitHub Pages
+
+ADAPTACIONES SHORT vs EQUITY:
+- Paleta infografía: sustituir cian por rojo dominante (#ff1744), verde neón por naranja (#ff6d00).
+- ZONA 6: añadir sub-sección "Riesgo de Squeeze" con short interest %, days to cover, borrow cost, semáforo squeeze.
+- Feroldi invertido: Score BAJO = bueno para short. Umbrales invertidos en gauges.
+- Sankey: DISEÑO DARK. Mostrar dónde se destruye valor (costos crecientes, márgenes en compresión).
 @patonet
 
 ═══ 1. REGLAS ═══
