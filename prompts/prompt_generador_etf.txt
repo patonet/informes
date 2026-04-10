@@ -1,6 +1,11 @@
-[v10.0]
+[T1]
 GENERADOR DE INFORMES — ETF
 Infografía HTML · PDF · Diagrama Flujo de Dinero · GitHub Pages
+
+ADAPTACIONES ETF vs EQUITY:
+- ZONA 6 de la infografía: reemplazar tabla de competidores por tabla de Top 5 Holdings (ticker, nombre, peso %, retorno YTD) + Exposición geográfica (dona) + Comparativa TER vs ETFs similares.
+- Sankey ETF: segmentos = sectores o regiones del ETF en lugar de líneas de negocio.
+- Score: Capa 1 Vehículo /100 + Capa 2 Portfolio /80 en lugar de Feroldi /160.
 @patonet
 
 ═══ 1. REGLAS ═══
