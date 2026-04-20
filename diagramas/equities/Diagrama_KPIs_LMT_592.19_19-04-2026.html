@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMT — Árbol de KPIs</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: clamp(10px, 1.15vw, 17px); }
+        body { width: 100%; min-height: 100vh; background: linear-gradient(135deg, #0a1628 0%, #162447 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Courier New', monospace; color: #c8d8f0; padding: 2rem 1rem; }
+        
+        .container { max-width: 100%; margin: 0 auto; }
+        h1 { text-align: center; font-size: 2rem; color: #00d4ff; margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; font-size: 0.95rem; color: #94a3b8; margin-bottom: 2rem; }
+        
+        .arbol { display: flex; flex-direction: column; gap: 2.5rem; align-items: center; }
+        
+        /* NIVEL 0 — Revenue Raíz */
+        .nivel0 { width: 100%; max-width: 22rem; }
+        .nodo-raiz { background: linear-gradient(135deg, #1565c0, #00d4ff); color: white; padding: 1.5rem; border-radius: 0.8rem; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); cursor: pointer; transition: all 0.3s; border: 2px solid #00d4ff; }
+        .nodo-raiz:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        .nodo-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.4rem; }
+        .nodo-value { font-size: 2rem; font-weight: bold; margin-bottom: 0.4rem; font-family: 'Courier New', monospace; }
+        .nodo-growth { font-size: 0.85rem; opacity: 0.85; background: rgba(0, 0, 0, 0.2); padding: 0.3rem 0.8rem; border-radius: 0.3rem; display: inline-block; margin-top: 0.4rem; }
+        .nodo-formula { font-size: 0.75rem; opacity: 0.7; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+        
+        .linea-vertical { height: 2rem; width: 2px; background: #00d4ff; margin: 1rem auto; }
+        
+        /* NIVEL 1 — Métricas Primarias */
+        .nivel1 { width: 100%; }
+        .metricas1-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .nodo-primario { background: #0d1f35; padding: 1.2rem; border-radius: 0.6rem; border: 2px solid #1a3a6e; border-left: 4px solid #00d4ff; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+        .nodo-primario:hover { border-color: #00d4ff; box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3); transform: translateY(-2px); }
+        
+        .m1-nombre { font-size: 1rem; font-weight: bold; color: #00d4ff; margin-bottom: 0.6rem; }
+        .m1-value { font-size: 1.5rem; font-weight: bold; color: #ffd700; margin-bottom: 0.2rem; font-family: 'Courier New', monospace; }
+        .m1-growth { font-size: 0.85rem; color: #00ff9d; margin-bottom: 0.6rem; }
+        .m1-desc { font-size: 0.8rem; color: #94a3b8; line-height: 1.3; }
+        .m1-formula { font-size: 0.75rem; color: #666; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #1a3a6e; font-style: italic; }
+        
+        /* NIVEL 2 — Sub-Métricas */
+        .nivel2 { width: 100%; }
+        .metricas2-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .nodo-secundario { background: #080f1c; padding: 1rem; border-radius: 0.5rem; border: 1px solid #1a2a4a; border-left: 3px solid #4ecdc4; cursor: pointer; transition: all 0.2s; }
+        .nodo-secundario:hover { background: #0d1f35; border-color: #4ecdc4; }
+        
+        .m2-nombre { font-size: 0.9rem; font-weight: bold; color: #4ecdc4; margin-bottom: 0.4rem; }
+        .m2-value { font-size: 1.2rem; font-weight: bold; color: #ffd700; margin-bottom: 0.2rem; font-family: 'Courier New', monospace; }
+        .m2-desc { font-size: 0.8rem; color: #94a3b8; }
+        .m2-formula { font-size: 0.7rem; color: #666; margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid #1a2a4a; }
+        
+        /* NIVEL 3 — Drivers Operativos */
+        .nivel3 { width: 100%; }
+        .drivers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+        .driver-box { background: #050a12; padding: 0.8rem; border-radius: 0.4rem; border-left: 2px solid #ff8c00; cursor: pointer; transition: all 0.2s; }
+        .driver-box:hover { background: #0a1628; border-left-color: #ffbb00; }
+        
+        .driver-label { font-size: 0.8rem; color: #ff8c00; font-weight: 600; margin-bottom: 0.3rem; }
+        .driver-value { font-size: 1rem; color: #ffd700; font-weight: bold; font-family: 'Courier New', monospace; }
+        .driver-desc { font-size: 0.75rem; color: #94a3b8; margin-top: 0.3rem; }
+        
+        /* POPUP */
+        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a1628; border: 2px solid #00d4ff; border-radius: 0.8rem; padding: 1.5rem; max-width: 32rem; z-index: 1000; box-shadow: 0 0 40px rgba(0, 212, 255, 0.3); color: #c8d8f0; }
+        #popup h3 { color: #00d4ff; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        #popup p { line-height: 1.6; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        #popup .popup-value { color: #ffd700; font-weight: bold; font-family: 'Courier New', monospace; }
+        
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999; }
+        
+        /* Secciones por Métrica */
+        .seccion-metrica { margin-bottom: 2.5rem; }
+        .seccion-titulo { font-size: 1.1rem; font-weight: bold; color: #00d4ff; margin: 1.5rem 0 1rem 0; padding-bottom: 0.8rem; border-bottom: 2px solid #1a3a6e; }
+        
+        .marca { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #666; }
+        
+        @media (max-width: 768px) {
+            .metricas1-grid { grid-template-columns: 1fr; }
+            .metricas2-grid { grid-template-columns: 1fr; }
+            .drivers-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="popup-overlay" id="popupOverlay"></div>
+<div id="popup"></div>
+
+<div class="container">
+    <h1>📊 Árbol de KPIs de Lockheed Martin</h1>
+    <p class="subtitle">Estructura jerárquica de métricas que impulsan Revenue y Ganancias (FY2025 + Guidance 2026)</p>
+    
+    <div class="arbol">
+        <!-- NIVEL 0: Revenue Raíz -->
+        <div class="nivel0">
+            <div class="nodo-raiz" data-popup="revenue-total">
+                <div class="nodo-label">REVENUE TOTAL ANUAL</div>
+                <div class="nodo-value">$75.0B</div>
+                <div class="nodo-growth">FY2025: +5.64% YoY</div>
+                <div class="nodo-formula">Revenue = Σ Segmento Revenue</div>
+            </div>
+        </div>
+        
+        <div class="linea-vertical"></div>
+        
+        <!-- NIVEL 1: Tres Métricas Primarias -->
+        <div class="nivel1">
+            <div class="metricas1-grid">
+                <!-- M1: Backlog & Contract Value -->
+                <div class="nodo-primario" data-popup="backlog">
+                    <div class="m1-nombre">📋 Backlog Total</div>
+                    <div class="m1-value">$194.0B</div>
+                    <div class="m1-growth">2.58x anual revenue</div>
+                    <div class="m1-desc">Contrato multiaño asegurado. Visibilidad 2–3 años de revenue.</div>
+                    <div class="m1-formula">Backlog = Contratos firmados no facturados</div>
+                </div>
+                
+                <!-- M2: Conversión de Backlog a Revenue -->
+                <div class="nodo-primario" data-popup="conversion">
+                    <div class="m1-nombre">⚡ Tasa de Conversión</div>
+                    <div class="m1-value">38–42%</div>
+                    <div class="m1-growth">Anualmente de backlog</div>
+                    <div class="m1-desc">Porcentaje de backlog que se convierte en revenue cada año.</div>
+                    <div class="m1-formula">Conversión Rate = Revenue Anual / Backlog Promedio</div>
+                </div>
+                
+                <!-- M3: Margen Operativo -->
+                <div class="nodo-primario" data-popup="margen-op">
+                    <div class="m1-nombre">💰 Margen Operativo</div>
+                    <div class="m1-value">9.87%</div>
+                    <div class="m1-growth">Target 2026: +150–200 bps</div>
+                    <div class="m1-desc">Ganancias operativas como % de revenue. Presionado por mix de productos fixed-price.</div>
+                    <div class="m1-formula">Op Margin = Op Income / Revenue</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NIVEL 2: Sub-Métricas Detalladas -->
+        <div class="nivel2">
+            <!-- Sección Backlog -->
+            <div class="seccion-metrica">
+                <h3 class="seccion-titulo">📋 Desglose de Backlog ($194B)</h3>
+                <div class="metricas2-grid">
+                    <div class="nodo-secundario" data-popup="backlog-aero">
+                        <div class="m2-nombre">Aeronautics</div>
+                        <div class="m2-value">$52.0B</div>
+                        <div class="m2-desc">F-35 dominante, 3+ años de visibilidad</div>
+                        <div class="m2-formula">26.8% del backlog total</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="backlog-mfc">
+                        <div class="m2-nombre">MFC</div>
+                        <div class="m2-value">$35.0B</div>
+                        <div class="m2-desc">PAC-3/THAAD frameworks nuevos 2026</div>
+                        <div class="m2-formula">18.0% del backlog total</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="backlog-rms">
+                        <div class="m2-nombre">RMS</div>
+                        <div class="m2-value">$65.0B</div>
+                        <div class="m2-desc">Helicópteros, radar, Navy programs</div>
+                        <div class="m2-formula">33.5% del backlog total</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="backlog-space">
+                        <div class="m2-nombre">Space</div>
+                        <div class="m2-value">$42.0B</div>
+                        <div class="m2-desc">Orion NASA, satélites, NSSL-W</div>
+                        <div class="m2-formula">21.6% del backlog total</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección Conversión -->
+            <div class="seccion-metrica">
+                <h3 class="seccion-titulo">⚡ Drivers de Conversión Backlog → Revenue</h3>
+                <div class="metricas2-grid">
+                    <div class="nodo-secundario" data-popup="delivery-rate">
+                        <div class="m2-nombre">Tasa Entrega</div>
+                        <div class="m2-value">F-35: 191/y</div>
+                        <div class="m2-desc">2025 actual, target 200+ 2026</div>
+                        <div class="m2-formula">Entregas anuales × precio unitario = revenue</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="production-capacity">
+                        <div class="m2-nombre">Capacidad de Producción</div>
+                        <div class="m2-value">+35% 2026</div>
+                        <div class="m2-desc">Capex spike $2.5–2.8B para Camden, municiones</div>
+                        <div class="m2-formula">Supply chain bottleneck → capacity ceiling</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="program-execution">
+                        <div class="m2-nombre">Program Execution</div>
+                        <div class="m2-value">88%</div>
+                        <div class="m2-desc">On-time delivery rate (target >90%)</div>
+                        <div class="m2-formula">Revenue recognition timing = execution risk</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="escalation-clauses">
+                        <div class="m2-nombre">Escalation Clauses</div>
+                        <div class="m2-value">+2–3%/y</div>
+                        <div class="m2-desc">Inflation pass-through en contratos</div>
+                        <div class="m2-formula">Precio base × (1 + escalation index) = precio año N</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección Márgenes -->
+            <div class="seccion-metrica">
+                <h3 class="seccion-titulo">💰 Drivers de Margen Operativo (9.87% → 11.0%+ objetivo)</h3>
+                <div class="metricas2-grid">
+                    <div class="nodo-secundario" data-popup="cogs-ratio">
+                        <div class="m2-nombre">COGS / Revenue</div>
+                        <div class="m2-value">63.2%</div>
+                        <div class="m2-desc">Presión: fixed-price contracts, supply chain inflation</div>
+                        <div class="m2-formula">Gross Profit = Revenue - COGS</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="opex-ratio">
+                        <div class="m2-nombre">Op Expenses / Revenue</div>
+                        <div class="m2-value">26.9%</div>
+                        <div class="m2-desc">R&D + SG&A. Leverage esperado en 2026–27</div>
+                        <div class="m2-formula">Op Expenses = R&D + SG&A + Amortización</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="product-mix">
+                        <div class="m2-nombre">Product Mix Optimization</div>
+                        <div class="m2-value">MFC: 16%→20%</div>
+                        <div class="m2-desc">Shift toward high-margin MFC (+200 bps target)</div>
+                        <div class="m2-formula">Op Margin = Σ (Seg Revenue × Seg Margin)</div>
+                    </div>
+                    <div class="nodo-secundario" data-popup="automation">
+                        <div class="m2-nombre">Automatización & AI</div>
+                        <div class="m2-value">+150 bps</div>
+                        <div class="m2-desc">LAIC IA platform reduce COGS manufacturing</div>
+                        <div class="m2-formula">Eficiencia operativa = COGS ratio improvement</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NIVEL 3: Drivers Operativos Específicos (Earnings Call Q4 2025) -->
+        <div class="nivel3">
+            <h3 class="seccion-titulo">🎯 Iniciativas Operativas Clave (per CEO Taiclet, Q4 2025 Call)</h3>
+            
+            <!-- PAC-3 & Municiones -->
+            <div style="background: #0d1f35; padding: 1.5rem; border-radius: 0.6rem; margin-bottom: 1.5rem; border-left: 4px solid #4ecdc4;">
+                <h4 style="color: #4ecdc4; margin-bottom: 1rem; font-size: 1rem;">1. PAC-3 MSE + Municiones (Catalizador Principal)</h4>
+                <div class="drivers-grid">
+                    <div class="driver-box">
+                        <div class="driver-label">📊 PAC-3 Framework</div>
+                        <div class="driver-value">+3x capacity 2026</div>
+                        <div class="driver-desc">7-year deal just signed. Ej: 30,000 unidades/año vs 10,000 hoy.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">🏭 Camden Facility</div>
+                        <div class="driver-value">Abre Q4 2026</div>
+                        <div class="driver-desc">+500 empleados, production $5B/año capacity. Capex: $600M–800M.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">💡 IA Optimization</div>
+                        <div class="driver-value">-15% COGS</div>
+                        <div class="driver-desc">LAIC platform reduce scrap, improve yield. Conservative est.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">📈 EPS Impact</div>
+                        <div class="driver-value">+$3–5/share</div>
+                        <div class="driver-desc">2026–2027 de MFC margin expansion + volume.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- F-35 Sustainment -->
+            <div style="background: #0d1f35; padding: 1.5rem; border-radius: 0.6rem; margin-bottom: 1.5rem; border-left: 4px solid #ffa502;">
+                <h4 style="color: #ffa502; margin-bottom: 1rem; font-size: 1rem;">2. F-35 Sustainment & Volume Growth</h4>
+                <div class="drivers-grid">
+                    <div class="driver-box">
+                        <div class="driver-label">✈️ Production Target</div>
+                        <div class="driver-value">200+ 2026 vs 191</div>
+                        <div class="driver-desc">+$400–500M revenue vs 2025 si hit. Margen 9–11%.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">🔧 Sustainment Revenue</div>
+                        <div class="driver-value">+$1.2–1.5B 2026</div>
+                        <div class="driver-desc">Margen 35–40%. Crece 2–3% automáticamente (flota base).</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">🌍 FMS International</div>
+                        <div class="driver-value">+12 países 2026</div>
+                        <div class="driver-desc">Alemania, Italia, Polonia avances. Higher price than domestic.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">📊 Backlog Risk</div>
+                        <div class="driver-value">-5% si cut</div>
+                        <div class="driver-desc">Congressional budget risk. Moat: irreplaceable pero politically sensitive.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Space Growth -->
+            <div style="background: #0d1f35; padding: 1.5rem; border-radius: 0.6rem; margin-bottom: 1.5rem; border-left: 4px solid #9c27b0;">
+                <h4 style="color: #9c27b0; margin-bottom: 1rem; font-size: 1rem;">3. Space Segment (Optionality Oculta)</h4>
+                <div class="drivers-grid">
+                    <div class="driver-box">
+                        <div class="driver-label">🛰️ Orion Momentum</div>
+                        <div class="driver-value">Artemis II 2026</div>
+                        <div class="driver-desc">First crewed, validates $50B+ future program. Margen 11–13%.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">📡 NSSL-W Award</div>
+                        <div class="driver-value">20+ años contrato</div>
+                        <div class="driver-desc">GPS successor, multi-decadal revenue stream. Margen 10–12%.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">📈 Space Growth</div>
+                        <div class="driver-value">5–7% CAGR</div>
+                        <div class="driver-desc">vs LMT total 3–5%. If 28% revenue en 5Y, massive upside.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">⚠️ Competition</div>
+                        <div class="driver-value">SpaceX disruption</div>
+                        <div class="driver-desc">Launch costs caen pero LMT en nicho (defense/science). Risk moderate.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Margin Levers -->
+            <div style="background: #0d1f35; padding: 1.5rem; border-radius: 0.6rem; border-left: 4px solid #ff8c00;">
+                <h4 style="color: #ff8c00; margin-bottom: 1rem; font-size: 1rem;">4. Margin Expansion Levers (2026–2027)</h4>
+                <div class="drivers-grid">
+                    <div class="driver-box">
+                        <div class="driver-label">🎯 Op Margin Target</div>
+                        <div class="driver-value">11.0–11.5%</div>
+                        <div class="driver-desc">vs 9.87% FY2025. +150–200 bps. Guidance conservative (sandbagging).</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">💲 Operating Leverage</div>
+                        <div class="driver-value">+100 bps/5% revenue</div>
+                        <div class="driver-desc">Fixed Op Exp base. MFC scaling key driver.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">🔧 Supply Chain</div>
+                        <div class="driver-value">-2–3% inflation headwind</div>
+                        <div class="driver-desc">Solid rocket motors bottleneck. Escalation clauses offset 50%+.</div>
+                    </div>
+                    <div class="driver-box">
+                        <div class="driver-label">📊 EPS Leverage</div>
+                        <div class="driver-value">+27–30% 2026</div>
+                        <div class="driver-desc">Guidance $29–30 vs FY2025 $21.49. OI margin + volume + buyback combo.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="marca">Árbol jerárquico de KPIs para @patonet | FY2025 + Guidance 2026 | Haz click en cajas para análisis detallado</div>
+</div>
+
+<script>
+    const popupData = {
+        'revenue-total': {
+            title: 'Revenue Total Anual',
+            content: '<p class="popup-value">$75.0B FY2025</p><p>Crecimiento +5.64% YoY. Guía 2026: $77.5–80B (+5–6.7% midpoint).</p><p><strong>Desglose:</strong> Aero $18B (24%), MFC $12B (16%), RMS $24B (32%), Space $21B (28%).</p><p><strong>Drivers clave:</strong> Backlog $194B (2.58x revenue), conversión 38–42% anual, escalation clauses +2–3%/año.</p>'
+        },
+        'backlog': {
+            title: 'Backlog Total',
+            content: '<p class="popup-value">$194.0B</p><p>Record alto, 2.58x anual revenue. Visibilidad de ingresos 2–3 años.</p><p><strong>Mix:</strong> Aero $52B (27%), MFC $35B (18%), RMS $65B (34%), Space $42B (22%).</p><p><strong>Catalizadores 2026:</strong> PAC-3/THAAD frameworks definitization en Q2 2026 → $10–15B backlog adicional potencial.</p>'
+        },
+        'conversion': {
+            title: 'Tasa de Conversión Backlog',
+            content: '<p class="popup-value">38–42% anual</p><p>Porcentaje de backlog que se convierte a revenue cada año. Depende de: delivery rates, program execution, escalation clauses.</p><p><strong>FY2025:</strong> $75B revenue / $194B backlog promedio = ~39% conversion.</p><p><strong>2026 target:</strong> Si capex ramp (+35%) materializa, podría acelerar a 42–44%.</p>'
+        },
+        'margen-op': {
+            title: 'Margen Operativo',
+            content: '<p class="popup-value">9.87% FY2025</p><p>Op Income $7.4B / Revenue $75B.</p><p><strong>Presiones:</strong> Fixed-price F-35 (9%), compresión COGS supply chain +2–3% inflación.</p><p><strong>2026 Outlook:</strong> Guidance implica 11.0–11.5% (150–200 bps improvement via MFC scaling, automation, mix shift).</p><p><strong>Path:</strong> MFC $12B → $15B revenue (higher margin 15–18% vs LMT avg 9.87%).</p>'
+        },
+        'backlog-aero': {
+            title: 'Aeronautics Backlog',
+            content: '<p class="popup-value">$52.0B (27% de total)</p><p>F-35 dominante (~$40B+). 3+ años de producción visible.</p><p><strong>Runway:</strong> 191 entregas FY2025, target 200+ 2026 = $3–4B revenue anual vs backlog. Sustain cresce 2–3%/año (margen 35–40%).</p>'
+        },
+        'backlog-mfc': {
+            title: 'MFC Backlog',
+            content: '<p class="popup-value">$35.0B (18% de total)</p><p>PAC-3/THAAD frameworks just awarded Q1 2026. EXPECTATIVA: +$15–20B backlog adicional Q2–Q3 2026.</p><p><strong>Catalytic:</strong> Menor backlog hoy pero margen MÁS ALTO (15–18%) que media LMT.</p>'
+        },
+        'backlog-rms': {
+            title: 'RMS Backlog',
+            content: '<p class="popup-value">$65.0B (34% de total)</p><p>Helicópteros, radar, Navy systems. Contrato multiaño estable.</p><p><strong>Growth:</strong> Navy modernization (Virginia subs, Abrams) apoya +3–4% CAGR. Margen 10–13%.</p>'
+        },
+        'backlog-space': {
+            title: 'Space Backlog',
+            content: '<p class="popup-value">$42.0B (22% de total)</p><p>Orion (NASA), satélites, NSSL-W (GPS successor).</p><p><strong>Optionality:</strong> Si Space crece 5–7% CAGR vs LMT 3%, transformaría perfil. NSSL-W solo = $30B+ multidecadal.</p>'
+        },
+        'delivery-rate': {
+            title: 'F-35 Delivery Rate',
+            content: '<p class="popup-value">191/año FY2025</p><p>Target 2026: 200+ unidades. Precio unitario ~$95M programa (total program).</p><p><strong>Revenue Impact:</strong> +9 units × $95M = ~$850M incremental revenue vs 2025 (margen 9–11% = ~$80M OI).</p>'
+        },
+        'production-capacity': {
+            title: 'Capacidad de Producción',
+            content: '<p class="popup-value">+35% capex 2026</p><p>Capex $2.5–2.8B (vs $1.8–2.0B histórico). Camden facility (municiones) + F-35 line upgrade.</p><p><strong>Supply Chain Bottleneck:</strong> Solid rocket motors limiting. LMT trying diversify suppliers. Risk: si sourcing fails, upside revenue capped.</p>'
+        },
+        'program-execution': {
+            title: 'Program Execution Rate',
+            content: '<p class="popup-value">88% on-time delivery</p><p>Target >90%. Late deliveries postpone revenue recognition (milestone-based contracts).</p><p><strong>Risk:</strong> Fixed-price F-35 overruns ($1.7B loss Q4 2024). Cada programa overrun → 5–10% EPS miss potencial.</p>'
+        },
+        'escalation-clauses': {
+            title: 'Escalation Clauses',
+            content: '<p class="popup-value">+2–3%/año indexada a inflación</p><p>Mayoría contratos incluyen CPI/PPI clauses. Protege contra supply chain inflation.</p><p><strong>2026 Benefit:</strong> Si inflation persiste 3–4%, LMT price hikes 2–3% = +$1.5–2B revenue hedging.</p>'
+        },
+        'cogs-ratio': {
+            title: 'COGS / Revenue Ratio',
+            content: '<p class="popup-value">63.2% FY2025</p><p>Gross Profit 36.8%. Fixed-price contracts (F-35) presionan el ratio.</p><p><strong>2026 Improvement Target:</strong> Via MFC higher-margin mix (15–18% margen bruto vs Aero 8–10%), automatización IA. Objetivo: 62% COGS ratio (37.9% GP margin).</p>'
+        },
+        'opex-ratio': {
+            title: 'Op Expenses / Revenue',
+            content: '<p class="popup-value">26.9% FY2025</p><p>R&D + SG&A = $20.2B / $75B. Leverage esperado conforme revenue crece.</p><p><strong>Operating Leverage:</strong> +100 bps margen para cada 5% revenue growth si opex crece <3% (CFO guidance).</p>'
+        },
+        'product-mix': {
+            title: 'Product Mix Optimization',
+            content: '<p class="popup-value">MFC: 16% → 20% target 5Y</p><p>MFC margen 15–18% vs LMT promedio 9.87%. Shift hacia MFC es key lever para margin expansion.</p><p><strong>Math:</strong> Si MFC crece a $15B (revenue mix 20%), y margen sube a 16%, Op margin total LMT sube ~75–100 bps.</p>'
+        },
+        'automation': {
+            title: 'Automatización & IA (LAIC)',
+            content: '<p class="popup-value">+150 bps op margin potencial</p><p>LAIC (Lockheed Martin AI Center) despliega 20,000+ AI agents. Objetivos: reduce COGS scrap 15%, mejorar yield 10%, accelera manufacturing cycle 20%.</p><p><strong>Conservative est:</strong> Si 10% COGS improvement, op margin sube 100 bps (0.10 × 10 = 1.0pp).</p>'
+        }
+    };
+    
+    const popup = document.getElementById('popup');
+    const popupOverlay = document.getElementById('popupOverlay');
+    
+    document.querySelectorAll('[data-popup]').forEach(el => {
+        el.addEventListener('mouseenter', function(e) {
+            const key = this.getAttribute('data-popup');
+            const data = popupData[key];
+            if (data) {
+                popup.innerHTML = `<h3>${data.title}</h3>${data.content}`;
+                popup.style.display = 'block';
+                popupOverlay.style.display = 'block';
+            }
+        });
+        el.addEventListener('mouseleave', function() {
+            popup.style.display = 'none';
+            popupOverlay.style.display = 'none';
+        });
+    });
+    
+    popupOverlay.addEventListener('click', function() {
+        popup.style.display = 'none';
+        popupOverlay.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
