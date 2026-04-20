@@ -19,7 +19,7 @@ Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html (ej: infografia_AAPL
 
 PDF: InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf
 
-Sankey: Diagrama_Sankey (DISEÑO DARK OBLIGATORIO: fondo #050a12, texto #c8d8f0, bandas verdes/rojas, estilo GE Vernova como referencia)_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+Sankey: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
 
 Carpetas: equities/etfs/shorts/ · pdfs/equities/... · diagramas/equities/...
 
@@ -49,7 +49,7 @@ Elementos OBLIGATORIOS que deben estar (replicar de CRDO)
 
 ADICIÓN 1 — Barra de Performance Histórica
 
-Título: “PERFORMANCE HISTÓRICO”. Datos de TradingView Scanner API. 8 periodos: 1D · 5D · 1M · 3M · 6M · YTD · 1Y · 5Y. Verde positivo, rojo negativo, gris N/D. Va en Zona 1, debajo de la barra 52W.
+Título: "PERFORMANCE HISTÓRICO". Datos de TradingView Scanner API. 8 periodos: 1D · 5D · 1M · 3M · 6M · YTD · 1Y · 5Y. Verde positivo, rojo negativo, gris N/D. Va en Zona 1, debajo de la barra 52W.
 
 ADICIÓN 2 — Mini-semáforos Bloque 0
 
@@ -73,7 +73,7 @@ R1: html{font-size:clamp(10px,1.15vw,17px)}. R2: SOLO rem/em/%/fr. R3-R7: mismas
 
 3. PDF
 
-TÍTULO: “Informe Profesional de $TICKER · Método Feroldi”
+TÍTULO: "Informe Profesional de $TICKER · Método Feroldi"
 
 Estándar: PDFs del repositorio (MELI, GE). Corporate flyer.
 
@@ -89,15 +89,48 @@ Header franja teal + logo + ticker. Footer @patonet + nº página. Tabla Feroldi
 
 PDF = versión COMPLETA. NO resumir. EVITAR páginas en blanco, bloques cortados.
 
-4. DIAGRAMA DEL FLUJO DE DINERO (Sankey)
+4. DIAGRAMA SANKEY — FLUJO DE DINERO
 
-Comando: INGRESOS. Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+COMANDO: INGRESOS
+ACCIÓN ÚNICA Y EXCLUSIVA: generar el archivo HTML del diagrama Sankey de flujo de dinero. NADA MÁS. PROHIBIDO generar árbol de KPIs, diagrama de cómo gana dinero, o cualquier otra visualización. INGRESOS = Sankey = flujo financiero Revenue→Costos→Utilidades.
 
-DISEÑO: fondo OSCURO estilo GE (https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html). Responsivo al zoom.
+REFERENCIA ORO OBLIGATORIA: https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_UHS_186.80_08-04-2026.html
+Hacer web_fetch de esta URL antes de generar. Replicar EXACTAMENTE su estructura visual, layout, colores y lógica. Solo cambiar los datos del ticker actual.
 
-VERIFICACIÓN TRIPLE: SEC EDGAR 10-K + StockAnalysis + Macrotrends. Suma segmentos = Revenue GAAP exacto. FCF como KPI paralelo. NUNCA inventar splits.
+Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+Carpeta GitHub: diagramas/equities/
 
-Topbar KPIs + PEG + Score Feroldi + Veredicto. 5 columnas. Tabla auditoría al pie.
+DISEÑO — REGLAS FIJAS (no negociables):
+- Fondo: #050a12 (negro azulado profundo)
+- Texto principal: #c8d8f0 (blanco azulado)
+- Bandas de segmentos: degradados verdes (#00ff88 → #00cc66)
+- Bandas de costos: degradados rojos (#ff4444 → #cc2222)
+- Bandas de utilidad/FCF: degradados cian (#00d4ff → #0099cc)
+- Diseño responsivo al zoom (usar rem/vw)
+
+ESTRUCTURA DE 5 COLUMNAS (obligatoria):
+COL 1 — SEGMENTOS DE NEGOCIO: cada segmento con nombre, revenue $, % del total, métricas operativas (unidades, clientes, visitas, etc.), geografía, crecimiento YoY
+COL 2 — REVENUE GAAP TOTAL: nodo central con revenue total, desglose de mix de pagadores o clientes si aplica, crecimiento YoY
+COL 3 — ESTRUCTURA DE COSTOS: cada línea de costo con nombre, $amount, % del revenue (Salarios/COGS, Suministros, Otros OpEx, D&A). El total de costos + EBIT debe sumar = Revenue.
+COL 4 — PRE-TAX: Ingreso Operativo (EBIT), Gasto Intereses, Ingreso Pre-Tax, Impuestos con ETR%
+COL 5 — DESTINO FINAL: Net Income, Free Cash Flow (paralelo), Recompras, Dividendos, Capex
+
+TOPBAR DE KPIs (obligatorio, 5+ métricas horizontales):
+Revenue Total · EBITDA · Net Income · FCF Operativo · Margen Neto · Score Feroldi · PEG · Veredicto
+
+VERIFICACIÓN TRIPLE OBLIGATORIA:
+Todos los números deben verificarse con: (1) SEC EDGAR 10-K, (2) StockAnalysis, (3) Macrotrends o press release.
+La suma de segmentos DEBE igualar el Revenue GAAP total exacto. NUNCA inventar splits de segmentos.
+FCF = FCF Operativo − Capex (mostrar como KPI paralelo, no como deducción directa del Net Income).
+
+TABLA DE AUDITORÍA AL PIE (obligatoria):
+Columnas: Rubro · Valor FY · Fuente Primaria · Estado (✅ Verificado / ⚡ Estimado) · Nota explicativa
+Incluir TODOS los nodos del diagrama con su fuente.
+
+ADVERTENCIA DE RIESGOS (si aplica):
+Si hay un riesgo material en los ingresos (subsidios gubernamentales, cliente concentrado, regulación pendiente), mostrar como banda de advertencia naranja/roja debajo del diagrama.
+
+Footer: @patonet · Análisis Feroldi · $TICKER · FY[AÑO] · Fecha generación · Fuentes listadas · "No constituye asesoría de inversión"
 
 5. GITHUB PAGES
 
@@ -117,4 +150,4 @@ Incorporar cambios. Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO. Sobrescrib
 
 Analítico · preciso. Español. Outputs concisos.
 
-v10.0 — CRDO ref · Verdict EN · Filename fix · All popups · Semáforo tenue — @patonet
+v11.0 — INGRESOS=Sankey exclusivo · UHS ref oro · 5 columnas explícitas · Verificación triple · Prohibido árbol KPIs — @patonet
