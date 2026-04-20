@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMT — Cómo Gana Dinero</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: clamp(10px, 1.15vw, 17px); }
+        body { width: 100%; min-height: 100vh; background: linear-gradient(135deg, #f8f9fa 0%, #e8ecf1 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #2c3e50; padding: 2rem 1rem; }
+        
+        .container { max-width: 100%; margin: 0 auto; }
+        h1 { text-align: center; font-size: 2rem; color: #1565c0; margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; font-size: 0.95rem; color: #666; margin-bottom: 2rem; }
+        
+        .niveles { display: flex; flex-direction: column; gap: 2rem; align-items: center; }
+        
+        .nivel0 { width: 100%; max-width: 20rem; }
+        .caja-raiz { background: linear-gradient(135deg, #1565c0, #1a3a6e); color: white; padding: 1.5rem; border-radius: 0.8rem; text-align: center; box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .caja-raiz:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(21, 101, 192, 0.5); }
+        .caja-raiz-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.4rem; }
+        .caja-raiz-value { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.4rem; }
+        .caja-raiz-desc { font-size: 0.85rem; opacity: 0.85; }
+        
+        .linea-conectora { height: 1.5rem; width: 2px; background: #1565c0; margin: 1rem auto; }
+        
+        .nivel1 { width: 100%; }
+        .segmentos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .caja-segmento { background: white; padding: 1.2rem; border-radius: 0.6rem; border-left: 4px solid #1565c0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.2s; }
+        .caja-segmento:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .caja-segmento.aero { border-left-color: #ff6b6b; }
+        .caja-segmento.mfc { border-left-color: #4ecdc4; }
+        .caja-segmento.rms { border-left-color: #ffa502; }
+        .caja-segmento.space { border-left-color: #9c27b0; }
+        
+        .seg-nombre { font-size: 1rem; font-weight: bold; color: #1565c0; margin-bottom: 0.6rem; }
+        .seg-revenue { font-size: 1.3rem; font-weight: bold; color: #2c3e50; margin-bottom: 0.2rem; }
+        .seg-pct { font-size: 0.9rem; color: #666; margin-bottom: 0.6rem; }
+        .seg-desc { font-size: 0.85rem; color: #666; line-height: 1.4; }
+        
+        .nivel2 { width: 100%; }
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .caja-producto { background: #f0f4f8; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e0e6ed; cursor: pointer; transition: all 0.2s; }
+        .caja-producto:hover { background: #e8ecf1; border-color: #1565c0; }
+        .prod-nombre { font-size: 0.95rem; font-weight: bold; color: #1565c0; margin-bottom: 0.4rem; }
+        .prod-monetizacion { font-size: 0.8rem; color: #666; margin-bottom: 0.3rem; background: #e8ecf1; padding: 0.3rem 0.6rem; border-radius: 0.3rem; display: inline-block; }
+        .prod-margen { font-size: 0.8rem; color: #27ae60; font-weight: 600; margin-top: 0.3rem; }
+        
+        .nivel3 { width: 100%; max-width: 32rem; background: #ecf0f5; padding: 1.5rem; border-radius: 0.6rem; border-left: 4px solid #1565c0; margin: 2rem auto; }
+        .nivel3-title { font-size: 1.1rem; font-weight: bold; color: #1565c0; margin-bottom: 1rem; }
+        .flujo-paso { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .flujo-numero { min-width: 2rem; height: 2rem; background: #1565c0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .flujo-texto { font-size: 0.9rem; color: #2c3e50; }
+        .flujo-flecha { color: #1565c0; font-size: 1.2rem; margin-left: 2rem; margin-bottom: 1rem; }
+        
+        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 2px solid #1565c0; border-radius: 0.8rem; padding: 1.5rem; max-width: 28rem; z-index: 1000; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+        #popup h3 { color: #1565c0; margin-bottom: 0.8rem; }
+        #popup p { color: #2c3e50; line-height: 1.6; font-size: 0.95rem; }
+        
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 999; }
+        
+        .marca { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #999; }
+    </style>
+</head>
+<body>
+
+<div class="popup-overlay" id="popupOverlay"></div>
+<div id="popup"></div>
+
+<div class="container">
+    <h1>💰 Cómo Gana Dinero Lockheed Martin</h1>
+    <p class="subtitle">Desglose de ingresos por segmento, mecanismos de monetización y flujo del dinero (FY2025)</p>
+    
+    <div class="niveles">
+        <!-- NIVEL 0: Raíz -->
+        <div class="nivel0">
+            <div class="caja-raiz" data-popup="raiz">
+                <div class="caja-raiz-label">REVENUE TOTAL FY2025</div>
+                <div class="caja-raiz-value">$75.0B</div>
+                <div class="caja-raiz-desc">Compañía global de defensa y aeroespacial integrada verticalmente</div>
+            </div>
+        </div>
+        
+        <div class="linea-conectora"></div>
+        
+        <!-- NIVEL 1: Segmentos Principales -->
+        <div class="nivel1">
+            <h2 style="text-align: center; font-size: 1.1rem; color: #1565c0; margin-bottom: 1.5rem;">Cuatro Segmentos de Negocio</h2>
+            <div class="segmentos-grid">
+                <div class="caja-segmento aero" data-popup="aeronautics">
+                    <div class="seg-nombre">✈️ Aeronautics</div>
+                    <div class="seg-revenue">$18.0B</div>
+                    <div class="seg-pct">24% del revenue</div>
+                    <div class="seg-desc">F-35 Lightning II, RQ-170, drones, aviones de combate</div>
+                </div>
+                
+                <div class="caja-segmento mfc" data-popup="mfc">
+                    <div class="seg-nombre">🎯 Missiles & Fire Control</div>
+                    <div class="seg-revenue">$12.0B</div>
+                    <div class="seg-pct">16% del revenue</div>
+                    <div class="seg-desc">PAC-3 MSE, THAAD, sistemas de defensa aérea</div>
+                </div>
+                
+                <div class="caja-segmento rms" data-popup="rms">
+                    <div class="seg-nombre">🚁 Rotary & Mission Systems</div>
+                    <div class="seg-revenue">$24.0B</div>
+                    <div class="seg-pct">32% del revenue</div>
+                    <div class="seg-desc">Helicópteros, radar, sistemas de defensa naval</div>
+                </div>
+                
+                <div class="caja-segmento space" data-popup="space">
+                    <div class="seg-nombre">🛰️ Space</div>
+                    <div class="seg-revenue">$21.0B</div>
+                    <div class="seg-pct">28% del revenue</div>
+                    <div class="seg-desc">Orion, satélites, defensa espacial</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NIVEL 2: Productos -->
+        <div class="nivel2" style="width: 100%; max-width: 100%;">
+            <h2 style="font-size: 1.1rem; color: #1565c0; margin: 1.5rem 0; text-align: center;">Productos y Mecanismos</h2>
+            
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: #ff6b6b; font-size: 1rem; margin-bottom: 1rem;">Aeronautics</h3>
+                <div class="productos-grid">
+                    <div class="caja-producto" data-popup="f35">
+                        <div class="prod-nombre">F-35 Lightning II</div>
+                        <div class="prod-monetizacion">Contrato fijo-precio</div>
+                        <div class="prod-margen">Margen: 9–11%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="rq170">
+                        <div class="prod-nombre">RQ-170 Drone</div>
+                        <div class="prod-monetizacion">Desarrollo clasificado</div>
+                        <div class="prod-margen">Margen: 12–15%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="sustain">
+                        <div class="prod-nombre">Sustain & Logística</div>
+                        <div class="prod-monetizacion">Recurrente mantenimiento</div>
+                        <div class="prod-margen">Margen: 35–40%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: #4ecdc4; font-size: 1rem; margin-bottom: 1rem;">Missiles & Fire Control</h3>
+                <div class="productos-grid">
+                    <div class="caja-producto" data-popup="pac3">
+                        <div class="prod-nombre">PAC-3 MSE</div>
+                        <div class="prod-monetizacion">Contrato marco 7 años</div>
+                        <div class="prod-margen">Margen: 15–18%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="thaad">
+                        <div class="prod-nombre">THAAD System</div>
+                        <div class="prod-monetizacion">Multiaño + FMS</div>
+                        <div class="prod-margen">Margen: 14–16%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="municiones">
+                        <div class="prod-nombre">Municiones Tácticas</div>
+                        <div class="prod-monetizacion">Producción a escala (4x 2026)</div>
+                        <div class="prod-margen">Margen: 18–22%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: #ffa502; font-size: 1rem; margin-bottom: 1rem;">Rotary & Mission Systems</h3>
+                <div class="productos-grid">
+                    <div class="caja-producto" data-popup="blackhawk">
+                        <div class="prod-nombre">Black Hawk Helicopters</div>
+                        <div class="prod-monetizacion">Ventas + sustain recurrente</div>
+                        <div class="prod-margen">Margen: 10–12%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="radar">
+                        <div class="prod-nombre">Radar & Defensa</div>
+                        <div class="prod-monetizacion">Contratos multiaño</div>
+                        <div class="prod-margen">Margen: 11–13%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="c2">
+                        <div class="prod-nombre">Command & Control</div>
+                        <div class="prod-monetizacion">Servicios profesionales</div>
+                        <div class="prod-margen">Margen: 25–30%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: #9c27b0; font-size: 1rem; margin-bottom: 1rem;">Space</h3>
+                <div class="productos-grid">
+                    <div class="caja-producto" data-popup="orion">
+                        <div class="prod-nombre">Orion Crew Capsule</div>
+                        <div class="prod-monetizacion">Contrato NASA (decadal)</div>
+                        <div class="prod-margen">Margen: 11–13%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="satelites">
+                        <div class="prod-nombre">Satélites & Defensa</div>
+                        <div class="prod-monetizacion">Clasificados + comercial</div>
+                        <div class="prod-margen">Margen: 12–15%</div>
+                    </div>
+                    <div class="caja-producto" data-popup="nssl">
+                        <div class="prod-nombre">NSSL-W (GPS successor)</div>
+                        <div class="prod-monetizacion">Contrato multidecadal</div>
+                        <div class="prod-margen">Margen: 10–12%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NIVEL 3: Flujo del Dinero -->
+        <div class="nivel3">
+            <h3 class="nivel3-title">📊 Ejemplo: Flujo del Dinero (PAC-3)</h3>
+            <div class="flujo-paso">
+                <div class="flujo-numero">1</div>
+                <div class="flujo-texto"><strong>Orden Pentágono:</strong> "$X millones para fabricar Y misiles"</div>
+            </div>
+            <div class="flujo-flecha">↓</div>
+            <div class="flujo-paso">
+                <div class="flujo-numero">2</div>
+                <div class="flujo-texto"><strong>Producción:</strong> Fabricación, integración, pruebas</div>
+            </div>
+            <div class="flujo-flecha">↓</div>
+            <div class="flujo-paso">
+                <div class="flujo-numero">3</div>
+                <div class="flujo-texto"><strong>Revenue Recognition:</strong> Ingresos se registran conforme hito del contrato</div>
+            </div>
+            <div class="flujo-flecha">↓</div>
+            <div class="flujo-paso">
+                <div class="flujo-numero">4</div>
+                <div class="flujo-texto"><strong>Margen:</strong> ~16% de revenue tras COGS y gastos operativos</div>
+            </div>
+            <div class="flujo-flecha">↓</div>
+            <div class="flujo-paso">
+                <div class="flujo-numero">5</div>
+                <div class="flujo-texto"><strong>FCF Conversion:</strong> ~86% de utilidades netas se convierte en flujo libre de caja</div>
+            </div>
+            <div class="flujo-flecha">↓</div>
+            <div class="flujo-paso">
+                <div class="flujo-numero">6</div>
+                <div class="flujo-texto"><strong>Retorno al Accionista:</strong> Dividendo (62%) + Buybacks (4–5% anual)</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="marca">Diagrama interactivo para @patonet | Datos FY2025 | Haz click en cajas para detalles</div>
+</div>
+
+<script>
+    const popupData = {
+        raiz: { title: "Revenue Total LMT — FY2025", content: "$75.0B de ingresos totales, +5.64% YoY. 4 segmentos diversificados. Modelo de ingresos recurrentes (78%) a través de contratos multiaño." },
+        aeronautics: { title: "Aeronautics ($18.0B, 24%)", content: "F-35 es fixed-price (margen bajo 9%). 70% de ingresos son sustainment (margen 35–40%). Backlog sólido $40B+." },
+        mfc: { title: "Missiles & Fire Control ($12.0B, 16%)", content: "MARGEN MÁS ALTO 15–18% y CRECIMIENTO ACELERADO. PAC-3 framework deal: triplicará capacidad. Catalizador principal para upside EPS 2026–27." },
+        rms: { title: "Rotary & Mission Systems ($24.0B, 32%)", content: "Helicópteros (8% margen), radar (11%), servicios (25–30%). Estable, Navy modernization apoya growth 3–4%." },
+        space: { title: "Space ($21.0B, 28%)", content: "POTENCIAL 5–7% CAGR vs LMT total 3%. Orion post-Artemis II abre multidecadal. NSSL-W (GPS successor) contrato 20+ años. Undervaluado por mercado." },
+        f35: { title: "F-35 Lightning II", content: "1,000+ delivered, 18 naciones. Margen 9–11%. Escalation +2–3%/año. 2025: 191 entregas, target 2026: 200+. Sostenible pero NO growth engine." },
+        rq170: { title: "RQ-170 Stealth Drone", content: "Clasificado, ~$2B/año estimado. Margen CPIF 12–15%. Demanda inteligencia sostiene volumen. Risk: congressional oversight." },
+        sustain: { title: "Sustain & Logística", content: "Recurrente, margen 35–40%. Crece 2–3%/año automáticamente. 'Golden goose' pero maduro (poco upside)." },
+        pac3: { title: "PAC-3 MSE", content: "7-Year Framework Q1 2026. Triplicará capacidad a 30,000+ unidades. Margen 15–18%. CATALIZADOR CRÍTICO 2026–28. Misil más buscado post-Ucrania." },
+        thaad: { title: "THAAD System", content: "Framework deal simultáneo PAC-3. FMS a Arabia, UAH, otros. Margen 14–16%. Demanda internacional explosiva (Europa rearmando)." },
+        municiones: { title: "Municiones Tácticas", content: "Scaling +4x en 2026 via IA optimization. Margen 18–22% (high-volume). Camden facility 2026. Si ramp se materializa, margen operativo LMT +75–100 bps." },
+        blackhawk: { title: "Black Hawk", content: "50–60/año, ~$150–180M unitario. Sustain 25–30 años = predecible. Margen 10–12% producción, 30%+ sustain. Estable, sin growth visible." },
+        radar: { title: "Radar & Defensa Naval", content: "SPY-6, sistemas integrados. Margen 11–13%. US Navy modernization. Indo-Pacific tensions elevan demanda. 18–20% de RMS revenue." },
+        c2: { title: "Command & Control", content: "Servicios, margen 25–30%. Crecimiento potencial si Defense digital transformation acelera. Hoy ~10% RMS, podría ser 15% en 5Y." },
+        orion: { title: "Orion (NASA)", content: "Única nave lunar/Mars. Multidecadal NASA. Artemis II validó: primeras tripulaciones 2027–2030. Margen 11–13%. Financiamiento seguro. 20–30Y sustain." },
+        satelites: { title: "Satélites & Defensa Espacial", content: "Clasificados (margen 12–15%), anti-satélite, defensa orbital. Demanda post-China escalada. Crece 5–7% CAGR. Optionality: nuevas iniciativas." },
+        nssl: { title: "NSSL-W", content: "Contrato DoD multidecadal (20+ años) para reemplazar GPS civil. Desarrollo + producción décadas. Margen 10–12%, ESTABILIDAD EXTREMA. Empieza modesto, crece 8–10%/año." }
+    };
+    
+    const popup = document.getElementById('popup');
+    const popupOverlay = document.getElementById('popupOverlay');
+    
+    document.querySelectorAll('[data-popup]').forEach(el => {
+        el.addEventListener('mouseenter', function(e) {
+            const key = this.getAttribute('data-popup');
+            const data = popupData[key];
+            if (data) {
+                popup.innerHTML = `<h3>${data.title}</h3><p>${data.content}</p>`;
+                popup.style.display = 'block';
+                popupOverlay.style.display = 'block';
+            }
+        });
+        el.addEventListener('mouseleave', function() {
+            popup.style.display = 'none';
+            popupOverlay.style.display = 'none';
+        });
+    });
+    
+    popupOverlay.addEventListener('click', function() {
+        popup.style.display = 'none';
+        popupOverlay.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
