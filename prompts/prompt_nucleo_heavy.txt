@@ -93,47 +93,116 @@ CONDICIONAL SOTP: solo si ≥2 segmentos >10%. Segmentos → múltiplos vs pure-
 
 Bear (-20% múltiplos, riesgos materializados) · Base (múltiplos del análisis) · Bull (+20%, opcionalidad). Rango de precio implicado.
 
-BLOQUE G — Marco de 16 Puntos (Brian Feroldi) + Injertos Buffett
+BLOQUE G — Marco de 16 Puntos Feroldi
 
-CADA PUNTO debe tener: análisis cualitativo DETALLADO + calificación 1-10 + justificación de la nota. NO comprimir. Integrar noticias del Bloque B.
+SISTEMA DE SCORING: cada punto recibe nota 0–10. Total máximo 160. Score global = suma/160 en %.
+Umbrales score global: 🟢 >60% · 🟡 50–60% · 🔴 <50%.
+Semáforo por punto: 🟢 8–10 (excelente) · 🟡 6–7.9 (aceptable) · 🔴 <6 (débil). Mostrar emoji junto al número.
 
--   1. INDUSTRY — ¿Es atractiva la industria? ¿Es muy competitiva?
+FORMATO OBLIGATORIO POR PUNTO:
+(1) Enunciar cada sub-pregunta en negrita.
+(2) Responder INMEDIATAMENTE con datos verificados, cifras concretas y razonamiento riguroso. PROHIBIDO evasivas o generalidades.
+(3) Score [emoji] X.X/10 + justificación de la nota en 1–2 líneas.
+SIN LÍMITE DE PALABRAS. Esta es la sección más importante del informe.
 
--   2. BUSINESS MODEL — ¿Cómo gana dinero? ¿Hay ingresos recurrentes?
+1. INDUSTRY
+→ **¿Es atractiva la industria estructuralmente?** Responder con TAM, tendencias seculares, barreras de entrada y posición en el ciclo del sector.
+→ **¿El mercado está creciendo?** Responder con CAGR histórico y proyectado del sector con cifras verificadas.
+→ **¿El sector es altamente competitivo?** Responder con número de actores, concentración, poder de negociación de clientes y proveedores.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   3. HISTORICAL GROWTH — ¿Qué tan rápido crecen ingresos y beneficios? ¿Fuente del crecimiento?
+2. BUSINESS MODEL
+→ **¿Cómo gana dinero exactamente la empresa?** Responder con fuentes de revenue por segmento y % del total.
+→ **¿El negocio es comprensible?** Responder SÍ/NO y justificar el Círculo de Competencia.
+→ **¿Tiene ingresos recurrentes?** Responder con % recurrente vs transaccional y naturaleza contractual.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   4. HISTORICAL VALUE CREATION — ¿Ha creado valor para el accionista? ¿Retornos desde IPO? ¿Retorna capital?
+3. HISTORICAL GROWTH
+→ **¿A qué ritmo crece el revenue?** Responder con Revenue 3Y CAGR y 5Y CAGR con cifras exactas.
+→ **¿A qué ritmo crecen las ganancias?** Responder con EPS CAGR y Net Income CAGR en 3 y 5 años.
+→ **¿Cuál es la fuente del crecimiento?** Responder si es orgánico (pricing, volumen, nuevos clientes) o inorgánico (M&A) con evidencia.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   5. MOAT — ¿Qué diferencia a la empresa? ¿Fuente del foso? ¿Pricing power?
+4. HISTORICAL VALUE CREATION
+→ **¿Ha creado valor para el accionista?** Responder con total return a 3Y, 5Y y 10Y vs S&P 500.
+→ **¿Cuáles son los retornos desde el IPO?** Responder con fecha IPO, precio IPO y CAGR total.
+→ **¿Está retornando capital a accionistas?** Responder con total buybacks + dividendos en últimos 3 años como % del market cap.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   6. CAPITAL INTENSITY — ¿Cuánto capital necesita para operar? ¿Altos CAPEX?
+5. MOAT
+→ **¿Qué diferencia a la empresa de sus competidores?** Responder con ventajas competitivas concretas y cuantificables.
+→ **¿Cuál es la fuente del moat?** Responder clasificando: switching costs / efectos de red / intangibles / ventaja de costo / escala.
+→ **¿Tiene pricing power?** Responder con evidencia de incrementos de precio históricos y su impacto en márgenes.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   7. PROFITABILITY — ¿Genera beneficios? ¿Genera free cash flow? ¿Márgenes altos y estables?
+6. CAPITAL INTENSITY
+→ **¿Cuánto capital necesita para operar?** Responder con Capex/Revenue % y Capex/EBITDA %.
+→ **¿Está invirtiendo fuertemente?** Responder si el capex es predominantemente mantenimiento o crecimiento.
+→ **¿Los gastos de capital son altos o bajos?** Responder con FCF Conversion Ratio (FCF/Net Income) vs sector.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
-INJERTO BUFFETT B1 — Owner Earnings (Carta 1986): Calcular NI + D&A + partidas no-cash − CapEx de mantenimiento (excluir CapEx de crecimiento). ¿Es el margen de OE estable o en expansión? ¿Difiere >20% del FCF reportado? Si sí, documentar la causa.
+7. PROFITABILITY
+→ **¿La empresa produce ganancias?** Responder con Net Income, tendencia YoY y consistencia histórica (5 años).
+→ **¿Produce free cash flow?** Responder con FCF operativo, FCF yield y relación FCF/Net Income.
+→ **¿Los márgenes son altos y estables?** Responder con margen bruto, operativo y neto actuales, tendencia 3 años y comparativa vs peers.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   8. BALANCE SHEET — ¿Es sólido el balance? ¿Mucha deuda? ¿Mucho goodwill?
+8. BALANCE SHEET
+→ **¿El balance es sólido?** Responder con Deuda Neta/EBITDA, cobertura de intereses y calificación crediticia.
+→ **¿Tiene demasiada deuda?** Responder con Deuda Total, Deuda/Equity y capacidad de repago en años de FCF.
+→ **¿Tiene mucho goodwill?** Responder con Goodwill+Intangibles como % del total assets y riesgo de impairment.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   9. CAPITAL RETURN — ¿Paga dividendo? ¿Recompra acciones? ¿Crea valor el programa de retorno?
+9. CAPITAL RETURN
+→ **¿La empresa paga dividendo?** Responder con yield actual, payout ratio y cobertura por FCF.
+→ **¿Ha recomprado acciones?** Responder con % de reducción de shares en últimos 3 años y monto invertido.
+→ **¿El programa de retorno crea valor?** Responder si las recompras se hacen a precios razonables (P/E histórico al momento de compra).
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   10. MANAGEMENT — ¿Tiene el equipo directivo acciones? ¿Considera a todos los stakeholders?
+10. MANAGEMENT
+→ **¿El management tiene skin in the game?** Responder con % ownership CEO/CFO/insiders y valor en $ de sus posiciones.
+→ **¿Consideran a todos los stakeholders?** Responder con evidencia de políticas hacia empleados, clientes y comunidad.
+→ **¿Tienen historial de ejecución?** Responder con track record vs guidance y credibilidad ante el mercado.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
-INJERTO BUFFETT B2 — Institutional Imperative (Carta 1989): Búsqueda: strategy vs peers + CEO capital allocation. ¿Las últimas 2-3 decisiones estratégicas tienen lógica propia o replican al competidor? ¿El CEO resiste presión del mercado? Si >2 iniciativas son mimetismo → “Imperativo Institucional Detectado”.
+11. CAPITAL ALLOCATION
+→ **¿Cuáles son los retornos sobre el capital?** Responder con ROIC actual y tendencia 3 años.
+→ **¿Superan el costo de capital?** Responder con WACC estimado y spread ROIC-WACC.
+→ **¿Los retornos son estables?** Responder con evolución del ROIC en 5 años y factores que lo afectan.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   11. CAPITAL ALLOCATION — ¿Retornos sobre el capital? ¿Superan el coste del capital?
+12. STOCK-BASED COMPENSATION
+→ **¿Cuál es la política de SBC?** Responder con SBC/Revenue % y SBC/Net Income %.
+→ **¿Cuál es la tasa de dilución?** Responder con cambio en shares outstanding en últimos 3 años (% anual).
+→ **¿Qué métricas disparan los pagos de SBC?** Responder con triggers reales (EPS, revenue, TSR) y alineación con creación de valor.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   12. STOCK-BASED COMPENSATION — ¿Política de SBC? ¿Tasa de dilución? ¿Qué métricas activan los pagos?
+13. OUTLOOK
+→ **¿La empresa emite guidance formal?** Responder con la guidance de revenue y EPS para próximo año y si es conservadora o agresiva históricamente.
+→ **¿Cuál es la tasa de crecimiento proyectada?** Responder con estimaciones de analistas (consenso) para 2 y 3 años.
+→ **¿El crecimiento proyectado es alcanzable?** Responder evaluando supuestos del guidance contra realidad histórica de la empresa.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   13. OUTLOOK — ¿Emite guidance? ¿Tasa de crecimiento proyectada? ¿Alcanzable?
+14. OPTIONALITY
+→ **¿Está desarrollando nuevos productos o mercados?** Responder con iniciativas de crecimiento futuro concretas y estado de desarrollo.
+→ **¿El pipeline luce sólido?** Responder con evidencia de proyectos en curso, inversión destinada y probabilidad de materialización.
+→ **¿Las nuevas líneas ya generan revenue incremental?** Responder con revenue de nuevas iniciativas como % del total y tasa de crecimiento.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   14. OPTIONALITY — ¿Nuevos productos? ¿Pipeline sólido? ¿Han incrementado ventas los nuevos productos?
+15. RISKS
+→ **¿Cuáles son los riesgos principales?** Responder listando los 3–5 riesgos más materiales (operativo, competitivo, regulatorio, macro, financiero) con impacto cuantificado si posible.
+→ **¿Hay problemas de concentración?** Responder con % de revenue del cliente/segmento/geografía principal.
+→ **¿Es dependiente de factores exógenos?** Responder si el negocio es sensible a commodities, tasas de interés, divisas u otros factores fuera del control del management.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   15. RISKS — ¿Principales riesgos? ¿Concentración? ¿Dependencia de precios de mercado?
+16. VALUATION
+→ **¿Qué método de valoración es más apropiado?** Responder justificando el múltiplo más adecuado (DCF, EV/EBITDA, P/E, P/FCF, EV/Revenue).
+→ **¿A qué precio pagarías hoy?** Responder con precio objetivo, margen de seguridad explícito y supuestos clave.
+→ **¿Está subvalorada, correctamente valorada o cara?** Responder comparando vs peers del sector, vs histórico propio (5 años) y con PEG como ancla de valoración relativa.
+Score [🟢/🟡/🔴] X.X/10 — justificación.
 
--   16. VALUATION — ¿Qué método de valoración es más útil? ¿A qué precio comprarías hoy? ¿Infra o sobrevalorada?
-
-INJERTO BUFFETT B3 — ROTC (Cartas 1983, 2019): EBIT / (Assets − Intangibles − Goodwill − Liabilities no-interés). ¿>15% consistente? ¿Diverge >5pp del ROIC? En capex-light verificar activos sin capitalizar.
+SCORE TOTAL AL PIE — OBLIGATORIO: sumar los 16 scores. Mostrar: "Score Feroldi: [🟢/🟡/🔴] XXX/160 (XX.X%)".
+Umbral colores score global: 🟢 >96/160 (>60%) · 🟡 80–96 (50–60%) · 🔴 <80 (<50%).
 
 BLOQUE H — Síntesis y Tesis de Inversión
 
