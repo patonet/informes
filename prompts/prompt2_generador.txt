@@ -38,22 +38,655 @@ CARPETAS GitHub:
 2. INFOGRAFÍA HTML
 ===========================================================
 
-REFERENCIA ORO: https://patonet.github.io/informes/equities/Informe_CRDO_107_09_190326.html
+PLANTILLA EMBEBIDA — REFERENCIA ORO (UHS):
+La siguiente es la infografía HTML completa de referencia. Replicar EXACTAMENTE su estructura,
+CSS, zonas, popups, semáforo y gauge. Solo cambiar los datos del ticker actual.
+NO hacer ningún web_fetch — la referencia ya está aquí.
 
-PROCEDIMIENTO OBLIGATORIO:
-1. Hacer web_fetch de esa URL.
-2. SI EL FETCH FALLA → PARAR COMPLETAMENTE. No generar nada. Mostrar:
-   "⛔ No pude cargar la infografía de referencia (CRDO). No voy a generar de memoria porque el resultado sería inferior al estándar. Opciones: (A) reintenta en unos minutos, (B) pega el HTML del modelo manualmente."
-3. SI EL FETCH TIENE ÉXITO → replicar estructura exacta, misma CSS, mismas zonas, mismos popups, mismo semáforo. Solo cambiar los datos del ticker actual.
+--- INICIO PLANTILLA INFOGRAFÍA ---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UHS · $186.80 · Informe Feroldi | @patonet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:clamp(10px,1.15vw,17px);}
+body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.4;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999;}
+.info-header{background:#020710;border-bottom:1px solid #0d2040;padding:0.4rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
+.info-header .brand{font-size:0.85rem;color:#ffd700;font-weight:bold;letter-spacing:0.1em;}
+.info-header .ts{font-size:0.78rem;color:#94a3b8;font-family:'Courier New',monospace;}
+.zona{width:100%;padding:1.5rem;border-bottom:2px solid #0a1825;overflow:hidden;}
+.zona-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.18em;color:#00d4ff;border-bottom:1px solid #1a3a6e;padding-bottom:0.4rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:0.5rem;}
+.zona-title::before{content:'';display:block;width:0.3rem;height:1rem;background:#00d4ff;border-radius:0.1rem;}
 
-ADICIONES sobre CRDO (siempre incluir):
-(1) Barra de performance histórica: 8 periodos 1D·5D·1M·3M·6M·YTD·1Y·5Y via TradingView Scanner API.
-(2) Mini-semáforos B0: 4 SVGs (B0.1·B0.2·B0.3·B0 Veredicto) al 30% del semáforo IA.
+/* Z1 */
+.z1-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:2rem;align-items:start;}
+.z1-logo-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.6rem;}
+.company-logo{height:3.5rem;width:auto;object-fit:contain;border-radius:0.3rem;filter:drop-shadow(0 0 8px rgba(0,212,255,0.3));}
+.logo-fallback{width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:0.4rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#00d4ff;}
+.company-name{font-size:2rem;font-weight:800;color:#fff;line-height:1.1;letter-spacing:-0.02em;}
+.company-meta{font-size:0.85rem;color:#94a3b8;margin-top:0.2rem;}
+.frase-cursiva{font-style:italic;font-size:1rem;color:#00d4ff;background:#050f20;border-left:3px solid #00d4ff;padding:0.6rem 1rem;border-radius:0 0.3rem 0.3rem 0;margin-top:0.6rem;}
+.barra-52w{margin-top:1rem;}
+.barra-52w-labels{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.35rem;}
+.lbl-min{color:#ff3a3a;}.lbl-max{color:#00ff9d;}
+.barra-track{position:relative;height:0.45rem;background:#1a2a4a;border-radius:0.25rem;}
+.barra-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#ff3a3a,#ffd700,#00ff9d);border-radius:0.25rem;width:17%;}
+.barra-marker{position:absolute;top:-0.3rem;left:17%;width:1rem;height:1rem;background:#00d4ff;border-radius:50%;transform:translateX(-50%);border:2px solid #050a12;box-shadow:0 0 6px #00d4ff;}
+.barra-pct{font-size:0.8rem;color:#00d4ff;margin-top:0.3rem;font-family:'Courier New',monospace;}
+.perf-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:0.15rem;background:#080f1c;border-radius:0.4rem;padding:0.6rem 0.4rem;margin-top:0.8rem;border:1px solid #0d1f35;}
+.perf-cell{display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.25rem 0.1rem;border-right:1px solid #1a2a4a;}
+.perf-cell:last-child{border-right:none;}
+.perf-lbl{font-size:0.72rem;color:#94a3b8;text-align:center;}
+.perf-val{font-size:0.88rem;font-weight:bold;font-family:'Courier New',monospace;}
+.pos{color:#00c853;}.neg{color:#e53935;}.nd{color:#555;}
+.z1-price-panel{display:flex;flex-direction:column;gap:1rem;}
+.price-main{font-size:2.6rem;font-weight:800;font-family:'Courier New',monospace;color:#fff;line-height:1;}
+.price-delta{font-size:1rem;font-family:'Courier New',monospace;color:#00c853;}
+.verdict-badge{padding:0.6rem 1.5rem;border-radius:0.4rem;font-size:0.95rem;font-weight:bold;text-align:center;letter-spacing:0.06em;background:#006400;color:#00ff9d;display:inline-block;box-shadow:0 0 20px rgba(0,100,0,0.5);}
+.score-ia-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.score-card{background:#0d1f35;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.5rem 0.8rem;text-align:center;}
+.score-val{font-size:1.8rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
+.score-lbl{font-size:0.72rem;color:#94a3b8;margin-top:0.1rem;}
+.ia-semaforo-wrap{display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
+.ia-text{font-size:0.82rem;font-weight:bold;color:#ffd700;text-align:center;}
 
-Reglas gráficos Zona 3:
-- Col 1 (barras): Revenue→COGS→Gross Profit→OpExp→OpIncome→Non-Op→Taxes→Net Income. NUNCA EPS.
-- Col 2 (waterfall): cascada trimestral Revenue→Net Income.
-- Col 3 (dona): composición por segmento o geografía. NUNCA otro uso.
+/* B0 semaforos */
+.b0-row{display:flex;gap:0.6rem;margin-top:0.6rem;flex-wrap:wrap;}
+.b0-item{display:flex;align-items:center;gap:0.3rem;background:#080f1c;border-radius:0.3rem;padding:0.3rem 0.5rem;font-size:0.75rem;border:1px solid #1a2a4a;cursor:pointer;position:relative;}
+.b0-dot{width:0.6rem;height:0.6rem;border-radius:50%;flex-shrink:0;}
+.b0-label{color:#94a3b8;}
+.b0-result{font-weight:bold;}
+.b0-green{color:#00ff9d;}.b0-yellow{color:#ffd700;}.b0-red{color:#ff3a3a;}
+.b0-tooltip{display:none;position:absolute;bottom:110%;left:0;background:#0a1628;border:1px solid #ffd700;border-radius:0.4rem;padding:0.6rem;font-size:0.75rem;color:#c8d8f0;min-width:16rem;z-index:100;line-height:1.4;}
+.b0-item:hover .b0-tooltip{display:block;}
+
+/* Z2 */
+.z2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem;}
+.z2-group{background:#080f1c;border-radius:0.4rem;padding:0.8rem;border:1px solid #0d1f35;}
+.z2-group-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid #0d1f35;}
+.z2-cards{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;}
+.z2-card{background:#0d1828;padding:0.5rem 0.6rem;border-radius:0.3rem;}
+.z2-val{font-size:1.25rem;font-family:'Courier New',monospace;font-weight:bold;color:#fff;}
+.z2-lbl{font-size:0.78rem;color:#94a3b8;margin-top:0.1rem;}
+.ind{display:inline-block;width:0.5rem;height:0.5rem;border-radius:50%;margin-left:0.3rem;vertical-align:middle;}
+.ind-g{background:#00ff9d;}.ind-y{background:#ffbb00;}.ind-r{background:#ff3a3a;}
+
+/* Z3 */
+.zona3-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;width:100%;align-items:start;}
+.zona3-chart{display:flex;flex-direction:column;width:100%;}
+.zona3-chart h3{font-size:0.85rem;color:#94a3b8;margin-bottom:0.5rem;text-align:center;}
+.zona3-chart .chart-wrap{position:relative;width:100%;aspect-ratio:4/3;}
+.zona3-chart .chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+.legend-custom{display:flex;gap:0.8rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;}
+.leg-box{width:0.7rem;height:0.7rem;border-radius:0.1rem;}
+
+/* Z4 */
+.z4-chart-wrap{position:relative;width:100%;aspect-ratio:16/5;margin-bottom:1rem;}
+.z4-chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+.z4-analyst-summary{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:1rem;background:#080f1c;border-radius:0.4rem;border:1px solid #0d1f35;}
+.analyst-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:0.5rem;margin-top:0.8rem;}
+.analyst-item{display:flex;justify-content:space-between;align-items:center;background:#0a1628;padding:0.4rem 0.6rem;border-radius:0.3rem;font-size:0.83rem;}
+.analyst-bank{color:#94a3b8;}.analyst-rating{font-weight:bold;color:#00d4ff;}.analyst-pt{font-family:'Courier New',monospace;font-weight:bold;color:#00ff9d;}
+
+/* Z5 Spider */
+.z5-spider-title{font-size:1.2rem;font-weight:bold;color:#00d4ff;text-align:center;margin-bottom:1rem;}
+.z5-spider-wrap{width:100%;max-width:40rem;margin:0 auto;}
+.z5-scorecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.5rem;}
+.feroldi-group-card{background:#0a1628;border:1px solid #1a3a6e;border-radius:0.5rem;padding:1rem;}
+.fg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;padding-bottom:0.4rem;border-bottom:1px solid #1a3a6e;}
+.fg-name{font-size:0.92rem;font-weight:bold;color:#00d4ff;}
+.fg-avg{font-size:1.5rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
+.feroldi-row{cursor:pointer;padding:0.3rem 0.2rem;border-radius:0.2rem;transition:background 0.15s;display:flex;align-items:center;gap:0.5rem;}
+.feroldi-row:hover{background:#0d1f35;}
+.fr-name{font-size:0.83rem;color:#c8d8f0;flex:1;}
+.fr-bar-wrap{flex:1;height:0.4rem;background:#1a2a4a;border-radius:0.2rem;overflow:hidden;}
+.fr-bar{height:100%;border-radius:0.2rem;}
+.fr-score-num{text-align:center;font-size:1rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;min-width:2rem;}
+.z5-totals{margin-top:1.5rem;padding:1rem 1.5rem;background:#0d1f35;border-radius:0.4rem;display:flex;gap:2rem;justify-content:center;align-items:center;flex-wrap:wrap;border:1px solid #1a3a6e;}
+.z5-tot-val{font-size:1.6rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
+.z5-tot-lbl{font-size:0.83rem;color:#94a3b8;text-align:center;}
+
+/* Z6 */
+.z6-rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.z6-tbl-title{font-size:0.95rem;font-weight:bold;color:#00d4ff;margin-bottom:0.7rem;}
+.z6-tbl{width:100%;border-collapse:collapse;font-size:0.83rem;}
+.z6-tbl th{background:#0d1f35;color:#94a3b8;padding:0.45rem 0.6rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;}
+.z6-tbl td{padding:0.45rem 0.6rem;border-bottom:1px solid #0a1628;}
+.z6-tbl tr:hover td{background:#0a1628;}
+.badge-a{color:#ff3a3a;font-weight:bold;}.badge-m{color:#ffbb00;font-weight:bold;}.badge-b{color:#00ff9d;font-weight:bold;}
+.comp-tbl{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.comp-tbl th{background:#0d1f35;color:#94a3b8;padding:0.5rem 0.6rem;text-align:left;font-size:0.76rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;}
+.comp-tbl td{padding:0.45rem 0.6rem;border-bottom:1px solid #0a1628;white-space:nowrap;}
+.comp-tbl .main-row td{background:#0d1f35;border-left:3px solid #00d4ff;}
+.z6-verdict{margin-top:1.5rem;padding:1.5rem 2rem;background:#0a1628;border-radius:0.6rem;border:1px solid #006400;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.8rem;}
+.z6-verdict-badge{font-size:1.4rem;font-weight:bold;padding:0.6rem 2.5rem;border-radius:0.4rem;background:#006400;color:#00ff9d;box-shadow:0 0 30px rgba(0,100,0,0.5);}
+.z6-thesis{font-size:0.95rem;color:#c8d8f0;max-width:52rem;line-height:1.6;}
+.z6-sl-tp{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;}
+.sl-tp-item{background:#080f1c;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.5rem 1rem;text-align:center;}
+.sl-tp-label{font-size:0.75rem;color:#94a3b8;}
+.sl-tp-val{font-size:1.1rem;font-weight:bold;font-family:'Courier New',monospace;}
+.z6-brand{font-size:1rem;font-weight:bold;color:#ffd700;margin-top:0.5rem;letter-spacing:0.05em;}
+.popup-box{display:none;position:fixed;background:#0a1628;border:2px solid #00d4ff;border-radius:0.8rem;padding:1.5rem;max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.93rem;color:#c8d8f0;box-shadow:0 0 40px rgba(0,212,255,0.3);line-height:1.6;top:50%;left:50%;transform:translate(-50%,-50%);}
+.popup-box h3{color:#00d4ff;margin-bottom:0.8rem;font-size:1.1rem;}
+.popup-close{position:absolute;top:0.8rem;right:1rem;font-size:1.2rem;cursor:pointer;color:#94a3b8;}
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;}
+#feroldiPopup{position:fixed;display:none;background:#0d1f35;border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;font-size:0.88rem;color:#c8d8f0;z-index:9999;pointer-events:none;box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;}
+
+/* waterfall helpers */
+.wf-pos{fill:#00ff9d;}.wf-neg{fill:#ff3a3a;}.wf-base{fill:#1a3a6e;}
+</style>
+</head>
+<body>
+
+<div class="info-header">
+  <div class="brand">@patonet · Research Terminal</div>
+  <div class="ts">NYSE: UHS · $186.80 · 08 Abr 2026 · Método Feroldi 16pts + Buffett</div>
+</div>
+
+<!-- ══════════ ZONA 1 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 1 · CABECERA Y RESUMEN</div>
+  <div class="z1-grid">
+    <div>
+      <div class="z1-logo-row">
+        <img class="company-logo" src="https://logo.clearbit.com/uhs.com" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" alt="UHS">
+        <div class="logo-fallback">UHS</div>
+        <div>
+          <div class="company-name">Universal Health Services</div>
+          <div class="company-meta">NYSE: UHS · Healthcare · King of Prussia, PA · Fundada 1979</div>
+        </div>
+      </div>
+      <div class="frase-cursiva" onclick="document.getElementById('resumenPopup').style.display='block';document.getElementById('overlay').style.display='block';">
+        "UHS es un negocio defensivo de alta generación de caja que cotiza como si el deterioro de Medicaid fuera inminente, cuando en realidad es gradual y parcialmente mitigable."
+      </div>
+      <div class="barra-52w" style="margin-top:1rem;">
+        <div class="barra-52w-labels">
+          <span class="lbl-min">52W Low: $152.33</span>
+          <span style="color:#00d4ff;font-family:'Courier New',monospace;font-size:0.85rem;">$186.80 actual</span>
+          <span class="lbl-max">52W High: $246.33</span>
+        </div>
+        <div class="barra-track"><div class="barra-fill"></div><div class="barra-marker"></div></div>
+        <div class="barra-pct">Posición en rango 52W: 17% desde mínimo · ATH: $246.33 (Nov 26, 2025)</div>
+      </div>
+      <div class="perf-bar">
+        <div class="perf-cell"><span class="perf-lbl">1D</span><span class="perf-val pos">+3.15%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">5D</span><span class="perf-val pos">+6.37%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">1M</span><span class="perf-val neg">-1.16%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">3M</span><span class="perf-val neg">-10.81%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">6M</span><span class="perf-val neg">-8.03%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">YTD</span><span class="perf-val neg">-14.47%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">1Y</span><span class="perf-val pos">+5.04%</span></div>
+        <div class="perf-cell"><span class="perf-lbl">5Y</span><span class="perf-val pos">+35.4%</span></div>
+      </div>
+      <!-- B0 Mini semaforos -->
+      <div class="b0-row">
+        <div class="b0-item">
+          <span class="b0-dot" style="background:#ffd700"></span>
+          <span class="b0-label">B0.1 Círculo</span>
+          <span class="b0-result b0-yellow">AMARILLO</span>
+          <div class="b0-tooltip">Modelo comprensible: hospitales de agudos + behavioral health. 60% dependencia pagadores gubernamentales. Driver primario: admisiones hospitalarias cobradas a Medicare/Medicaid/seguros.</div>
+        </div>
+        <div class="b0-item">
+          <span class="b0-dot" style="background:#ffd700"></span>
+          <span class="b0-label">B0.2 Simplicidad</span>
+          <span class="b0-result b0-yellow">AMARILLO</span>
+          <div class="b0-tooltip">4 factores de complejidad: contabilidad no estándar (Adj EBITDA), regulatorio intenso (Medicaid/CMS), sensibilidad macro (ACA subsidies), multimoneda (UK ops).</div>
+        </div>
+        <div class="b0-item">
+          <span class="b0-dot" style="background:#00ff9d"></span>
+          <span class="b0-label">B0.3 Predictibilidad</span>
+          <span class="b0-result b0-green">VERDE</span>
+          <div class="b0-tooltip">Guidance anual explícita. Historial beat+raise consistente (75% EPS beats). Ingresos recurrentes con contratos multi-año managed care. Demanda secular behavioral health.</div>
+        </div>
+        <div class="b0-item">
+          <span class="b0-dot" style="background:#00ff9d"></span>
+          <span class="b0-label">B0 Veredicto</span>
+          <span class="b0-result b0-green">PROCEDER</span>
+          <div class="b0-tooltip">2 AMARILLO + 1 VERDE = análisis continúa. Alerta: riesgo Medicaid supplemental ($1.2B beneficio en riesgo post-2027) presente en todo el análisis.</div>
+        </div>
+      </div>
+    </div>
+    <div class="z1-price-panel">
+      <div>
+        <div class="price-main">$186.80</div>
+        <div class="price-delta">▲ +3.15% hoy · -14.47% YTD · -24.2% vs ATH</div>
+      </div>
+      <div class="verdict-badge" onclick="document.getElementById('resumenPopup').style.display='block';document.getElementById('overlay').style.display='block';" style="cursor:pointer;">
+        ✅ COMPRAR — POSICIÓN MEDIANA
+      </div>
+      <div class="score-ia-row">
+        <div class="score-card">
+          <div class="score-val">108</div>
+          <div class="score-lbl">Score / 160</div>
+        </div>
+        <div class="score-card">
+          <div class="score-val">67.5%</div>
+          <div class="score-lbl">% Feroldi</div>
+        </div>
+        <div class="score-card">
+          <div class="score-val">0.58</div>
+          <div class="score-lbl">PEG Ratio</div>
+        </div>
+      </div>
+      <!-- IA Semaforo -->
+      <div class="ia-semaforo-wrap">
+        <svg width="48" height="120" viewBox="0 0 48 120" style="display:block;margin:0 auto;">
+          <rect x="4" y="4" width="40" height="112" rx="8" fill="#1a2a4a" stroke="#333" stroke-width="1.5"/>
+          <circle cx="24" cy="28" r="12" fill="#333"/>
+          <circle cx="24" cy="60" r="12" fill="#ffd700" filter="url(#gl)"/>
+          <circle cx="24" cy="92" r="12" fill="#333"/>
+          <defs><filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        </svg>
+        <div class="ia-text">🤖 IA: NARANJA<br><span style="font-size:0.72rem;color:#94a3b8;">Amiga 1-3a / Riesgo 5-10a</span></div>
+      </div>
+      <!-- Próx earnings -->
+      <div style="background:#0d1f35;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.6rem 0.8rem;font-size:0.83rem;">
+        <span style="color:#ffd700;">📅 Próximo Earnings:</span>
+        <span style="font-weight:bold;color:#fff;margin-left:0.5rem;">27 Abr 2026</span>
+        <div style="color:#94a3b8;font-size:0.78rem;margin-top:0.2rem;">EPS consenso Q1 2026E: $5.41 | Rev: $4.39B</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ZONA 2 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 2 · KEY STATS — FY2025 / TTM</div>
+  <div class="z2-grid">
+    <div class="z2-group">
+      <div class="z2-group-title">💰 Valoración</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">7.9x<span class="ind ind-g"></span></div><div class="z2-lbl">P/E Forward</div></div>
+        <div class="z2-card"><div class="z2-val">8.1x<span class="ind ind-g"></span></div><div class="z2-lbl">P/E TTM</div></div>
+        <div class="z2-card"><div class="z2-val">6.9x<span class="ind ind-g"></span></div><div class="z2-lbl">EV/EBITDA</div></div>
+        <div class="z2-card"><div class="z2-val">0.58<span class="ind ind-g"></span></div><div class="z2-lbl">PEG Ratio</div></div>
+        <div class="z2-card"><div class="z2-val">~$11.4B</div><div class="z2-lbl">Market Cap</div></div>
+        <div class="z2-card"><div class="z2-val">1.85x</div><div class="z2-lbl">P/B Ratio</div></div>
+      </div>
+    </div>
+    <div class="z2-group">
+      <div class="z2-group-title">📈 Rentabilidad</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">21.4%<span class="ind ind-g"></span></div><div class="z2-lbl">ROE TTM</div></div>
+        <div class="z2-card"><div class="z2-val">22.5%<span class="ind ind-g"></span></div><div class="z2-lbl">ROTC (Buffett)</div></div>
+        <div class="z2-card"><div class="z2-val">8.7%<span class="ind ind-y"></span></div><div class="z2-lbl">Net Margin</div></div>
+        <div class="z2-card"><div class="z2-val">11.5%<span class="ind ind-y"></span></div><div class="z2-lbl">Op. Margin</div></div>
+        <div class="z2-card"><div class="z2-val">15.0%<span class="ind ind-y"></span></div><div class="z2-lbl">EBITDA Mgn</div></div>
+        <div class="z2-card"><div class="z2-val">10.1%<span class="ind ind-y"></span></div><div class="z2-lbl">ROIC Reportado</div></div>
+      </div>
+    </div>
+    <div class="z2-group">
+      <div class="z2-group-title">🚀 Crecimiento</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">+10%<span class="ind ind-g"></span></div><div class="z2-lbl">Rev YoY FY25</div></div>
+        <div class="z2-card"><div class="z2-val">+31%<span class="ind ind-g"></span></div><div class="z2-lbl">EPS Adj YoY FY25</div></div>
+        <div class="z2-card"><div class="z2-val">+7%<span class="ind ind-y"></span></div><div class="z2-lbl">Rev 2026E</div></div>
+        <div class="z2-card"><div class="z2-val">+7.4%<span class="ind ind-y"></span></div><div class="z2-lbl">EPS 2026E</div></div>
+        <div class="z2-card"><div class="z2-val">$18.6B</div><div class="z2-lbl">Rev Guide 2026</div></div>
+        <div class="z2-card"><div class="z2-val">$23.58</div><div class="z2-lbl">EPS Guide 2026 (mid)</div></div>
+      </div>
+    </div>
+    <div class="z2-group">
+      <div class="z2-group-title">🛡️ Balance &amp; Riesgo</div>
+      <div class="z2-cards">
+        <div class="z2-card"><div class="z2-val">67.5%<span class="ind ind-y"></span></div><div class="z2-lbl">Deuda/Equity</div></div>
+        <div class="z2-card"><div class="z2-val">1.76x<span class="ind ind-g"></span></div><div class="z2-lbl">Deuda/EBITDA</div></div>
+        <div class="z2-card"><div class="z2-val">1.03x<span class="ind ind-y"></span></div><div class="z2-lbl">Current Ratio</div></div>
+        <div class="z2-card"><div class="z2-val">$1.9B<span class="ind ind-g"></span></div><div class="z2-lbl">FCF Operativo</div></div>
+        <div class="z2-card"><div class="z2-val">0.43%</div><div class="z2-lbl">Div. Yield</div></div>
+        <div class="z2-card"><div class="z2-val">$0.80<span class="ind ind-y"></span></div><div class="z2-lbl">Dividendo/año</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ZONA 3 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 3 · HISTÓRICO FINANCIERO · WATERFALL · MIX COSTOS</div>
+  <div class="zona3-inner">
+    <div class="zona3-chart">
+      <h3>Revenue + Net Income (2021–2026E)</h3>
+      <div class="chart-wrap"><canvas id="c1"></canvas></div>
+      <div class="legend-custom">
+        <div class="leg-item"><div class="leg-box" style="background:#00d4ff"></div>Revenue ($B)</div>
+        <div class="leg-item"><div class="leg-box" style="background:#00ff9d"></div>Net Income ($B)</div>
+        <div class="leg-item"><div class="leg-box" style="background:rgba(255,165,0,0.7)"></div>Margen Neto (%)</div>
+      </div>
+    </div>
+    <div class="zona3-chart">
+      <h3>Waterfall EPS Adj 2024→2025→2026E</h3>
+      <div class="chart-wrap"><canvas id="c2"></canvas></div>
+    </div>
+    <div class="zona3-chart">
+      <h3>Estructura de Costos FY2025</h3>
+      <div class="chart-wrap"><canvas id="c3"></canvas></div>
+      <div class="legend-custom">
+        <div class="leg-item"><div class="leg-box" style="background:#ff3a3a"></div>Salarios 46.6%</div>
+        <div class="leg-item"><div class="leg-box" style="background:#ff9800"></div>Otros Op 28.2%</div>
+        <div class="leg-item"><div class="leg-box" style="background:#ff6b35"></div>Supplies 9.8%</div>
+        <div class="leg-item"><div class="leg-box" style="background:#00ff9d"></div>Op.Income 11.5%</div>
+        <div class="leg-item"><div class="leg-box" style="background:#9c27b0"></div>D&amp;A 3.5%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ZONA 4 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 4 · ANALISTAS Y PRECIO 52W</div>
+  <div class="z4-chart-wrap"><canvas id="c4"></canvas></div>
+  <div class="z4-analyst-summary">
+    <div>
+      <div style="font-size:0.75rem;color:#94a3b8;">Consenso 23 analistas</div>
+      <div style="font-size:1.3rem;font-weight:bold;color:#00ff9d;font-family:'Courier New',monospace;">COMPRAR</div>
+      <div style="font-size:0.85rem;color:#94a3b8;">PT promedio: $232–$251</div>
+    </div>
+    <div style="display:flex;gap:0.4rem;align-items:flex-end;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="width:1.4rem;height:4.6rem;background:#00ff9d;border-radius:0.2rem 0.2rem 0 0;"></div>
+        <div style="font-size:0.7rem;color:#94a3b8;">Buy</div>
+        <div style="font-size:0.82rem;font-weight:bold;color:#00ff9d;">23</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="width:1.4rem;height:1.4rem;background:#ffbb00;border-radius:0.2rem 0.2rem 0 0;"></div>
+        <div style="font-size:0.7rem;color:#94a3b8;">Hold</div>
+        <div style="font-size:0.82rem;font-weight:bold;color:#ffbb00;">7</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
+        <div style="width:1.4rem;height:0.4rem;background:#ff3a3a;border-radius:0.2rem 0.2rem 0 0;"></div>
+        <div style="font-size:0.7rem;color:#94a3b8;">Sell</div>
+        <div style="font-size:0.82rem;font-weight:bold;color:#ff3a3a;">2</div>
+      </div>
+    </div>
+  </div>
+  <div class="analyst-list" style="margin-top:0.8rem;">
+    <div class="analyst-item"><span class="analyst-bank">Barclays</span><span class="analyst-rating">Overweight</span><span class="analyst-pt">$268</span></div>
+    <div class="analyst-item"><span class="analyst-bank">UBS</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$280</span></div>
+    <div class="analyst-item"><span class="analyst-bank">TD Cowen</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$245</span></div>
+    <div class="analyst-item"><span class="analyst-bank">Guggenheim</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$274</span></div>
+    <div class="analyst-item"><span class="analyst-bank">JPMorgan</span><span class="analyst-rating" style="color:#ffbb00;">Hold</span><span class="analyst-pt" style="color:#ffbb00;">$195</span></div>
+    <div class="analyst-item"><span class="analyst-bank">Cantor Fitzgerald</span><span class="analyst-rating" style="color:#ff3a3a;">Underweight</span><span class="analyst-pt" style="color:#ff3a3a;">$229</span></div>
+  </div>
+</div>
+
+<!-- ══════════ ZONA 5 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 5 · PERFIL FEROLDI 16 PUNTOS + BUFFETT</div>
+  <div class="z5-spider-title">Análisis de 5 Dimensiones — $UHS</div>
+  <div class="z5-spider-wrap"><canvas id="c5" style="width:100%;aspect-ratio:1;max-height:320px;"></canvas></div>
+  <div class="z5-scorecard">
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">📊 Industria &amp; Modelo</span><span class="fg-avg">6.5</span></div>
+      <div class="feroldi-row" data-tip="INDUSTRY: Demanda secular fuerte; pricing power limitado por regulación gubernamental (60% revenue). CON regulations = moat local."><span class="fr-name">1. Industry</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00d4ff;"></div></div><span class="fr-score-num">7</span></div>
+      <div class="feroldi-row" data-tip="BUSINESS MODEL: 60% dependencia pagadores gobierno. Recurrente en práctica (readmisiones, crónicas) pero no garantizado contractualmente."><span class="fr-name">2. Business Model</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00d4ff;"></div></div><span class="fr-score-num">6</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">📈 Crecimiento &amp; Valor</span><span class="fg-avg">7.0</span></div>
+      <div class="feroldi-row" data-tip="HISTORICAL GROWTH: Revenue +10% YoY 2025, EPS Adj +31%. CAGR consistente. Fuente: volume + pricing. Deceleración esperada a 6-8% en 2026."><span class="fr-name">3. Historical Growth</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00ff9d;"></div></div><span class="fr-score-num">8</span></div>
+      <div class="feroldi-row" data-tip="VALUE CREATION: CAGR modesto histórico 7.2%. Recompras recientes $899M 2025 son la dinámica más alentadora. Shares outstanding -12% en 5 años."><span class="fr-name">4. Historical Value</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00ff9d;"></div></div><span class="fr-score-num">6</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">🏰 Moat &amp; Capital</span><span class="fg-avg">5.5</span></div>
+      <div class="feroldi-row" data-tip="MOAT: Foso real en behavioral health (escala + CON). Limitado en acute care. No es consumer brand ni network effect. Foso regulatorio = vulnerable."><span class="fr-name">5. Moat</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#ffd700;"></div></div><span class="fr-score-num">6</span></div>
+      <div class="feroldi-row" data-tip="CAPITAL INTENSITY: CAPEX $1B (5.7% revenue). Alta intensidad inherente al sector hospitalario. Owner Earnings >FCF reportado por $680M."><span class="fr-name">6. Capital Intensity</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:50%;background:#ffd700;"></div></div><span class="fr-score-num">5</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">💸 Rentabilidad &amp; Balance</span><span class="fg-avg">6.5</span></div>
+      <div class="feroldi-row" data-tip="PROFITABILITY: Márgenes en expansión real. Net Margin 8.7%, EBITDA 15%. Owner Earnings $1.58B vs FCF $0.9B reportado. Parcialmente inflado por Medicaid supplemental."><span class="fr-name">7. Profitability</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00ff9d;"></div></div><span class="fr-score-num">7</span></div>
+      <div class="feroldi-row" data-tip="BALANCE SHEET: Deuda/EBITDA 1.76x manejable. Leverage D/E 67.5% no es fortaleza pero tampoco riesgo existencial. Current ratio 1.03x ajustado."><span class="fr-name">8. Balance Sheet</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00ff9d;"></div></div><span class="fr-score-num">6</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">🔄 Capital Return &amp; Mgmt</span><span class="fg-avg">7.5</span></div>
+      <div class="feroldi-row" data-tip="CAPITAL RETURN: Recompras $899M en 2025 + $1.5B auto adicional. Yield recompra ~12-13% a precios actuales. Dividendo simbólico 0.43%."><span class="fr-name">9. Capital Return</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#ffd700;"></div></div><span class="fr-score-num">8</span></div>
+      <div class="feroldi-row" data-tip="MANAGEMENT: Familia Miller control dual-class. CFO Filton 25+ años. Competente; precedentes calidad behavioral health reducen nota. No Imperativo Institucional detectado."><span class="fr-name">10. Management</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#ffd700;"></div></div><span class="fr-score-num">6</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">🎯 Allocation &amp; SBC</span><span class="fg-avg">7.5</span></div>
+      <div class="feroldi-row" data-tip="CAPITAL ALLOCATION: ROIC 10.1% > WACC 8-9%. Spread modesto. ROTC Buffett 22.5% superior. Buybacks a precio bajo = decisión EXCELENTE."><span class="fr-name">11. Capital Allocation</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00d4ff;"></div></div><span class="fr-score-num">7</span></div>
+      <div class="feroldi-row" data-tip="SBC: ~$80-100M/año. Dilución neta NEGATIVA (accretiva). Shares cayeron -12% en 5 años. Recompra supera ampliamente la dilución por stock awards."><span class="fr-name">12. SBC</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00d4ff;"></div></div><span class="fr-score-num">8</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">🔭 Outlook &amp; Opcionalidad</span><span class="fg-avg">7.5</span></div>
+      <div class="feroldi-row" data-tip="OUTLOOK: Guidance 2026 $18.6B revenue, $23.58 EPS mid. Conservadora históricamente. 75% EPS beat rate. Headwinds: $75M ACA + $35M California regs."><span class="fr-name">13. Outlook</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00ff9d;"></div></div><span class="fr-score-num">7</span></div>
+      <div class="feroldi-row" data-tip="OPTIONALITY: Thousand Branches outpatient, telemedicina behavioral, M&A capacidad, data monetization, joint ventures académicos. Múltiples palancas no valoradas."><span class="fr-name">14. Optionality</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00ff9d;"></div></div><span class="fr-score-num">8</span></div>
+    </div>
+    <div class="feroldi-group-card">
+      <div class="fg-header"><span class="fg-name">⚠️ Riesgos &amp; Valuación</span><span class="fg-avg">6.5</span></div>
+      <div class="feroldi-row" data-tip="RISKS: Medicaid supplemental $1.2B en riesgo post-2027. ACA subsidies expiry. Concentración TX/NV/CA. Litigación behavioral. Labor cost resurgence posible."><span class="fr-name">15. Risks</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:50%;background:#ff3a3a;"></div></div><span class="fr-score-num">5</span></div>
+      <div class="feroldi-row" data-tip="VALUATION: P/E 7.9x forward para EPS growth 7%. DCF $210-220. SOTP teórico $411. Infravalorada incluso en base case. FCF yield ~8%."><span class="fr-name">16. Valuation</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#ffd700;"></div></div><span class="fr-score-num">8</span></div>
+    </div>
+  </div>
+  <div class="z5-totals">
+    <div style="text-align:center;"><div class="z5-tot-val">108 / 160</div><div class="z5-tot-lbl">Score Total Feroldi</div></div>
+    <div style="text-align:center;"><div class="z5-tot-val">67.5%</div><div class="z5-tot-lbl">% Calidad</div></div>
+    <div style="text-align:center;"><div class="z5-tot-val" style="color:#00ff9d;">COMPRAR</div><div class="z5-tot-lbl">Veredicto</div></div>
+    <div style="text-align:center;"><div class="z5-tot-val" style="color:#ffd700;">P/E 7.9x</div><div class="z5-tot-lbl">Forward Multiple</div></div>
+    <div style="text-align:center;"><div class="z5-tot-val" style="color:#00d4ff;">2-5%</div><div class="z5-tot-lbl">Tamaño Posición</div></div>
+  </div>
+</div>
+
+<!-- ══════════ ZONA 6 ══════════ -->
+<div class="zona">
+  <div class="zona-title">ZONA 6 · RIESGOS · COMPETIDORES · VEREDICTO FINAL</div>
+  <div class="z6-rc-grid">
+    <div>
+      <div class="z6-tbl-title">⚠️ Riesgos Críticos</div>
+      <table class="z6-tbl">
+        <thead><tr><th>Riesgo</th><th>Nivel</th></tr></thead>
+        <tbody>
+          <tr><td>Medicaid Supplemental Cuts ($360-400M hacia 2032)</td><td class="badge-a">ALTO</td></tr>
+          <tr><td>ACA Subsidy Expiration ($50-100M headwind)</td><td class="badge-a">ALTO</td></tr>
+          <tr><td>Concentración TX/NV/CA (shock local)</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>Litigación behavioral health (Cumberland/Pavilion)</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>Labor cost resurgence (premium pay)</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>Governance dual-class (familia Miller)</td><td class="badge-b">BAJO-M</td></tr>
+        </tbody>
+      </table>
+      <div class="z6-tbl-title" style="margin-top:1.2rem;">🚀 Catalizadores 24M</div>
+      <table class="z6-tbl">
+        <thead><tr><th>Catalizador</th><th>Impacto</th></tr></thead>
+        <tbody>
+          <tr><td>Q1 2026 Earnings (27 Abr)</td><td class="badge-a">MUY ALTO</td></tr>
+          <tr><td>Decisión Congreso ACA subsidies H1 2026</td><td class="badge-a">MUY ALTO</td></tr>
+          <tr><td>Nuevas aprobaciones Medicaid supl. (estados)</td><td class="badge-a">ALTO</td></tr>
+          <tr><td>Thousand Branches ≥10 nuevas 2026</td><td class="badge-m">MEDIO</td></tr>
+          <tr><td>M&A transformacional behavioral health</td><td class="badge-a">MUY ALTO</td></tr>
+          <tr><td>Re-rating múltiplo si Medicaid se aclara</td><td class="badge-a">MUY ALTO</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="z6-tbl-title">🏆 Comparativa Competidores</div>
+      <div class="comp-tbl-wrap">
+        <table class="comp-tbl">
+          <thead><tr><th>Empresa</th><th>MktCap</th><th>P/E Fwd</th><th>EV/EBITDA</th><th>Rev Growth</th><th>Net Mgn</th></tr></thead>
+          <tbody>
+            <tr class="main-row"><td><strong>UHS</strong></td><td>$11.4B</td><td style="color:#00ff9d;font-weight:bold;">7.9x</td><td style="color:#00ff9d;">6.9x</td><td>+10%</td><td>8.7%</td></tr>
+            <tr><td>HCA Healthcare</td><td>$66B</td><td style="color:#ffbb00;">12x</td><td>10x</td><td>+7%</td><td>8.6%</td></tr>
+            <tr><td>Tenet Healthcare</td><td>$7.5B</td><td>9x</td><td>8x</td><td>+4%</td><td>6.5%</td></tr>
+            <tr><td>Acadia Healthcare</td><td>$1.3B</td><td style="color:#ff3a3a;">18x</td><td>14-18x</td><td>+8%</td><td>7%</td></tr>
+            <tr><td>Community Health Sys</td><td>$0.4B</td><td>N/D</td><td>7x</td><td>+2%</td><td>Neg</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Escenarios -->
+      <div style="margin-top:1.2rem;">
+        <div class="z6-tbl-title">📊 Escenarios Bear / Base / Bull</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem;margin-top:0.5rem;">
+          <div style="background:#200a0a;border:1px solid #ff3a3a;border-radius:0.4rem;padding:0.7rem;text-align:center;">
+            <div style="font-size:0.78rem;color:#ff6b6b;font-weight:bold;">🐻 BEAR</div>
+            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Medicaid cliff 2026<br>ACA expiración<br>5.5x EV/EBITDA</div>
+            <div style="font-size:1.3rem;font-weight:bold;color:#ff3a3a;">$154</div>
+            <div style="font-size:0.75rem;color:#ff6b6b;">-18% vs hoy</div>
+          </div>
+          <div style="background:#0a1f0a;border:2px solid #00ff9d;border-radius:0.4rem;padding:0.7rem;text-align:center;">
+            <div style="font-size:0.78rem;color:#00ff9d;font-weight:bold;">📊 BASE</div>
+            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Guidance cumplida<br>Medicaid estable<br>9x EV/EBITDA</div>
+            <div style="font-size:1.3rem;font-weight:bold;color:#00ff9d;">$225</div>
+            <div style="font-size:0.75rem;color:#00ff9d;">+21% vs hoy</div>
+          </div>
+          <div style="background:#0a1508;border:1px solid #ffd700;border-radius:0.4rem;padding:0.7rem;text-align:center;">
+            <div style="font-size:0.78rem;color:#ffd700;font-weight:bold;">🐂 BULL</div>
+            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Re-rating + outpatient<br>AI savings<br>11x EV/EBITDA</div>
+            <div style="font-size:1.3rem;font-weight:bold;color:#ffd700;">$295</div>
+            <div style="font-size:0.75rem;color:#ffd700;">+58% vs hoy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verdict final -->
+  <div class="z6-verdict">
+    <div class="z6-verdict-badge">✅ COMPRAR — POSICIÓN MEDIANA (2–5%)</div>
+    <div class="z6-thesis">
+      UHS cotiza a 7.9x EPS forward para un negocio con 21% ROE, FCF yield ~8%, recompras al 12-13% yield y opcionalidad real en outpatient behavioral + AI + M&A. El mercado descuenta el riesgo Medicaid como si fuera un evento de 2026, cuando es gradual (inicio 2028), mitigable y con tiempo de respuesta operativa. Score Feroldi 108/160 (67.5%). R/R mínimo 1:3.8 hacia caso base.
+    </div>
+    <div class="z6-sl-tp">
+      <div class="sl-tp-item"><div class="sl-tp-label">Entrada</div><div class="sl-tp-val" style="color:#00d4ff;">$186.80</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">🛑 Stop Loss</div><div class="sl-tp-val" style="color:#ff3a3a;">$161.00</div><div style="font-size:0.7rem;color:#94a3b8;">-13.8%</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP1</div><div class="sl-tp-val" style="color:#00ff9d;">$220.00</div><div style="font-size:0.7rem;color:#94a3b8;">+17.8%</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP2</div><div class="sl-tp-val" style="color:#00ff9d;">$260.00</div><div style="font-size:0.7rem;color:#94a3b8;">+39.2%</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP Bull</div><div class="sl-tp-val" style="color:#ffd700;">$285.00</div><div style="font-size:0.7rem;color:#94a3b8;">+52.6%</div></div>
+      <div class="sl-tp-item"><div class="sl-tp-label">R/R mín.</div><div class="sl-tp-val" style="color:#ffd700;">1 : 3.8</div></div>
+    </div>
+    <div class="z6-brand">@patonet · Análisis Feroldi · UHS · 8 Abr 2026</div>
+  </div>
+</div>
+
+<!-- Popups -->
+<div class="popup-overlay" id="overlay" onclick="document.querySelectorAll('.popup-box').forEach(p=>p.style.display='none');this.style.display='none';"></div>
+<div class="popup-box" id="resumenPopup">
+  <span class="popup-close" onclick="this.parentElement.style.display='none';document.getElementById('overlay').style.display='none';">✕</span>
+  <h3>Resumen Ejecutivo — $UHS</h3>
+  <p>Universal Health Services genera ingresos mediante la operación de 28 hospitales de cuidados agudos y 331+ centros de salud conductual inpatient, cobrando a Medicare, Medicaid y aseguradoras privadas por cada admisión, día-paciente y visita de urgencia.</p><br>
+  <p>La calidad económica es sólida: ROE 21%, EBITDA margin 15%, FCF operativo $1.9B en 2025. El foso reside en la escala behavioral health (la red más grande de EE.UU.) y en los certificados de necesidad estatales que limitan nuevos competidores.</p><br>
+  <p>El riesgo principal es la dependencia de pagos suplementarios Medicaid ($1.2B beneficio anual) que comenzarán a reducirse en 2028. A P/E 7.9x forward, el mercado descuenta este riesgo como si fuera inminente, cuando es gradual y mitigable.</p><br>
+  <p><em>"UHS es un negocio defensivo de alta generación de caja que cotiza como si el deterioro de Medicaid fuera inminente, cuando en realidad es gradual y parcialmente mitigable."</em></p>
+</div>
+<div id="feroldiPopup"></div>
+
+<footer style="padding:0.8rem 1.5rem;background:#020710;border-top:1px solid #0d2040;text-align:center;font-size:0.78rem;color:#94a3b8;">
+  <strong style="color:#ffd700;">@patonet</strong> · Método Feroldi 16pts + Buffett/Munger/Kaufman · NYSE: $UHS · $186.80 · 8 Abr 2026 · 
+  Fuentes: SEC EDGAR · Becker's Hospital Review · StockAnalysis · TradingView API · UHS IR ·
+  <span style="color:#ff9800;">No constituye asesoría de inversión</span>
+</footer>
+
+<script>
+const FEROLDI_DATA = {
+  labels:['Industry','Biz Model','Growth','Value Creation','Moat','Cap Intensity','Profitability','Balance Sheet','Cap Return','Management','Cap Alloc','SBC','Outlook','Optionality','Risks','Valuation'],
+  scores:[7,6,8,6,6,5,7,6,8,6,7,8,7,8,5,8]
+};
+
+// C1 Revenue + NI
+new Chart(document.getElementById('c1'),{
+  type:'bar',
+  data:{
+    labels:['2021','2022','2023','2024','2025','2026E'],
+    datasets:[
+      {label:'Revenue ($B)',data:[12.6,13.1,14.3,15.8,17.4,18.6],backgroundColor:'rgba(0,212,255,0.6)',borderColor:'#00d4ff',borderWidth:1,yAxisID:'y'},
+      {label:'Net Income ($B)',data:[0.5,0.7,0.72,1.14,1.50,1.72],backgroundColor:'rgba(0,255,157,0.6)',borderColor:'#00ff9d',borderWidth:1,yAxisID:'y'},
+      {label:'Margen Neto (%)',data:[4.0,5.3,5.0,7.2,8.7,9.2],type:'line',borderColor:'rgba(255,165,0,0.8)',backgroundColor:'transparent',pointBackgroundColor:'orange',tension:0.3,yAxisID:'y2'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',font:{size:10}}},y2:{position:'right',beginAtZero:true,max:15,grid:{display:false},ticks:{color:'#ff9800',font:{size:10},callback:v=>v+'%'}},x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#94a3b8',font:{size:10}}}}}
+});
+
+// C2 Waterfall EPS
+const waterCtx = document.getElementById('c2');
+new Chart(waterCtx,{
+  type:'bar',
+  data:{
+    labels:['EPS 2024','Vol+Price','Labor Norm','Medicaid Supl','SBC/Interest','EPS 2025','Growth','ACA Headwind','CA Regs','Buybacks','EPS 2026E'],
+    datasets:[{
+      data:[16.61,3.5,2.2,1.8,-0.7,22.07,2.0,-0.4,-0.2,1.0,23.58],
+      backgroundColor:['#1a3a6e','#00ff9d','#00ff9d','#00c853','#ff3a3a','#1a3a6e','#00ff9d','#ff3a3a','#ff3a3a','#00c853','#1565C0'],
+      borderColor:'transparent',borderWidth:0
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'EPS: $'+ctx.raw}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:8},maxRotation:35}},y:{beginAtZero:false,min:14,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',font:{size:9},callback:v=>'$'+v}}}}
+});
+
+// C3 Donut costos
+new Chart(document.getElementById('c3'),{
+  type:'doughnut',
+  data:{
+    labels:['Salarios 46.6%','Otros Op. 28.2%','Supplies 9.8%','Op. Income 11.5%','D&A 3.5%','Intereses 0.4%'],
+    datasets:[{data:[46.6,28.2,9.8,11.5,3.5,0.4],backgroundColor:['#ff3a3a','#ff9800','#ff6b35','#00ff9d','#9c27b0','#607d8b'],borderColor:'#050a12',borderWidth:2}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}},cutout:'60%'}
+});
+
+// C4 Price / PT chart
+new Chart(document.getElementById('c4'),{
+  type:'line',
+  data:{
+    labels:['Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr26'],
+    datasets:[
+      {label:'Precio $UHS',data:[177,185,198,152,178,200,215,240,230,210,195,175,187],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.08)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#00d4ff'},
+      {label:'PT Bull (UBS $280)',data:[280,280,280,280,280,280,280,280,280,280,280,280,280],borderColor:'rgba(0,255,157,0.4)',borderDash:[5,5],pointRadius:0},
+      {label:'PT Consenso ~$240',data:[240,240,240,240,240,240,240,240,240,240,232,232,232],borderColor:'rgba(255,215,0,0.5)',borderDash:[3,3],pointRadius:0},
+      {label:'PT Bear (JPM $195)',data:[195,195,195,195,195,195,195,195,195,195,195,195,195],borderColor:'rgba(255,58,58,0.4)',borderDash:[5,5],pointRadius:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10},boxWidth:12}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#94a3b8',font:{size:10},callback:v=>'$'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// C5 Spider
+new Chart(document.getElementById('c5'),{
+  type:'radar',
+  data:{
+    labels:['Industria','Crecimiento','Rentabilidad','Moat & Cap','Retorno Capital'],
+    datasets:[{
+      label:'UHS',
+      data:[6.5,7.0,6.5,5.5,7.5],
+      borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.15)',pointBackgroundColor:'#00d4ff',pointRadius:5,borderWidth:2
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#94a3b8',font:{size:12}},angleLines:{color:'rgba(255,255,255,0.1)'}}},plugins:{legend:{display:false}}}
+});
+
+// Feroldi row tooltips
+document.querySelectorAll('.feroldi-row').forEach(row=>{
+  row.addEventListener('mouseenter',function(e){
+    const fp=document.getElementById('feroldiPopup');
+    fp.innerHTML=this.dataset.tip||'';
+    fp.style.display='block';
+  });
+  row.addEventListener('mousemove',function(e){
+    const fp=document.getElementById('feroldiPopup');
+    fp.style.left=Math.min(e.clientX+12,window.innerWidth-300)+'px';
+    fp.style.top=Math.max(e.clientY-60,10)+'px';
+  });
+  row.addEventListener('mouseleave',function(){
+    document.getElementById('feroldiPopup').style.display='none';
+  });
+});
+</script>
+</body>
+</html>
+
+--- FIN PLANTILLA INFOGRAFÍA ---
+
+INSTRUCCIONES DE ADAPTACIÓN:
+1. Cambiar ticker, nombre empresa, exchange, precio, fecha, sector.
+2. Reemplazar todos los datos financieros (revenue, EBITDA, net income, márgenes, EPS, P/E, PEG, etc.) con los del ticker actual.
+3. Actualizar Bloque A (resumen ejecutivo), Bloque D (análisis IA), Bloque E (CEO), Bloque F (escenarios).
+4. Actualizar la tabla Feroldi Scorecard (Zona 5) con los 16 puntos y scores del análisis actual.
+5. Actualizar la tabla de competidores (Zona 6) con los peers del ticker actual.
+6. Ajustar barra 52W con min/max/precio actual del ticker actual.
+7. Semáforo IA: activar la luz correcta (verde/naranja/rojo) según Bloque D.
+8. Performance bar: obtener datos de TradingView Scanner API para el ticker actual.
+9. Mini-semáforos B0: reflejar resultados B0.1, B0.2, B0.3 y veredicto del análisis actual.
+10. Logo: usar Clearbit (logo.clearbit.com/dominio.com) con fallback iniciales.
+11. Gauge Feroldi: ajustar la aguja al score actual (XXX/160).
+12. Nombre archivo de salida: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
 
 Responsividad: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
 
@@ -590,7 +1223,7 @@ Carpeta GitHub: diagramas/equities/
 User: patonet | Repo: informes | Token: {{GITHUB_TOKEN}}
 
 PASO 1: PUT del archivo generado a su carpeta.
-PASO 2: Actualizar REPORTS en index.html con el nuevo entry. SIEMPRE hacer esto.
+PASO 2: Leer index.html actual con GET. Localizar const REPORTS = [. Agregar nuevo entry al INICIO del array (primer elemento). Hacer PUT de index.html actualizado. SIEMPRE hacer esto — el dashboard solo se actualiza si este paso se completa.
 
 VEREDICTOS EN REPORTS — EN INGLÉS OBLIGATORIO:
 COMPRAR FUERTE        → "buy"
