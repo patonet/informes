@@ -1,1258 +1,1107 @@
-[E1]
-
-GENERADOR DE INFORMES — EQUITY v13.0
-@patonet
-
-===========================================================
-TABLA DE COMANDOS
-===========================================================
-
-| Comando    | Acción ÚNICA                                                  |
-|------------|---------------------------------------------------------------|
-| INFOGRAFIA | Generar infografía HTML interactiva                           |
-| PDF        | Generar informe PDF profesional                               |
-| INGRESOS   | Generar diagrama Sankey HTML del flujo de dinero              |
-| TODO       | INFOGRAFIA + PDF + INGRESOS en ese orden                      |
-
-===========================================================
-1. REGLAS GENERALES
-===========================================================
-
-Datos: usar los del informe Heavy ya completado. No re-buscar.
-LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
-Idioma: español. EXCEPCIÓN: campo verdict en REPORTS de index.html → siempre en inglés.
-Todo archivo generado se sube a GitHub sin excepción.
-Después de subir cada archivo → actualizar REPORTS en index.html (ver sección 5).
-
-NOMBRES DE ARCHIVOS:
-- Infografía:  infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
-- PDF:         InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf
-- Sankey:      Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
-
-CARPETAS GitHub:
-- Infografías: equities/
-- PDFs:        pdfs/equities/
-- Sankeys:     diagramas/equities/
-
-===========================================================
-2. INFOGRAFÍA HTML
-===========================================================
-
-PLANTILLA EMBEBIDA — REFERENCIA ORO (UHS):
-La siguiente es la infografía HTML completa de referencia. Replicar EXACTAMENTE su estructura,
-CSS, zonas, popups, semáforo y gauge. Solo cambiar los datos del ticker actual.
-NO hacer ningún web_fetch — la referencia ya está aquí.
-
---- INICIO PLANTILLA INFOGRAFÍA ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UHS · $186.80 · Informe Feroldi | @patonet</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:clamp(10px,1.15vw,17px);}
-body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.4;overflow-x:hidden;}
-body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999;}
-.info-header{background:#020710;border-bottom:1px solid #0d2040;padding:0.4rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
-.info-header .brand{font-size:0.85rem;color:#ffd700;font-weight:bold;letter-spacing:0.1em;}
-.info-header .ts{font-size:0.78rem;color:#94a3b8;font-family:'Courier New',monospace;}
-.zona{width:100%;padding:1.5rem;border-bottom:2px solid #0a1825;overflow:hidden;}
-.zona-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.18em;color:#00d4ff;border-bottom:1px solid #1a3a6e;padding-bottom:0.4rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:0.5rem;}
-.zona-title::before{content:'';display:block;width:0.3rem;height:1rem;background:#00d4ff;border-radius:0.1rem;}
-
-/* Z1 */
-.z1-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:2rem;align-items:start;}
-.z1-logo-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.6rem;}
-.company-logo{height:3.5rem;width:auto;object-fit:contain;border-radius:0.3rem;filter:drop-shadow(0 0 8px rgba(0,212,255,0.3));}
-.logo-fallback{width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:0.4rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#00d4ff;}
-.company-name{font-size:2rem;font-weight:800;color:#fff;line-height:1.1;letter-spacing:-0.02em;}
-.company-meta{font-size:0.85rem;color:#94a3b8;margin-top:0.2rem;}
-.frase-cursiva{font-style:italic;font-size:1rem;color:#00d4ff;background:#050f20;border-left:3px solid #00d4ff;padding:0.6rem 1rem;border-radius:0 0.3rem 0.3rem 0;margin-top:0.6rem;}
-.barra-52w{margin-top:1rem;}
-.barra-52w-labels{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.35rem;}
-.lbl-min{color:#ff3a3a;}.lbl-max{color:#00ff9d;}
-.barra-track{position:relative;height:0.45rem;background:#1a2a4a;border-radius:0.25rem;}
-.barra-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#ff3a3a,#ffd700,#00ff9d);border-radius:0.25rem;width:17%;}
-.barra-marker{position:absolute;top:-0.3rem;left:17%;width:1rem;height:1rem;background:#00d4ff;border-radius:50%;transform:translateX(-50%);border:2px solid #050a12;box-shadow:0 0 6px #00d4ff;}
-.barra-pct{font-size:0.8rem;color:#00d4ff;margin-top:0.3rem;font-family:'Courier New',monospace;}
-.perf-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:0.15rem;background:#080f1c;border-radius:0.4rem;padding:0.6rem 0.4rem;margin-top:0.8rem;border:1px solid #0d1f35;}
-.perf-cell{display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.25rem 0.1rem;border-right:1px solid #1a2a4a;}
-.perf-cell:last-child{border-right:none;}
-.perf-lbl{font-size:0.72rem;color:#94a3b8;text-align:center;}
-.perf-val{font-size:0.88rem;font-weight:bold;font-family:'Courier New',monospace;}
-.pos{color:#00c853;}.neg{color:#e53935;}.nd{color:#555;}
-.z1-price-panel{display:flex;flex-direction:column;gap:1rem;}
-.price-main{font-size:2.6rem;font-weight:800;font-family:'Courier New',monospace;color:#fff;line-height:1;}
-.price-delta{font-size:1rem;font-family:'Courier New',monospace;color:#00c853;}
-.verdict-badge{padding:0.6rem 1.5rem;border-radius:0.4rem;font-size:0.95rem;font-weight:bold;text-align:center;letter-spacing:0.06em;background:#006400;color:#00ff9d;display:inline-block;box-shadow:0 0 20px rgba(0,100,0,0.5);}
-.score-ia-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
-.score-card{background:#0d1f35;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.5rem 0.8rem;text-align:center;}
-.score-val{font-size:1.8rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
-.score-lbl{font-size:0.72rem;color:#94a3b8;margin-top:0.1rem;}
-.ia-semaforo-wrap{display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
-.ia-text{font-size:0.82rem;font-weight:bold;color:#ffd700;text-align:center;}
-
-/* B0 semaforos */
-.b0-row{display:flex;gap:0.6rem;margin-top:0.6rem;flex-wrap:wrap;}
-.b0-item{display:flex;align-items:center;gap:0.3rem;background:#080f1c;border-radius:0.3rem;padding:0.3rem 0.5rem;font-size:0.75rem;border:1px solid #1a2a4a;cursor:pointer;position:relative;}
-.b0-dot{width:0.6rem;height:0.6rem;border-radius:50%;flex-shrink:0;}
-.b0-label{color:#94a3b8;}
-.b0-result{font-weight:bold;}
-.b0-green{color:#00ff9d;}.b0-yellow{color:#ffd700;}.b0-red{color:#ff3a3a;}
-.b0-tooltip{display:none;position:absolute;bottom:110%;left:0;background:#0a1628;border:1px solid #ffd700;border-radius:0.4rem;padding:0.6rem;font-size:0.75rem;color:#c8d8f0;min-width:16rem;z-index:100;line-height:1.4;}
-.b0-item:hover .b0-tooltip{display:block;}
-
-/* Z2 */
-.z2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem;}
-.z2-group{background:#080f1c;border-radius:0.4rem;padding:0.8rem;border:1px solid #0d1f35;}
-.z2-group-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid #0d1f35;}
-.z2-cards{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;}
-.z2-card{background:#0d1828;padding:0.5rem 0.6rem;border-radius:0.3rem;}
-.z2-val{font-size:1.25rem;font-family:'Courier New',monospace;font-weight:bold;color:#fff;}
-.z2-lbl{font-size:0.78rem;color:#94a3b8;margin-top:0.1rem;}
-.ind{display:inline-block;width:0.5rem;height:0.5rem;border-radius:50%;margin-left:0.3rem;vertical-align:middle;}
-.ind-g{background:#00ff9d;}.ind-y{background:#ffbb00;}.ind-r{background:#ff3a3a;}
-
-/* Z3 */
-.zona3-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;width:100%;align-items:start;}
-.zona3-chart{display:flex;flex-direction:column;width:100%;}
-.zona3-chart h3{font-size:0.85rem;color:#94a3b8;margin-bottom:0.5rem;text-align:center;}
-.zona3-chart .chart-wrap{position:relative;width:100%;aspect-ratio:4/3;}
-.zona3-chart .chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
-.legend-custom{display:flex;gap:0.8rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;}
-.leg-item{display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:#94a3b8;}
-.leg-box{width:0.7rem;height:0.7rem;border-radius:0.1rem;}
-
-/* Z4 */
-.z4-chart-wrap{position:relative;width:100%;aspect-ratio:16/5;margin-bottom:1rem;}
-.z4-chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
-.z4-analyst-summary{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:1rem;background:#080f1c;border-radius:0.4rem;border:1px solid #0d1f35;}
-.analyst-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:0.5rem;margin-top:0.8rem;}
-.analyst-item{display:flex;justify-content:space-between;align-items:center;background:#0a1628;padding:0.4rem 0.6rem;border-radius:0.3rem;font-size:0.83rem;}
-.analyst-bank{color:#94a3b8;}.analyst-rating{font-weight:bold;color:#00d4ff;}.analyst-pt{font-family:'Courier New',monospace;font-weight:bold;color:#00ff9d;}
-
-/* Z5 Spider */
-.z5-spider-title{font-size:1.2rem;font-weight:bold;color:#00d4ff;text-align:center;margin-bottom:1rem;}
-.z5-spider-wrap{width:100%;max-width:40rem;margin:0 auto;}
-.z5-scorecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.5rem;}
-.feroldi-group-card{background:#0a1628;border:1px solid #1a3a6e;border-radius:0.5rem;padding:1rem;}
-.fg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;padding-bottom:0.4rem;border-bottom:1px solid #1a3a6e;}
-.fg-name{font-size:0.92rem;font-weight:bold;color:#00d4ff;}
-.fg-avg{font-size:1.5rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
-.feroldi-row{cursor:pointer;padding:0.3rem 0.2rem;border-radius:0.2rem;transition:background 0.15s;display:flex;align-items:center;gap:0.5rem;}
-.feroldi-row:hover{background:#0d1f35;}
-.fr-name{font-size:0.83rem;color:#c8d8f0;flex:1;}
-.fr-bar-wrap{flex:1;height:0.4rem;background:#1a2a4a;border-radius:0.2rem;overflow:hidden;}
-.fr-bar{height:100%;border-radius:0.2rem;}
-.fr-score-num{text-align:center;font-size:1rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;min-width:2rem;}
-.z5-totals{margin-top:1.5rem;padding:1rem 1.5rem;background:#0d1f35;border-radius:0.4rem;display:flex;gap:2rem;justify-content:center;align-items:center;flex-wrap:wrap;border:1px solid #1a3a6e;}
-.z5-tot-val{font-size:1.6rem;font-weight:bold;color:#ffd700;font-family:'Courier New',monospace;}
-.z5-tot-lbl{font-size:0.83rem;color:#94a3b8;text-align:center;}
-
-/* Z6 */
-.z6-rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
-.z6-tbl-title{font-size:0.95rem;font-weight:bold;color:#00d4ff;margin-bottom:0.7rem;}
-.z6-tbl{width:100%;border-collapse:collapse;font-size:0.83rem;}
-.z6-tbl th{background:#0d1f35;color:#94a3b8;padding:0.45rem 0.6rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;}
-.z6-tbl td{padding:0.45rem 0.6rem;border-bottom:1px solid #0a1628;}
-.z6-tbl tr:hover td{background:#0a1628;}
-.badge-a{color:#ff3a3a;font-weight:bold;}.badge-m{color:#ffbb00;font-weight:bold;}.badge-b{color:#00ff9d;font-weight:bold;}
-.comp-tbl{width:100%;border-collapse:collapse;font-size:0.82rem;}
-.comp-tbl th{background:#0d1f35;color:#94a3b8;padding:0.5rem 0.6rem;text-align:left;font-size:0.76rem;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;}
-.comp-tbl td{padding:0.45rem 0.6rem;border-bottom:1px solid #0a1628;white-space:nowrap;}
-.comp-tbl .main-row td{background:#0d1f35;border-left:3px solid #00d4ff;}
-.z6-verdict{margin-top:1.5rem;padding:1.5rem 2rem;background:#0a1628;border-radius:0.6rem;border:1px solid #006400;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.8rem;}
-.z6-verdict-badge{font-size:1.4rem;font-weight:bold;padding:0.6rem 2.5rem;border-radius:0.4rem;background:#006400;color:#00ff9d;box-shadow:0 0 30px rgba(0,100,0,0.5);}
-.z6-thesis{font-size:0.95rem;color:#c8d8f0;max-width:52rem;line-height:1.6;}
-.z6-sl-tp{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;}
-.sl-tp-item{background:#080f1c;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.5rem 1rem;text-align:center;}
-.sl-tp-label{font-size:0.75rem;color:#94a3b8;}
-.sl-tp-val{font-size:1.1rem;font-weight:bold;font-family:'Courier New',monospace;}
-.z6-brand{font-size:1rem;font-weight:bold;color:#ffd700;margin-top:0.5rem;letter-spacing:0.05em;}
-.popup-box{display:none;position:fixed;background:#0a1628;border:2px solid #00d4ff;border-radius:0.8rem;padding:1.5rem;max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.93rem;color:#c8d8f0;box-shadow:0 0 40px rgba(0,212,255,0.3);line-height:1.6;top:50%;left:50%;transform:translate(-50%,-50%);}
-.popup-box h3{color:#00d4ff;margin-bottom:0.8rem;font-size:1.1rem;}
-.popup-close{position:absolute;top:0.8rem;right:1rem;font-size:1.2rem;cursor:pointer;color:#94a3b8;}
-.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;}
-#feroldiPopup{position:fixed;display:none;background:#0d1f35;border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;font-size:0.88rem;color:#c8d8f0;z-index:9999;pointer-events:none;box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;}
-
-/* waterfall helpers */
-.wf-pos{fill:#00ff9d;}.wf-neg{fill:#ff3a3a;}.wf-base{fill:#1a3a6e;}
-</style>
-</head>
-<body>
-
-<div class="info-header">
-  <div class="brand">@patonet · Research Terminal</div>
-  <div class="ts">NYSE: UHS · $186.80 · 08 Abr 2026 · Método Feroldi 16pts + Buffett</div>
-</div>
-
-<!-- ══════════ ZONA 1 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 1 · CABECERA Y RESUMEN</div>
-  <div class="z1-grid">
-    <div>
-      <div class="z1-logo-row">
-        <img class="company-logo" src="https://logo.clearbit.com/uhs.com" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" alt="UHS">
-        <div class="logo-fallback">UHS</div>
-        <div>
-          <div class="company-name">Universal Health Services</div>
-          <div class="company-meta">NYSE: UHS · Healthcare · King of Prussia, PA · Fundada 1979</div>
-        </div>
-      </div>
-      <div class="frase-cursiva" onclick="document.getElementById('resumenPopup').style.display='block';document.getElementById('overlay').style.display='block';">
-        "UHS es un negocio defensivo de alta generación de caja que cotiza como si el deterioro de Medicaid fuera inminente, cuando en realidad es gradual y parcialmente mitigable."
-      </div>
-      <div class="barra-52w" style="margin-top:1rem;">
-        <div class="barra-52w-labels">
-          <span class="lbl-min">52W Low: $152.33</span>
-          <span style="color:#00d4ff;font-family:'Courier New',monospace;font-size:0.85rem;">$186.80 actual</span>
-          <span class="lbl-max">52W High: $246.33</span>
-        </div>
-        <div class="barra-track"><div class="barra-fill"></div><div class="barra-marker"></div></div>
-        <div class="barra-pct">Posición en rango 52W: 17% desde mínimo · ATH: $246.33 (Nov 26, 2025)</div>
-      </div>
-      <div class="perf-bar">
-        <div class="perf-cell"><span class="perf-lbl">1D</span><span class="perf-val pos">+3.15%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">5D</span><span class="perf-val pos">+6.37%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">1M</span><span class="perf-val neg">-1.16%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">3M</span><span class="perf-val neg">-10.81%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">6M</span><span class="perf-val neg">-8.03%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">YTD</span><span class="perf-val neg">-14.47%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">1Y</span><span class="perf-val pos">+5.04%</span></div>
-        <div class="perf-cell"><span class="perf-lbl">5Y</span><span class="perf-val pos">+35.4%</span></div>
-      </div>
-      <!-- B0 Mini semaforos -->
-      <div class="b0-row">
-        <div class="b0-item">
-          <span class="b0-dot" style="background:#ffd700"></span>
-          <span class="b0-label">B0.1 Círculo</span>
-          <span class="b0-result b0-yellow">AMARILLO</span>
-          <div class="b0-tooltip">Modelo comprensible: hospitales de agudos + behavioral health. 60% dependencia pagadores gubernamentales. Driver primario: admisiones hospitalarias cobradas a Medicare/Medicaid/seguros.</div>
-        </div>
-        <div class="b0-item">
-          <span class="b0-dot" style="background:#ffd700"></span>
-          <span class="b0-label">B0.2 Simplicidad</span>
-          <span class="b0-result b0-yellow">AMARILLO</span>
-          <div class="b0-tooltip">4 factores de complejidad: contabilidad no estándar (Adj EBITDA), regulatorio intenso (Medicaid/CMS), sensibilidad macro (ACA subsidies), multimoneda (UK ops).</div>
-        </div>
-        <div class="b0-item">
-          <span class="b0-dot" style="background:#00ff9d"></span>
-          <span class="b0-label">B0.3 Predictibilidad</span>
-          <span class="b0-result b0-green">VERDE</span>
-          <div class="b0-tooltip">Guidance anual explícita. Historial beat+raise consistente (75% EPS beats). Ingresos recurrentes con contratos multi-año managed care. Demanda secular behavioral health.</div>
-        </div>
-        <div class="b0-item">
-          <span class="b0-dot" style="background:#00ff9d"></span>
-          <span class="b0-label">B0 Veredicto</span>
-          <span class="b0-result b0-green">PROCEDER</span>
-          <div class="b0-tooltip">2 AMARILLO + 1 VERDE = análisis continúa. Alerta: riesgo Medicaid supplemental ($1.2B beneficio en riesgo post-2027) presente en todo el análisis.</div>
-        </div>
-      </div>
-    </div>
-    <div class="z1-price-panel">
-      <div>
-        <div class="price-main">$186.80</div>
-        <div class="price-delta">▲ +3.15% hoy · -14.47% YTD · -24.2% vs ATH</div>
-      </div>
-      <div class="verdict-badge" onclick="document.getElementById('resumenPopup').style.display='block';document.getElementById('overlay').style.display='block';" style="cursor:pointer;">
-        ✅ COMPRAR — POSICIÓN MEDIANA
-      </div>
-      <div class="score-ia-row">
-        <div class="score-card">
-          <div class="score-val">108</div>
-          <div class="score-lbl">Score / 160</div>
-        </div>
-        <div class="score-card">
-          <div class="score-val">67.5%</div>
-          <div class="score-lbl">% Feroldi</div>
-        </div>
-        <div class="score-card">
-          <div class="score-val">0.58</div>
-          <div class="score-lbl">PEG Ratio</div>
-        </div>
-      </div>
-      <!-- IA Semaforo -->
-      <div class="ia-semaforo-wrap">
-        <svg width="48" height="120" viewBox="0 0 48 120" style="display:block;margin:0 auto;">
-          <rect x="4" y="4" width="40" height="112" rx="8" fill="#1a2a4a" stroke="#333" stroke-width="1.5"/>
-          <circle cx="24" cy="28" r="12" fill="#333"/>
-          <circle cx="24" cy="60" r="12" fill="#ffd700" filter="url(#gl)"/>
-          <circle cx="24" cy="92" r="12" fill="#333"/>
-          <defs><filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-        </svg>
-        <div class="ia-text">🤖 IA: NARANJA<br><span style="font-size:0.72rem;color:#94a3b8;">Amiga 1-3a / Riesgo 5-10a</span></div>
-      </div>
-      <!-- Próx earnings -->
-      <div style="background:#0d1f35;border:1px solid #1a3a6e;border-radius:0.4rem;padding:0.6rem 0.8rem;font-size:0.83rem;">
-        <span style="color:#ffd700;">📅 Próximo Earnings:</span>
-        <span style="font-weight:bold;color:#fff;margin-left:0.5rem;">27 Abr 2026</span>
-        <div style="color:#94a3b8;font-size:0.78rem;margin-top:0.2rem;">EPS consenso Q1 2026E: $5.41 | Rev: $4.39B</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ ZONA 2 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 2 · KEY STATS — FY2025 / TTM</div>
-  <div class="z2-grid">
-    <div class="z2-group">
-      <div class="z2-group-title">💰 Valoración</div>
-      <div class="z2-cards">
-        <div class="z2-card"><div class="z2-val">7.9x<span class="ind ind-g"></span></div><div class="z2-lbl">P/E Forward</div></div>
-        <div class="z2-card"><div class="z2-val">8.1x<span class="ind ind-g"></span></div><div class="z2-lbl">P/E TTM</div></div>
-        <div class="z2-card"><div class="z2-val">6.9x<span class="ind ind-g"></span></div><div class="z2-lbl">EV/EBITDA</div></div>
-        <div class="z2-card"><div class="z2-val">0.58<span class="ind ind-g"></span></div><div class="z2-lbl">PEG Ratio</div></div>
-        <div class="z2-card"><div class="z2-val">~$11.4B</div><div class="z2-lbl">Market Cap</div></div>
-        <div class="z2-card"><div class="z2-val">1.85x</div><div class="z2-lbl">P/B Ratio</div></div>
-      </div>
-    </div>
-    <div class="z2-group">
-      <div class="z2-group-title">📈 Rentabilidad</div>
-      <div class="z2-cards">
-        <div class="z2-card"><div class="z2-val">21.4%<span class="ind ind-g"></span></div><div class="z2-lbl">ROE TTM</div></div>
-        <div class="z2-card"><div class="z2-val">22.5%<span class="ind ind-g"></span></div><div class="z2-lbl">ROTC (Buffett)</div></div>
-        <div class="z2-card"><div class="z2-val">8.7%<span class="ind ind-y"></span></div><div class="z2-lbl">Net Margin</div></div>
-        <div class="z2-card"><div class="z2-val">11.5%<span class="ind ind-y"></span></div><div class="z2-lbl">Op. Margin</div></div>
-        <div class="z2-card"><div class="z2-val">15.0%<span class="ind ind-y"></span></div><div class="z2-lbl">EBITDA Mgn</div></div>
-        <div class="z2-card"><div class="z2-val">10.1%<span class="ind ind-y"></span></div><div class="z2-lbl">ROIC Reportado</div></div>
-      </div>
-    </div>
-    <div class="z2-group">
-      <div class="z2-group-title">🚀 Crecimiento</div>
-      <div class="z2-cards">
-        <div class="z2-card"><div class="z2-val">+10%<span class="ind ind-g"></span></div><div class="z2-lbl">Rev YoY FY25</div></div>
-        <div class="z2-card"><div class="z2-val">+31%<span class="ind ind-g"></span></div><div class="z2-lbl">EPS Adj YoY FY25</div></div>
-        <div class="z2-card"><div class="z2-val">+7%<span class="ind ind-y"></span></div><div class="z2-lbl">Rev 2026E</div></div>
-        <div class="z2-card"><div class="z2-val">+7.4%<span class="ind ind-y"></span></div><div class="z2-lbl">EPS 2026E</div></div>
-        <div class="z2-card"><div class="z2-val">$18.6B</div><div class="z2-lbl">Rev Guide 2026</div></div>
-        <div class="z2-card"><div class="z2-val">$23.58</div><div class="z2-lbl">EPS Guide 2026 (mid)</div></div>
-      </div>
-    </div>
-    <div class="z2-group">
-      <div class="z2-group-title">🛡️ Balance &amp; Riesgo</div>
-      <div class="z2-cards">
-        <div class="z2-card"><div class="z2-val">67.5%<span class="ind ind-y"></span></div><div class="z2-lbl">Deuda/Equity</div></div>
-        <div class="z2-card"><div class="z2-val">1.76x<span class="ind ind-g"></span></div><div class="z2-lbl">Deuda/EBITDA</div></div>
-        <div class="z2-card"><div class="z2-val">1.03x<span class="ind ind-y"></span></div><div class="z2-lbl">Current Ratio</div></div>
-        <div class="z2-card"><div class="z2-val">$1.9B<span class="ind ind-g"></span></div><div class="z2-lbl">FCF Operativo</div></div>
-        <div class="z2-card"><div class="z2-val">0.43%</div><div class="z2-lbl">Div. Yield</div></div>
-        <div class="z2-card"><div class="z2-val">$0.80<span class="ind ind-y"></span></div><div class="z2-lbl">Dividendo/año</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ ZONA 3 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 3 · HISTÓRICO FINANCIERO · WATERFALL · MIX COSTOS</div>
-  <div class="zona3-inner">
-    <div class="zona3-chart">
-      <h3>Revenue + Net Income (2021–2026E)</h3>
-      <div class="chart-wrap"><canvas id="c1"></canvas></div>
-      <div class="legend-custom">
-        <div class="leg-item"><div class="leg-box" style="background:#00d4ff"></div>Revenue ($B)</div>
-        <div class="leg-item"><div class="leg-box" style="background:#00ff9d"></div>Net Income ($B)</div>
-        <div class="leg-item"><div class="leg-box" style="background:rgba(255,165,0,0.7)"></div>Margen Neto (%)</div>
-      </div>
-    </div>
-    <div class="zona3-chart">
-      <h3>Waterfall EPS Adj 2024→2025→2026E</h3>
-      <div class="chart-wrap"><canvas id="c2"></canvas></div>
-    </div>
-    <div class="zona3-chart">
-      <h3>Estructura de Costos FY2025</h3>
-      <div class="chart-wrap"><canvas id="c3"></canvas></div>
-      <div class="legend-custom">
-        <div class="leg-item"><div class="leg-box" style="background:#ff3a3a"></div>Salarios 46.6%</div>
-        <div class="leg-item"><div class="leg-box" style="background:#ff9800"></div>Otros Op 28.2%</div>
-        <div class="leg-item"><div class="leg-box" style="background:#ff6b35"></div>Supplies 9.8%</div>
-        <div class="leg-item"><div class="leg-box" style="background:#00ff9d"></div>Op.Income 11.5%</div>
-        <div class="leg-item"><div class="leg-box" style="background:#9c27b0"></div>D&amp;A 3.5%</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ ZONA 4 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 4 · ANALISTAS Y PRECIO 52W</div>
-  <div class="z4-chart-wrap"><canvas id="c4"></canvas></div>
-  <div class="z4-analyst-summary">
-    <div>
-      <div style="font-size:0.75rem;color:#94a3b8;">Consenso 23 analistas</div>
-      <div style="font-size:1.3rem;font-weight:bold;color:#00ff9d;font-family:'Courier New',monospace;">COMPRAR</div>
-      <div style="font-size:0.85rem;color:#94a3b8;">PT promedio: $232–$251</div>
-    </div>
-    <div style="display:flex;gap:0.4rem;align-items:flex-end;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
-        <div style="width:1.4rem;height:4.6rem;background:#00ff9d;border-radius:0.2rem 0.2rem 0 0;"></div>
-        <div style="font-size:0.7rem;color:#94a3b8;">Buy</div>
-        <div style="font-size:0.82rem;font-weight:bold;color:#00ff9d;">23</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
-        <div style="width:1.4rem;height:1.4rem;background:#ffbb00;border-radius:0.2rem 0.2rem 0 0;"></div>
-        <div style="font-size:0.7rem;color:#94a3b8;">Hold</div>
-        <div style="font-size:0.82rem;font-weight:bold;color:#ffbb00;">7</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
-        <div style="width:1.4rem;height:0.4rem;background:#ff3a3a;border-radius:0.2rem 0.2rem 0 0;"></div>
-        <div style="font-size:0.7rem;color:#94a3b8;">Sell</div>
-        <div style="font-size:0.82rem;font-weight:bold;color:#ff3a3a;">2</div>
-      </div>
-    </div>
-  </div>
-  <div class="analyst-list" style="margin-top:0.8rem;">
-    <div class="analyst-item"><span class="analyst-bank">Barclays</span><span class="analyst-rating">Overweight</span><span class="analyst-pt">$268</span></div>
-    <div class="analyst-item"><span class="analyst-bank">UBS</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$280</span></div>
-    <div class="analyst-item"><span class="analyst-bank">TD Cowen</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$245</span></div>
-    <div class="analyst-item"><span class="analyst-bank">Guggenheim</span><span class="analyst-rating">Buy</span><span class="analyst-pt">$274</span></div>
-    <div class="analyst-item"><span class="analyst-bank">JPMorgan</span><span class="analyst-rating" style="color:#ffbb00;">Hold</span><span class="analyst-pt" style="color:#ffbb00;">$195</span></div>
-    <div class="analyst-item"><span class="analyst-bank">Cantor Fitzgerald</span><span class="analyst-rating" style="color:#ff3a3a;">Underweight</span><span class="analyst-pt" style="color:#ff3a3a;">$229</span></div>
-  </div>
-</div>
-
-<!-- ══════════ ZONA 5 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 5 · PERFIL FEROLDI 16 PUNTOS + BUFFETT</div>
-  <div class="z5-spider-title">Análisis de 5 Dimensiones — $UHS</div>
-  <div class="z5-spider-wrap"><canvas id="c5" style="width:100%;aspect-ratio:1;max-height:320px;"></canvas></div>
-  <div class="z5-scorecard">
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">📊 Industria &amp; Modelo</span><span class="fg-avg">6.5</span></div>
-      <div class="feroldi-row" data-tip="INDUSTRY: Demanda secular fuerte; pricing power limitado por regulación gubernamental (60% revenue). CON regulations = moat local."><span class="fr-name">1. Industry</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00d4ff;"></div></div><span class="fr-score-num">7</span></div>
-      <div class="feroldi-row" data-tip="BUSINESS MODEL: 60% dependencia pagadores gobierno. Recurrente en práctica (readmisiones, crónicas) pero no garantizado contractualmente."><span class="fr-name">2. Business Model</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00d4ff;"></div></div><span class="fr-score-num">6</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">📈 Crecimiento &amp; Valor</span><span class="fg-avg">7.0</span></div>
-      <div class="feroldi-row" data-tip="HISTORICAL GROWTH: Revenue +10% YoY 2025, EPS Adj +31%. CAGR consistente. Fuente: volume + pricing. Deceleración esperada a 6-8% en 2026."><span class="fr-name">3. Historical Growth</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00ff9d;"></div></div><span class="fr-score-num">8</span></div>
-      <div class="feroldi-row" data-tip="VALUE CREATION: CAGR modesto histórico 7.2%. Recompras recientes $899M 2025 son la dinámica más alentadora. Shares outstanding -12% en 5 años."><span class="fr-name">4. Historical Value</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00ff9d;"></div></div><span class="fr-score-num">6</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">🏰 Moat &amp; Capital</span><span class="fg-avg">5.5</span></div>
-      <div class="feroldi-row" data-tip="MOAT: Foso real en behavioral health (escala + CON). Limitado en acute care. No es consumer brand ni network effect. Foso regulatorio = vulnerable."><span class="fr-name">5. Moat</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#ffd700;"></div></div><span class="fr-score-num">6</span></div>
-      <div class="feroldi-row" data-tip="CAPITAL INTENSITY: CAPEX $1B (5.7% revenue). Alta intensidad inherente al sector hospitalario. Owner Earnings >FCF reportado por $680M."><span class="fr-name">6. Capital Intensity</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:50%;background:#ffd700;"></div></div><span class="fr-score-num">5</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">💸 Rentabilidad &amp; Balance</span><span class="fg-avg">6.5</span></div>
-      <div class="feroldi-row" data-tip="PROFITABILITY: Márgenes en expansión real. Net Margin 8.7%, EBITDA 15%. Owner Earnings $1.58B vs FCF $0.9B reportado. Parcialmente inflado por Medicaid supplemental."><span class="fr-name">7. Profitability</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00ff9d;"></div></div><span class="fr-score-num">7</span></div>
-      <div class="feroldi-row" data-tip="BALANCE SHEET: Deuda/EBITDA 1.76x manejable. Leverage D/E 67.5% no es fortaleza pero tampoco riesgo existencial. Current ratio 1.03x ajustado."><span class="fr-name">8. Balance Sheet</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#00ff9d;"></div></div><span class="fr-score-num">6</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">🔄 Capital Return &amp; Mgmt</span><span class="fg-avg">7.5</span></div>
-      <div class="feroldi-row" data-tip="CAPITAL RETURN: Recompras $899M en 2025 + $1.5B auto adicional. Yield recompra ~12-13% a precios actuales. Dividendo simbólico 0.43%."><span class="fr-name">9. Capital Return</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#ffd700;"></div></div><span class="fr-score-num">8</span></div>
-      <div class="feroldi-row" data-tip="MANAGEMENT: Familia Miller control dual-class. CFO Filton 25+ años. Competente; precedentes calidad behavioral health reducen nota. No Imperativo Institucional detectado."><span class="fr-name">10. Management</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:60%;background:#ffd700;"></div></div><span class="fr-score-num">6</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">🎯 Allocation &amp; SBC</span><span class="fg-avg">7.5</span></div>
-      <div class="feroldi-row" data-tip="CAPITAL ALLOCATION: ROIC 10.1% > WACC 8-9%. Spread modesto. ROTC Buffett 22.5% superior. Buybacks a precio bajo = decisión EXCELENTE."><span class="fr-name">11. Capital Allocation</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00d4ff;"></div></div><span class="fr-score-num">7</span></div>
-      <div class="feroldi-row" data-tip="SBC: ~$80-100M/año. Dilución neta NEGATIVA (accretiva). Shares cayeron -12% en 5 años. Recompra supera ampliamente la dilución por stock awards."><span class="fr-name">12. SBC</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00d4ff;"></div></div><span class="fr-score-num">8</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">🔭 Outlook &amp; Opcionalidad</span><span class="fg-avg">7.5</span></div>
-      <div class="feroldi-row" data-tip="OUTLOOK: Guidance 2026 $18.6B revenue, $23.58 EPS mid. Conservadora históricamente. 75% EPS beat rate. Headwinds: $75M ACA + $35M California regs."><span class="fr-name">13. Outlook</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:70%;background:#00ff9d;"></div></div><span class="fr-score-num">7</span></div>
-      <div class="feroldi-row" data-tip="OPTIONALITY: Thousand Branches outpatient, telemedicina behavioral, M&A capacidad, data monetization, joint ventures académicos. Múltiples palancas no valoradas."><span class="fr-name">14. Optionality</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#00ff9d;"></div></div><span class="fr-score-num">8</span></div>
-    </div>
-    <div class="feroldi-group-card">
-      <div class="fg-header"><span class="fg-name">⚠️ Riesgos &amp; Valuación</span><span class="fg-avg">6.5</span></div>
-      <div class="feroldi-row" data-tip="RISKS: Medicaid supplemental $1.2B en riesgo post-2027. ACA subsidies expiry. Concentración TX/NV/CA. Litigación behavioral. Labor cost resurgence posible."><span class="fr-name">15. Risks</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:50%;background:#ff3a3a;"></div></div><span class="fr-score-num">5</span></div>
-      <div class="feroldi-row" data-tip="VALUATION: P/E 7.9x forward para EPS growth 7%. DCF $210-220. SOTP teórico $411. Infravalorada incluso en base case. FCF yield ~8%."><span class="fr-name">16. Valuation</span><div class="fr-bar-wrap"><div class="fr-bar" style="width:80%;background:#ffd700;"></div></div><span class="fr-score-num">8</span></div>
-    </div>
-  </div>
-  <div class="z5-totals">
-    <div style="text-align:center;"><div class="z5-tot-val">108 / 160</div><div class="z5-tot-lbl">Score Total Feroldi</div></div>
-    <div style="text-align:center;"><div class="z5-tot-val">67.5%</div><div class="z5-tot-lbl">% Calidad</div></div>
-    <div style="text-align:center;"><div class="z5-tot-val" style="color:#00ff9d;">COMPRAR</div><div class="z5-tot-lbl">Veredicto</div></div>
-    <div style="text-align:center;"><div class="z5-tot-val" style="color:#ffd700;">P/E 7.9x</div><div class="z5-tot-lbl">Forward Multiple</div></div>
-    <div style="text-align:center;"><div class="z5-tot-val" style="color:#00d4ff;">2-5%</div><div class="z5-tot-lbl">Tamaño Posición</div></div>
-  </div>
-</div>
-
-<!-- ══════════ ZONA 6 ══════════ -->
-<div class="zona">
-  <div class="zona-title">ZONA 6 · RIESGOS · COMPETIDORES · VEREDICTO FINAL</div>
-  <div class="z6-rc-grid">
-    <div>
-      <div class="z6-tbl-title">⚠️ Riesgos Críticos</div>
-      <table class="z6-tbl">
-        <thead><tr><th>Riesgo</th><th>Nivel</th></tr></thead>
-        <tbody>
-          <tr><td>Medicaid Supplemental Cuts ($360-400M hacia 2032)</td><td class="badge-a">ALTO</td></tr>
-          <tr><td>ACA Subsidy Expiration ($50-100M headwind)</td><td class="badge-a">ALTO</td></tr>
-          <tr><td>Concentración TX/NV/CA (shock local)</td><td class="badge-m">MEDIO</td></tr>
-          <tr><td>Litigación behavioral health (Cumberland/Pavilion)</td><td class="badge-m">MEDIO</td></tr>
-          <tr><td>Labor cost resurgence (premium pay)</td><td class="badge-m">MEDIO</td></tr>
-          <tr><td>Governance dual-class (familia Miller)</td><td class="badge-b">BAJO-M</td></tr>
-        </tbody>
-      </table>
-      <div class="z6-tbl-title" style="margin-top:1.2rem;">🚀 Catalizadores 24M</div>
-      <table class="z6-tbl">
-        <thead><tr><th>Catalizador</th><th>Impacto</th></tr></thead>
-        <tbody>
-          <tr><td>Q1 2026 Earnings (27 Abr)</td><td class="badge-a">MUY ALTO</td></tr>
-          <tr><td>Decisión Congreso ACA subsidies H1 2026</td><td class="badge-a">MUY ALTO</td></tr>
-          <tr><td>Nuevas aprobaciones Medicaid supl. (estados)</td><td class="badge-a">ALTO</td></tr>
-          <tr><td>Thousand Branches ≥10 nuevas 2026</td><td class="badge-m">MEDIO</td></tr>
-          <tr><td>M&A transformacional behavioral health</td><td class="badge-a">MUY ALTO</td></tr>
-          <tr><td>Re-rating múltiplo si Medicaid se aclara</td><td class="badge-a">MUY ALTO</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div>
-      <div class="z6-tbl-title">🏆 Comparativa Competidores</div>
-      <div class="comp-tbl-wrap">
-        <table class="comp-tbl">
-          <thead><tr><th>Empresa</th><th>MktCap</th><th>P/E Fwd</th><th>EV/EBITDA</th><th>Rev Growth</th><th>Net Mgn</th></tr></thead>
-          <tbody>
-            <tr class="main-row"><td><strong>UHS</strong></td><td>$11.4B</td><td style="color:#00ff9d;font-weight:bold;">7.9x</td><td style="color:#00ff9d;">6.9x</td><td>+10%</td><td>8.7%</td></tr>
-            <tr><td>HCA Healthcare</td><td>$66B</td><td style="color:#ffbb00;">12x</td><td>10x</td><td>+7%</td><td>8.6%</td></tr>
-            <tr><td>Tenet Healthcare</td><td>$7.5B</td><td>9x</td><td>8x</td><td>+4%</td><td>6.5%</td></tr>
-            <tr><td>Acadia Healthcare</td><td>$1.3B</td><td style="color:#ff3a3a;">18x</td><td>14-18x</td><td>+8%</td><td>7%</td></tr>
-            <tr><td>Community Health Sys</td><td>$0.4B</td><td>N/D</td><td>7x</td><td>+2%</td><td>Neg</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- Escenarios -->
-      <div style="margin-top:1.2rem;">
-        <div class="z6-tbl-title">📊 Escenarios Bear / Base / Bull</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem;margin-top:0.5rem;">
-          <div style="background:#200a0a;border:1px solid #ff3a3a;border-radius:0.4rem;padding:0.7rem;text-align:center;">
-            <div style="font-size:0.78rem;color:#ff6b6b;font-weight:bold;">🐻 BEAR</div>
-            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Medicaid cliff 2026<br>ACA expiración<br>5.5x EV/EBITDA</div>
-            <div style="font-size:1.3rem;font-weight:bold;color:#ff3a3a;">$154</div>
-            <div style="font-size:0.75rem;color:#ff6b6b;">-18% vs hoy</div>
-          </div>
-          <div style="background:#0a1f0a;border:2px solid #00ff9d;border-radius:0.4rem;padding:0.7rem;text-align:center;">
-            <div style="font-size:0.78rem;color:#00ff9d;font-weight:bold;">📊 BASE</div>
-            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Guidance cumplida<br>Medicaid estable<br>9x EV/EBITDA</div>
-            <div style="font-size:1.3rem;font-weight:bold;color:#00ff9d;">$225</div>
-            <div style="font-size:0.75rem;color:#00ff9d;">+21% vs hoy</div>
-          </div>
-          <div style="background:#0a1508;border:1px solid #ffd700;border-radius:0.4rem;padding:0.7rem;text-align:center;">
-            <div style="font-size:0.78rem;color:#ffd700;font-weight:bold;">🐂 BULL</div>
-            <div style="font-size:0.78rem;color:#94a3b8;margin:0.3rem 0;">Re-rating + outpatient<br>AI savings<br>11x EV/EBITDA</div>
-            <div style="font-size:1.3rem;font-weight:bold;color:#ffd700;">$295</div>
-            <div style="font-size:0.75rem;color:#ffd700;">+58% vs hoy</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Verdict final -->
-  <div class="z6-verdict">
-    <div class="z6-verdict-badge">✅ COMPRAR — POSICIÓN MEDIANA (2–5%)</div>
-    <div class="z6-thesis">
-      UHS cotiza a 7.9x EPS forward para un negocio con 21% ROE, FCF yield ~8%, recompras al 12-13% yield y opcionalidad real en outpatient behavioral + AI + M&A. El mercado descuenta el riesgo Medicaid como si fuera un evento de 2026, cuando es gradual (inicio 2028), mitigable y con tiempo de respuesta operativa. Score Feroldi 108/160 (67.5%). R/R mínimo 1:3.8 hacia caso base.
-    </div>
-    <div class="z6-sl-tp">
-      <div class="sl-tp-item"><div class="sl-tp-label">Entrada</div><div class="sl-tp-val" style="color:#00d4ff;">$186.80</div></div>
-      <div class="sl-tp-item"><div class="sl-tp-label">🛑 Stop Loss</div><div class="sl-tp-val" style="color:#ff3a3a;">$161.00</div><div style="font-size:0.7rem;color:#94a3b8;">-13.8%</div></div>
-      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP1</div><div class="sl-tp-val" style="color:#00ff9d;">$220.00</div><div style="font-size:0.7rem;color:#94a3b8;">+17.8%</div></div>
-      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP2</div><div class="sl-tp-val" style="color:#00ff9d;">$260.00</div><div style="font-size:0.7rem;color:#94a3b8;">+39.2%</div></div>
-      <div class="sl-tp-item"><div class="sl-tp-label">🎯 TP Bull</div><div class="sl-tp-val" style="color:#ffd700;">$285.00</div><div style="font-size:0.7rem;color:#94a3b8;">+52.6%</div></div>
-      <div class="sl-tp-item"><div class="sl-tp-label">R/R mín.</div><div class="sl-tp-val" style="color:#ffd700;">1 : 3.8</div></div>
-    </div>
-    <div class="z6-brand">@patonet · Análisis Feroldi · UHS · 8 Abr 2026</div>
-  </div>
-</div>
-
-<!-- Popups -->
-<div class="popup-overlay" id="overlay" onclick="document.querySelectorAll('.popup-box').forEach(p=>p.style.display='none');this.style.display='none';"></div>
-<div class="popup-box" id="resumenPopup">
-  <span class="popup-close" onclick="this.parentElement.style.display='none';document.getElementById('overlay').style.display='none';">✕</span>
-  <h3>Resumen Ejecutivo — $UHS</h3>
-  <p>Universal Health Services genera ingresos mediante la operación de 28 hospitales de cuidados agudos y 331+ centros de salud conductual inpatient, cobrando a Medicare, Medicaid y aseguradoras privadas por cada admisión, día-paciente y visita de urgencia.</p><br>
-  <p>La calidad económica es sólida: ROE 21%, EBITDA margin 15%, FCF operativo $1.9B en 2025. El foso reside en la escala behavioral health (la red más grande de EE.UU.) y en los certificados de necesidad estatales que limitan nuevos competidores.</p><br>
-  <p>El riesgo principal es la dependencia de pagos suplementarios Medicaid ($1.2B beneficio anual) que comenzarán a reducirse en 2028. A P/E 7.9x forward, el mercado descuenta este riesgo como si fuera inminente, cuando es gradual y mitigable.</p><br>
-  <p><em>"UHS es un negocio defensivo de alta generación de caja que cotiza como si el deterioro de Medicaid fuera inminente, cuando en realidad es gradual y parcialmente mitigable."</em></p>
-</div>
-<div id="feroldiPopup"></div>
-
-<footer style="padding:0.8rem 1.5rem;background:#020710;border-top:1px solid #0d2040;text-align:center;font-size:0.78rem;color:#94a3b8;">
-  <strong style="color:#ffd700;">@patonet</strong> · Método Feroldi 16pts + Buffett/Munger/Kaufman · NYSE: $UHS · $186.80 · 8 Abr 2026 · 
-  Fuentes: SEC EDGAR · Becker's Hospital Review · StockAnalysis · TradingView API · UHS IR ·
-  <span style="color:#ff9800;">No constituye asesoría de inversión</span>
-</footer>
-
-<script>
-const FEROLDI_DATA = {
-  labels:['Industry','Biz Model','Growth','Value Creation','Moat','Cap Intensity','Profitability','Balance Sheet','Cap Return','Management','Cap Alloc','SBC','Outlook','Optionality','Risks','Valuation'],
-  scores:[7,6,8,6,6,5,7,6,8,6,7,8,7,8,5,8]
-};
-
-// C1 Revenue + NI
-new Chart(document.getElementById('c1'),{
-  type:'bar',
-  data:{
-    labels:['2021','2022','2023','2024','2025','2026E'],
-    datasets:[
-      {label:'Revenue ($B)',data:[12.6,13.1,14.3,15.8,17.4,18.6],backgroundColor:'rgba(0,212,255,0.6)',borderColor:'#00d4ff',borderWidth:1,yAxisID:'y'},
-      {label:'Net Income ($B)',data:[0.5,0.7,0.72,1.14,1.50,1.72],backgroundColor:'rgba(0,255,157,0.6)',borderColor:'#00ff9d',borderWidth:1,yAxisID:'y'},
-      {label:'Margen Neto (%)',data:[4.0,5.3,5.0,7.2,8.7,9.2],type:'line',borderColor:'rgba(255,165,0,0.8)',backgroundColor:'transparent',pointBackgroundColor:'orange',tension:0.3,yAxisID:'y2'}
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',font:{size:10}}},y2:{position:'right',beginAtZero:true,max:15,grid:{display:false},ticks:{color:'#ff9800',font:{size:10},callback:v=>v+'%'}},x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#94a3b8',font:{size:10}}}}}
-});
-
-// C2 Waterfall EPS
-const waterCtx = document.getElementById('c2');
-new Chart(waterCtx,{
-  type:'bar',
-  data:{
-    labels:['EPS 2024','Vol+Price','Labor Norm','Medicaid Supl','SBC/Interest','EPS 2025','Growth','ACA Headwind','CA Regs','Buybacks','EPS 2026E'],
-    datasets:[{
-      data:[16.61,3.5,2.2,1.8,-0.7,22.07,2.0,-0.4,-0.2,1.0,23.58],
-      backgroundColor:['#1a3a6e','#00ff9d','#00ff9d','#00c853','#ff3a3a','#1a3a6e','#00ff9d','#ff3a3a','#ff3a3a','#00c853','#1565C0'],
-      borderColor:'transparent',borderWidth:0
-    }]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'EPS: $'+ctx.raw}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:8},maxRotation:35}},y:{beginAtZero:false,min:14,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',font:{size:9},callback:v=>'$'+v}}}}
-});
-
-// C3 Donut costos
-new Chart(document.getElementById('c3'),{
-  type:'doughnut',
-  data:{
-    labels:['Salarios 46.6%','Otros Op. 28.2%','Supplies 9.8%','Op. Income 11.5%','D&A 3.5%','Intereses 0.4%'],
-    datasets:[{data:[46.6,28.2,9.8,11.5,3.5,0.4],backgroundColor:['#ff3a3a','#ff9800','#ff6b35','#00ff9d','#9c27b0','#607d8b'],borderColor:'#050a12',borderWidth:2}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}},cutout:'60%'}
-});
-
-// C4 Price / PT chart
-new Chart(document.getElementById('c4'),{
-  type:'line',
-  data:{
-    labels:['Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr26'],
-    datasets:[
-      {label:'Precio $UHS',data:[177,185,198,152,178,200,215,240,230,210,195,175,187],borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.08)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#00d4ff'},
-      {label:'PT Bull (UBS $280)',data:[280,280,280,280,280,280,280,280,280,280,280,280,280],borderColor:'rgba(0,255,157,0.4)',borderDash:[5,5],pointRadius:0},
-      {label:'PT Consenso ~$240',data:[240,240,240,240,240,240,240,240,240,240,232,232,232],borderColor:'rgba(255,215,0,0.5)',borderDash:[3,3],pointRadius:0},
-      {label:'PT Bear (JPM $195)',data:[195,195,195,195,195,195,195,195,195,195,195,195,195],borderColor:'rgba(255,58,58,0.4)',borderDash:[5,5],pointRadius:0}
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10},boxWidth:12}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#94a3b8',font:{size:10},callback:v=>'$'+v},grid:{color:'rgba(255,255,255,0.05)'}}}}
-});
-
-// C5 Spider
-new Chart(document.getElementById('c5'),{
-  type:'radar',
-  data:{
-    labels:['Industria','Crecimiento','Rentabilidad','Moat & Cap','Retorno Capital'],
-    datasets:[{
-      label:'UHS',
-      data:[6.5,7.0,6.5,5.5,7.5],
-      borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,0.15)',pointBackgroundColor:'#00d4ff',pointRadius:5,borderWidth:2
-    }]
-  },
-  options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,ticks:{display:false,stepSize:2},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#94a3b8',font:{size:12}},angleLines:{color:'rgba(255,255,255,0.1)'}}},plugins:{legend:{display:false}}}
-});
-
-// Feroldi row tooltips
-document.querySelectorAll('.feroldi-row').forEach(row=>{
-  row.addEventListener('mouseenter',function(e){
-    const fp=document.getElementById('feroldiPopup');
-    fp.innerHTML=this.dataset.tip||'';
-    fp.style.display='block';
-  });
-  row.addEventListener('mousemove',function(e){
-    const fp=document.getElementById('feroldiPopup');
-    fp.style.left=Math.min(e.clientX+12,window.innerWidth-300)+'px';
-    fp.style.top=Math.max(e.clientY-60,10)+'px';
-  });
-  row.addEventListener('mouseleave',function(){
-    document.getElementById('feroldiPopup').style.display='none';
-  });
-});
-</script>
-</body>
-</html>
-
---- FIN PLANTILLA INFOGRAFÍA ---
-
-INSTRUCCIONES DE ADAPTACIÓN:
-1. Cambiar ticker, nombre empresa, exchange, precio, fecha, sector.
-2. Reemplazar todos los datos financieros (revenue, EBITDA, net income, márgenes, EPS, P/E, PEG, etc.) con los del ticker actual.
-3. Actualizar Bloque A (resumen ejecutivo), Bloque D (análisis IA), Bloque E (CEO), Bloque F (escenarios).
-4. Actualizar la tabla Feroldi Scorecard (Zona 5) con los 16 puntos y scores del análisis actual.
-5. Actualizar la tabla de competidores (Zona 6) con los peers del ticker actual.
-6. Ajustar barra 52W con min/max/precio actual del ticker actual.
-7. Semáforo IA: activar la luz correcta (verde/naranja/rojo) según Bloque D.
-8. Performance bar: obtener datos de TradingView Scanner API para el ticker actual.
-9. Mini-semáforos B0: reflejar resultados B0.1, B0.2, B0.3 y veredicto del análisis actual.
-10. Logo: usar Clearbit (logo.clearbit.com/dominio.com) con fallback iniciales.
-11. Gauge Feroldi: ajustar la aguja al score actual (XXX/160).
-12. Nombre archivo de salida: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
-
-Responsividad: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
-
-===========================================================
-3. PDF
-===========================================================
-
-TÍTULO: "Informe Profesional de $[TICKER] · Método Feroldi"
-
-Portada gradiente #0d1428→#1a3a6e. 6 secciones:
-(1) LOGO Clearbit (logo.clearbit.com/dominio.com) + nombre 14pt — OBLIGATORIO
-(2) Título 20pt
-(3) Precio + Rango 52W + badge + Score Feroldi + PEG
-(4) Performance 8 periodos
-(5) B0: 4 círculos de color
-(6) Fecha + @patonet
-
-Páginas: header franja teal + logo + ticker. Footer @patonet + nº página.
-Tabla Feroldi con scores semafóricos. Secciones: OOB naranja · IA cian · CEO cursiva · SOTP coloreado · Debate púrpura · B0 verde.
-PDF COMPLETO. Sin resumir. Sin páginas en blanco ni bloques cortados.
-
-===========================================================
-4. DIAGRAMA SANKEY — INGRESOS
-===========================================================
-
-INGRESOS = EXCLUSIVAMENTE el diagrama Sankey de flujo financiero.
-PROHIBIDO: árboles de KPIs, diagramas de modelo de negocio, cualquier otra visualización.
-Si el modelo siente tentación de generar algo distinto, debe resistirla.
-
-PLANTILLA EMBEBIDA — ESTRUCTURA EXACTA A REPLICAR:
-La siguiente es la plantilla HTML completa del Sankey de referencia (UHS FY2025).
-Replicar EXACTAMENTE este diseño: mismos colores, misma disposición de 5 columnas,
-mismo header, misma KPI bar, misma leyenda. SOLO sustituir los datos del ticker actual.
-NO añadir tabla de auditoría — fue eliminada intencionalmente.
-
---- INICIO PLANTILLA SANKEY ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UHS · Sankey · Flujo de Dinero FY2025 | @patonet</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: clamp(10px, 1.1vw, 16px); }
-body { background: #050a12; color: #c8d8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events:none; z-index:999; }
-
-.header { background: #020710; border-bottom: 2px solid #0d2040; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-.header h1 { font-size: 1.4rem; font-weight: 800; color: #fff; }
-.header h1 span { color: #00d4ff; }
-.header .meta { font-size: 0.82rem; color: #94a3b8; text-align: right; }
-.header .brand { font-size: 0.9rem; color: #ffd700; font-weight: bold; }
-
-.kpi-bar { padding: 0.75rem 2rem; background: #080f1c; border-bottom: 1px solid #0d1f35; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
-.kpi-item { display: flex; flex-direction: column; align-items: flex-start; }
-.kpi-label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; }
-.kpi-value { font-size: 1.0rem; font-weight: 700; color: #00d4ff; font-family: 'Courier New', monospace; }
-.kpi-item.green .kpi-value { color: #00ff9d; }
-.kpi-item.gold .kpi-value { color: #ffd700; }
-.kpi-item.teal .kpi-value { color: #00bcd4; }
-
-.badges { display: flex; gap: 0.6rem; margin-left: auto; flex-wrap: wrap; }
-.badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; border: 1px solid; }
-.badge-buy { background: rgba(0,255,157,0.1); border-color: #00ff9d; color: #00ff9d; }
-.badge-score { background: rgba(0,212,255,0.1); border-color: #00d4ff; color: #00d4ff; }
-.badge-peg { background: rgba(255,215,0,0.1); border-color: #ffd700; color: #ffd700; }
-
-.sankey-container { flex: 1; padding: 1.5rem 2rem; display: flex; flex-direction: column; align-items: center; }
-.sankey-title { font-size: 1.0rem; font-weight: bold; color: #00d4ff; margin-bottom: 1.2rem; text-align: center; letter-spacing: 0.05em; text-transform: uppercase; }
-.sankey-wrapper { width: 100%; max-width: 1100px; position: relative; }
-svg#sankey { width: 100%; height: auto; display: block; }
-
-.legend-section { margin-top: 1.2rem; padding: 1rem 1.5rem; background: #080f1c; border-radius: 0.5rem; border: 1px solid #0d1f35; max-width: 1100px; width: 100%; }
-.legend-title { font-size: 0.78rem; font-weight: bold; color: #94a3b8; margin-bottom: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
-.legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.5rem; }
-.legend-item { display: flex; align-items: center; gap: 0.5rem; }
-.legend-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; flex-shrink: 0; }
-.legend-text { font-size: 0.78rem; color: #c8d8f0; }
-.legend-val { font-size: 0.78rem; font-family: 'Courier New', monospace; color: #ffd700; margin-left: auto; }
-
-.audit-table { margin-top: 1.2rem; max-width: 1100px; width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-.audit-table th { background: #0d1428; color: #00d4ff; padding: 0.5rem 0.8rem; text-align: left; border-bottom: 1px solid #0d2040; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
-.audit-table td { padding: 0.45rem 0.8rem; border-bottom: 1px solid #0d1428; color: #c8d8f0; }
-.audit-table tr:hover td { background: #0a1628; }
-.status-ok { color: #00ff9d; font-weight: bold; }
-.status-est { color: #ffd700; }
-
-.tooltip-box { position: fixed; background: #0a1628; border: 1px solid #00d4ff; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.82rem; color: #c8d8f0; max-width: 18rem; pointer-events: none; z-index: 9999; display: none; line-height: 1.5; box-shadow: 0 0 20px rgba(0,212,255,0.2); }
-.tooltip-box strong { color: #00d4ff; }
-
-.footer { padding: 0.75rem 2rem; background: #020710; border-top: 1px solid #0d2040; text-align: center; font-size: 0.78rem; color: #94a3b8; }
-.footer strong { color: #ffd700; }
-
-@keyframes flowAnim { 0% { stroke-dashoffset: 200; opacity: 0.35; } 60% { opacity: 0.75; } 100% { stroke-dashoffset: 0; opacity: 0.35; } }
-.flow-path { stroke-dasharray: 200; animation: flowAnim 4s linear infinite; }
-.flow-path-slow { stroke-dasharray: 200; animation: flowAnim 5.5s linear infinite; }
-</style>
-</head>
-<body>
-
-<div class="header">
-  <div>
-    <h1>Universal <span>Health Services</span> · Flujo de Dinero FY2025</h1>
-    <div style="font-size:0.8rem;color:#94a3b8;margin-top:0.2rem">Diagrama Sankey · Método Feroldi · Verificación Triple SEC/Becker's/StockAnalysis</div>
-  </div>
-  <div class="meta">
-    <div class="brand">@patonet</div>
-    <div>NYSE: UHS · $186.80 · 8 Abr 2026</div>
-    <div>Revenue Total FY2025: $17.40B (GAAP)</div>
-  </div>
-</div>
-
-<div class="kpi-bar">
-  <div class="kpi-item">
-    <span class="kpi-label">Revenue Total</span>
-    <span class="kpi-value">$17.40B</span>
-  </div>
-  <div class="kpi-item green">
-    <span class="kpi-label">Operating Profit</span>
-    <span class="kpi-value">$2.00B</span>
-  </div>
-  <div class="kpi-item green">
-    <span class="kpi-label">Net Income</span>
-    <span class="kpi-value">$1.50B</span>
-  </div>
-  <div class="kpi-item gold">
-    <span class="kpi-label">Free Cash Flow</span>
-    <span class="kpi-value">~$0.90B</span>
-  </div>
-  <div class="kpi-item teal">
-    <span class="kpi-label">EBITDA</span>
-    <span class="kpi-value">$2.61B</span>
-  </div>
-  <div class="kpi-item teal">
-    <span class="kpi-label">Margen Neto</span>
-    <span class="kpi-value">8.7%</span>
-  </div>
-  <div class="badges">
-    <span class="badge badge-buy">COMPRAR</span>
-    <span class="badge badge-score">Score 108/160 · 67.5%</span>
-    <span class="badge badge-peg">PEG 0.58</span>
-  </div>
-</div>
-
-<div class="sankey-container">
-  <div class="sankey-title">🏥 ¿Cómo fluye el dinero en Universal Health Services? — FY2025</div>
-  <div class="sankey-wrapper">
-
-<svg id="sankey" viewBox="0 0 1060 620" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <!-- Segment gradients -->
-  <linearGradient id="gAcute" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.8"/>
-    <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gBeh" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#ffd700" stop-opacity="0.8"/>
-    <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gRev" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#00a8cc" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.5"/>
-  </linearGradient>
-  <linearGradient id="gSalaries" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
-    <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0.5"/>
-  </linearGradient>
-  <linearGradient id="gSupplies" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
-    <stop offset="100%" stop-color="#ff6b35" stop-opacity="0.5"/>
-  </linearGradient>
-  <linearGradient id="gOther" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
-    <stop offset="100%" stop-color="#ff9800" stop-opacity="0.4"/>
-  </linearGradient>
-  <linearGradient id="gDA" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.9"/>
-    <stop offset="100%" stop-color="#9c27b0" stop-opacity="0.4"/>
-  </linearGradient>
-  <linearGradient id="gOp" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a3a6e" stop-opacity="0.8"/>
-    <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gNI" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#ffd700" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gTax" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#ff3a3a" stop-opacity="0.5"/>
-  </linearGradient>
-  <linearGradient id="gFCF" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#ffd700" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#00c853" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gBbk" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#00c853" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#76c442" stop-opacity="0.7"/>
-  </linearGradient>
-  <linearGradient id="gCap" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#1a2a4a" stop-opacity="0.7"/>
-    <stop offset="100%" stop-color="#9c27b0" stop-opacity="0.4"/>
-  </linearGradient>
-  <filter id="glow">
-    <feGaussianBlur stdDeviation="2.5" result="blur"/>
-    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="glowStrong">
-    <feGaussianBlur stdDeviation="4" result="blur"/>
-    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-</defs>
-
-<!-- ========== COLUMN 1: SEGMENTOS (x=10..155) ========== -->
-<!-- Acute Care Node (54% of revenue = ~$9.4B) -->
-<rect x="10" y="25" width="145" height="195" rx="6" fill="#1a3a6e" stroke="#00d4ff" stroke-width="1.5" filter="url(#glow)" class="node" data-tip="Acute Care: $9.4B (54%)" style="cursor:pointer"/>
-<text x="82" y="52" text-anchor="middle" fill="#00d4ff" font-size="11.5" font-weight="bold">ACUTE CARE</text>
-<text x="82" y="68" text-anchor="middle" fill="#94a3b8" font-size="9">28 hospitales inpatient</text>
-<text x="82" y="82" text-anchor="middle" fill="#94a3b8" font-size="9">1.7M visitas ER · 331K admisiones</text>
-<text x="82" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">34,900 deliveries</text>
-<text x="82" y="118" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$9.40B</text>
-<text x="82" y="134" text-anchor="middle" fill="#94a3b8" font-size="9">54% del revenue total</text>
-<text x="82" y="148" text-anchor="middle" fill="#00d4ff" font-size="9">Margen Op: ~10.1%</text>
-<text x="82" y="162" text-anchor="middle" fill="#ffd700" font-size="9">Rev/admisión +5.4% YoY</text>
-<text x="82" y="178" text-anchor="middle" fill="#94a3b8" font-size="9">Texas · Nevada · California</text>
-<text x="82" y="195" text-anchor="middle" fill="#64748b" font-size="8">Florida · 36 estados adicionales</text>
-<text x="82" y="209" text-anchor="middle" fill="#00bcd4" font-size="9">+8.5% same-facility YoY</text>
-
-<!-- Behavioral Health Node (46% = ~$8.0B) -->
-<rect x="10" y="240" width="145" height="195" rx="6" fill="#1a2a0a" stroke="#ffd700" stroke-width="1.5" filter="url(#glow)" class="node" data-tip="Behavioral Health: $8.0B (46%)" style="cursor:pointer"/>
-<text x="82" y="265" text-anchor="middle" fill="#ffd700" font-size="11.5" font-weight="bold">BEHAVIORAL HEALTH</text>
-<text x="82" y="281" text-anchor="middle" fill="#94a3b8" font-size="9">331 inpatient · 119 outpatient</text>
-<text x="82" y="295" text-anchor="middle" fill="#94a3b8" font-size="9">730K pacientes · 5.5M días</text>
-<text x="82" y="309" text-anchor="middle" fill="#94a3b8" font-size="9">Patriot Support (17,800 militares)</text>
-<text x="82" y="329" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$8.00B</text>
-<text x="82" y="345" text-anchor="middle" fill="#94a3b8" font-size="9">46% del revenue total</text>
-<text x="82" y="359" text-anchor="middle" fill="#ffd700" font-size="9">Margen Op: ~20.4%</text>
-<text x="82" y="373" text-anchor="middle" fill="#ffd700" font-size="9">Rev/paciente-día +6.8% YoY</text>
-<text x="82" y="387" text-anchor="middle" fill="#94a3b8" font-size="9">US · UK · Puerto Rico</text>
-<text x="82" y="403" text-anchor="middle" fill="#00bcd4" font-size="9">+7.7% same-facility YoY</text>
-<text x="82" y="418" text-anchor="middle" fill="#64748b" font-size="8">Thousand Branches: 10 nuevas 2025</text>
-
-<!-- Medicaid Supplemental label (sub-node indicator) -->
-<rect x="10" y="455" width="145" height="55" rx="5" fill="#0d1f1a" stroke="#00c853" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="82" y="473" text-anchor="middle" fill="#00c853" font-size="9.5" font-weight="bold">MEDICAID SUPPLEMENTAL</text>
-<text x="82" y="487" text-anchor="middle" fill="#94a3b8" font-size="9">Pagos estatales directos</text>
-<text x="82" y="500" text-anchor="middle" fill="#ffd700" font-size="11" font-weight="bold">$1.20B</text>
-
-<!-- ========== FLOW: Segments → Revenue Total ========== -->
-<!-- Acute Care → Revenue (wide band) -->
-<path d="M155 122 C 230 122, 230 200, 310 200" stroke="url(#gAcute)" stroke-width="60" fill="none" class="flow-path" opacity="0.55"/>
-<!-- Behavioral → Revenue (wide band) -->
-<path d="M155 337 C 230 337, 230 265, 310 265" stroke="url(#gBeh)" stroke-width="51" fill="none" class="flow-path" opacity="0.55"/>
-<!-- Medicaid Supplemental → Revenue (thin highlight) -->
-<path d="M155 483 C 220 483, 250 310, 310 295" stroke="url(#gRev)" stroke-width="11" fill="none" class="flow-path-slow" opacity="0.4"/>
-
-<!-- ========== COLUMN 2: REVENUE TOTAL (x=310..460) ========== -->
-<rect x="310" y="110" width="150" height="170" rx="6" fill="#0d1f35" stroke="#00a8cc" stroke-width="2" filter="url(#glowStrong)"/>
-<text x="385" y="135" text-anchor="middle" fill="#00a8cc" font-size="11" font-weight="bold">REVENUE TOTAL</text>
-<text x="385" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">GAAP Neto · FY2025</text>
-<text x="385" y="170" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="bold">$17.40B</text>
-<text x="385" y="188" text-anchor="middle" fill="#94a3b8" font-size="9">+10% vs FY2024 ($15.83B)</text>
-<line x1="320" y1="200" x2="450" y2="200" stroke="#0d2040" stroke-width="1"/>
-<text x="385" y="214" text-anchor="middle" fill="#94a3b8" font-size="9">Mix Pagadores:</text>
-<text x="385" y="228" text-anchor="middle" fill="#ff9800" font-size="9">~60% Gov (Medicare+Medicaid)</text>
-<text x="385" y="242" text-anchor="middle" fill="#00d4ff" font-size="9">~40% Privado+Comercial</text>
-<text x="385" y="258" text-anchor="middle" fill="#00c853" font-size="9">+$1.2B supl. Medicaid</text>
-<text x="385" y="272" text-anchor="middle" fill="#94a3b8" font-size="9">3.7M pacientes atendidos</text>
-
-<!-- ========== FLOW: Revenue Total → Costos + OpIncome ========== -->
-<!-- To Salaries -->
-<path d="M460 185 C 535 185, 535 120, 608 120" stroke="url(#gSalaries)" stroke-width="42" fill="none" class="flow-path" opacity="0.5"/>
-<!-- To Supplies -->
-<path d="M460 210 C 535 210, 535 210, 608 210" stroke="url(#gSupplies)" stroke-width="10" fill="none" class="flow-path" opacity="0.5"/>
-<!-- To Other OpEx -->
-<path d="M460 228 C 535 228, 535 275, 608 275" stroke="url(#gOther)" stroke-width="28" fill="none" class="flow-path" opacity="0.5"/>
-<!-- To D&A -->
-<path d="M460 248 C 535 248, 535 328, 608 328" stroke="url(#gDA)" stroke-width="4" fill="none" class="flow-path-slow" opacity="0.45"/>
-<!-- To Operating Income -->
-<path d="M460 230 C 535 230, 535 450, 608 450" stroke="url(#gOp)" stroke-width="13" fill="none" class="flow-path" opacity="0.6"/>
-
-<!-- ========== COLUMN 3: COSTOS (x=608..760) ========== -->
-<!-- Salaries & Benefits -->
-<rect x="608" y="48" width="152" height="110" rx="6" fill="#200a0a" stroke="#ff3a3a" stroke-width="1.5"/>
-<text x="684" y="70" text-anchor="middle" fill="#ff3a3a" font-size="10.5" font-weight="bold">SALARIOS &amp; BENEFICIOS</text>
-<text x="684" y="85" text-anchor="middle" fill="#94a3b8" font-size="9">99K+ empleados</text>
-<text x="684" y="99" text-anchor="middle" fill="#94a3b8" font-size="9">23K enfermeras</text>
-<text x="684" y="116" text-anchor="middle" fill="#ff6b6b" font-size="14" font-weight="bold">$8.10B</text>
-<text x="684" y="132" text-anchor="middle" fill="#94a3b8" font-size="9">46.6% del revenue</text>
-<text x="684" y="146" text-anchor="middle" fill="#ff9800" font-size="9">Premium Pay: $60M (vs $153M '22)</text>
-
-<!-- Supplies -->
-<rect x="608" y="168" width="152" height="70" rx="6" fill="#1f1008" stroke="#ff6b35" stroke-width="1.5"/>
-<text x="684" y="187" text-anchor="middle" fill="#ff6b35" font-size="10.5" font-weight="bold">SUMINISTROS MÉDICOS</text>
-<text x="684" y="202" text-anchor="middle" fill="#ff8c61" font-size="14" font-weight="bold">$1.70B</text>
-<text x="684" y="217" text-anchor="middle" fill="#94a3b8" font-size="9">9.8% del revenue</text>
-<text x="684" y="229" text-anchor="middle" fill="#94a3b8" font-size="9">Cadena suministro optimizada</text>
-
-<!-- Other OpEx -->
-<rect x="608" y="248" width="152" height="100" rx="6" fill="#1a1508" stroke="#ff9800" stroke-width="1.5"/>
-<text x="684" y="267" text-anchor="middle" fill="#ff9800" font-size="10.5" font-weight="bold">OTROS GASTOS OP.</text>
-<text x="684" y="282" text-anchor="middle" fill="#94a3b8" font-size="9">Leasing · Overhead · Admin</text>
-<text x="684" y="296" text-anchor="middle" fill="#ffc861" font-size="14" font-weight="bold">$4.90B</text>
-<text x="684" y="312" text-anchor="middle" fill="#94a3b8" font-size="9">28.2% del revenue</text>
-<text x="684" y="326" text-anchor="middle" fill="#94a3b8" font-size="9">Includes insurance/legal reserves</text>
-<text x="684" y="340" text-anchor="middle" fill="#ffd700" font-size="8.5">+$79M reservas liability FY2025</text>
-
-<!-- D&A -->
-<rect x="608" y="358" width="152" height="58" rx="6" fill="#150a20" stroke="#9c27b0" stroke-width="1.5"/>
-<text x="684" y="376" text-anchor="middle" fill="#ce93d8" font-size="10.5" font-weight="bold">DEPRECIACIÓN &amp; AMORT.</text>
-<text x="684" y="392" text-anchor="middle" fill="#ba68c8" font-size="14" font-weight="bold">$0.61B</text>
-<text x="684" y="406" text-anchor="middle" fill="#94a3b8" font-size="9">3.5% del revenue · No-cash</text>
-
-<!-- Operating Income -->
-<rect x="608" y="430" width="152" height="88" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="2" filter="url(#glow)"/>
-<text x="684" y="450" text-anchor="middle" fill="#00ff9d" font-size="10.5" font-weight="bold">INGRESO OPERATIVO</text>
-<text x="684" y="465" text-anchor="middle" fill="#00ff9d" font-size="16" font-weight="bold">$2.00B</text>
-<text x="684" y="480" text-anchor="middle" fill="#94a3b8" font-size="9">Margen Op: 11.5%</text>
-<text x="684" y="495" text-anchor="middle" fill="#00d4ff" font-size="9">vs 10.6% FY2024 (+90 bps)</text>
-<text x="684" y="510" text-anchor="middle" fill="#ffd700" font-size="9">EBITDA: $2.61B (15.0%)</text>
-
-<!-- ========== FLOW: OpIncome → Pre-Tax + Interest ========== -->
-<!-- Interest expense -->
-<path d="M760 474 C 820 474, 820 560, 870 560" stroke="#ff3a3a" stroke-width="2.5" fill="none" class="flow-path-slow" opacity="0.55"/>
-<!-- To Pre-tax Profit -->
-<path d="M760 470 C 820 470, 820 430, 870 430" stroke="url(#gOp)" stroke-width="12" fill="none" class="flow-path" opacity="0.6"/>
-
-<!-- ========== COLUMN 4: PRE-TAX & INTEREST (x=870..1010) ========== -->
-<!-- Interest Expense (small) -->
-<rect x="870" y="540" width="140" height="48" rx="5" fill="#1a0808" stroke="#ff3a3a" stroke-width="1"/>
-<text x="940" y="558" text-anchor="middle" fill="#ff6b6b" font-size="9.5" font-weight="bold">GASTO INTERESES</text>
-<text x="940" y="573" text-anchor="middle" fill="#ff3a3a" font-size="12" font-weight="bold">~$0.25B</text>
-<text x="940" y="583" text-anchor="middle" fill="#94a3b8" font-size="8">Net Debt/EBITDA: 2.0x</text>
-
-<!-- Pre-Tax Income -->
-<rect x="870" y="370" width="140" height="130" rx="6" fill="#0d1f1a" stroke="#00bcd4" stroke-width="1.5" filter="url(#glow)"/>
-<text x="940" y="392" text-anchor="middle" fill="#00bcd4" font-size="10.5" font-weight="bold">INGRESO PRE-TAX</text>
-<text x="940" y="410" text-anchor="middle" fill="#00ff9d" font-size="15" font-weight="bold">$1.95B</text>
-<text x="940" y="427" text-anchor="middle" fill="#94a3b8" font-size="9">Margen pre-tax: ~11.2%</text>
-<line x1="880" y1="437" x2="1000" y2="437" stroke="#0d2040" stroke-width="1"/>
-<!-- Flows split: Tax & Net Income indicators -->
-<text x="940" y="453" text-anchor="middle" fill="#ff6b6b" font-size="9">Impuestos: ~$0.45B (23%)</text>
-<text x="940" y="467" text-anchor="middle" fill="#94a3b8" font-size="9">ETR: ~23%</text>
-<text x="940" y="481" text-anchor="middle" fill="#00ff9d" font-size="9">→ Net Income: $1.50B</text>
-<text x="940" y="493" text-anchor="middle" fill="#ffd700" font-size="9">→ Adj EPS: ~$22.07</text>
-
-<!-- ========== FLOW: Pre-Tax → Tax + Net Income ========== -->
-<path d="M1010 440 C 1035 440, 1035 200, 1045 200" stroke="url(#gTax)" stroke-width="4.5" fill="none" class="flow-path-slow" opacity="0.5"/>
-<path d="M1010 445 C 1035 445, 1035 320, 1045 320" stroke="url(#gNI)" stroke-width="10" fill="none" class="flow-path" opacity="0.6"/>
-
-<!-- ========== COLUMN 5: NET INCOME → DESTINATIONS (x=1045+) ========== -->
-<!-- Income Taxes label (far right) -->
-<rect x="1045" y="155" width="8" height="70" rx="3" fill="#ff3a3a" opacity="0.7"/>
-<text x="1060" y="182" text-anchor="start" fill="#ff6b6b" font-size="9">IMPUESTOS</text>
-<text x="1060" y="195" text-anchor="start" fill="#ff3a3a" font-size="10" font-weight="bold">$0.45B</text>
-<text x="1060" y="208" text-anchor="start" fill="#64748b" font-size="8">23% ETR</text>
-
-<!-- NET INCOME destination -->
-<rect x="1045" y="270" width="8" height="100" rx="3" fill="#00ff9d" opacity="0.7"/>
-<!-- Arrows and labels to right of diagram -->
-<!-- Buybacks -->
-<line x1="1053" y1="295" x2="1053" y2="295" stroke="#00c853"/>
-<text x="1060" y="292" text-anchor="start" fill="#00c853" font-size="9" font-weight="bold">RECOMPRAS</text>
-<text x="1060" y="305" text-anchor="start" fill="#00ff9d" font-size="10" font-weight="bold">$0.90B</text>
-<text x="1060" y="318" text-anchor="start" fill="#94a3b8" font-size="8">4.65M shares</text>
-
-<!-- Dividends -->
-<text x="1060" y="337" text-anchor="start" fill="#76c442" font-size="9" font-weight="bold">DIVIDENDO</text>
-<text x="1060" y="350" text-anchor="start" fill="#76c442" font-size="10" font-weight="bold">$0.05B</text>
-<text x="1060" y="363" text-anchor="start" fill="#94a3b8" font-size="8">$0.80/yr · 0.43%</text>
-
-<!-- CAPEX indicator -->
-<rect x="1045" y="395" width="8" height="65" rx="3" fill="#9c27b0" opacity="0.6"/>
-<text x="1060" y="420" text-anchor="start" fill="#ce93d8" font-size="9" font-weight="bold">CAPEX</text>
-<text x="1060" y="433" text-anchor="start" fill="#ba68c8" font-size="10" font-weight="bold">$1.00B</text>
-<text x="1060" y="446" text-anchor="start" fill="#94a3b8" font-size="8">5.7% revenue</text>
-<text x="1060" y="459" text-anchor="start" fill="#94a3b8" font-size="8">Mant+Crecimiento</text>
-
-<!-- FCF label -->
-<rect x="1045" y="475" width="8" height="50" rx="3" fill="#ffd700" opacity="0.7"/>
-<text x="1060" y="496" text-anchor="start" fill="#ffd700" font-size="9" font-weight="bold">FREE CASH FLOW</text>
-<text x="1060" y="509" text-anchor="start" fill="#ffd700" font-size="10" font-weight="bold">~$0.90B</text>
-<text x="1060" y="522" text-anchor="start" fill="#94a3b8" font-size="8">FCF yield ~8%</text>
-
-<!-- ========== COLUMN HEADERS ========== -->
-<text x="82" y="15" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold" text-transform="uppercase">COL 1: SEGMENTOS</text>
-<text x="385" y="100" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 2: REVENUE GAAP</text>
-<text x="684" y="38" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 3: ESTRUCTURA DE COSTOS</text>
-<text x="940" y="360" text-anchor="middle" fill="#64748b" font-size="8.5" font-weight="bold">COL 4: PRE-TAX</text>
-
-<!-- ========== RISK ANNOTATION ========== -->
-<rect x="10" y="520" width="280" height="40" rx="5" fill="#1a1008" stroke="#ff6b35" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="20" y="537" fill="#ff9800" font-size="9" font-weight="bold">⚠ RIESGO CLAVE: Medicaid Supplemental</text>
-<text x="20" y="551" fill="#94a3b8" font-size="8.5">$1.2B beneficio anual → reducción gradual $360-400M hacia 2032</text>
-
-<!-- Net Income summary box -->
-<rect x="310" y="340" width="150" height="95" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="1.5" stroke-dasharray="6,3"/>
-<text x="385" y="360" text-anchor="middle" fill="#00ff9d" font-size="10" font-weight="bold">NET INCOME</text>
-<text x="385" y="377" text-anchor="middle" fill="#00ff9d" font-size="16" font-weight="bold">$1.50B</text>
-<text x="385" y="394" text-anchor="middle" fill="#94a3b8" font-size="9">Margen neto: 8.7%</text>
-<text x="385" y="408" text-anchor="middle" fill="#94a3b8" font-size="9">+30% vs FY2024 ($1.14B)</text>
-<text x="385" y="422" text-anchor="middle" fill="#ffd700" font-size="9">EPS dilutido: $23.15 TTM</text>
-
-<!-- Flow from Revenue to Net Income summary box -->
-<path d="M460 275 C 490 275, 490 390, 310 390" stroke="url(#gNI)" stroke-width="2" fill="none" stroke-dasharray="5,3" opacity="0.4"/>
-</svg>
-  </div>
-
-  <!-- Legend -->
-  <div class="legend-section">
-    <div class="legend-title">📊 Leyenda de Flujos — FY2025 Verificado (SEC 10-K · Becker's · StockAnalysis)</div>
-    <div class="legend-grid">
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00d4ff"></span>
-        <span class="legend-text">Acute Care Services</span>
-        <span class="legend-val">$9.40B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ffd700"></span>
-        <span class="legend-text">Behavioral Health Services</span>
-        <span class="legend-val">$8.00B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00c853"></span>
-        <span class="legend-text">Medicaid Supplemental Payments</span>
-        <span class="legend-val">$1.20B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff3a3a"></span>
-        <span class="legend-text">Salarios, Wages &amp; Benefits</span>
-        <span class="legend-val">$8.10B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff6b35"></span>
-        <span class="legend-text">Suministros Médicos</span>
-        <span class="legend-val">$1.70B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff9800"></span>
-        <span class="legend-text">Otros Gastos Operativos</span>
-        <span class="legend-val">$4.90B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#9c27b0"></span>
-        <span class="legend-text">Depreciación &amp; Amortización</span>
-        <span class="legend-val">$0.61B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00ff9d"></span>
-        <span class="legend-text">Ingreso Operativo (EBIT)</span>
-        <span class="legend-val">$2.00B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00ff9d"></span>
-        <span class="legend-text">Net Income Atribuible a UHS</span>
-        <span class="legend-val">$1.50B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ffd700"></span>
-        <span class="legend-text">Free Cash Flow (post-CAPEX)</span>
-        <span class="legend-val">~$0.90B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00c853"></span>
-        <span class="legend-text">Recompras de Acciones 2025</span>
-        <span class="legend-val">$0.90B</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ba68c8"></span>
-        <span class="legend-text">CAPEX Total 2025</span>
-        <span class="legend-val">$1.00B</span>
-      </div>
-    </div>
-  </div>
-
-
-
-</div>
-
-<div class="tooltip-box" id="tooltip"></div>
-
-<div class="footer">
-  <strong>@patonet</strong> · Análisis Feroldi · $UHS · FY2025 · Generado 8 Abr 2026 · 
-  Fuentes: SEC EDGAR 10-K · Becker's Hospital Review (Feb 2026) · StockAnalysis.com · UHS IR Releases · 
-  <span style="color:#ff9800">No constituye asesoría de inversión</span>
-</div>
-
-<script>
-// Tooltip interactions
-document.querySelectorAll('.node').forEach(el => {
-  el.addEventListener('mouseenter', function(e) {
-    const tip = document.getElementById('tooltip');
-    tip.innerHTML = '<strong>' + this.dataset.tip + '</strong>';
-    tip.style.display = 'block';
-  });
-  el.addEventListener('mousemove', function(e) {
-    const tip = document.getElementById('tooltip');
-    tip.style.left = (e.clientX + 12) + 'px';
-    tip.style.top = (e.clientY - 30) + 'px';
-  });
-  el.addEventListener('mouseleave', function() {
-    document.getElementById('tooltip').style.display = 'none';
-  });
-});
-</script>
-</body>
-</html>
-
---- FIN PLANTILLA SANKEY ---
-
-INSTRUCCIONES DE ADAPTACIÓN:
-1. Cambiar título, ticker, exchange, precio, fecha y año fiscal.
-2. Col 1: reemplazar segmentos de UHS (Acute Care / Behavioral Health / Medicaid) por los segmentos reales del ticker analizado.
-3. Col 2: ajustar revenue total GAAP, mix de clientes/pagadores y crecimiento YoY.
-4. Col 3: ajustar líneas de costos al sector (COGS, SG&A, R&D, etc.) con nombres y montos reales.
-5. Col 4: ajustar EBIT, intereses, pre-tax, impuestos (ETR real).
-6. Col 5: ajustar Net Income, FCF, recompras, dividendos, Capex.
-7. KPI bar: Revenue · EBIT · Net Income · FCF · Margen Neto · Score Feroldi · PEG · Veredicto.
-8. Badges: veredicto en español · Score XX/160 · PEG X.XX.
-9. Ajustar los viewBox y coordenadas SVG si el número de segmentos difiere de UHS (2 seg → mismo layout; 3+ seg → aumentar altura viewBox proporcionalmente).
-10. Leyenda: actualizar items con los nodos del ticker actual.
-11. Si hay riesgo material en ingresos → mantener el recuadro naranja de riesgo con el texto actualizado.
-12. Animaciones flow-path: mantener exactamente igual.
-13. NO añadir tabla de auditoría bajo ninguna circunstancia.
-
-Nombre archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
-Carpeta GitHub: diagramas/equities/
-
-===========================================================
-5. GITHUB PAGES — ACTUALIZACIÓN OBLIGATORIA
-===========================================================
-
-User: patonet | Repo: informes | Token: {{GITHUB_TOKEN}}
-
-PASO 1: PUT del archivo generado a su carpeta.
-PASO 2: Leer index.html actual con GET. Localizar const REPORTS = [. Agregar nuevo entry al INICIO del array (primer elemento). Hacer PUT de index.html actualizado. SIEMPRE hacer esto — el dashboard solo se actualiza si este paso se completa.
-
-VEREDICTOS EN REPORTS — EN INGLÉS OBLIGATORIO:
-COMPRAR FUERTE        → "buy"
-COMPRAR EN RETROCESOS → "pullback"
-COMPRA ESPECULATIVA   → "speculative"
-ACUMULAR              → "accumulate"
-NEUTRAL               → "neutral"
-EVITAR                → "nobuy"
-CORTO                 → "short"
-NUNCA usar el veredicto en español en el campo verdict.
-
-Formato entry REPORTS:
-{ ticker, name, desc, type:"equity", verdict:"[EN]", price:"$X.XX", upside:"+/-X%", target:"$X", date:"DD Mon YYYY", url:"equities/infografia_...", pdfUrl:"pdfs/equities/...", diag3Url:"diagramas/equities/..." }
-
-Si algún URL aún no fue generado en esta sesión, poner "" en ese campo.
-
-PASO 3: Confirmar al usuario con los links finales clicables.
-
-===========================================================
-6. POST-DEBATE
-===========================================================
-
-Si el usuario solicita cambios → incorporar y regenerar. Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO.
-Sobrescribir en GitHub. Actualizar REPORTS.
-
-===========================================================
-7. TONO
-===========================================================
-
-Analítico · preciso · español. Outputs de progreso concisos, outputs finales completos.
-
-v13.0 — Sankey embebido · Sin tabla auditoría · INFOGRAFIA PARA si fetch falla · Dashboard siempre actualizado — @patonet
+# PROMPT 2 - GENERADOR DE INFORMES v3.0 @patonet
+# Cambios v3: Barra performance estatica, Waterfall flotante, SOTP 20%,
+#             Diagrama 3 Sankey, SL/TP, Portada PDF 1 pagina, Menu SANKEY
+# Token: reemplazar {{GITHUB_TOKEN}} con el token real antes de usar
+# URL: https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt2_generador.txt
+
+PROMPT 2 — GENERADOR DE INFORMES
+
+Infografia · PDF · Diagramas · GitHub Pages
+
+@patonet · Complemento del Prompt 1 (Nucleo de Analisis Feroldi)
+
+INSTRUCCIONES DE USO
+
+Este prompt se activa DESPUES de completar el informe con el Prompt 1.
+El usuario pegara el informe escrito completo (Bloques A a H) en esta
+conversacion. Responder a: INFOGRAFIA (infografia HTML a GitHub), PDF
+(PDF disenado a GitHub), 1 (Diagrama Como Gana Dinero), 2 (Diagrama
+KPIs), 3 (ambos diagramas), TODO (todo en un paso). Los datos numericos
+vienen del informe pegado — no re-buscar nada salvo solicitud expresa.
+
+REGLA CRITICA DE LINKS: SIEMPRE usar URLs de GitHub Pages
+(https://patonet.github.io/informes/...) para los links reportados al
+usuario — NUNCA usar URLs de github.com/patonet/informes/blob/... que
+abren el visor de GitHub en lugar del archivo directo.
+
+ESTRUCTURA DE CARPETAS EN GITHUB: Infografias HTML → equities/ etfs/
+shorts/ segun tipo. PDFs → pdfs/equities/ pdfs/etfs/ pdfs/shorts/ segun
+tipo. Diagramas → diagramas/equities/ diagramas/etfs/ diagramas/shorts/
+segun tipo.
+
+5. FASE 2 — INFOGRAFIA
+
+A. Activacion, estilo y paleta
+
+-   Generar la infografia UNICAMENTE cuando el usuario haya escrito la
+    palabra INFOGRAFIA como mensaje independiente, despues de haber
+    leido y aprobado el informe escrito. Nunca generar automaticamente.
+    ESTRATEGIA DE GENERACION: declarar TODOS los datos como constantes
+    JS al inicio del bloque script (const DATA = {...}), con todos los
+    valores ya calculados — precios, porcentajes, colores semaforicos,
+    textos de popups. Luego las zonas HTML referencian DATA sin
+    recalcular. Esto evita errores de scope y reduce ambiguedad.
+
+-   Estilo: terminal Bloomberg · futurista · oscuro · profesional ·
+    resolucion 8K.
+
+-   Paleta obligatoria: fondo (#050a12), texto base (#c8d8f0), cian
+    (#00d4ff), verde neon (#00ff9d), dorado (#ffd700), rojo alerta
+    (#ff3a3a), amarillo advertencia (#ffbb00). Tipografia monoespaciada
+    para valores numericos, sans-serif moderna para etiquetas.
+
+-   Tamanio de texto: prohibido texto inferior a 0.8rem en cualquier
+    parte de la infografia. El texto de marca @patonet usa 1rem en color
+    dorado (#ffd700), claramente visible y legible.
+
+B. REGLAS CRITICAS DE RESPONSIVIDAD — APLICAR A CADA ZONA SIN EXCEPCION
+
+  ESTAS REGLAS SON OBLIGATORIAS EN ABSOLUTAMENTE TODAS LAS ZONAS. Si
+  alguna zona no las aplica, la infografia esta incompleta. Revisa zona
+  por zona antes de cerrar el HTML.
+
+REGLA R1 — Raiz fluida: el primer selector CSS del documento debe ser
+exactamente:
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding:
+  0; } html { font-size: clamp(10px, 1.15vw, 17px); } body { width:
+  100%; min-height: 100vh; }
+
+Este bloque hace que 1rem se ajuste fluidamente entre 10px y 17px segun
+el viewport y el zoom del navegador. Todo lo demas escala en cascada.
+
+REGLA R2 — Unidades permitidas: SOLO rem, em, %, vw, vh, fr. PROHIBIDO
+px en font-size, padding, margin, gap, width, height, border-radius. La
+unica excepcion son los bordes de linea finos: border: 1px o 2px solid.
+
+REGLA R3 — Contenedores: todos los wrappers de zona usan:
+
+  width: 100%; padding: 1.5rem; overflow: hidden;
+
+REGLA R4 — Grids fluidos: NUNCA definir columnas de ancho fijo en px.
+Usar siempre:
+
+  grid-template-columns: repeat(auto-fit, minmax(Xrem, 1fr)); — o —
+  grid-template-columns: 1fr 1fr; — o variantes con fr.
+
+REGLA R5 — Canvas y SVG responsivos: todos los graficos (Chart.js, SVG,
+canvas) deben tener:
+
+  width: 100%; height: auto; — Para Chart.js ademas: responsive: true,
+  maintainAspectRatio: true — Para SVG: viewBox definido, width='100%',
+  height='auto'
+
+REGLA R6 — Gauges SVG responsivos: cada velocimetro SVG individual de la
+Zona 5 debe declararse con:
+
+  viewBox='0 0 200 120' width='100%' height='auto' style='display:block;
+  width:100%; max-width:12rem;'
+
+El tamanio visual del gauge lo controla el contenedor padre via CSS, no
+atributos width/height fijos en el SVG.
+
+REGLA R7 — Verificacion final obligatoria: antes de cerrar el bloque
+</style>, busca en el CSS cualquier ocurrencia de px que no sea border.
+Si la encuentras, sustituye por rem. Si es un width o height, sustituye
+por % o fr.
+
+C. Estructura de 6 Zonas
+
+ZONA 1 — Cabecera de identidad
+
+Layout: display grid de dos columnas [logo+identidad izquierda |
+precio+veredicto+scores derecha]. Toda la zona usa la Regla R3.
+
+-   LOGO DE LA EMPRESA — IMPLEMENTACION EXACTA: copiar este HTML para el
+    logo, reemplazando DOMINIO y TICKER con los valores reales:
+
+  <img id="triggerLogo" src="https://logo.clearbit.com/[DOMINIO].com"
+  onerror="this.onerror=null;
+  this.src='https://www.google.com/s2/favicons?domain=[DOMINIO].com&sz=128';
+  this.onerror=function(){ this.style.display='none';
+  document.getElementById('logoFallback').style.display='flex'; };"
+  style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem;"
+  alt="[TICKER]"> <div id="logoFallback"
+  style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;
+  border-radius:0.4rem;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer;"
+  id="triggerLogo">[TICKER]</div> IMPORTANTE: el id="triggerLogo" debe
+  estar en el elemento visible (la imagen o el fallback). Si la imagen
+  carga, el div fallback queda display:none. Si falla, la imagen se
+  oculta y el div aparece. Ambos son triggers del popup ejecutivo.
+
+-   Nombre completo de la empresa en 2rem bold color blanco + sector y
+    fecha en 0.85rem color #94a3b8. Nombre y logo deben estar en un
+    flex-row con gap 1rem y align-items center.
+
+-   POPUP EJECUTIVO — IMPLEMENTACION COMPLETA CON CODIGO EXACTO:
+
+  <!-- PASO 1: Insertar este div al inicio del body, antes de cualquier
+  otra seccion --> <div id="execPopup"
+  style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#0a1628;border:2px solid
+  #00d4ff;border-radius:0.8rem;padding:1.5rem;
+  max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.95rem;color:#c8d8f0;
+  box-shadow:0 0 40px rgba(0,212,255,0.3);"> <h3
+  style="color:#00d4ff;margin-bottom:0.8rem;">Resumen Ejecutivo</h3>
+  <div id="execPopupText"></div> </div> <!-- PASO 2: Insertar este
+  bloque JS al final del body, ANTES de </body> --> <script>
+  (function(){ // El texto del resumen ejecutivo — reemplazar con el
+  Bloque A real del informe const EXEC_SUMMARY = `[TEXTO COMPLETO DEL
+  BLOQUE A — RESUMEN EJECUTIVO]`; const popup =
+  document.getElementById('execPopup'); const popupTx =
+  document.getElementById('execPopupText'); let hideTimer = null;
+  function showExec() { if(hideTimer){ clearTimeout(hideTimer);
+  hideTimer=null; } popupTx.textContent = EXEC_SUMMARY;
+  popup.style.display = 'block'; } function scheduleHide() { hideTimer =
+  setTimeout(function(){ popup.style.display='none'; }, 350); } function
+  cancelHide() { if(hideTimer){ clearTimeout(hideTimer); hideTimer=null;
+  } } // Registrar triggers: logo, nombre empresa, frase cursiva //
+  Asignar ids a esos elementos: id="triggerLogo", id="triggerNombre",
+  id="triggerFrase"
+  ['triggerLogo','triggerNombre','triggerFrase'].forEach(function(id){
+  const el = document.getElementById(id); if(!el) return;
+  el.style.cursor = 'pointer'; el.addEventListener('mouseenter',
+  showExec); el.addEventListener('mouseleave', scheduleHide); }); // El
+  popup mismo cancela el hide cuando el cursor entra en el
+  popup.addEventListener('mouseenter', cancelHide);
+  popup.addEventListener('mouseleave', scheduleHide); // Click en
+  cualquier lugar del documento cierra el popup
+  document.addEventListener('click', function(e){
+  if(!popup.contains(e.target)) popup.style.display='none'; }); })();
+  </script> IMPORTANTE: los tres elementos trigger DEBEN tener los ids:
+  id="triggerLogo", id="triggerNombre", id="triggerFrase". Sin estos ids
+  el popup no funciona.
+
+-   Frase resumen del negocio: debajo del nombre, en cursiva entre
+    comillas, fuente 1rem minimo, color cian (#00d4ff), fondo #0d1f35,
+    padding 0.6rem 1rem, border-left 3px solid #00d4ff. Tiene cursor
+    pointer para indicar interactividad (activa el popup ejecutivo).
+
+-   Precio actual a la derecha: 2.2rem bold con variacion delta-dolares
+    y delta-% en 1rem con color semaforico.
+
+-   Barra de rango 52 semanas: SVG responsivo con marcador minimo en
+    rojo, maximo en verde, precio actual en cian. Etiquetas en 0.8rem.
+    Texto: el precio esta al X% del rango anual. BARRA DE PERFORMANCE
+    HISTORICA — elemento obligatorio en el encabezado despues de la
+    barra 52W. Muestra retornos en 8 periodos: 1 dia · 5 dias · 1 mes ·
+    6 meses · En el ano · 1 ano · 5 anos · Desde IPO. IMPLEMENTACION:
+    los retornos NO se calculan en tiempo real via API (Yahoo Finance
+    bloquea CORS desde GitHub Pages). En cambio, Claude calcula los
+    valores durante la Fase 0 usando web_search y los embebe como
+    constantes estaticas en el HTML: PASO 1 — Durante Fase 0, ejecutar
+    estas busquedas especificas para obtener precios historicos
+    exactos: - web_search("[TICKER] stock price 1 day ago close") -
+    web_search("[TICKER] stock price 5 days ago close [FECHA]") -
+    web_search("[TICKER] stock close price 1 month ago [MES-1 ANO]") -
+    web_search("[TICKER] stock close price 6 months ago [MES-6 ANO]") -
+    web_search("[TICKER] stock close price January 2 [ANO ACTUAL]
+    YTD") - web_search("[TICKER] stock close price 1 year ago
+    [ANO-1]") - web_search("[TICKER] stock close price 5 years ago
+    [ANO-5] OR IPO price history") - Fuente preferida: Macrotrends,
+    Stockanalysis history tab, Wisesheets PASO 2 — Con los precios
+    obtenidos, calcular retorno% = ((precioActual - precioRef) /
+    precioRef) * 100 PASO 3 — Embeber en el HTML como objeto JS
+    estatico: const PERF_DATA = [ { label: "1 dia", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "5 dias", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "1 mes", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "6 meses", pct:
+    [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "En el ano",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "1 ano",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "5 anos",
+    pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" }, { label: "Desde
+    IPO", pct: [VALOR_CALCULADO], ref: "$[PRECIO_REF]" } ]; // Si no se
+    pudo verificar un precio, usar null para mostrar N/D REGLA
+    ANTI-ALUCINACION: NUNCA inventar o estimar un precio de referencia.
+    Si la busqueda no retorna el precio exacto de ese dia: pct = null
+    (mostrara N/D). Es preferible mostrar N/D que un dato incorrecto.
+    Estilos: fondo #080f1c, separadores 1px #1a2a4a, etiqueta 0.75rem
+    #94a3b8, valor 0.9rem bold verde #00c853 si positivo, rojo #e53935
+    si negativo, gris #555 si null. Misma barra incluir en primera
+    pagina del PDF. async function loadPerformance(ticker, currentPrice)
+    { try { const url =
+    \`https://query1.finance.yahoo.com/v8/finance/chart/\${ticker}?interval=1d&range=5y\`;
+    const r = await fetch(url); const d = await r.json(); const result =
+    d.chart.result[0]; const ts = result.timestamp; const cl =
+    result.indicators.quote[0].close; const today = new Date();
+    today.setHours(0,0,0,0); const getClose = (daysAgo) => { const
+    target = new Date(today); target.setDate(today.getDate() - daysAgo);
+    let best = null, bestDiff = Infinity; for (let i = 0; i < ts.length;
+    i++) { const d = new Date(ts[i]*1000); d.setHours(0,0,0,0); const
+    diff = Math.abs(d - target); if (diff < bestDiff && cl[i]) {
+    bestDiff = diff; best = cl[i]; } } return best; }; const ytdRef =
+    (() => { const y = new Date(today.getFullYear(), 0, 1); let best =
+    null, bestDiff = Infinity; for (let i = 0; i < ts.length; i++) {
+    const d = new Date(ts[i]*1000); d.setHours(0,0,0,0); const diff =
+    Math.abs(d - y); if (diff < bestDiff && cl[i]) { bestDiff = diff;
+    best = cl[i]; } } return best; })(); const ipoRef = cl.find(v => v);
+    // primer cierre disponible const pct = (ref) => ref ?
+    (((currentPrice - ref) / ref) * 100).toFixed(2) : null; return [ {
+    label: '1 dia', pct: pct(getClose(1)) }, { label: '5 dias', pct:
+    pct(getClose(5)) }, { label: '1 mes', pct: pct(getClose(30)) }, {
+    label: '6 meses', pct: pct(getClose(182)) }, { label: 'En el
+    ano',pct: pct(ytdRef) }, { label: '1 ano', pct: pct(getClose(365))
+    }, { label: '5 anos', pct: pct(getClose(1825)) }, { label: 'Desde
+    IPO',pct: pct(ipoRef) } ]; } catch(e) { return null; } } Llamar
+    loadPerformance(TICKER, precioActual) al cargar el HTML y renderizar
+    la barra. Estilos: fondo #080f1c, separadores entre periodos 1px
+    #1a2a4a, etiqueta superior 0.75rem color #94a3b8, valor inferior
+    0.9rem bold — verde (#00c853) si positivo, rojo (#e53935) si
+    negativo. Si una celda devuelve null mostrar N/D en color #555.
+    Misma barra incluir en la primera pagina del PDF.
+
+-   VEREDICTO CON MATICES — CINCO OPCIONES POSIBLES (seleccionar la mas
+    adecuada segun el analisis):
+
+  COMPRAR — fondo #00c853 texto negro: cuando el precio actual
+  representa una oportunidad clara de entrada, el analisis es
+  fundamentalmente solido y el margen de seguridad es atractivo. COMPRAR
+  EN RETROCESOS — fondo #1565C0 texto blanco: cuando la empresa es
+  excelente pero el precio actual es elevado; la recomendacion es
+  esperar una correccion de precio para entrar con mejor margen de
+  seguridad. ACUMULAR — fondo #00838f texto blanco: cuando la empresa es
+  buena y el precio es razonable pero no extraordinariamente barato;
+  entrar gradualmente en posicion. NEUTRAL — fondo #5d4037 texto blanco:
+  cuando el analisis no es suficientemente concluyente, los riesgos y
+  oportunidades se equilibran, o faltan datos clave para tomar una
+  decision. NO COMPRAR — fondo #e53935 texto blanco: cuando los
+  fundamentales son debiles, la valoracion es cara o los riesgos superan
+  las oportunidades. Prohibido usar MANTENER como veredicto.
+
+-   Dos tarjetas Feroldi: % del maximo posible · Score absoluto
+    sobre 160. NO incluir media ponderada. Mas gauge circular SVG
+    responsivo con la aguja apuntando al porcentaje.
+
+-   SEMAFORO DE RIESGO IA — elemento obligatorio en el encabezado:
+    mostrar un badge circular que indique la calificacion de riesgo IA
+    evaluada en el Bloque C. El badge va junto a las tarjetas Feroldi o
+    bajo el veredicto, claramente visible.
+
+  SEMAFORO SVG DE RIESGO IA — ORDEN REAL DE SEMAFORO DE TRANSITO: ROJO
+  arriba, NARANJA centro, VERDE abajo. Copiar el SVG completo y
+  sustituir SOLO los valores de las 3 luces segun el nivel: <svg
+  id="triggerIA" viewBox="0 0 80 200" width="4rem" height="auto"
+  style="cursor:pointer;display:inline-block;vertical-align:middle;filter:drop-shadow(0
+  2px 8px rgba(0,0,0,0.7))"> <!-- CARCASA exterior con bisel --> <rect
+  x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a"
+  stroke="#555" stroke-width="2"/> <rect x="8" y="8" width="64"
+  height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/> <!--
+  Tornillos decorativos en las esquinas --> <circle cx="16" cy="16"
+  r="3" fill="#333" stroke="#555" stroke-width="1"/> <circle cx="64"
+  cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/> <circle
+  cx="16" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+  <circle cx="64" cy="184" r="3" fill="#333" stroke="#555"
+  stroke-width="1"/> <!-- Separadores horizontales entre luces --> <rect
+  x="8" y="70" width="64" height="3" fill="#222"/> <rect x="8" y="127"
+  width="64" height="3" fill="#222"/> <!-- LUZ ROJA — ARRIBA (encendida
+  en ALTO, tenue en BAJO/MEDIO) --> <circle cx="40" cy="42" r="22"
+  fill="[ROJO_FILL]" [ROJO_GLOW]/> <circle cx="40" cy="42" r="22"
+  fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="34" rx="7" ry="5" fill="white"
+  opacity="[ROJO_REFL]"/> <!-- LUZ NARANJA — CENTRO (encendida en MEDIO,
+  tenue en BAJO/ALTO) --> <circle cx="40" cy="100" r="22"
+  fill="[NARANJA_FILL]" [NARANJA_GLOW]/> <circle cx="40" cy="100" r="22"
+  fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="92" rx="7" ry="5" fill="white"
+  opacity="[NARANJA_REFL]"/> <!-- LUZ VERDE — ABAJO (encendida en BAJO,
+  tenue en MEDIO/ALTO) --> <circle cx="40" cy="158" r="22"
+  fill="[VERDE_FILL]" [VERDE_GLOW]/> <circle cx="40" cy="158" r="22"
+  fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="150" rx="7" ry="5" fill="white"
+  opacity="[VERDE_REFL]"/> </svg> TABLA DE VALORES POR NIVEL (sustituir
+  los placeholders): NIVEL BAJO (verde encendido — riesgo bajo): ROJO:
+  fill="#2d0a0a" glow: (nada) refl=0.05 NARANJA: fill="#3d2800" glow:
+  (nada) refl=0.05 VERDE: fill="#00c853" glow: filter="drop-shadow(0 0
+  10px #00c853)" refl=0.35 NIVEL MEDIO (naranja encendido — riesgo
+  medio): ROJO: fill="#2d0a0a" glow: (nada) refl=0.05 NARANJA:
+  fill="#ff8c00" glow: filter="drop-shadow(0 0 10px #ff8c00)" refl=0.35
+  VERDE: fill="#003d1a" glow: (nada) refl=0.05 NIVEL ALTO (rojo
+  encendido — riesgo alto): ROJO: fill="#e53935" glow:
+  filter="drop-shadow(0 0 10px #e53935)" refl=0.35 NARANJA:
+  fill="#3d2800" glow: (nada) refl=0.05 VERDE: fill="#003d1a" glow:
+  (nada) refl=0.05 TEXTO junto al semaforo: "Riesgo de la IA:
+  [BAJO/MEDIO/ALTO]" en el color de la luz encendida, font-weight bold,
+  font-size 0.9rem. POPUP DEL SEMAFORO: al hacer hover sobre
+  id="triggerIA", mostrar popup con el analisis completo del Bloque C.
+  El popup usa el borde del color de la luz encendida. JS igual al popup
+  ejecutivo.
+
+ZONA 2 — Panel de Key Stats agrupadas por afinidad
+
+Layout: grid fluido de subgrupos. Cada subgrupo es una caja con header
+de titulo en 0.75rem uppercase letra espaciada color #94a3b8, fondo
+#080f1c, border-radius 0.4rem, padding 0.8rem. Dentro del subgrupo las
+cards en grid horizontal. Reglas R2, R3, R4 obligatorias.
+
+-   GRUPO 1 — VALORACION: P/E Ratio TTM · PEG Ratio · EPS TTM · Market
+    Cap.
+
+-   GRUPO 2 — RENTABILIDAD: Margen Bruto · Margen Operativo · Margen
+    Neto · ROE · ROA.
+
+-   GRUPO 3 — CRECIMIENTO: Revenue Growth (YoY) · EPS Growth (YoY) ·
+    Growth Rate proyectado.
+
+-   GRUPO 4 — DIVIDENDO Y RIESGO: Dividend Yield · Beta (1Y).
+
+-   Cada card dentro del grupo: valor en 1.3rem monoespaciado · etiqueta
+    en 0.8rem · micro-indicador semaforico (triangulo
+    verde/amarillo/rojo). Padding 0.6rem. Background #0d1828. Los grupos
+    se disponen en una fila horizontal con grid-template-columns:
+    repeat(auto-fit, minmax(12rem, 1fr)).
+
+ZONA 3 — Graficos de rendimiento financiero
+
+  PROBLEMA CONOCIDO: esta zona falla si se usan px fijos, height
+  absolutos en canvas, o position:absolute en el pastel. Sigue las
+  instrucciones de CSS al pie de la letra para evitarlo.
+
+CSS OBLIGATORIO DEL CONTENEDOR DE ZONA 3 — copiar exactamente:
+
+  .zona3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap:
+  1.5rem; width: 100%; align-items: start; } .zona3-chart { display:
+  flex; flex-direction: column; width: 100%; min-height: 0; }
+  .zona3-chart .chart-wrap { position: relative; width: 100%;
+  aspect-ratio: 4 / 3; } .zona3-chart .chart-wrap canvas { position:
+  absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+La clave es aspect-ratio: 4/3 en el wrapper y canvas con
+position:absolute inset:0. Esto hace que los tres graficos tengan
+exactamente el mismo tamano, sean responsivos y el pastel NO se desborde
+ni desaparezca al hacer zoom.
+
+CONFIGURACION Chart.js OBLIGATORIA para los tres graficos:
+
+  { responsive: true, maintainAspectRatio: false, plugins: { legend: {
+  labels: { font: { size: 11 }, color: '#c8d8f0' } } }, scales: { ... }
+  }
+
+maintainAspectRatio: false es obligatorio cuando el canvas tiene tamano
+controlado por CSS via aspect-ratio. Con true el canvas ignora el CSS y
+genera el desajuste visual.
+
+Todos los graficos usan datos reales de Fase 0. Si un dato no esta
+disponible, indicar N/D. Nunca inventar valores.
+
+Hover popups: al pasar el cursor sobre cualquier barra o porcion,
+aparece ventana (fondo #1a2a4a, borde #00d4ff, border-radius 0.4rem) con
+valor exacto, periodo y variacion. Desaparece al retirar el cursor.
+
+-   COLUMNA 1 — Grafico Crecimiento y Rentabilidad:
+
+  DATOS ACTUALIZADOS OBLIGATORIO: usar los 4 trimestres MAS RECIENTES
+  disponibles. Si hoy es 2026 y hay datos de FY2025, usar esos — no
+  FY2024.
+
+  REGLA DE COLORES ESTRICTA: barras de Revenue = azul oscuro (#1a3a6e),
+  barras de Net Income = cian (#00d4ff). Si Net Income es negativo,
+  barra cian hacia abajo. NUNCA rojo en este grafico.
+
+ARQUITECTURA DE EJES — MODELO TRADINGVIEW (proporcionalidad
+garantizada):
+
+  PRINCIPIO CLAVE: Revenue y Net Income COMPARTEN el mismo eje Y derecho
+  (en dolares/unidad monetaria) para que sus barras sean PROPORCIONALES
+  entre si — exactamente como lo muestra TradingView. El Margen Neto %
+  va en el eje Y IZQUIERDO separado. CONFIG Chart.js OBLIGATORIA para
+  Columna 1: PASO PREVIO CRITICO — calcular los limites del eje yVal
+  ANTES de instanciar el chart: const allVals = [...revenueData,
+  ...netIncomeData]; const dataMin = Math.min(...allVals); // puede ser
+  negativo const dataMax = Math.max(...allVals); const padding =
+  (dataMax - dataMin) * 0.15; // 15% de margen visual const yValMin =
+  dataMin < 0 ? dataMin - padding : 0; const yValMax = dataMax +
+  padding; scales: { yMg: { // EJE IZQUIERDO — Margen % type: 'linear',
+  position: 'left', title: { display:true, text:'Margen %',
+  color:'#ff8c00' }, ticks: { color:'#ff8c00', callback: v =>
+  v.toFixed(1)+'%' }, grid: { color:'#1a2a4a' } // NO poner min/max:
+  Chart.js lo calcula solo y respeta negativos }, yVal: { // EJE DERECHO
+  — Revenue Y Net Income juntos type: 'linear', position: 'right',
+  title: { display:true, text:'USD', color:'#c8d8f0' }, ticks: {
+  color:'#c8d8f0', callback: v => '$'+formatMillions(v) }, grid: {
+  drawOnChartArea:false }, min: yValMin, // calculado arriba — soporta
+  negativos max: yValMax } } Datasets: - Revenue: { type:'bar',
+  yAxisID:'yVal', backgroundColor:'#1a3a6e', label:'Revenue' } - Net
+  Income: { type:'bar', yAxisID:'yVal', backgroundColor:'#00d4ff',
+  label:'Net Income' } - Margen %: { type:'line', yAxisID:'yMg',
+  borderColor:'#ff8c00', pointRadius:4, fill:false, label:'Net Margin %'
+  } REGLA CLAVE PARA NEGATIVOS: NUNCA poner min:0 en yVal si hay Net
+  Income negativos. Con min calculado dinamicamente, las barras
+  negativas se dibujan hacia abajo desde el cero, visibles y
+  proporcionales. La linea de cero (y=0) se traza automaticamente en
+  Chart.js cuando el eje incluye negativos — no requiere plugin externo.
+  formatMillions(v): si abs(v)>=1000 devolver (v/1000).toFixed(1)+'B',
+  si no v.toFixed(0)+'M'.
+
+-   Titulo: Crecimiento y Rentabilidad [Q? FY?? – Q? FY??] con el rango
+    real.
+
+-   Leyenda: cuadro azul oscuro = Revenue · cuadro cian = Net Income ·
+    linea naranja = Net Margin %.
+
+-   COLUMNA 2 — Conversion de Ingresos a Utilidad (cascada / waterfall):
+
+  Usar el trimestre MAS RECIENTE reportado — no el Q4 del ano anterior
+  si ya hay reportes mas nuevos. Indicar en el titulo el trimestre
+  exacto.
+
+-   Barras verticales en cascada del TRIMESTRE MAS RECIENTE. Orden fijo:
+    Revenue · COGS · Gross Profit · Op Expenses · Op Income · Non-Op ·
+    Taxes · Net Income.
+
+-   Color de cada barra segun su naturaleza — NO usar etiquetas
+    genericas 'Positivo'/'Negativo':
+
+  Colores del waterfall y LOGICA DE BARRAS FLOTANTES (obligatorio):
+  IMPLEMENTAR como barras flotantes [base, top] — NO barras desde cero.
+  Cada dataset tiene un unico punto activo en su posicion X y null en el
+  resto. Logica exacta: Revenue [0, rev]: barra azul #1a3a6e, desde 0
+  hasta revenue total. COGS [grossProfit, revenue]: barra roja #ff3a3a
+  flotante, muestra el costo como la parte superior de Revenue. Gross
+  Profit [0, grossProfit]: barra verde #00ff9d, subtotal despues de
+  COGS. Op.Exp [opIncome, grossProfit]: barra roja #ff6b35 flotante,
+  muestra gastos operativos. Op.Income [0, opIncome]: barra cyan
+  #00d4ff, subtotal operativo. Si negativo: [opIncome, 0] barra roja.
+  No-Oper. [opIncome, ebt]: barra amarilla #ffd700 si positivo, roja si
+  negativo. Impuestos [netIncome, ebt]: barra salmon #ff8c7a flotante.
+  Net Income [0, netIncome]: barra dorada #ffd700 si positivo, roja si
+  negativo, desde 0. Escala Y: siempre desde 0 (o ligeramente negativo
+  si hay perdidas). Etiqueta sobre cada barra con valor absoluto en $M o
+  $B. COLUMNA 3 — Composicion del ingreso (dona / pastel):
+
+-   POSICION FIJA: tercera columna del grid. Usa exactamente el mismo
+    wrapper .zona3-chart con .chart-wrap y canvas absoluto. El tamano
+    del pastel queda controlado por aspect-ratio:4/3, igual que las
+    otras columnas. El pastel NO puede ser mas grande que las barras.
+
+-   Primera opcion: por segmento de negocio o geografia. Segunda opcion
+    si no hay datos: Margen Bruto / Margen Operativo / Margen Neto como
+    porcentaje del ingreso.
+
+-   Colores distintos por porcion. Porcentaje visible en tooltip al
+    hover. Leyenda debajo del canvas, fuera del chart-wrap.
+
+-   Titulo: Composicion de Ingresos o Estructura de Margenes segun el
+    caso.
+
+ZONA 4 — Analistas y evolucion del precio (52 semanas)
+
+Layout: columna unica de ancho completo. Reglas R2, R3, R5 obligatorias.
+
+-   Grafico de linea de evolucion del precio: linea cian (#00d4ff),
+    fondo oscuro, eje X mensual, eje Y en dolares. Canvas responsivo.
+
+  PROHIBIDO usar chartjs-plugin-annotation o cualquier plugin externo de
+  Chart.js para las lineas de price targets — no esta disponible en
+  cdnjs.cloudflare.com y causa el error de 'targets que no aparecen'.
+  Usar exclusivamente la tecnica de datasets adicionales de Chart.js
+  nativo descrita a continuacion.
+
+-   IMPLEMENTACION DE PRICE TARGETS SIN PLUGIN EXTERNO — tecnica
+    obligatoria: anadir cada price target como un dataset adicional de
+    tipo 'line' dentro del mismo Chart.js, con los siguientes
+    parametros:
+
+  { type: 'line', label: 'Goldman Sachs $210 — Compra', data:
+  Array(labels.length).fill(210), borderColor: '#00ff9d', borderWidth:
+  2, borderDash: [8, 4], pointRadius: 0, pointHoverRadius: 0, fill:
+  false, yAxisID: 'y' } — Repetir un dataset por cada analista. Color
+  verde (#00ff9d) si target > precio actual, rojo (#ff3a3a) si target <
+  precio actual. borderDash: [8,4] produce la linea punteada.
+  Array(labels.length).fill(valor) crea la linea horizontal constante al
+  nivel del target.
+
+-   ETIQUETA DE CADA LINEA DE TARGET: implementar con un plugin
+    afterDraw SEGURO que verifique la existencia de la escala antes de
+    usarla. Codigo exacto a usar: plugins:[{ id:"targetLabels",
+    afterDraw(chart){ const {ctx, scales, chartArea} = chart;
+    if(!scales.y) return; // guard critico targets.forEach(t=>{ const
+    yPx = scales.y.getPixelForValue(t.value); if(!yPx) return;
+    ctx.fillStyle = t.color; ctx.font = "11px monospace";
+    ctx.fillText(t.label, chartArea.right+6, yPx+4); }); } }]. El guard
+    if(!scales.y) return previene el TypeError: Cannot read properties
+    of undefined (reading getPixelForValue) que se produce cuando el
+    canvas aun no ha terminado de inicializar las escalas.
+
+-   Barra de resumen bajo el grafico: target de consenso en 1.3rem ·
+    diferencia % con flecha directional en color semaforico ·
+    distribucion de calificaciones con mini barras horizontales.
+
+-   Si no hay datos de analistas: indicarlo claramente y mostrar solo el
+    grafico de precio.
+
+ZONA 5 — Perfil Feroldi: Spider central + Scorecard debajo
+
+  ESTA ZONA TIENE LAYOUT VERTICAL: Spider arriba (ocupa todo el ancho),
+  Scorecard debajo (grid de 5 cajas). NUNCA lado a lado. Reglas R1 a R7
+  obligatorias en cada elemento de esta zona.
+
+PARTE SUPERIOR — Spider Chart (ancho completo, tamano grande):
+
+-   El Spider Chart ocupa el 100% del ancho de la zona, centrado. Alto
+    minimo: 30rem (se ajusta via viewBox y SVG responsivo).
+
+-   SVG con viewBox='0 0 600 400', width='100%', height='auto'. Esto
+    garantiza que el spider escale con el viewport.
+
+    -   5 ejes tematicos con el promedio ponderado de los puntos de cada
+        grupo:
+
+        -   Crecimiento — puntos 3, 13, 14
+
+        -   Rentabilidad — puntos 7, 11
+
+        -   Solidez financiera — puntos 6, 8, 12
+
+        -   Estrategia y ventaja — puntos 1, 2, 5, 10
+
+        -   Retorno al accionista — puntos 4, 9, 16
+
+    -   Area interior: relleno cian translucido (#00d4ff28). Borde del
+        area: #00d4ff, strokeWidth 2. Rejilla interior: gris oscuro
+        (#1a2a4a). Vertices: circulos de 0.4rem en cian solido con
+        etiqueta del nombre del eje en 0.9rem.
+
+    -   Titulo centrado encima del spider: Perfil Competitivo Feroldi —
+        1.2rem bold color cian.
+
+PARTE INFERIOR — Scorecard interactivo por grupos (grid de 5 cajas):
+
+-   Layout: grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)).
+    Las 5 cajas se adaptan al ancho disponible. Regla R4 obligatoria.
+
+-   Una caja por cada grupo tematico. Cada caja: fondo #0a1628, borde
+    1px solid #1a3a6e, border-radius 0.5rem, padding 1rem.
+
+-   Header de cada caja: nombre del grupo en 0.95rem bold color cian +
+    promedio del grupo en 1.5rem bold color dorado.
+
+    -   Dentro de cada caja, una fila por punto Feroldi del grupo. Cada
+        fila contiene:
+
+        -   Nombre del punto en 0.85rem, con cursor pointer para indicar
+            interactividad.
+
+        -   Gauge SVG individual responsivo (Regla R6). viewBox='0 0 200
+            130', width='100%', height='auto', max-width 12rem. USA
+            EXACTAMENTE ESTE CODIGO SVG COMO PLANTILLA — solo cambia el
+            valor de SCORE:
+
+  PLANTILLA SVG COMPLETA DEL GAUGE (copiar y adaptar para cada punto):
+  <svg viewBox="0 0 200 130" width="100%" height="auto"
+  style="display:block;max-width:12rem;margin:0 auto"> <defs>
+  <linearGradient id="gaugeGrad_N" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0%" stop-color="#e53935"/> <stop offset="25%"
+  stop-color="#ff8c00"/> <stop offset="50%" stop-color="#ffd700"/> <stop
+  offset="75%" stop-color="#76c442"/> <stop offset="100%"
+  stop-color="#00c853"/> </linearGradient> </defs> <!-- ARCO EXTERIOR
+  (pista de fondo gris oscuro) --> <path d="M 20 105 A 80 80 0 0 1 180
+  105" fill="none" stroke="#1a2a4a" stroke-width="22"
+  stroke-linecap="butt"/> <!-- ARCO CON GRADIENTE DE COLOR --> <path
+  d="M 20 105 A 80 80 0 0 1 180 105" fill="none"
+  stroke="url(#gaugeGrad_N)" stroke-width="20" stroke-linecap="butt"/>
+  <!-- AGUJA: calcular nx,ny con la formula y reemplazar los valores -->
+  <!-- angulo_grados = 180 - (SCORE/10)*180 --> <!-- rad =
+  angulo_grados * Math.PI / 180 --> <!-- nx = 100 + 65*cos(rad), ny =
+  105 - 65*sin(rad) --> <line x1="100" y1="105" x2="NX" y2="NY"
+  stroke="#ffd700" stroke-width="3" stroke-linecap="round"/> <!--
+  Circulo central de pivot --> <circle cx="100" cy="105" r="4"
+  fill="#ffd700"/> </svg> NOTAS: (1) Cada gauge debe tener un id de
+  gradiente unico (gaugeGrad_1, gaugeGrad_2, etc.) para que no se
+  sobreescriban entre si. (2) El path del arco usa A (arc) con rx=80
+  ry=80, large-arc-flag=0, sweep-flag=1. (3) El arco va de (20,105) a
+  (180,105) pasando por arriba — esto es el semicirculo correcto. (4)
+  NUNCA usar rect ni polygon para el arco — solo path con comando A. (5)
+  VERIFICAR: score=0 → ny=nx=(20,105) aguja izq; score=5 → nx=100 ny=40
+  aguja arriba; score=10 → nx=180 ny=105 aguja der.
+
+-   DEBAJO del SVG, numero de calificacion en 1.2rem bold monoespaciado
+    color dorado (#ffd700), centrado, claramente visible.
+
+-   HOVER POPUP FEROLDI — IMPLEMENTACION CON CODIGO EXACTO. Cada fila
+    del scorecard debe tener clase 'feroldi-row' y atributo
+    data-tooltip:
+
+  <!-- Cada fila de punto Feroldi: --> <div class="feroldi-row"
+  data-tooltip="[DESCRIPCION COMPLETA DEL PUNTO EXTRAIDA DEL BLOQUE G:
+  que se evalua, calificacion obtenida, implicaciones]"
+  style="position:relative;cursor:pointer;padding:0.3rem 0;"> <span
+  style="font-size:0.85rem">N. Nombre del Punto</span> [gauge SVG aqui]
+  <div
+  style="text-align:center;font-size:1.2rem;font-weight:bold;color:#ffd700;font-family:monospace">SCORE</div>
+  </div> <!-- Popup Feroldi — insertar UNA VEZ en el body --> <div
+  id="feroldiPopup"
+  style="display:none;position:fixed;background:#0d1f35; border:1px
+  solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;
+  font-size:0.9rem;color:#c8d8f0;z-index:9999;pointer-events:none;
+  box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;"></div> <!--
+  JS Feroldi popups — insertar UNA VEZ al final del body --> <script>
+  (function(){ const fp = document.getElementById('feroldiPopup');
+  if(!fp) return;
+  document.querySelectorAll('.feroldi-row').forEach(function(row){
+  row.addEventListener('mouseenter', function(e){ fp.textContent =
+  row.getAttribute('data-tooltip') || ''; fp.style.display = 'block';
+  fp.style.left = Math.min(e.clientX+15, window.innerWidth-380)+'px';
+  fp.style.top = Math.min(e.clientY+10, window.innerHeight-220)+'px';
+  }); row.addEventListener('mousemove', function(e){ fp.style.left =
+  Math.min(e.clientX+15, window.innerWidth-380)+'px'; fp.style.top =
+  Math.min(e.clientY+10, window.innerHeight-220)+'px'; });
+  row.addEventListener('mouseleave', function(){
+  fp.style.display='none'; }); }); })(); </script> CRITICO: los 16
+  puntos = 16 div.feroldi-row con 16 data-tooltip distintos extraidos
+  del Bloque D. Sin data-tooltip el popup aparece vacio. Verificar que
+  cada uno tiene su texto.
+
+-   Pie de la zona 5 (debajo del grid de cajas): barra de totales con
+    DOS formatos unicamente: % del maximo posible · Score absoluto
+    sobre 160. NO incluir media ponderada — es redundante con el
+    porcentaje. Fuente 1rem bold color dorado.
+
+ZONA 6 — Riesgos, Catalizadores, Consenso de Analistas, Competidores y
+Veredicto
+
+Layout general de la zona: columnas fluidas. Reglas R2, R3, R4
+obligatorias en toda la zona.
+
+SECCION A — Riesgos y Catalizadores (grid 2 columnas):
+
+-   TABLA DE RIESGOS CRITICOS: columnas Riesgo · Descripcion breve ·
+    Ponderacion (ALTO/#ff3a3a, MEDIO/#ffbb00, BAJO/#00ff9d). Maximo 6
+    filas. Texto minimo 0.85rem.
+
+-   TABLA DE CATALIZADORES 24 meses: columnas Catalizador · Fecha
+    estimada · Impacto potencial. Mismo codigo de colores. Maximo 6
+    filas. Texto minimo 0.85rem.
+
+SECCION B — Gauge de consenso de analistas (estilo velocimetro grande
+centrado):
+
+-   Velocimetro grande SVG similar al de la imagen adjunta. Centro en la
+    seccion, ancho maximo 22rem, SVG responsivo (viewBox='0 0 400 240',
+    width='100%', height='auto').
+
+-   ARCO DEL CONSENSO: igual que los gauges Feroldi pero mas grande.
+    Degradado de izquierda a derecha: VENTA FUERTE (#e53935) → VENTA
+    (#ff8c00) → NEUTRAL (#ffd700) → COMPRA (#76c442) → COMPRA FUERTE
+    (#00c853). Grosor del arco: 30 unidades SVG.
+
+-   Etiquetas sobre el arco en sus posiciones: 'Venta fuerte' (extremo
+    izq) · 'Venta' (cuarto izq) · 'Neutral' (arriba centro) · 'Compra'
+    (cuarto der) · 'Compra fuerte' (extremo der). Fuente 0.85rem color
+    #94a3b8.
+
+-   AGUJA DEL CONSENSO: la posicion de la aguja se calcula convirtiendo
+    el consenso de los 5 analistas a un score de 0 a 10 — Venta
+    fuerte=0, Venta=2.5, Neutral=5, Compra=7.5, Compra fuerte=10. La
+    media de esos scores define el angulo de la aguja usando la misma
+    formula: angulo = 180 - (score/10)*180. Aguja en blanco (#ffffff)
+    strokeWidth 4. Circulo pivot en blanco r=6.
+
+-   DEBAJO de la aguja, texto grande centrado con el veredicto del
+    consenso en 1.5rem bold color del tramo del arco donde apunta la
+    aguja.
+
+-   Mini tabla debajo del gauge: banco · calificacion · target — para
+    los 5 analistas, en 0.85rem. Targets alcistas en verde, bajistas en
+    rojo.
+
+SECCION C — Tabla comparativa de competidores (ancho completo):
+
+-   Titulo: Analisis Comparativo vs. Competidores del Sector. Fuente
+    1rem bold color cian.
+
+-   Tabla con las 5 empresas mas relevantes que compiten directamente
+    con $TICKER. La primera fila de la tabla es SIEMPRE $TICKER (en
+    negrita y fondo ligeramente diferenciado #0d1f35) para servir de
+    referencia.
+
+-   Columnas de la tabla:
+
+    -   Empresa: logo (Clearbit, 1.2rem height) + nombre + ticker. Si no
+        hay logo, iniciales.
+
+    -   Market Cap: en miles de millones con sufijo B o T. Barra de
+        progreso horizontal muy delgada proporcional al mayor Market Cap
+        del grupo.
+
+    -   P/E TTM (Trailing Twelve Months, NO forward): valor numerico
+        verificado. Verde si P/E < media del grupo, rojo si > media.
+        NUNCA usar P/E Forward en esta columna.
+
+    -   PEG Ratio: valor verificado en tiempo real. Verde si PEG < 1.5
+        (atractivo), amarillo si 1.5-2.5, rojo si > 2.5 o N/D. Esta
+        columna va despues de P/E.
+
+    -   Margen Bruto %: valor verificado + micro barra horizontal
+        proporcional al maximo del grupo.
+
+    -   Margen Neto %: valor verificado + micro barra horizontal.
+
+    -   PEG Ratio: valor verificado. Verde si PEG < 1.5, amarillo si
+        1.5-2.5, rojo si > 2.5.
+
+    -   Precio actual: mostrar el precio de mercado actual de cada
+        empresa en tipografia monoespaciada. Color verde si sube en el
+        dia, rojo si baja. Este dato tambien requiere verificacion en
+        tiempo real.
+
+    -   Rango 52W — BARRA SVG OBLIGATORIA PARA TODAS LAS FILAS.
+        Estructura HTML exacta de cada celda:
+
+  <div
+  style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem;">
+  <!-- Barra SVG --> <svg viewBox="0 0 100 8" width="100%"
+  style="display:block"> <rect x="0" y="2" width="100" height="4" rx="2"
+  fill="#1a2a4a"/> <circle cx="[PCT]" cy="4" r="3.5" fill="#00d4ff"/>
+  <!-- PCT = (precioActual - min52W) / (max52W - min52W) * 100 --> <!--
+  Clamp PCT entre 2 y 98 para que el circulo no se salga --> </svg> <!--
+  Etiquetas: min izq, posicion % centro, max der --> <div
+  style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;margin-top:0.1rem;">
+  <span style="color:#ff3a3a">$[MIN52W]</span> <span
+  style="color:#00d4ff;font-size:0.65rem">[PCT]% del rango</span> <span
+  style="color:#00ff9d">$[MAX52W]</span> </div> </div> PCT =
+  Math.round((precioActual - min52W) / (max52W - min52W) * 100) —
+  mostrar numero entero. Si los datos de 52W no pudieron verificarse:
+  mostrar N/D. NUNCA texto incoherente.
+
+-   Mini-analisis: al hacer hover sobre la fila de un competidor, popup
+    con exactamente 10 frases comparativas vs $TICKER. Popup estilo
+    #0d1f35 borde cian, max-width 32rem, 0.9rem.
+
+SECCION D — Veredicto final:
+
+-   Badge con una de las cinco opciones de veredicto (ver Zona 1):
+    COMPRAR · COMPRAR EN RETROCESOS · ACUMULAR · NEUTRAL · NO COMPRAR.
+    El color del badge corresponde al color de cada opcion definido en
+    Zona 1. Fuente 1.5rem bold. NUNCA usar MANTENER.
+
+-   Tesis de inversion en 3 lineas: argumento principal al precio
+    actual, horizonte 1-2 anos.
+
+-   MARCA DE INFORME al pie de la zona: texto en 1rem bold, color dorado
+    (#ffd700): Informe confidencial para @patonet. Claramente visible.
+
+D. Reglas de datos, nombre de archivo y cierre
+
+-   Si el usuario adjunto estados financieros (Fuente 4), los datos de
+    los graficos se extraen prioritariamente de esa fuente.
+
+-   Todos los valores numericos coinciden exactamente con los datos
+    verificados en Fase 0. Sin redondeos no justificados.
+
+-   Las descripciones de los 16 puntos para hover popups y el Resumen
+    Ejecutivo para el popup de cabecera se extraen del Bloque F del
+    informe y se embeben como variables JS en el HTML.
+
+-   Los datos de los 5 competidores (Market Cap, P/E, Margenes, PEG,
+    rango 52W) deben ser verificados con busqueda en tiempo real durante
+    la Fase 0 o en el momento de generar la infografia. Si no se pueden
+    verificar, indicar N/D en la celda correspondiente.
+
+-   NOMBRE DEL ARCHIVO INFOGRAFIA:
+    Informe_[TICKER]_[PRECIO]_[DD-MM-AAAA].html. Ejemplo:
+    Informe_AAPL_189.45_15-03-2026.html. NOMBRE DEL ARCHIVO PDF:
+    InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf. DISENO VISUAL DEL PDF
+    — INSTRUCCION CRITICA: el PDF se genera como HTML que luego se
+    convierte. USAR EXACTAMENTE ESTA PLANTILLA DE ESTRUCTURA: PAGINA 1 —
+    PORTADA (UNA SOLA PAGINA — COMPRESION OBLIGATORIA): todo el
+    contenido de la portada debe caber en exactamente 1 pagina A4 sin
+    scroll. CSS obligatorio: @page{size:A4 portrait;margin:0}
+    html,body{margin:0;padding:0;background:#0d1428!important;height:100%;}
+    El div portada:
+    height:100vh;max-height:297mm;width:100%;background:linear-gradient(135deg,#0d1428
+    0%,#162447 60%,#1a3a6e
+    100%);display:flex;flex-direction:column;justify-content:space-between;padding:1.5rem
+    2rem;box-sizing:border-box;overflow:hidden. ESTRUCTURA COMPACTA en 5
+    secciones verticales: (1) Header: logo 50px + nombre empresa en
+    14pt; (2) Titulo: "Informe Profesional $TICKER · Feroldi" en 20pt
+    blanco bold; (3) Franja de precio: precio actual grande + barra
+    52W + badge veredicto + score en UNA SOLA FILA horizontal; (4) Barra
+    de performance: 8 periodos en UNA FILA horizontal compacta (font
+    10pt); (5) Footer: fecha + @patonet en 9pt gris. Formas geometricas
+    SVG decorativas ligeras en esquinas — NO ocupar espacio vertical.
+    PAGINA 2 en adelante — cada pagina tiene: (a) Header con franja teal
+    de 8px de alto + logo pequeno a la izquierda + "$TICKER · Informe
+    Feroldi" a la derecha en teal monospace 9pt; (b) footer con linea
+    teal 1px + "Informe confidencial para @patonet · No constituye
+    asesoramiento financiero" en gris 8pt + numero de pagina. SECCIONES:
+    cada bloque del informe (A, B, C, D, E, F, G) en su propia seccion
+    con: titulo del bloque en caja de color (#0d1428 fondo, texto teal,
+    border-left 5px solido teal, padding 8px 12px, border-radius 4px,
+    font-size 14pt bold). Cuerpo del bloque en texto negro #1a1a1a,
+    font-size 10.5pt, line-height 1.4, margin 12px 0. TABLA FEROLDI
+    (Bloque G): header de tabla fondo #0d1428 texto blanco bold, filas
+    pares fondo #f0f7ff, filas impares blanco, borde #dde3f0 1px, celdas
+    padding 6px 10px, valores numericos en font monospace bold con color
+    semaforico (verde si >=7, amarillo si 4-6, rojo si <4). SECCION
+    VERDICTS / SCORES: badge de veredicto con fondo segun tipo
+    (COMPRAR=#00c853, COMPRAR EN RETROCESOS=#1565C0, ACUMULAR=#00838f,
+    NEUTRAL=#5d4037, NO COMPRAR=#e53935), texto blanco bold,
+    border-radius 4px, padding 4px 16px, font-size 12pt. SECCION OOB
+    (Bloque C): caja con borde izquierdo naranja #ff8c00 de 5px, fondo
+    #fffbf0, titulo en naranja bold. SECCION RESUMEN DE DEBATE OOB: si
+    hubo debate posterior al informe (con Gemini, supervisor u otra IA),
+    incluir una seccion adicional "Resumen del Debate y Conclusiones"
+    con: (i) argumentos del supervisor o Gemini, (ii) contraargumentos
+    propios, (iii) cambios aceptados con justificacion, (iv) conclusion
+    final reconciliada. Esta seccion va despues del Bloque G, con caja
+    de borde izquierdo purpura #7c3aed. EVITAR: texto plano sin estilos,
+    paginas en blanco sin contenido, letras montadas sobre imagenes,
+    bloques cortados a la mitad entre paginas (usar page-break-inside:
+    avoid en secciones cortas).
+
+-   Si la generacion falla o el usuario no ha digitado INFOGRAFIA: no
+    generar ningun HTML. Indicar unicamente: Por favor, escribe
+    INFOGRAFIA cuando estes listo para generar tu infografia visual.
+
+  CIERRE OBLIGATORIO DEL INFORME ESCRITO — mostrar EXACTAMENTE este
+  bloque al final de cada informe: '---\n\n✅ Informe
+  completado.\n\nRevisa el analisis con calma. Si deseas ajustar algun
+  punto, agregar contexto o rebatir algun argumento, escribelo ahora y
+  lo incorporo.\n\n---\n\nEscribe **INFORMES** para desplegar el menu de
+  generacion de reportes.'
+
+  ACTIVACION DEL MENU: cuando el usuario escribe INFORMES (en cualquier
+  formato), mostrar EXACTAMENTE este menu de opciones antes de esperar
+  la eleccion: "📂 MENU DE GENERACION DE INFORMES\n\n🗂
+  Visualizacion\n[INFOGRAFIA] — Infografia HTML interactiva · Bloomberg
+  style\n\n📄 Documento\n[PDF] — Informe PDF con diseno profesional\n\n🏗
+  Diagramas opcionales\n[1] — Como gana dinero $TICKER (modelo de
+  negocio completo)\n[2] — KPIs que impulsan las ganancias de $TICKER
+  (arbol de metricas)\n[3] — Ambos diagramas\n\n⚡ Todo en uno\n[TODO] —
+  PDF + Infografia + ambos diagramas\n\nEscribe el comando entre
+  corchetes para activar." — REGLA UNIVERSAL DE GITHUB: TODO lo que se
+  genere (INFOGRAFIA, PDF, Diagrama 1, Diagrama 2, cualquier
+  combinacion) se entrega al usuario Y se sube automaticamente a GitHub
+  sin excepcion. No hay entregas locales sin subida. Despues de cada
+  generacion: (a) subir el archivo a GitHub en la carpeta correcta, (b)
+  actualizar index.html si aplica, (c) reportar URL directa como
+  hipervinculo clicable usando https://patonet.github.io/informes/...
+
+E. Diagramas opcionales (activados por 1, 2 o 3)
+
+  Los diagramas se generan SOLO cuando el usuario lo solicita via el
+  menu INFORMES. Al generarse: entrega local opcional + subida
+  automatica a GitHub en diagramas/equities/ (o etfs/, shorts/) SIN
+  EXCEPCION. Esta regla aplica a los tres diagramas y cualquier
+  combinacion. DIAGRAMA 3 — FLUJO SANKEY DE INGRESOS Y GASTOS: HTML
+  interactivo que muestra como fluye el dinero del revenue hasta el Net
+  Income, estilo Meta Q4 FY25 Income Statement. Estructura de
+  columnas: - Columna 1 (FUENTES): segmentos de revenue con valor
+  absoluto y % YoY. Cada segmento como bloque vertical proporcional a su
+  tamano. Logos o iconos si aplica. - Columna 2 (REVENUE TOTAL): bloque
+  central con el revenue total del periodo mas reciente. - Columna 3
+  (CONVERSION): division entre Gross Profit (verde) y Cost of Revenue
+  (rojo). Mostrar margen bruto %. - Columna 4 (GASTOS OPERATIVOS):
+  subdivision de Gross Profit en Operating Profit (verde) y Operating
+  Expenses (rojo). Mostrar margen operativo %. - Columna 5 (RESULTADO
+  FINAL): Net Income (verde si positivo, rojo si negativo) y otros items
+  (impuestos, no-operativos). Conexiones entre columnas: bandas SVG con
+  bezier curves proporcionales al valor — verde para flujos positivos,
+  rojo para costos/gastos. Etiquetas en cada bloque: nombre, valor en $B
+  o $M, % del revenue, variacion YoY%. Interactividad: hover sobre cada
+  banda resalta el flujo completo de ese elemento e muestra tooltip con
+  detalles. Estilo: fondo claro #f8f9fa o fondo dark #050a12 segun
+  paleta del informe. Tipografia sans-serif moderna. Responsive. Nombre
+  de archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html Subir
+  a: diagramas/equities/ (o etfs/, shorts/).
+
+DIAGRAMA 1 — Como gana dinero $TICKER:
+
+-   HTML interactivo tipo organigrama vertical con estos niveles:
+
+    -   Nivel 0 (raiz): nombre empresa + revenue total FY mas reciente
+        en caja destacada.
+
+    -   Nivel 1 — Segmentos principales (max 5): nombre del segmento, %
+        del revenue, valor absoluto.
+
+    -   Nivel 2 — Sub-productos por segmento: nombre, mecanismo de
+        monetizacion (take rate %, suscripcion, licencia, publicidad),
+        margen aproximado si se conoce.
+
+    -   Nivel 3 (opcional) — Palancas ocultas o subestimadas
+        identificadas en el analisis.
+
+    -   Seccion inferior — Flujo del dinero: ejemplo concreto de como
+        fluye el dinero en una transaccion tipica de $TICKER.
+
+POPUP de cada caja (mouseenter): 3-5 lineas — que es, como genera
+dinero, importancia para la tesis, tendencia
+(creciendo/estable/declinando). Usar el mismo sistema de popup con delay
+300ms ya definido en el prompt.
+
+Estilo HTML: fondo claro (#f8f9fa), cajas con border-radius 0.5rem,
+sombra sutil, colores pastel distintos por segmento, flechas SVG entre
+niveles, tipografia sans-serif moderna. Completamente responsive.
+
+DIAGRAMA 2 — Arbol de KPIs:
+
+-   HTML interactivo tipo arbol jerarquico desde Revenue como raiz:
+
+    -   Raiz: Revenue = [formula clave] con valor actual. Ej: Revenue =
+        Gross Bookings x Take Rate.
+
+    -   Nivel 1: 2-4 metricas primarias que componen la formula (con
+        valores actuales y crecimiento YoY%).
+
+    -   Nivel 2: sub-metricas que alimentan cada nivel 1 (con formula de
+        derivacion visible entre nodos).
+
+    -   Nivel 3: drivers operativos que mueven las sub-metricas
+        (iniciativas del management segun earnings call).
+
+    -   Flechas con etiquetas de formula entre niveles. Clic en cada
+        nodo expande/colapsa sus hijos.
+
+POPUP de cada nodo (mouseenter): valor actual, tendencia YoY%, por que
+importa, que iniciativas lo estan moviendo segun el ultimo earnings
+call.
+
+Estilo: identico al Diagrama 1.
+
+REGLAS COMUNES A AMBOS DIAGRAMAS:
+
+-   HTML completo con CSS y JS embebidos. Un archivo por diagrama.
+
+-   Todos los datos del informe ya analizado. No inventar. Si falta
+    dato: 'No divulgado publicamente'.
+
+-   Nombre de archivo obligatorio:
+    Diagrama_ComoGanaDinero_$TICKER_PRECIO_FECHA(DD-MM-AAAA).html para
+    el Diagrama 1 y Diagrama_KPIs_$TICKER_PRECIO_FECHA(DD-MM-AAAA).html
+    para el Diagrama 2. Donde TICKER es el simbolo en mayusculas, PRECIO
+    es el precio del analisis y FECHA es la fecha en formato DD-MM-AAAA.
+    Ejemplo: Diagrama_ComoGanaDinero_UBER_73.33_31-03-2026.html
+
+-   Traducir al espanol todas las etiquetas, titulos, tooltips y botones
+    de los diagramas.
+
+F. PUBLICACION AUTOMATICA EN GITHUB PAGES
+
+Cuando el usuario escriba PDF, ejecutar EXACTAMENTE estos pasos usando
+la GitHub Contents API:
+
+CREDENCIALES GITHUB:
+
+GitHub User: patonet | Repositorio: informes | Token:
+{{GITHUB_TOKEN}}
+
+PASO 1 — SUBIR EL INFORME PDF
+
+Generar el informe como PDF usando el contenido del informe escrito.
+Nombre: InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf. Ruta segun tipo:
+Equity → pdfs/equities/{archivo.pdf} | ETF → pdfs/etfs/{archivo.pdf} |
+Corto → shorts/{archivo.pdf}
+
+PUT https://api.github.com/repos/patonet/informes/contents/{ruta} |
+Header: Authorization: token {{GITHUB_TOKEN}} |
+Body: { "message": "Add {TICKER} PDF - {FECHA}", "content":
+"{BASE64_DEL_PDF}" }. Si el archivo ya existe, obtener SHA con GET e
+incluir "sha" en el body.
+
+PASO 2 — SUBIR INFOGRAFIA HTML Y DIAGRAMAS A GITHUB (OBLIGATORIO)
+
+INFOGRAFIA HTML: subirla AUTOMATICAMENTE a GitHub usando el mismo nombre
+ya definido (Informe_[TICKER]_[PRECIO]_[DD-MM-AAAA].html) en la ruta
+correspondiente (equities/, etfs/ o shorts/). ESTE PASO ES OBLIGATORIO —
+la infografia NO es solo para descarga local, SIEMPRE debe subirse a
+GitHub. Si el usuario escribe PDF tambien: incluir la infografia en la
+misma subida. DIAGRAMAS: si el usuario genero el Diagrama 1 o 2 o ambos,
+subirlos tambien a GitHub en la misma subcarpeta con sus nombres
+acordados: Diagrama_ComoGanaDinero_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+en diagramas/equities/ (o diagramas/etfs/, diagramas/shorts/) y
+Diagrama_KPIs_[TICKER]_[PRECIO]_[DD-MM-AAAA].html en la misma
+subcarpeta. Para cada archivo: (a) GET para verificar si existe y
+obtener SHA, (b) PUT con base64 del contenido. Reportar URLs de todos
+los archivos subidos como hipervinculos clicables.
+
+PASO 3 — ACTUALIZAR EL DASHBOARD index.html
+
+a) GET https://api.github.com/repos/patonet/informes/contents/index.html
+— guardar SHA. b) Decodificar base64, localizar array REPORTS = [...] y
+anadir AL INICIO el nuevo objeto. FORMATO EXACTO OBLIGATORIO — { ticker:
+"AAPL", name: "Apple Inc.", desc: "Una linea del negocio.", type:
+"equity", verdict: "buy", price: "$189.45", upside: "+12.5%", target:
+"$215.00", date: "15 Apr 2026", url:
+"equities/Informe_AAPL_189.45_15-04-2026.html", pdfUrl:
+"pdfs/equities/InformePDF_AAPL_189.45_15-04-2026.pdf", diag1Url:
+"diagramas/equities/Diagrama_ComoGanaDinero_AAPL_189.45_15-04-2026.html",
+diag2Url:
+"diagramas/equities/Diagrama_KPIs_AAPL_189.45_15-04-2026.html",
+diag3Url:
+"diagramas/equities/Diagrama_Sankey_AAPL_189.45_15-04-2026.html" }.
+pdfUrl, diag1Url y diag2Url son opcionales — incluir solo si ese archivo
+fue generado. REGLAS: price/upside/target/date como strings con formato
+indicado; url apunta al HTML infografia; type solo "equity", "etf" o
+"short". Tabla de veredictos: COMPRAR→"buy" | COMPRAR EN
+RETROCESOS→"pullback" | ACUMULAR→"accumulate" | NEUTRAL→"neutral" | NO
+COMPRAR→"nobuy" | CORTO→"short". c) PUT index.html con el nuevo
+contenido y SHA.
+
+PASO 4 — REPORTAR AL USUARIO
+
+Mostrar al usuario los links como HIPERVINCULOS CLICABLES en Markdown.
+SIEMPRE usar https://patonet.github.io/informes/{ruta} — NUNCA usar
+github.com. Ejemplo de salida: ✅ Publicado: · 🏠
+[Dashboard](https://patonet.github.io/informes/) · 📊 [Ver
+Infografia](https://patonet.github.io/informes/equities/Informe_AAPL_189.45_15-04-2026.html)
+· 📄 [Ver
+PDF](https://patonet.github.io/informes/pdfs/equities/InformePDF_AAPL_189.45_15-04-2026.pdf)
+· 🏗️ [Diagrama
+Negocio](https://patonet.github.io/informes/diagramas/equities/Diagrama_ComoGanaDinero_AAPL_189.45_15-04-2026.html).
+Mostrar solo los links de archivos que fueron efectivamente generados y
+subidos. Ejemplo: ✅ Publicado exitosamente: · 🏠
+[Dashboard](https://patonet.github.io/informes/) · 📄 [Ver informe
+directo](https://patonet.github.io/informes/equities/Informe_AAPL_189.45_15-03-2026.html)
+
+G. PROTOCOLO POST-DEBATE Y REGENERACION
+
+Es habitual que el usuario someta el informe a revision por otra IA u
+otro analista, generando un debate de ideas que modifica argumentos,
+calificaciones Feroldi o la tesis de inversion. Cuando el usuario
+comunica los cambios resultantes del debate, seguir este protocolo:
+
+-   INCORPORAR CAMBIOS: Aceptar y registrar todas las modificaciones
+    indicadas por el usuario (cambios de calificacion Feroldi,
+    argumentos nuevos, ajuste de veredicto, nuevos riesgos o
+    catalizadores). No defender el analisis original por defecto; si el
+    debate aporta evidencia valida, incorporarla.
+
+-   MENU DE REGENERACION POST-DEBATE: Tras incorporar los cambios,
+    mostrar SIEMPRE este menu al usuario:
+
+--- Cambios incorporados. ¿Que deseas regenerar con la version
+actualizada? ---
+
+PDF → Regenerar y subir PDF actualizado a GitHub
+
+INFOGRAFIA → Regenerar infografia HTML con datos actualizados y subir a
+GitHub
+
+1 → Regenerar Diagrama Como Gana Dinero y subir a GitHub
+
+2 → Regenerar Diagrama KPIs y subir a GitHub
+
+3 → Regenerar ambos diagramas y subir a GitHub
+
+TODO → Regenerar PDF + INFOGRAFIA + ambos diagramas
+
+-   SOBRESCRIBIR EN GITHUB: Al regenerar cualquier archivo, sobrescribir
+    el existente en GitHub (obtener SHA del archivo actual y hacer PUT
+    con nuevo contenido). El dashboard index.html no necesita
+    actualizarse si el veredicto no cambio; actualizarlo solo si cambio
+    el veredicto o el precio objetivo.
+
+6. TONO Y ESTILO
+
+-   Analitico · neutral · preciso · concreto.
+
+-   Cero lenguaje de marketing ni texto de relleno.
+
+-   Idioma: espanol en todo momento.
+
+-   Formato del informe escrito: Markdown con negrita, tablas y listas
+    donde aporten claridad.
+
+v24.0 — Split en 2 prompts · SOTP · Bloques renumerados A-H — @patonet
