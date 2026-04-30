@@ -5,12 +5,12 @@ v X0.3 — @patonet
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COMANDOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-| Comando   | Acción                              |
-|-----------|-------------------------------------|
-| SANKEY    | Diagrama HTML flujo financiero      |
-| PDF       | Informe PDF completo del Heavy      |
-| INFOGRAFIA| Infografía HTML completa            |
-| TODO      | SANKEY + PDF + INFOGRAFIA en orden  |
+| Comando    | Acción                             |
+|------------|------------------------------------|
+| SANKEY     | Diagrama HTML flujo financiero     |
+| PDF        | Informe PDF completo del Heavy     |
+| INFOGRAFIA | Infografía HTML completa           |
+| TODO       | SANKEY + PDF + INFOGRAFIA en orden |
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGLAS GENERALES
@@ -26,67 +26,198 @@ NOMBRES:
 - Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SISTEMA DE DISEÑO — ESPECIFICACIONES EXACTAS
+(aplica a Infografía y Sankey)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TIPOGRAFÍA:
+- Cuerpo: 'Segoe UI', system-ui, sans-serif
+- Monoespaciado (scores, precios, datos): 'Courier New', monospace
+- Root fluid: html { font-size: clamp(10px, 1.15vw, 17px); }
+- Solo rem/em/%/fr — PROHIBIDO px en layout
+
+PALETA DE COLORES:
+- Fondo global: #050a12
+- Fondo sección/zona: #0a1628
+- Fondo panel secundario: #0d1f35
+- Fondo highlight: #1a2a4a
+- Fondo header: #020710
+- Texto principal: #c8d8f0
+- Texto secundario/labels: #94a3b8
+- Acento cian (títulos, bordes, links): #00d4ff
+- Acento dorado (scores, agujas): #ffd700
+- Verde positivo/bull: #00c853 · #00ff9d
+- Rojo negativo/bear: #e53935 · #ff3a3a
+- Naranja advertencia: #ff8c00
+- Amarillo neutro: #ffbb00
+- Gradiente arco gauge: #e53935 → #ff8c00 → #ffd700 → #76c442 → #00c853
+
+EFECTOS GLOBALES:
+- Scanlines: body::after { content:''; position:fixed; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none; z-index:999; }
+- Zona titles: font-size 0.72rem, uppercase, letter-spacing 0.18em, color #00d4ff
+  con barra vertical izquierda de 0.3rem × 1rem color #00d4ff
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPONENTES REUTILIZABLES — ESPECIFICACIONES SVG EXACTAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SEMÁFORO IA (id=triggerIA):
+SVG viewBox="0 0 80 200" width="3.5rem" height="auto"
+cursor:pointer; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7))
+Carcasa exterior: rect x=4 y=4 w=72 h=192 rx=12 fill=#1a1a1a stroke=#555 stroke-width=2
+Carcasa interior: rect x=8 y=8 w=64 h=184 rx=10 fill=#111 stroke=#333 stroke-width=1
+Tornillos: 4 círculos r=3 en esquinas (cx=16/64, cy=16/184) fill=#333 stroke=#555
+Separadores: rect y=70 y=127 w=64 x=8 h=3 fill=#222
+3 luces (rojo cy=42, naranja cy=100, verde cy=158) r=22:
+  LUZ ACTIVA: fill=color brillante + filter="drop-shadow(0 0 10px [color])"
+              + ellipse reflejo cx-7 cy-8 rx=7 ry=5 fill=white opacity=0.35
+  LUZ INACTIVA: fill=color oscuro (#2d0a0a rojo / #3d2800 naranja / #003d1a verde)
+                + stroke=#1a1a1a opacity=0.5
+                + ellipse reflejo opacity=0.05 (tenue, NO desaparece)
+Colores brillantes: rojo=#e53935 naranja=#ff8c00 verde=#00c853
+
+GAUGE CIRCULAR FEROLDI (zona 1, junto al score):
+SVG viewBox="0 0 120 70" width="7rem"
+Arco fondo: path M=10,60 A=50,50 fill=none stroke=#1a2a4a stroke-width=12
+Arco color: mismo path stroke=url(#gaugeG) stroke-width=10
+Gradiente gaugeG: #e53935 → #ffd700 → #00c853 (horizontal)
+Aguja: line desde cx=60,cy=60 hasta punto calculado según score%
+  angle = (score/100) * 180° desde izquierda
+  nx = 60 + 45*cos((180-angle)*π/180)
+  ny = 60 - 45*sin((180-angle)*π/180)
+  stroke=#ffd700 stroke-width=2.5
+Pivot: circle cx=60 cy=60 r=3 fill=#ffd700
+Score texto: text x=60 y=56 fill=#ffd700 font-size=10 font-family=Courier New
+
+BARRA 52W:
+Labels: min en #ff3a3a, max en #00ff9d, label centro en #94a3b8
+Track: height=0.45rem background=#1a2a4a border-radius=0.25rem
+Fill: background=linear-gradient(90deg,#ff3a3a,#ffd700,#00ff9d) width=XX%
+Marker: position absolute, top=-0.2rem, width=0.15rem, height=0.85rem
+        background=#00d4ff (cian) en la posición % del precio actual
+Texto posición: color #00d4ff "● Precio actual al XX.X% del rango anual"
+
+PERFORMANCE BAR:
+Grid 8 columnas, background=#080f1c, border=1px solid #0d1f35
+Periodos: 1 día · 5 días · 1 mes · 6 meses · En el año · 1 año · 5 años · Desde IPO
+Label: font-size 0.72rem color #94a3b8
+Valor positivo: color #00c853  Valor negativo: color #ff3a3a  N/D: color #94a3b8
+
+POPUP GENÉRICO (.popup-box):
+position:fixed; background:#0a1628; border:2px solid #00d4ff
+border-radius:0.8rem; padding:1.5rem; max-width:36rem; max-height:80vh
+overflow-y:auto; z-index:10000; color:#c8d8f0
+box-shadow:0 0 40px rgba(0,212,255,0.3); line-height:1.6
+h3: color:#00d4ff; font-size:1.1rem; margin-bottom:0.8rem
+Activación: mouseenter sobre trigger. Cierre: mouseleave (delay 350ms)
+
+SCORECARD FEROLDI (.feroldi-row):
+cursor:pointer; padding:0.3rem 0.2rem; border-radius:0.2rem
+hover: background:#0d1f35
+.fr-name: font-size:0.83rem color:#c8d8f0
+.fr-score-num: text-align:center font-size:1.1rem font-weight:bold
+               color:#ffd700 font-family:'Courier New',monospace
+Totales: background:#0d1f35 border:1px solid #1a3a6e
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTRUCTURA INFOGRAFÍA HEAVY — 6 ZONAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Librería: Chart.js 4.4.0 (cdnjs.cloudflare.com)
+
+ZONA 1 — Identidad & Precio
+Columna izquierda:
+  - LOGO: img src=https://logo.clearbit.com/[dominio] 
+    onerror → div#logoFallback con iniciales. id=triggerLogo
+  - Nombre empresa (id=triggerNombre) + meta (sector · industria · exchange:ticker)
+  - Frase definitoria (id=triggerFrase): cursiva, color #00d4ff
+    background:#0d1f35, border-left:3px solid #00d4ff, cursor:pointer
+  - Barra 52W (especificación arriba)
+  - Performance Bar (especificación arriba)
+Columna derecha:
+  - Precio grande (font-size~2.5rem, Courier New)
+  - Delta hoy (▲/▼ color verde/rojo)
+  - Badge veredicto (color según tipo)
+  - Score Feroldi (valor % + XXX/160)
+  - Gauge circular (especificación arriba)
+  - Semáforo IA con label (especificación arriba)
+
+ZONA 2 — Key Statistics
+Tabla coloreada con todas las métricas de FASE 0.
+🟢 positiva · 🔴 negativa · 🔘 neutral
+PEG siempre presente.
+
+ZONA 3 — Rendimiento Financiero (3 columnas Chart.js)
+Col 1: Barras Revenue→COGS→Gross Profit→OpExp→OpIncome→Non-Op→Taxes→Net Income
+Col 2: Waterfall cascada trimestral Revenue→Net Income
+Col 3: Dona composición ingresos por segmento o geografía
+
+ZONA 4 — Evolución Precio & Consenso Analistas
+Gauge semicircular grande (especificación arriba) con:
+  etiquetas: Venta fuerte · Venta · Neutral · Compra · Compra fuerte
+  aguja apuntando al consenso de analistas
+  texto debajo: "[N] Buy · [N] Hold · [N] Sell · PT consenso: ~$XXX"
+Tabla riesgos críticos + catalizadores 24m
+
+ZONA 5 — Perfil Competitivo Feroldi 16 Puntos
+Scorecard con 16 filas (.feroldi-row + data-tooltip)
+Popup #feroldiPopup al hover con análisis completo del punto
+Totales: Score/160, porcentaje, semáforo global
+
+ZONA 6 — Riesgos · Catalizadores · Consenso · Competidores · Veredicto
+Tabla competidores: precio · market cap · P/E · revenue · margen · rango 52W con barra SVG
+Veredicto final con badge + SL/TP
+
+POPUPS (3):
+#execPopup: activado por triggerLogo + triggerNombre + triggerFrase → Bloque A
+#iaPopup: activado por triggerIA → Bloque D completo (color borde según semáforo)
+#feroldiPopup: activado por hover en .feroldi-row → análisis del punto
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SANKEY — FLUJO FINANCIERO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Mismo diseño y estructura que el Sankey del generador Light.
-Fondo #050a12 · 5 columnas · Topbar KPIs · Animaciones · Footer @patonet.
-Verificación triple EDGAR + StockAnalysis + Macrotrends.
-FCF = CFO − Capex. Suma segmentos = Revenue GAAP.
+Archivo HTML standalone. Misma paleta de colores del sistema de diseño.
+Fondo #050a12 · Texto #c8d8f0 · Responsivo rem/vw.
+
+5 COLUMNAS izquierda→derecha:
+COL 1 — SEGMENTOS: nombre, revenue $, % total, métricas operativas, geografía, YoY
+COL 2 — REVENUE GAAP: nodo central, total $, YoY
+COL 3 — COSTOS: cada línea con nombre, $, % revenue. Suma + EBIT = Revenue GAAP exacto.
+COL 4 — PRE-TAX: EBIT, intereses netos, pre-tax, impuestos (ETR%)
+COL 5 — DESTINO: Net Income, FCF (paralelo), recompras, dividendos, Capex
+
+Bandas de flujo con animación. Colores:
+  Segmentos/inflows: degradado verde #00ff88→#00cc66
+  Costos/outflows: degradado rojo #ff4444→#cc2222
+  Utilidad/FCF: degradado cian #00d4ff→#0099cc
+
+TOPBAR: Revenue · EBITDA · Net Income · FCF · Margen Neto · Score Feroldi · PEG · Veredicto
+BADGES: veredicto español · Score XX/160 · PEG X.XX
+LEYENDA al pie con nodos del ticker actual.
+FOOTER: @patonet · Feroldi · $[TICKER] · FY[AÑO] · [FECHA] · No constituye asesoría.
+
+Verificación: EDGAR + StockAnalysis + Macrotrends. FCF = CFO − Capex. Suma segmentos = Revenue GAAP.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PDF HEAVY — COMPLETO
+PDF HEAVY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Informe profesional completo del análisis Heavy. No resumir ningún bloque.
-
-Portada gradiente #0d1428→#1a3a6e:
-(1) LOGO empresa (Clearbit fallback iniciales) + nombre
-(2) Título: "Informe Feroldi Heavy · $[TICKER] · [PRECIO]"
-(3) Precio + Rango 52W + Score Feroldi + PEG + Veredicto
-(4) Performance 8 periodos
-(5) B0: 4 indicadores de semáforo
-(6) Fecha + @patonet
-
-Páginas: header franja color + ticker. Footer @patonet + nº página.
-Incluir todos los bloques A-I + Bloque X.
-Tabla Feroldi con scores semafóricos. SOTP si existe.
-Secciones diferenciadas por color: OOB naranja · IA cian · CEO cursiva · SOTP coloreado · X púrpura.
-Sin páginas en blanco ni bloques cortados.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INFOGRAFÍA HEAVY — COMPLETA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DISEÑO: dashboard oscuro (#0a1628), texto claro, acentos cian (#00d4ff).
-Responsivo: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
-
-ELEMENTOS OBLIGATORIOS:
-- LOGO + nombre + frase definitoria (popup al hover con Bloque A completo).
-- BARRA 52W: SVG rojo(min)/verde(max)/cian(actual+%).
-- KEY STATS: tabla coloreada completa de FASE 0.
-- PERFORMANCE BAR: 8 periodos TradingView Scanner API.
-- MINI-SEMÁFOROS B0: 4 SVGs. Activa brillante. Inactivas tenues, no desaparecen.
-- SEMÁFORO IA: luz activa brillante+glow. Inactivas tenues. Popup con Bloque D completo.
-- GAUGE FEROLDI: arco rojo→verde, aguja dorada, score actual.
-- SCORECARD FEROLDI: 16 filas con score, emoji semáforo y tooltip completo al hover.
-- TABLA COMPETIDORES: precio, market cap, P/E, revenue, margen, rango 52W con barra SVG.
-- CONSENSO ANALISTAS: precio objetivo, rango min-max, % upside vs precio actual.
-- ESCENARIOS Bear/Base/Bull del Bloque F (con SOTP si existe).
-- TESIS + VEREDICTO + SL/TP del Bloque H.
-- COMPOSICIÓN INGRESOS: gráfico dona por segmento o geografía.
-- GRÁFICO REVENUE→NET INCOME: cascada de conversión.
+Portada gradiente #0d1428→#1a3a6e. Misma paleta. Fuentes: Segoe UI + Courier New.
+(1) LOGO Clearbit + nombre (2) Título Heavy (3) Precio+52W+Score+PEG+Veredicto
+(4) Performance 8 periodos (5) B0: 4 semáforos (6) Fecha + @patonet
+Páginas: header franja #00d4ff + ticker. Footer @patonet + nº página.
+Bloques A-I + X completos. Tabla Feroldi semafórica. SOTP si existe.
+Secciones: OOB naranja · IA cian · CEO cursiva · SOTP coloreado · X púrpura.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GITHUB PAGES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Token: GH_TOKEN_PATONET
 PASO 1: PUT archivo a su carpeta.
-PASO 2: GET index.html → agregar entry al INICIO de const REPORTS → PUT index.html.
-Si falla: reintentar 1 vez → dar archivo para descarga manual.
+PASO 2: GET index.html → entry al INICIO de const REPORTS → PUT.
+Fallo: reintentar 1 vez → descarga manual.
 
-VEREDICTOS EN REPORTS (inglés):
-buy · pullback · speculative · accumulate · neutral · nobuy · short
+VEREDICTOS (inglés): buy · pullback · speculative · accumulate · neutral · nobuy · short
+Formato: {ticker, name, desc, type:"equity", verdict, price, upside, target, date, url, pdfUrl, diag3Url}
 
-Formato entry:
-{ticker, name, desc, type:"equity", verdict, price:"$X", upside, target,
- date:"DD Mon YYYY", url, pdfUrl, diag3Url}
-
-[X0.3-GEN-HEAVY — PDF+Infografía completa+Sankey · Con SOTP · Con competidores · @patonet]
+[X0.3-GEN-HEAVY — Specs exactas GE · Semáforo SVG · Gauge · 52W · Perf · Popups · @patonet]
