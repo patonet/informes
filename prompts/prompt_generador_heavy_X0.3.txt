@@ -1,0 +1,92 @@
+[X0.3-GEN-HEAVY]
+GENERADOR HEAVY — PDF COMPLETO + INFOGRAFÍA COMPLETA + SANKEY
+v X0.3 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMANDOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+| Comando   | Acción                              |
+|-----------|-------------------------------------|
+| SANKEY    | Diagrama HTML flujo financiero      |
+| PDF       | Informe PDF completo del Heavy      |
+| INFOGRAFIA| Infografía HTML completa            |
+| TODO      | SANKEY + PDF + INFOGRAFIA en orden  |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REGLAS GENERALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Datos: usar Paso 1 + Heavy ya completados. No re-buscar.
+LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
+Idioma: español. Campo verdict en REPORTS → siempre en inglés.
+Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html tras cada subida.
+
+NOMBRES:
+- PDF:        InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf       → pdfs/equities/
+- Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html      → equities/
+- Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SANKEY — FLUJO FINANCIERO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mismo diseño y estructura que el Sankey del generador Light.
+Fondo #050a12 · 5 columnas · Topbar KPIs · Animaciones · Footer @patonet.
+Verificación triple EDGAR + StockAnalysis + Macrotrends.
+FCF = CFO − Capex. Suma segmentos = Revenue GAAP.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PDF HEAVY — COMPLETO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Informe profesional completo del análisis Heavy. No resumir ningún bloque.
+
+Portada gradiente #0d1428→#1a3a6e:
+(1) LOGO empresa (Clearbit fallback iniciales) + nombre
+(2) Título: "Informe Feroldi Heavy · $[TICKER] · [PRECIO]"
+(3) Precio + Rango 52W + Score Feroldi + PEG + Veredicto
+(4) Performance 8 periodos
+(5) B0: 4 indicadores de semáforo
+(6) Fecha + @patonet
+
+Páginas: header franja color + ticker. Footer @patonet + nº página.
+Incluir todos los bloques A-I + Bloque X.
+Tabla Feroldi con scores semafóricos. SOTP si existe.
+Secciones diferenciadas por color: OOB naranja · IA cian · CEO cursiva · SOTP coloreado · X púrpura.
+Sin páginas en blanco ni bloques cortados.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFOGRAFÍA HEAVY — COMPLETA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISEÑO: dashboard oscuro (#0a1628), texto claro, acentos cian (#00d4ff).
+Responsivo: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
+
+ELEMENTOS OBLIGATORIOS:
+- LOGO + nombre + frase definitoria (popup al hover con Bloque A completo).
+- BARRA 52W: SVG rojo(min)/verde(max)/cian(actual+%).
+- KEY STATS: tabla coloreada completa de FASE 0.
+- PERFORMANCE BAR: 8 periodos TradingView Scanner API.
+- MINI-SEMÁFOROS B0: 4 SVGs. Activa brillante. Inactivas tenues, no desaparecen.
+- SEMÁFORO IA: luz activa brillante+glow. Inactivas tenues. Popup con Bloque D completo.
+- GAUGE FEROLDI: arco rojo→verde, aguja dorada, score actual.
+- SCORECARD FEROLDI: 16 filas con score, emoji semáforo y tooltip completo al hover.
+- TABLA COMPETIDORES: precio, market cap, P/E, revenue, margen, rango 52W con barra SVG.
+- CONSENSO ANALISTAS: precio objetivo, rango min-max, % upside vs precio actual.
+- ESCENARIOS Bear/Base/Bull del Bloque F (con SOTP si existe).
+- TESIS + VEREDICTO + SL/TP del Bloque H.
+- COMPOSICIÓN INGRESOS: gráfico dona por segmento o geografía.
+- GRÁFICO REVENUE→NET INCOME: cascada de conversión.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GITHUB PAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET
+PASO 1: PUT archivo a su carpeta.
+PASO 2: GET index.html → agregar entry al INICIO de const REPORTS → PUT index.html.
+Si falla: reintentar 1 vez → dar archivo para descarga manual.
+
+VEREDICTOS EN REPORTS (inglés):
+buy · pullback · speculative · accumulate · neutral · nobuy · short
+
+Formato entry:
+{ticker, name, desc, type:"equity", verdict, price:"$X", upside, target,
+ date:"DD Mon YYYY", url, pdfUrl, diag3Url}
+
+[X0.3-GEN-HEAVY — PDF+Infografía completa+Sankey · Con SOTP · Con competidores · @patonet]
