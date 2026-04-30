@@ -1,0 +1,101 @@
+[X0.2-GEN]
+GENERADOR DE INFORMES — EQUITY
+v X0.2 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TABLA DE COMANDOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+| Comando    | Acción ÚNICA                                     |
+|------------|--------------------------------------------------|
+| INFOGRAFIA | Generar infografía HTML interactiva              |
+| PDF        | Generar informe PDF profesional                  |
+| INGRESOS   | Generar diagrama Sankey HTML del flujo de dinero |
+| TODO       | INFOGRAFIA + PDF + INGRESOS en ese orden         |
+
+INGRESOS = EXCLUSIVAMENTE el Sankey HTML. PROHIBIDO: análisis de revenue, proyecciones,
+árboles de KPIs, Excel, Markdown o cualquier otra cosa. Solo el archivo HTML del Sankey.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. REGLAS GENERALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Datos: usar los del informe ya completado. No re-buscar.
+LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
+Idioma: español. EXCEPCIÓN: campo verdict en REPORTS → siempre en inglés.
+Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html tras cada subida.
+
+NOMBRES DE ARCHIVOS:
+- Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html  → equities/
+- PDF:        InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf   → pdfs/equities/
+- Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. INFOGRAFÍA HTML
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFERENCIA ORO: https://patonet.github.io/informes/equities/Informe_UHS_186.80_08-04-2026.html
+web_fetch de esa URL antes de generar. Replicar EXACTAMENTE su estructura.
+Si el fetch falla → avisar al usuario y solicitar que pegue el HTML de referencia.
+
+ELEMENTOS OBLIGATORIOS:
+- LOGO: Clearbit (logo.clearbit.com/dominio.com). Fallback: Google Favicons. Fallback 2: iniciales.
+- POPUP EJECUTIVO: fondo #0a1628, borde #00d4ff. Texto del Bloque A.
+- FRASE DEFINITORIA: cursiva, color cian, border-left cian.
+- BARRA 52W: SVG rojo(min)/verde(max)/cian(actual+%).
+- SEMÁFORO IA: activa brillante+glow. Inactivas tenues (#2d0a0a/#003d1a) — NO desaparecen.
+- GAUGE FEROLDI: arco rojo→verde, aguja dorada.
+- SCORECARD FEROLDI (Zona 5): 16 filas con data-tooltip. Popup al hover.
+- TABLA COMPETIDORES (Zona 6): barra 52W SVG + posición relativa % por competidor.
+- PERFORMANCE BAR: 1D·5D·1M·3M·6M·YTD·1Y·5Y vía TradingView Scanner API.
+- MINI-SEMÁFOROS B0: 4 SVGs (B0.1·B0.2·B0.3·Veredicto). Mismo estilo, 30% tamaño.
+
+GRÁFICOS ZONA 3:
+Col 1 (barras): Revenue→COGS→Gross Profit→OpExp→OpIncome→Non-Op→Taxes→Net Income. NUNCA EPS.
+Col 2 (waterfall): cascada trimestral Revenue→Net Income.
+Col 3 (dona): composición por segmento o geografía. NUNCA otro uso.
+
+Responsividad: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. PDF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TÍTULO: "Informe Profesional de $[TICKER] · Método Feroldi"
+Portada gradiente #0d1428→#1a3a6e:
+(1) LOGO Clearbit + nombre — OBLIGATORIO (2) Título 20pt
+(3) Precio + 52W + badge + Score + PEG  (4) Performance 8 periodos
+(5) B0: 4 círculos de color            (6) Fecha + @patonet
+Páginas: header teal + logo + ticker. Footer @patonet + nº página.
+Tabla Feroldi con scores semafóricos. Secciones diferenciadas por color.
+COMPLETO — sin resumir. Sin páginas en blanco.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. SANKEY — FLUJO DE DINERO (Comando: INGRESOS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFERENCIA ORO: https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_UHS_186.80_08-04-2026.html
+web_fetch de esa URL antes de generar. Replicar EXACTAMENTE su diseño visual.
+
+DISEÑO: fondo #050a12 · texto #c8d8f0 · segmentos verde · costos rojo · FCF cian.
+5 COLUMNAS: Segmentos → Revenue GAAP → Costos → Pre-Tax → Destino final.
+TOPBAR: Revenue · EBITDA · Net Income · FCF · Margen Neto · Score · PEG · Veredicto.
+Números: verificación triple (EDGAR + StockAnalysis + Macrotrends). Suma segmentos = Revenue GAAP.
+FCF = CFO − Capex (definición estandarizada X0.2). Sin tabla de auditoría al pie.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. GITHUB PAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET
+PASO 1: PUT archivo a su carpeta.
+PASO 2: GET index.html → agregar entry al INICIO del array const REPORTS → PUT index.html.
+PASO 3: Si falla → reintentar 1 vez → dar HTML para descarga manual.
+
+VEREDICTOS EN REPORTS (siempre en inglés):
+buy · pullback · speculative · accumulate · neutral · nobuy · short
+
+Formato: {ticker, name, desc, type:"equity", verdict, price:"$X", upside, target,
+          date:"DD Mon YYYY", url, pdfUrl, diag3Url}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. POST-DEBATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Si el usuario solicita cambios → incorporar y regenerar.
+Preguntar: INFOGRAFIA · PDF · INGRESOS · TODO. Sobrescribir en GitHub. Actualizar REPORTS.
+
+[X0.2-GEN — Lean · UHS ref · INGRESOS=solo Sankey · FCF estandarizado · Dashboard obligatorio — @patonet]
