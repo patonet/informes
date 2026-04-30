@@ -5,17 +5,18 @@ v X0.3 — @patonet
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COMANDOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-| Comando   | Acción                                    |
-|-----------|-------------------------------------------|
-| SANKEY    | Diagrama HTML flujo financiero            |
-| PDF       | Informe PDF con datos del Light           |
-| INFOGRAFIA| Infografía HTML parcial (sin competidores completos, sin SOTP, sin consenso) |
-| TODO      | SANKEY + PDF + INFOGRAFIA en ese orden    |
+| Comando    | Acción                                              |
+|------------|-----------------------------------------------------|
+| SANKEY     | Diagrama HTML flujo financiero                      |
+| PDF        | Informe PDF con datos del Light                     |
+| INFOGRAFIA | Infografía HTML parcial (sin competidores completos,|
+|            | sin SOTP, sin consenso analistas)                   |
+| TODO       | SANKEY + PDF + INFOGRAFIA en ese orden              |
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGLAS GENERALES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Datos: usar los del Paso 1 + Light ya completados. No re-buscar.
+Datos: Paso 1 + Light ya completados. No re-buscar.
 LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
 Idioma: español. Campo verdict en REPORTS → siempre en inglés.
 Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html tras cada subida.
@@ -26,89 +27,101 @@ NOMBRES:
 - Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SISTEMA DE DISEÑO — MISMAS ESPECIFICACIONES QUE HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tipografía: 'Segoe UI', system-ui + 'Courier New', monospace
+Root: html { font-size: clamp(10px, 1.15vw, 17px); } Solo rem/em/%/fr.
+
+Paleta: fondo #050a12 · zonas #0a1628 · panel #0d1f35 · highlight #1a2a4a
+        texto #c8d8f0 · secundario #94a3b8 · cian #00d4ff · dorado #ffd700
+        verde #00c853/#00ff9d · rojo #e53935/#ff3a3a · naranja #ff8c00
+
+Scanlines: body::after con repeating-linear-gradient opacity 0.04
+
+SEMÁFORO IA — SVG EXACTO:
+viewBox="0 0 80 200" width="3.5rem" id=triggerIA cursor:pointer
+Carcasa: rect 4,4 w72 h192 rx12 fill=#1a1a1a stroke=#555 sw=2
+         rect 8,8 w64 h184 rx10 fill=#111 stroke=#333 sw=1
+Tornillos: 4×circle r=3 fill=#333 stroke=#555
+Separadores: rect y=70 y=127 w=64 fill=#222
+ROJO cy=42 r=22 · NARANJA cy=100 r=22 · VERDE cy=158 r=22
+Activa: fill brillante + drop-shadow + ellipse reflejo opacity=0.35
+Inactiva: fill oscuro (#2d0a0a/#3d2800/#003d1a) + stroke opacity=0.5 + reflejo opacity=0.05
+
+GAUGE CIRCULAR — SVG EXACTO:
+viewBox="0 0 120 70" width="7rem"
+Arco fondo: M 10,60 A 50,50 fill=none stroke=#1a2a4a sw=12
+Arco color: mismo path stroke=url(#gaugeG) sw=10
+Gradiente gaugeG: #e53935→#ffd700→#00c853
+Aguja: line pivot(60,60)→(nx,ny) stroke=#ffd700 sw=2.5
+  nx=60+45*cos((180-angle)°) ny=60-45*sin((180-angle)°) donde angle=(score%/100)*180
+Circle pivot r=3 fill=#ffd700 · Score texto fill=#ffd700 font=Courier New
+
+BARRA 52W:
+Track h=0.45rem bg=#1a2a4a · Fill gradient #ff3a3a→#ffd700→#00ff9d width=XX%
+Marker cian #00d4ff posición=% precio · Labels: min #ff3a3a max #00ff9d
+
+PERFORMANCE BAR: grid 8 cols bg=#080f1c border #0d1f35
+Labels #94a3b8 · Positivo #00c853 · Negativo #ff3a3a · N/D #94a3b8
+
+POPUPS: fixed bg=#0a1628 border 2px #00d4ff border-radius=0.8rem
+        max-w=36rem max-h=80vh overflow-y=auto z-index=10000
+        box-shadow=0 0 40px rgba(0,212,255,0.3)
+        Activar: mouseenter · Cerrar: mouseleave delay 350ms
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFOGRAFÍA LIGHT — 4 ZONAS (sin zona competidores completa)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NOTA VISIBLE en header: "Versión Light — para infografía completa ejecutar HEAVY"
+Librería: Chart.js 4.4.0 (cdnjs.cloudflare.com)
+
+ZONA 1 — Identidad & Precio (igual que Heavy)
+  LOGO Clearbit + fallback iniciales (id=triggerLogo)
+  Nombre (id=triggerNombre) + meta sector/industria/exchange
+  Frase definitoria (id=triggerFrase) cursor:pointer → popup ejecutivo
+  Barra 52W · Performance Bar 8 periodos · Precio + delta + badge veredicto
+  Score + Gauge circular + Semáforo IA (todos con specs exactas arriba)
+
+ZONA 2 — Key Statistics
+  Tabla coloreada completa FASE 0. PEG siempre.
+
+ZONA 3 — Rendimiento Financiero (Chart.js)
+  Col 1: barras Revenue→Net Income
+  Col 2: waterfall trimestral
+  Col 3: dona segmentos/geografía
+
+ZONA 4 — Feroldi 16 Puntos + Veredicto
+  Scorecard .feroldi-row con data-tooltip y popup #feroldiPopup
+  Score total + semáforo global
+  Escenarios Bear/Base/Bull del Bloque F
+  Tesis + Veredicto + SL/TP del Bloque H
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SANKEY — FLUJO FINANCIERO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Generar archivo HTML del diagrama de flujo financiero.
-PROHIBIDO: análisis de revenue, proyecciones, KPIs narrativos, Excel, Markdown.
-
-DISEÑO (no negociable):
-Fondo #050a12 · Texto #c8d8f0
-Segmentos (izquierda): bandas degradado verde #00ff88→#00cc66
-Costos: bandas degradado rojo #ff4444→#cc2222
-Utilidad/FCF: bandas degradado cian #00d4ff→#0099cc
-Flujo de izquierda a derecha. Responsivo: rem/vw.
-Animaciones en las bandas de flujo.
-
-ESTRUCTURA 5 COLUMNAS:
-COL 1 — SEGMENTOS: nombre, revenue $, % total, métricas operativas clave, geografía, YoY.
-COL 2 — REVENUE GAAP: nodo central, total $, YoY, mix de clientes si aplica.
-COL 3 — COSTOS: cada línea con nombre, $ y % revenue.
-         Suma costos + EBIT debe = Revenue GAAP exacto.
-COL 4 — PRE-TAX: EBIT, intereses netos, pre-tax, impuestos con ETR%.
-COL 5 — DESTINO: Net Income, FCF (paralelo, no deducción), recompras, dividendos, Capex.
-
-TOPBAR horizontal: Revenue · EBITDA · Net Income · FCF · Margen Neto · Score Feroldi · PEG · Veredicto.
-BADGES: veredicto en español · Score XX/160 · PEG X.XX.
-LEYENDA al pie con los nodos del ticker actual.
+Idéntico al Heavy. Misma paleta, mismas 5 columnas, mismas animaciones.
+Fondo #050a12 · Segmentos verde · Costos rojo · FCF cian · Topbar KPIs.
+Verificación: EDGAR + StockAnalysis + Macrotrends. FCF = CFO − Capex. Suma = Revenue GAAP.
 FOOTER: @patonet · Feroldi · $[TICKER] · FY[AÑO] · [FECHA] · No constituye asesoría.
-
-VERIFICACIÓN antes de hardcodear:
-EDGAR 10-K + StockAnalysis + Macrotrends.
-Suma segmentos = Revenue GAAP. FCF = CFO − Capex.
-Si segmento no tiene dato exacto → N/D o ⚡ estimado.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PDF LIGHT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Informe profesional del análisis Light. Contenido completo del Light, no resumir.
-
-Portada gradiente #0d1428→#1a3a6e:
-(1) LOGO empresa (Clearbit: logo.clearbit.com/dominio.com, fallback iniciales) + nombre
-(2) Título: "Informe Feroldi · $[TICKER] · [PRECIO]"
-(3) Precio + Rango 52W + Score Feroldi + PEG + Veredicto
-(4) Performance 8 periodos
-(5) B0: 4 indicadores de semáforo
-(6) Fecha + @patonet
-
-Páginas: header con franja de color + ticker. Footer @patonet + nº página.
-Incluir todos los bloques A-H + Bloque X del Light.
-Tabla Feroldi con scores semafóricos por punto.
-Secciones diferenciadas por color. Sin páginas en blanco.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INFOGRAFÍA LIGHT (PARCIAL)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Versión reducida — advertir al inicio: "Infografía Light — sin tabla de competidores completa, sin SOTP, sin consenso de analistas. Para versión completa ejecutar HEAVY."
-
-DISEÑO: dashboard oscuro (#0a1628 fondo), texto claro, acentos cian (#00d4ff).
-Responsivo: html{font-size:clamp(10px,1.15vw,17px)}. Solo rem/em/%/fr.
-
-ELEMENTOS:
-- LOGO empresa + nombre + frase definitoria (popup al hover con Bloque A).
-- BARRA 52W: SVG rojo(min)/verde(max)/cian(actual+%).
-- KEY STATS: tabla coloreada con las métricas de FASE 0.
-- PERFORMANCE BAR: 8 periodos vía TradingView Scanner API.
-- MINI-SEMÁFOROS B0: 4 SVGs (B0.1·B0.2·B0.3·Veredicto).
-- SEMÁFORO IA: luz activa brillante+glow. Inactivas tenues, no desaparecen.
-- GAUGE FEROLDI: arco rojo→verde, aguja dorada, score actual.
-- SCORECARD FEROLDI: 16 filas con score y tooltip al hover.
-- ESCENARIOS Bear/Base/Bull del Bloque F.
-- TESIS + VEREDICTO + SL/TP del Bloque H.
-- NOTA VISIBLE: "Versión Light — ejecutar HEAVY para infografía completa."
+Portada gradiente #0d1428→#1a3a6e. Misma paleta. Segoe UI + Courier New.
+(1) LOGO Clearbit + nombre (2) Título Light (3) Precio+52W+Score+PEG+Veredicto
+(4) Performance 8 periodos (5) B0: 4 semáforos (6) Fecha + @patonet
+Páginas: header franja #00d4ff + ticker. Footer @patonet + nº página.
+Bloques A-H + X completos del Light. Tabla Feroldi semafórica.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GITHUB PAGES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Token: GH_TOKEN_PATONET
 PASO 1: PUT archivo a su carpeta.
-PASO 2: GET index.html → agregar entry al INICIO de const REPORTS → PUT index.html.
-Si falla: reintentar 1 vez → dar archivo para descarga manual.
+PASO 2: GET index.html → entry al INICIO de const REPORTS → PUT.
+Fallo: reintentar 1 vez → descarga manual.
 
-VEREDICTOS EN REPORTS (inglés):
-buy · pullback · speculative · accumulate · neutral · nobuy · short
+VEREDICTOS (inglés): buy · pullback · speculative · accumulate · neutral · nobuy · short
+Formato: {ticker, name, desc, type:"equity", verdict, price, upside, target, date, url, pdfUrl, diag3Url}
 
-Formato entry:
-{ticker, name, desc, type:"equity", verdict, price:"$X", upside, target,
- date:"DD Mon YYYY", url, pdfUrl, diag3Url}
-
-[X0.3-GEN-LIGHT — PDF+Infografía parcial+Sankey · Sin SOTP · Sin competidores completos — @patonet]
+[X0.3-GEN-LIGHT — Specs exactas diseño · Semáforo SVG · 4 zonas · Sin competidores · @patonet]
