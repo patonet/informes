@@ -196,10 +196,14 @@ body: background:#050a12; color:#c8d8f0; font-family:'Segoe UI',system-ui,sans-s
 html: font-size:clamp(10px,1.1vw,16px); solo rem/vw
 Scanlines: idéntico a infografía
 
-HEADER: background:#020710; border-bottom:2px solid #0d2040; padding:1rem 2rem
-  h1: font-size:1.4rem; font-weight:800; color:#fff; span con ticker en #00d4ff
-  .meta: font-size:0.82rem; color:#94a3b8; text-align:right
-  .brand: font-size:0.9rem; color:#ffd700; font-weight:bold
+HEADER: background:#020710; border-bottom:2px solid #0d2040; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center
+  SIN LOGO — solo texto:
+  Izquierda: <h1>[Nombre Empresa] <span style="color:#00d4ff">[Sector/Desc]</span> · Flujo de Dinero FY[AÑO]</h1>
+    subtítulo: "Diagrama Sankey · Método Feroldi · Verificación Triple SEC/StockAnalysis/Macrotrends" (0.8rem #94a3b8)
+  Derecha (.meta): 
+    .brand: @patonet (0.9rem #ffd700 bold)
+    línea: [EXCHANGE]: [TICKER] · $[PRECIO] · [FECHA]
+    línea: Revenue Total FY[AÑO]: $XXB (GAAP)
 
 KPI BAR: padding:0.75rem 2rem; background:#080f1c; border-bottom:1px solid #0d1f35
   .kpi-label: font-size:0.72rem; color:#64748b; uppercase; letter-spacing:0.08em
@@ -213,8 +217,10 @@ BADGES (pill shaped):
   .badge-peg: bg rgba(255,215,0,0.1); border:#ffd700; color:#ffd700
 
 SVG SANKEY: id="sankey" viewBox="0 0 1060 620"
-Nodos: <rect rx="6"> con fill oscuro tonal + stroke color del segmento + filter="url(#glow)"
-  data-tip="[nombre]: $X (X%)" style="cursor:pointer"
+Nodos col1: <rect rx="6" class="node" data-tip="[Nombre]: $X.XB (XX%)" style="cursor:pointer"
+  fill oscuro tonal + stroke color del segmento + filter="url(#glow)"
+  CRÍTICO: class="node" es obligatorio para que el JS de tooltip funcione
+Nodos col2,3,4: <rect rx="6"> sin class="node" — sin tooltip
 Texto dentro de nodos:
   Título: font-size=11.5 font-weight=bold color del segmento
   Subtítulos: font-size=9 fill=#94a3b8
@@ -247,13 +253,43 @@ FILTROS:
 #glow: feGaussianBlur stdDeviation=2.5 + feMerge(blur+source)
 #glowStrong: feGaussianBlur stdDeviation=4 + feMerge
 
-COLORES DE NODOS por columna:
-Col1 segmentos: cada segmento tiene color propio (cian, dorado, etc.)
-Col2 revenue: stroke=#00a8cc fill=#0d1f35
-Col3 costos: fills oscuros tonales (#200a0a rojo, #1f1008 naranja, #1a1508 amarillo, #150a20 púrpura)
-  strokes: colores del costo respectivo
-Col4 pre-tax: stroke=#00bcd4 fill=#0d1f1a
-Col5 destinos: barras verticales de 8px width con fill del color destino
+COLORES Y ESTRUCTURA INTERNA DE NODOS:
+
+Col1 — Segmentos (class="node" data-tip):
+  Rect: fill oscuro tonal del segmento + stroke color del segmento + filter=glow + rx=6
+  Texto líneas dentro del nodo:
+    Título: font-size=11.5 font-weight=bold fill=color_segmento text-anchor=middle
+    Subtítulos operativos: font-size=9 fill=#94a3b8 (2-3 líneas con métricas clave)
+    Valor $: font-size=15 font-weight=bold fill=#00ff9d
+    % del total: font-size=9 fill=#94a3b8
+    Métricas YoY/margen: font-size=9 fill=color_segmento o #00bcd4
+    Nota geográfica: font-size=8 fill=#64748b
+
+Col2 — Revenue Total:
+  Rect: fill=#0d1f35 stroke=#00a8cc sw=2 filter=glowStrong rx=6
+  Título: fill=#00a8cc bold · Subtítulo fuente: #94a3b8
+  Valor $: font-size=18 bold fill=#00ff9d
+  YoY: #94a3b8 · Mix pagadores: colores según tipo
+
+Col3 — Costos (sin class="node", sin tooltip):
+  Fills oscuros tonales: rojo=#200a0a · naranja=#1f1008 · amarillo=#1a1508 · púrpura=#150a20
+  Strokes: rojo=#ff3a3a · naranja=#ff6b35 · amarillo=#ff9800 · púrpura=#9c27b0 · sw=1.5 · rx=6
+  Texto interno:
+    Título costo: font-size=10.5 bold fill=color_stroke (mismo que stroke)
+    Subtítulo contextual: font-size=9 fill=#94a3b8
+    Valor $: font-size=14 bold fill=color más claro que el título
+    % revenue: font-size=9 fill=#94a3b8
+    Nota adicional: font-size=8.5-9 fill=#ffd700 o #94a3b8
+  Ingreso Operativo: fill=#0a1f0a stroke=#00ff9d sw=2 filter=glow (es el último de col3)
+
+Col4 — Pre-Tax:
+  Rect: fill=#0d1f1a stroke=#00bcd4 sw=1.5 filter=glow rx=6
+  Separador interno: <line> stroke=#0d2040
+  Texto: título #00bcd4 · valor #00ff9d font-size=15 · breakdowns #94a3b8 · ETR #94a3b8
+
+Col5 — Destinos:
+  Barras verticales de 8px width (no rectángulos) con fill del color destino opacity=0.6-0.7
+  Labels a la derecha de las barras: título bold 9pt · valor 10pt bold · nota 8pt #94a3b8
 
 ANOTACIÓN DE RIESGO (si aplica):
 <rect fill="#1a1008" stroke="#ff6b35" stroke-dasharray="4,2"/>
@@ -263,10 +299,40 @@ LEYENDA: background:#080f1c; border:1px solid #0d1f35; border-radius:0.5rem
   grid auto-fit minmax(13rem,1fr)
   .legend-dot: 0.75rem circle · .legend-text: #c8d8f0 · .legend-val: #ffd700 Courier New
 
-TOOLTIP: position:fixed; background:#0a1628; border:1px solid #00d4ff
-  border-radius:0.5rem; font-size:0.82rem; color:#c8d8f0
-  box-shadow:0 0 20px rgba(0,212,255,0.2)
-  Activar con mousemove sobre nodos; strong en #00d4ff
+TABLA AUDITORÍA (al pie, obligatoria):
+CSS: font-size:0.78rem; border-collapse:collapse; max-width:1100px; width:100%
+th: background:#0d1428; color:#00d4ff; padding:0.5rem 0.8rem; font-size:0.75rem; uppercase; letter-spacing:0.06em
+td: padding:0.45rem 0.8rem; border-bottom:1px solid #0d1428; color:#c8d8f0
+tr:hover td: background:#0a1628
+Valores $: <strong style="color:#00ff9d">$XX.XXB</strong>
+.status-ok: color:#00ff9d; font-weight:bold → "✅ Verificado"
+.status-est: color:#ffd700 → "⚡ Estimado"
+Columnas: Rubro | Valor FY | Fuente Primaria | Estado | Nota
+Incluir TODOS los nodos del diagrama con su fuente EDGAR/StockAnalysis/Macrotrends
+
+TOOLTIP div (#tooltip): position:fixed; background:#0a1628; border:1px solid #00d4ff
+  border-radius:0.5rem; padding:0.75rem 1rem; font-size:0.82rem; color:#c8d8f0
+  max-width:18rem; pointer-events:none; z-index:9999; display:none; line-height:1.5
+  box-shadow:0 0 20px rgba(0,212,255,0.2); strong en #00d4ff
+
+JS TOOLTIP OBLIGATORIO (al final del body, antes de </body>):
+<script>
+document.querySelectorAll('.node').forEach(el => {
+  el.addEventListener('mouseenter', function(e) {
+    const tip = document.getElementById('tooltip');
+    tip.innerHTML = '<strong>' + this.dataset.tip + '</strong>';
+    tip.style.display = 'block';
+  });
+  el.addEventListener('mousemove', function(e) {
+    const tip = document.getElementById('tooltip');
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top = (e.clientY - 30) + 'px';
+  });
+  el.addEventListener('mouseleave', function() {
+    document.getElementById('tooltip').style.display = 'none';
+  });
+});
+</script>
 
 FOOTER: background:#020710; border-top:1px solid #0d2040
   font-size:0.78rem; color:#94a3b8; strong en #ffd700
