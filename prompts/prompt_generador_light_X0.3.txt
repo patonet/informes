@@ -1,5 +1,5 @@
 [X0.3-GEN-LIGHT]
-GENERADOR LIGHT — PDF + INFOGRAFÍA PARCIAL + SANKEY
+GENERADOR LIGHT — Infografía 4 Zonas · PDF Lite · Sankey
 v X0.3 — @patonet
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -7,88 +7,100 @@ COMANDOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 | Comando    | Acción                                           |
 |------------|--------------------------------------------------|
+| INFOGRAFIA | Infografía HTML 4 zonas (sin competidores,       |
+|            | sin SOTP, sin consenso analistas)                |
+| PDF        | PDF Lite — bloques A-H + X sin SOTP ni Bloque I |
 | SANKEY     | Diagrama HTML flujo financiero                   |
-| PDF        | Informe PDF con datos del Light                  |
-| INFOGRAFIA | Infografía HTML parcial (sin competidores         |
-|            | completos, sin SOTP, sin consenso analistas)     |
-| TODO       | SANKEY + PDF + INFOGRAFIA en ese orden           |
+| TODO       | INFOGRAFIA + PDF + SANKEY en ese orden           |
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-REGLAS GENERALES
+1. REGLAS GENERALES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Datos: Paso 1 + Light completados. No re-buscar.
+Datos: usar Paso 1 + Light completados. No re-buscar.
 LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
 Idioma: español. Campo verdict en REPORTS → siempre en inglés.
-Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html.
+Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html tras cada subida.
 
 NOMBRES:
-- PDF:        InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf       → pdfs/equities/
-- Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html      → equities/
-- Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
+- Infografía Light: infografia_light_[TICKER]_[PRECIO]_[DD-MM-AAAA].html  → equities/
+- PDF Lite:         InformePDF_lite_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf    → pdfs/equities/
+- Sankey:           Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html   → diagramas/equities/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SISTEMA DE DISEÑO — MISMAS SPECS QUE HEAVY
+2. DISEÑO VISUAL — IDÉNTICO AL HEAVY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Usar EXACTAMENTE las mismas especificaciones de diseño que el generador Heavy:
-misma paleta, mismas fuentes, mismo semáforo SVG, mismo gauge, misma barra 52W,
-misma performance bar, mismos popups, mismo CSS base, mismo Sankey.
-La diferencia es de CONTENIDO, no de diseño.
+MISMO aspecto visual que la infografía Heavy en todo: colores, tipografía, semáforo SVG,
+gauge, popups, barra 52W, performance bar, scorecard Feroldi. La diferencia es de CONTENIDO
+(menos zonas), NO de diseño. Un usuario no debe notar diferencia visual.
 
-Tipografía: 'Segoe UI' + 'Courier New' · Root clamp(10px,1.15vw,17px) · solo rem
-Paleta: #050a12 fondo · #00d4ff cian · #ffd700 dorado · #00c853 verde · #ff3a3a rojo
-Scanlines obligatorio. Zona titles uppercase 0.72rem #00d4ff.
-
-SEMÁFORO IA: viewBox 0 0 80 200, width 3.5rem, carcasa #1a1a1a,
-  luces rojo cy=42/naranja cy=100/verde cy=158 r=22,
-  activa: fill brillante + glow + reflejo opacity=0.35,
-  inactiva: fill oscuro + reflejo opacity=0.05
-
-GAUGE: viewBox 0 0 120 70, width 7rem, gradiente #e53935→#ffd700→#00c853,
-  aguja dorada calculada según score%, pivot r=3 fill=#ffd700
-
-BARRA 52W: gradiente #ff3a3a→#ffd700→#00ff9d, marker cian, track #1a2a4a
-PERFORMANCE BAR: grid 8 cols bg=#080f1c, positivo #00c853, negativo #ff3a3a
-POPUPS: fixed #0a1628 border #00d4ff, box-shadow rgba(0,212,255,0.3)
-
-SANKEY: idéntico al heavy en diseño, CSS, animaciones y estructura.
-  viewBox 1060×620 · flowAnim 4s/5.5s · gradientes por tipo
-  Header: sin logo, solo texto (nombre empresa + @patonet + ticker + precio)
-  Col1 nodos: class="node" + data-tip → JS tooltip al hover
-  Col3 costos: sin tooltip, sin class="node"
-  Estructura interna de nodos: misma que especifica el generador heavy
-  Tabla auditoría al pie con .status-ok #00ff9d y .status-est #ffd700
-  JS tooltip obligatorio antes de </body>
-
-PDF: Helvetica + Courier-Bold · portada #0c1328/#1a3a6e · mismas líneas cian+dorada
+PALETA: fondo #050a12 · texto #c8d8f0 · cian #00d4ff · verde #00ff9d · dorado #ffd700 · rojo #ff3a3a.
+TIPOGRAFÍA: 'Segoe UI', system-ui + 'Courier New', monospace.
+ROOT: html { font-size: clamp(10px, 1.15vw, 17px); }
+SOLO rem/em/%/fr — PROHIBIDO px en layout. Scanlines body::after obligatorio.
+Nota visible en header: "Versión Light — ejecutar HEAVY para análisis completo."
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INFOGRAFÍA LIGHT — 4 ZONAS
+3. INFOGRAFÍA LIGHT — 4 ZONAS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NOTA en header: "Versión Light — para infografía completa ejecutar HEAVY"
-Librería: Chart.js 4.4.0 (cdnjs)
+Librería: Chart.js 4.4.0 (cdnjs).
+const DATA = {...} al inicio del script con todos los datos.
 
-ZONA 1 — Identidad & Precio (idéntica al Heavy)
-ZONA 2 — Key Statistics (tabla coloreada completa)
-ZONA 3 — Rendimiento Financiero (Chart.js: barras + waterfall + dona)
-ZONA 4 — Feroldi 16 Puntos + Veredicto
-  Scorecard .feroldi-row + popup · Score total · Escenarios F · Tesis H + SL/TP
+ZONA 1 — CABECERA
+Idéntica al Heavy: logo Clearbit + fallback iniciales, popup ejecutivo (Bloque A),
+frase definitoria id=triggerFrase, barra 52W SVG, performance bar 10 periodos,
+precio + delta, badge veredicto, tarjetas Feroldi score/160 + gauge circular,
+semáforo IA (3 luces, tabla valores NIVEL BAJO/MEDIO/ALTO), popup IA (Bloque D),
+mini-semáforos B0 (4 SVGs width=1.2rem).
 
-NO INCLUIR: tabla competidores completa · SOTP · consenso analistas · zona 6
+ZONA 2 — KEY STATS
+Idéntica al Heavy: grid 4 subgrupos (VALORACIÓN · RENTABILIDAD · CRECIMIENTO · DIVIDENDO/RIESGO).
+Cards con valor 1.3rem monoespaciado + triángulo semafórico.
+
+ZONA 3 — GRÁFICOS FINANCIEROS
+Idéntica al Heavy: grid 3 columnas.
+Col1: Chart.js mixto Revenue+NI barras + Margen% línea, doble eje Y.
+Col2: Waterfall Revenue→Net Income.
+Col3: Dona composición ingresos por segmento.
+
+ZONA 4 — FEROLDI 16 PUNTOS + VEREDICTO
+Scorecard con 16 feroldi-row + data-tooltip + popup #feroldiPopup.
+Gauge individual SVG por punto (viewBox="0 0 200 130").
+Score total + semáforo global + verificación aritmética visible.
+Escenarios Bear/Base/Bull del Bloque F (sin SOTP).
+Veredicto badge + tesis del Bloque H + SL/TP.
+
+NO INCLUIR: zona de competidores completa · SOTP · consenso analistas detallado · spider chart.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PDF LIGHT
+4. PDF LITE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Misma estructura portada que Heavy. Contenido: bloques A-H + X del Light.
-Sin SOTP · sin competidores completos · sin earnings call transcript completo.
+Misma portada que el Heavy: gradiente #0d1428→#1a3a6e, logo, precio, score, performance bar, B0.
+Misma estructura de páginas: header franja teal 8px, footer @patonet + nº página.
+Mismos estilos de sección: OOB naranja · IA cian · CEO cursiva.
+Contenido: bloques A-H + Bloque X. Sin Bloque I, sin SOTP completo.
+PDF COMPLETO en lo que incluye — no resumir ningún bloque presente.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GITHUB PAGES
+5. SANKEY — VER GENERADOR HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+El Sankey es IDÉNTICO al del generador Heavy. Copiar exactamente la sección 5 del
+prompt_generador_heavy_X0.3.txt. Mismos colores, mismas animaciones, misma estructura
+5 columnas, misma verificación triple, mismo CSS.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. GITHUB PAGES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Token: GH_TOKEN_PATONET
-PASO 1: PUT archivo. PASO 2: GET index.html → REPORTS → PUT.
-Fallo: reintentar 1 vez → descarga manual.
+PASO 1: PUT archivo a su carpeta.
+PASO 2: GET index.html → agregar/actualizar entry en const REPORTS → PUT.
+  Campos Light: urlLight:"equities/infografia_light_..." · pdfLightUrl:"pdfs/equities/InformePDF_lite_..." · sankeyUrl:"diagramas/equities/Diagrama_Sankey_..."
+PASO 3: Confirmar links clicables.
 
 VEREDICTOS (inglés): buy · pullback · speculative · accumulate · neutral · nobuy · short
-Formato: {ticker, name, desc, type:"equity", verdict, price, upside, target, date, url, pdfUrl, diag3Url}
 
-[X0.3-GEN-LIGHT — Diseño idéntico Heavy · 4 zonas · Sin competidores · @patonet]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. POST-DEBATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cambios → regenerar. Preguntar: INFOGRAFIA · PDF · SANKEY · TODO. Sobrescribir en GitHub.
+
+[X0.3-GEN-LIGHT — 4 zonas · PDF Lite · Sankey idéntico Heavy · mismo diseño visual — @patonet]
