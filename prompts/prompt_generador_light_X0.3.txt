@@ -5,21 +5,21 @@ v X0.3 — @patonet
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 COMANDOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-| Comando    | Acción                                              |
-|------------|-----------------------------------------------------|
-| SANKEY     | Diagrama HTML flujo financiero                      |
-| PDF        | Informe PDF con datos del Light                     |
-| INFOGRAFIA | Infografía HTML parcial (sin competidores completos,|
-|            | sin SOTP, sin consenso analistas)                   |
-| TODO       | SANKEY + PDF + INFOGRAFIA en ese orden              |
+| Comando    | Acción                                           |
+|------------|--------------------------------------------------|
+| SANKEY     | Diagrama HTML flujo financiero                   |
+| PDF        | Informe PDF con datos del Light                  |
+| INFOGRAFIA | Infografía HTML parcial (sin competidores         |
+|            | completos, sin SOTP, sin consenso analistas)     |
+| TODO       | SANKEY + PDF + INFOGRAFIA en ese orden           |
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGLAS GENERALES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Datos: Paso 1 + Light ya completados. No re-buscar.
+Datos: Paso 1 + Light completados. No re-buscar.
 LINKS: SIEMPRE https://patonet.github.io/informes/... Todos clicables.
 Idioma: español. Campo verdict en REPORTS → siempre en inglés.
-Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html tras cada subida.
+Todo archivo generado se sube a GitHub. Actualizar REPORTS en index.html.
 
 NOMBRES:
 - PDF:        InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf       → pdfs/equities/
@@ -27,101 +27,62 @@ NOMBRES:
 - Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SISTEMA DE DISEÑO — MISMAS ESPECIFICACIONES QUE HEAVY
+SISTEMA DE DISEÑO — MISMAS SPECS QUE HEAVY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Tipografía: 'Segoe UI', system-ui + 'Courier New', monospace
-Root: html { font-size: clamp(10px, 1.15vw, 17px); } Solo rem/em/%/fr.
+Usar EXACTAMENTE las mismas especificaciones de diseño que el generador Heavy:
+misma paleta, mismas fuentes, mismo semáforo SVG, mismo gauge, misma barra 52W,
+misma performance bar, mismos popups, mismo CSS base, mismo Sankey.
+La diferencia es de CONTENIDO, no de diseño.
 
-Paleta: fondo #050a12 · zonas #0a1628 · panel #0d1f35 · highlight #1a2a4a
-        texto #c8d8f0 · secundario #94a3b8 · cian #00d4ff · dorado #ffd700
-        verde #00c853/#00ff9d · rojo #e53935/#ff3a3a · naranja #ff8c00
+Tipografía: 'Segoe UI' + 'Courier New' · Root clamp(10px,1.15vw,17px) · solo rem
+Paleta: #050a12 fondo · #00d4ff cian · #ffd700 dorado · #00c853 verde · #ff3a3a rojo
+Scanlines obligatorio. Zona titles uppercase 0.72rem #00d4ff.
 
-Scanlines: body::after con repeating-linear-gradient opacity 0.04
+SEMÁFORO IA: viewBox 0 0 80 200, width 3.5rem, carcasa #1a1a1a,
+  luces rojo cy=42/naranja cy=100/verde cy=158 r=22,
+  activa: fill brillante + glow + reflejo opacity=0.35,
+  inactiva: fill oscuro + reflejo opacity=0.05
 
-SEMÁFORO IA — SVG EXACTO:
-viewBox="0 0 80 200" width="3.5rem" id=triggerIA cursor:pointer
-Carcasa: rect 4,4 w72 h192 rx12 fill=#1a1a1a stroke=#555 sw=2
-         rect 8,8 w64 h184 rx10 fill=#111 stroke=#333 sw=1
-Tornillos: 4×circle r=3 fill=#333 stroke=#555
-Separadores: rect y=70 y=127 w=64 fill=#222
-ROJO cy=42 r=22 · NARANJA cy=100 r=22 · VERDE cy=158 r=22
-Activa: fill brillante + drop-shadow + ellipse reflejo opacity=0.35
-Inactiva: fill oscuro (#2d0a0a/#3d2800/#003d1a) + stroke opacity=0.5 + reflejo opacity=0.05
+GAUGE: viewBox 0 0 120 70, width 7rem, gradiente #e53935→#ffd700→#00c853,
+  aguja dorada calculada según score%, pivot r=3 fill=#ffd700
 
-GAUGE CIRCULAR — SVG EXACTO:
-viewBox="0 0 120 70" width="7rem"
-Arco fondo: M 10,60 A 50,50 fill=none stroke=#1a2a4a sw=12
-Arco color: mismo path stroke=url(#gaugeG) sw=10
-Gradiente gaugeG: #e53935→#ffd700→#00c853
-Aguja: line pivot(60,60)→(nx,ny) stroke=#ffd700 sw=2.5
-  nx=60+45*cos((180-angle)°) ny=60-45*sin((180-angle)°) donde angle=(score%/100)*180
-Circle pivot r=3 fill=#ffd700 · Score texto fill=#ffd700 font=Courier New
+BARRA 52W: gradiente #ff3a3a→#ffd700→#00ff9d, marker cian, track #1a2a4a
+PERFORMANCE BAR: grid 8 cols bg=#080f1c, positivo #00c853, negativo #ff3a3a
+POPUPS: fixed #0a1628 border #00d4ff, box-shadow rgba(0,212,255,0.3)
 
-BARRA 52W:
-Track h=0.45rem bg=#1a2a4a · Fill gradient #ff3a3a→#ffd700→#00ff9d width=XX%
-Marker cian #00d4ff posición=% precio · Labels: min #ff3a3a max #00ff9d
+SANKEY: CSS idéntico al heavy (flowAnim 4s/5.5s, gradientes por tipo, viewBox 1060×620)
+  Mismos colores por tipo: segmentos tonales · costos rojos/naranja · FCF cian/dorado
 
-PERFORMANCE BAR: grid 8 cols bg=#080f1c border #0d1f35
-Labels #94a3b8 · Positivo #00c853 · Negativo #ff3a3a · N/D #94a3b8
-
-POPUPS: fixed bg=#0a1628 border 2px #00d4ff border-radius=0.8rem
-        max-w=36rem max-h=80vh overflow-y=auto z-index=10000
-        box-shadow=0 0 40px rgba(0,212,255,0.3)
-        Activar: mouseenter · Cerrar: mouseleave delay 350ms
+PDF: Helvetica + Courier-Bold · portada #0c1328/#1a3a6e · mismas líneas cian+dorada
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-INFOGRAFÍA LIGHT — 4 ZONAS (sin zona competidores completa)
+INFOGRAFÍA LIGHT — 4 ZONAS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NOTA VISIBLE en header: "Versión Light — para infografía completa ejecutar HEAVY"
-Librería: Chart.js 4.4.0 (cdnjs.cloudflare.com)
+NOTA en header: "Versión Light — para infografía completa ejecutar HEAVY"
+Librería: Chart.js 4.4.0 (cdnjs)
 
-ZONA 1 — Identidad & Precio (igual que Heavy)
-  LOGO Clearbit + fallback iniciales (id=triggerLogo)
-  Nombre (id=triggerNombre) + meta sector/industria/exchange
-  Frase definitoria (id=triggerFrase) cursor:pointer → popup ejecutivo
-  Barra 52W · Performance Bar 8 periodos · Precio + delta + badge veredicto
-  Score + Gauge circular + Semáforo IA (todos con specs exactas arriba)
-
-ZONA 2 — Key Statistics
-  Tabla coloreada completa FASE 0. PEG siempre.
-
-ZONA 3 — Rendimiento Financiero (Chart.js)
-  Col 1: barras Revenue→Net Income
-  Col 2: waterfall trimestral
-  Col 3: dona segmentos/geografía
-
+ZONA 1 — Identidad & Precio (idéntica al Heavy)
+ZONA 2 — Key Statistics (tabla coloreada completa)
+ZONA 3 — Rendimiento Financiero (Chart.js: barras + waterfall + dona)
 ZONA 4 — Feroldi 16 Puntos + Veredicto
-  Scorecard .feroldi-row con data-tooltip y popup #feroldiPopup
-  Score total + semáforo global
-  Escenarios Bear/Base/Bull del Bloque F
-  Tesis + Veredicto + SL/TP del Bloque H
+  Scorecard .feroldi-row + popup · Score total · Escenarios F · Tesis H + SL/TP
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SANKEY — FLUJO FINANCIERO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Idéntico al Heavy. Misma paleta, mismas 5 columnas, mismas animaciones.
-Fondo #050a12 · Segmentos verde · Costos rojo · FCF cian · Topbar KPIs.
-Verificación: EDGAR + StockAnalysis + Macrotrends. FCF = CFO − Capex. Suma = Revenue GAAP.
-FOOTER: @patonet · Feroldi · $[TICKER] · FY[AÑO] · [FECHA] · No constituye asesoría.
+NO INCLUIR: tabla competidores completa · SOTP · consenso analistas · zona 6
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PDF LIGHT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Portada gradiente #0d1428→#1a3a6e. Misma paleta. Segoe UI + Courier New.
-(1) LOGO Clearbit + nombre (2) Título Light (3) Precio+52W+Score+PEG+Veredicto
-(4) Performance 8 periodos (5) B0: 4 semáforos (6) Fecha + @patonet
-Páginas: header franja #00d4ff + ticker. Footer @patonet + nº página.
-Bloques A-H + X completos del Light. Tabla Feroldi semafórica.
+Misma estructura portada que Heavy. Contenido: bloques A-H + X del Light.
+Sin SOTP · sin competidores completos · sin earnings call transcript completo.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GITHUB PAGES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Token: GH_TOKEN_PATONET
-PASO 1: PUT archivo a su carpeta.
-PASO 2: GET index.html → entry al INICIO de const REPORTS → PUT.
+PASO 1: PUT archivo. PASO 2: GET index.html → REPORTS → PUT.
 Fallo: reintentar 1 vez → descarga manual.
 
 VEREDICTOS (inglés): buy · pullback · speculative · accumulate · neutral · nobuy · short
 Formato: {ticker, name, desc, type:"equity", verdict, price, upside, target, date, url, pdfUrl, diag3Url}
 
-[X0.3-GEN-LIGHT — Specs exactas diseño · Semáforo SVG · 4 zonas · Sin competidores · @patonet]
+[X0.3-GEN-LIGHT — Diseño idéntico Heavy · 4 zonas · Sin competidores · @patonet]
