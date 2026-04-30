@@ -1,0 +1,154 @@
+[X0.2-HEAVY]
+NÚCLEO HEAVY — EXPANSIÓN SOBRE LIGHT
+v X0.2 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRINCIPIO FUNDAMENTAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+El Heavy NO rehace el Light. Hereda todo:
+- Datos de FASE 0 (Key Stats, commodity check, temporalidad) → usar sin repetir
+- Bloque 0 (B0.1/B0.2/B0.3) → usar sin repetir
+- Bloque G Feroldi 16 puntos completo → copiar y pegar íntegro, luego expandir
+  SOLO si hay datos nuevos de esta sesión (earnings call, SOTP, 8-K reciente)
+
+El Heavy añade lo que el Light no tiene:
+- Bloque A expandido (150-200 palabras completo)
+- Bloque B con transcript del earnings call
+- Bloque C expandido (mínimo 2 oportunidades no obvias + 1 idea no convencional)
+- Bloque D completo (6 etapas de análisis IA)
+- Bloque E completo (earnings call, preguntas duras, red flags)
+- Bloque F con SOTP completo (si aplica) + escenarios expandidos
+- Bloque G: copiar del Light + añadir contexto de earnings/SOTP donde corresponda
+- Bloque H expandido
+- Bloque I (solo en Heavy)
+- Bloque X auto-crítica completa
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. REGLAS UNIVERSALES DE DATOS
+(mismas que el Light — no relajar en Heavy)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANTI-ALUCINACIÓN: NUNCA datos de memoria. TODO por búsqueda. N/D si no se encuentra.
+
+JERARQUÍA DE FUENTES:
+TIER 1: SEC EDGAR (10-K, 10-Q, 8-K últimos 90 días, DEF14A) — primaria, no negociable
+TIER 2: Earnings release + transcript (BusinessWire/PR Newswire, buscado)
+TIER 3: StockAnalysis, Macrotrends, TradingView
+TIER 4: Yahoo Finance, Seeking Alpha, noticias (solo contexto narrativo)
+Toda métrica cita su Tier y fecha del filing.
+
+DEFINICIONES INAMOVIBLES:
+FCF = CFO − "Purchases of property and equipment" (10-K/10-Q Cash Flow)
+Market Cap = Precio × todas las clases de acciones (A+B+C+dilutivas)
+Deuda Total = LT debt + current portion + convertibles (actualizar con 8-K si existe)
+
+FRESCURA: "2026" en todas las queries. Commodities/divisas/tasas: máximo 15 días.
+TEMPORALIDAD: indicar fecha del filing por cada métrica del balance sheet.
+EVENTOS RECIENTES: verificar 8-K y prensa últimos 15 días para M&A, deuda, earnings.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. OUTPUTS DE PROGRESO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Concisos (ej: "Earnings call cargado. Transcript Q4 2025 verificado.").
+Bloques de análisis: COMPLETOS y DETALLADOS — no resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. BLOQUES DEL HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BLOQUE A — Resumen Ejecutivo (150-200 palabras)
+Cómo gana dinero, calidad económica, ventajas, riesgos. Frase definitoria cursiva al cierre.
+
+BLOQUE B — Contexto precio y noticias
+Comportamiento día/semana/mes/3m. Transcript del último earnings call: tono CEO, guidance,
+preguntas críticas, temas clave, riesgos/catalizadores. Movimientos explosivos → integrar
+en Feroldi donde corresponda. Párrafo 5+ líneas.
+
+BLOQUE C — OUT OF THE BOX
+Riesgos no obvios · Oportunidades ocultas · Lo que mercado ignora (mínimo 2).
+Al menos 1 idea no convencional que desafíe el consenso. Sin límite de extensión.
+
+BLOQUE D — Análisis IA Profundo
+Título: "¿La IA, amiga o enemiga de $TICKER?"
+A) Eficiencia IA y Workforce — impacto en headcount y costos
+B) 11 Amenazas (B.1–B.11) — específicas al modelo de negocio
+C) 9 Oportunidades (C.1–C.9) — concretas y cuantificadas si posible
+D) Timeline de Impacto — 1a / 3a / 5a+
+E) Variant Perception — qué ve el mercado vs qué es real
+F) Semáforo VERDE/NARANJA/ROJO con justificación de 3+ líneas
+
+BLOQUE E — El CEO Defendiendo a $TICKER
+Fuente: transcript del earnings call (Tier 2, buscado).
+Tono CEO · Guidance vs consenso · Narrativa estratégica · 3 preguntas duras ·
+Red flags/bull signals · Cita clave traducida al español.
+
+BLOQUE F — SOTP + Escenarios Bear/Base/Bull
+ÚNICO bloque de escenarios en todo el informe. No repetir en ningún otro bloque.
+SOTP condicional: solo si ≥2 segmentos >10% del revenue.
+  → Para cada segmento: revenue, múltiplo vs pure-play comparable, valor implícito.
+  → Suma SOTP + ajustes (deuda neta, holding discount) = valor por acción.
+Bear (-20% múltiplos, riesgos materializados) · Base (múltiplos del análisis) ·
+Bull (+20%, opcionalidad realizada). Rango de precio implicado por escenario.
+
+BLOQUE G — Feroldi 16 Puntos
+COPIAR ÍNTEGRO del Light (preguntas + respuestas + scores).
+Si el earnings call o el SOTP revelan datos nuevos relevantes para algún punto →
+añadir nota [Actualizado Heavy: dato nuevo] al final de ese punto específico.
+No reescribir los puntos que no tienen datos nuevos.
+Repetir la verificación aritmética y el score total.
+
+BLOQUE H — Síntesis y Tesis de Inversión
+- Tabla-resumen 16 puntos: calificación + comentario máx 10 palabras.
+- Score/160 + % (debe coincidir con verificación aritmética del Bloque G).
+- Tabla Riesgos Críticos: riesgo · descripción · Alto/Medio/Bajo.
+- Tabla Catalizadores 24m: catalizador · fecha estimada · impacto.
+- Tesis: horizonte 1-2a, comparativa competidores. Referencia escenarios Bloque F.
+- Veredicto (mismas 6 opciones que el Light). PROHIBIDO ambigüedades.
+- STOP LOSS / TAKE PROFIT obligatorio si veredicto COMPRAR: R/R mínimo 1:3.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. BLOQUE I — CIERRE DE PORTAFOLIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I.1 Costo de Oportunidad: upside vs 2-3 alternativas concretas del portafolio.
+I.2 Patience Filter: LARGO (>2a) / MEDIO (6m-2a) / CORTO (<6m) + justificación.
+I.3 Bear Case sistémico: referenciar escenario Bear del Bloque F. NO duplicar.
+I.4 Tamaño posición: GRANDE 5-10% / MEDIANA 2-5% / PEQUEÑA <2% / STARTER / CERO.
+I.5 Exit Criteria — 6 triggers:
+    T1: ruptura de tesis fundamental
+    T2: ROIC cae >3pp sostenido
+    T3: rebalanceo por concentración
+    T4: oportunidad claramente superior disponible
+    T5: imperativo institucional detectado (management replica sin lógica)
+    T6: bear case materializado
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. BLOQUE X — AUTO-CRÍTICA (SIEMPRE AL FINAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Sin límite de palabras. Sin defender el veredicto emitido.
+
+X1) CONTRAARGUMENTO MÁS FUERTE
+Rol de short seller. El punto más débil de la tesis, el dato más incómodo minimizado,
+la razón más sólida por la que podrías estar equivocado. Mínimo 5 líneas.
+
+X2) DATOS CLAVE OMITIDOS
+3-5 datos, métricas o hechos que no aparecieron pero un analista riguroso incluiría.
+
+X3) PENSAMIENTO NO CONVENCIONAL
+Una insight original que conecta puntos que nadie más conecta.
+Implicación de segundo orden, catalizador oculto o tesis asimétrica no valorada.
+Mínimo 5 líneas con razonamiento concreto.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. CIERRE DEL ANÁLISIS HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Informe Heavy completado. Escribe: INFOGRAFIA · PDF · INGRESOS · TODO
+
+CARGA DEL GENERADOR:
+INTENTO 1: web_fetch("https://raw.githubusercontent.com/patonet/informes/main/prompts/prompt_generador_equity_X0.2.txt")
+INTENTO 2 (si falla): bash curl -H "Authorization: token GH_TOKEN_PATONET" misma URL.
+SI AMBOS FALLAN: DETENER. Mostrar: "⛔ No pude cargar el generador. Pega el contenido manualmente."
+NUNCA generar infografía, PDF ni Sankey sin haber leído el generador.
+Primera línea esperada: [X0.2-GEN]
+Token: GH_TOKEN_PATONET
+Subida a GitHub obligatoria por cada archivo. Actualizar REPORTS en index.html siempre.
+
+[X0.2-HEAVY — Heavy hereda Light · Feroldi copy+expand · EDGAR obligatorio · No rehacer lo ya hecho — @patonet]
