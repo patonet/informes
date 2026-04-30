@@ -1,0 +1,125 @@
+[X0.3-HEAVY]
+ANÁLISIS HEAVY — PROFUNDIDAD MÁXIMA
+v X0.3 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRINCIPIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Todos los datos ya están en contexto del Paso 1. NO repetir búsquedas salvo excepciones.
+Si se completó un Light previamente: copiar Feroldi íntegro, solo añadir
+nota [Actualizado Heavy: dato] donde earnings call o SOTP aporten algo nuevo.
+Si no hubo Light: ejecutar Feroldi completo aquí.
+Outputs de progreso concisos. Bloques de análisis: COMPLETOS sin resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE A — RESUMEN EJECUTIVO (150-200 palabras)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cómo gana dinero, calidad económica, ventajas competitivas, riesgos principales.
+Frase definitoria en cursiva al cierre.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE B — CONTEXTO PRECIO Y NOTICIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Comportamiento día/semana/mes/3m. Transcript del último earnings call:
+tono CEO, guidance exacta, preguntas críticas, riesgos, catalizadores.
+Commodity check si aplica. Movimientos explosivos → integrar en Feroldi. 5+ líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE C — OUT OF THE BOX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Riesgos no obvios · Oportunidades ocultas · Lo que el mercado ignora (mínimo 2).
+Al menos 1 idea no convencional que desafíe el consenso. Sin límite de extensión.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE D — ¿LA IA ES AMIGA O ENEMIGA?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Título: "¿La IA, amiga o enemiga de $TICKER?"
+A) Eficiencia IA y Workforce — impacto en headcount y costos
+B) 11 Amenazas (B.1–B.11) — específicas al modelo de negocio
+C) 9 Oportunidades (C.1–C.9) — concretas, cuantificadas si posible
+D) Timeline de Impacto — 1a / 3a / 5a+
+E) Variant Perception — qué ve el mercado vs qué es real
+F) Semáforo VERDE/NARANJA/ROJO con justificación 3+ líneas
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE E — EL CEO DEFENDIENDO A $TICKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fuente: transcript earnings call (Tier 2).
+Tono CEO · Guidance vs consenso · Narrativa estratégica · 3 preguntas duras ·
+Red flags/bull signals · Cita clave traducida al español.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE F — SOTP + ESCENARIOS BEAR/BASE/BULL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÚNICO bloque de escenarios. No repetir en ningún otro bloque.
+
+SOTP (solo si ≥2 segmentos >10% del revenue):
+Por segmento: revenue, múltiplo vs pure-play comparable, valor implícito.
+Suma + ajustes (deuda neta, holding discount) = valor por acción.
+
+Escenarios:
+Bear: -20% múltiplos, riesgos materializados.
+Base: múltiplos del análisis.
+Bull: +20%, opcionalidad realizada.
+Rango de precio implicado por escenario.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE G — FEROLDI 16 PUNTOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Si hubo Light: copiar íntegro + añadir [Actualizado Heavy: ...] donde aplique.
+Si no hubo Light: ejecutar completo con mismo formato del Light.
+Repetir verificación aritmética y score total.
+
+SCORING: cada punto 0-10. Máximo 160.
+🟢 8-10 · 🟡 6-7.9 · 🔴 <6 por punto.
+🟢 >60% · 🟡 50-60% · 🔴 <50% global.
+
+Calibración orientativa Moat y Management: igual que Light.
+
+VERIFICACIÓN ARITMÉTICA:
+[P1]+...+[P16]=[SUMA] / 160 = [%]
+Score declarado DEBE coincidir.
+
+"Score Feroldi: [🟢/🟡/🔴] XXX/160 (XX.X%)"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE H — SÍNTESIS Y TESIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tabla-resumen 16 puntos: calificación + comentario máx 10 palabras.
+Score/160 + % (debe coincidir con verificación aritmética).
+Tabla Riesgos Críticos: riesgo · descripción · Alto/Medio/Bajo.
+Tabla Catalizadores 24m: catalizador · fecha estimada · impacto.
+Tesis horizonte 1-2a. Referencia escenarios Bloque F.
+Veredicto: mismas 6 opciones. PROHIBIDO ambigüedades.
+STOP LOSS / TAKE PROFIT si veredicto COMPRAR. R/R mínimo 1:3.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE I — CIERRE DE PORTAFOLIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I.1 Costo de Oportunidad: upside vs 2-3 alternativas concretas.
+I.2 Patience Filter: LARGO (>2a) / MEDIO (6m-2a) / CORTO (<6m).
+I.3 Bear Case sistémico: referenciar Bloque F. NO duplicar.
+I.4 Tamaño posición: GRANDE 5-10% / MEDIANA 2-5% / PEQUEÑA / STARTER / CERO.
+I.5 Exit Criteria:
+    T1 ruptura tesis · T2 ROIC -3pp · T3 rebalanceo ·
+    T4 mejor oportunidad · T5 imperativo institucional · T6 bear case materializado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE X — AUTO-CRÍTICA (SIEMPRE AL FINAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+X1) CONTRAARGUMENTO MÁS FUERTE — mínimo 5 líneas, rol short seller.
+X2) DATOS CLAVE OMITIDOS — 3-5 ítems brutalmente honestos.
+X3) PENSAMIENTO NO CONVENCIONAL — insight original, mínimo 5 líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CIERRE HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Informe Heavy completado.
+Escribe: SANKEY · PDF · INFOGRAFIA · TODO
+
+Cargar generador:
+web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.3.txt")
+Si falla → avisar al usuario y solicitar que pegue el contenido.
+Token: GH_TOKEN_PATONET
+
+[X0.3-HEAVY — Hereda Light · SOTP · Bloque D completo · Bloque I · @patonet]
