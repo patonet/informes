@@ -50,8 +50,14 @@ BARRA 52W: gradiente #ff3a3a→#ffd700→#00ff9d, marker cian, track #1a2a4a
 PERFORMANCE BAR: grid 8 cols bg=#080f1c, positivo #00c853, negativo #ff3a3a
 POPUPS: fixed #0a1628 border #00d4ff, box-shadow rgba(0,212,255,0.3)
 
-SANKEY: CSS idéntico al heavy (flowAnim 4s/5.5s, gradientes por tipo, viewBox 1060×620)
-  Mismos colores por tipo: segmentos tonales · costos rojos/naranja · FCF cian/dorado
+SANKEY: idéntico al heavy en diseño, CSS, animaciones y estructura.
+  viewBox 1060×620 · flowAnim 4s/5.5s · gradientes por tipo
+  Header: sin logo, solo texto (nombre empresa + @patonet + ticker + precio)
+  Col1 nodos: class="node" + data-tip → JS tooltip al hover
+  Col3 costos: sin tooltip, sin class="node"
+  Estructura interna de nodos: misma que especifica el generador heavy
+  Tabla auditoría al pie con .status-ok #00ff9d y .status-est #ffd700
+  JS tooltip obligatorio antes de </body>
 
 PDF: Helvetica + Courier-Bold · portada #0c1328/#1a3a6e · mismas líneas cian+dorada
 
