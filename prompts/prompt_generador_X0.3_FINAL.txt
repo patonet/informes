@@ -1,0 +1,527 @@
+[X0.3-GEN]
+GENERADOR DE INFORMES MIXTO
+Infografía HTML · PDF · Diagrama Sankey · GitHub Pages
+v X0.3 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. INSTRUCCIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Datos del informe ya completado (Light o Heavy) — no re-buscar.
+Tipos: EQUITY · ETF · SHORT (paleta roja #ff1744).
+
+LINKS: SIEMPRE https://patonet.github.io/informes/... NUNCA github.com/blob/... Todos clicables.
+Carpetas: equities/etfs/shorts/ · pdfs/equities/... · diagramas/equities/...
+Nombres:
+  Infografía: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+  PDF:        InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf
+  Sankey:     Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+
+TODO lo que se genere se sube a GitHub sin excepción.
+Comandos: INFOGRAFIA · PDF · SANKEY · TODO
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. INFOGRAFÍA HTML
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generar SOLO con comando INFOGRAFIA.
+Declarar TODOS los datos como const DATA = {...} al inicio del script — precios, porcentajes, colores semafóricos, textos de popups. Las zonas HTML referencian DATA sin recalcular.
+
+2.A PALETA Y ESTILO
+Fondo #050a12 · texto #c8d8f0 · cian #00d4ff · verde #00ff9d · dorado #ffd700 · rojo #ff3a3a · amarillo #ffbb00.
+SHORT: cian → #ff1744.
+Mínimo 0.8rem en todo. @patonet en 1rem dorado.
+
+2.B RESPONSIVIDAD — OBLIGATORIO EN TODAS LAS ZONAS
+R1: *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size: clamp(10px, 1.15vw, 17px); }
+    body { width:100%; min-height:100vh; }
+R2: SOLO rem/em/%/vw/fr. PROHIBIDO px en font-size, padding, margin, gap, width, height, border-radius. Excepción: border: 1px o 2px solid.
+R3: Todos los wrappers de zona: width:100%; padding:1.5rem; overflow:hidden.
+R4: Grids fluidos: grid-template-columns: repeat(auto-fit, minmax(Xrem, 1fr)) o variantes con fr. NUNCA columnas fijas en px.
+R5: Canvas: width:100%; height:auto; responsive:true; maintainAspectRatio:false (cuando el canvas tiene tamaño controlado por CSS via aspect-ratio).
+R6: Gauges SVG: viewBox='0 0 200 130' width='100%' height='auto' style='display:block; max-width:12rem;'
+R7: Antes de cerrar </style>, buscar px en CSS que no sea border. Si encuentras, sustituir por rem.
+
+2.C ESTRUCTURA DE 6 ZONAS
+Librería: Chart.js 4.4.0 via cdnjs.cloudflare.com
+
+——————————————————————————
+ZONA 1 — CABECERA
+Layout: grid 2 columnas [logo+identidad izquierda | precio+scores+semáforos derecha].
+
+LOGO — copiar exactamente:
+<img id="triggerLogo"
+  src="https://logo.clearbit.com/[DOMINIO].com"
+  onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=[DOMINIO].com&sz=128'; this.onerror=function(){ this.style.display='none'; document.getElementById('logoFallback').style.display='flex'; };"
+  style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem;" alt="[TICKER]">
+<div id="logoFallback" style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;
+  border-radius:0.4rem;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer;">[TICKER]</div>
+
+POPUP EJECUTIVO — insertar div al inicio del body:
+<div id="execPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#0a1628;border:2px solid #00d4ff;border-radius:0.8rem;padding:1.5rem;
+  max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.95rem;color:#c8d8f0;
+  box-shadow:0 0 40px rgba(0,212,255,0.3);">
+  <h3 style="color:#00d4ff;margin-bottom:0.8rem;">Resumen Ejecutivo</h3>
+  <div id="execPopupText"></div>
+</div>
+
+JS popup ejecutivo — insertar al final del body:
+<script>
+(function(){
+  const EXEC_SUMMARY = `[TEXTO COMPLETO DEL BLOQUE A]`;
+  const popup = document.getElementById('execPopup');
+  const popupTx = document.getElementById('execPopupText');
+  let hideTimer = null;
+  function showExec(){ if(hideTimer){clearTimeout(hideTimer);hideTimer=null;} popupTx.textContent=EXEC_SUMMARY; popup.style.display='block'; }
+  function scheduleHide(){ hideTimer=setTimeout(function(){popup.style.display='none';},300); }
+  function cancelHide(){ if(hideTimer){clearTimeout(hideTimer);hideTimer=null;} }
+  ['triggerLogo','triggerNombre','triggerFrase'].forEach(function(id){
+    const el=document.getElementById(id); if(!el)return;
+    el.style.cursor='pointer';
+    el.addEventListener('mouseenter',showExec);
+    el.addEventListener('mouseleave',scheduleHide);
+  });
+  popup.addEventListener('mouseenter',cancelHide);
+  popup.addEventListener('mouseleave',scheduleHide);
+  document.addEventListener('click',function(e){ if(!popup.contains(e.target)) popup.style.display='none'; });
+})();
+</script>
+
+FRASE RESUMEN: id="triggerFrase", cursiva entre comillas, color #00d4ff, fondo #0d1f35, padding 0.6rem 1rem, border-left 3px solid #00d4ff, cursor:pointer.
+PRECIO: 2.2rem bold + delta semafórico.
+BARRA 52W SVG: track bg #1a2a4a h=0.45rem, fill gradiente #ff3a3a→#ffd700→#00ff9d width=PCT%, marker cian #00d4ff en PCT%, labels min #ff3a3a / max #00ff9d.
+
+PERF BAR — 10 periodos (1D·5D·1M·3M·6M·YTD·1Y·5Y·10Y·IPO) vía TradingView Scanner API:
+const PERF_DATA embebido. Fondo #080f1c, separadores 1px #1a2a4a.
+Etiqueta 0.7rem #94a3b8 · valor 0.9rem bold monoespaciado · verde #00c853 positivo · rojo #e53935 negativo · gris #555 null.
+Valores >1000%: mostrar como X.XXK%.
+
+VEREDICTO — 5 opciones:
+COMPRAR #00c853 · COMPRAR EN RETROCESOS #1565C0 · ACUMULAR #00838f · NEUTRAL #5d4037 · NO COMPRAR #e53935.
+Tarjetas Feroldi: % del máximo + score/160 + gauge circular SVG.
+
+GAUGE CIRCULAR — viewBox="0 0 120 70" width="7rem" height="auto":
+<svg viewBox="0 0 120 70" width="7rem" height="auto" class="gauge-circular">
+  <defs><linearGradient id="gaugeG" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#e53935"/>
+    <stop offset="50%" stop-color="#ffd700"/>
+    <stop offset="100%" stop-color="#00c853"/>
+  </linearGradient></defs>
+  <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="#1a2a4a" stroke-width="12" stroke-linecap="butt"/>
+  <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="url(#gaugeG)" stroke-width="10" stroke-linecap="butt"/>
+  <!-- Aguja: angle=(score_pct/100)*180; nx=60+45*cos((180-angle)*π/180); ny=60-45*sin((180-angle)*π/180) -->
+  <line x1="60" y1="60" x2="[NX]" y2="[NY]" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="3" fill="#ffd700"/>
+  <text x="60" y="56" text-anchor="middle" fill="#ffd700" font-size="10" font-weight="bold" font-family="Courier New">[XX%]</text>
+</svg>
+
+SEMÁFORO IA — copiar SVG completo y sustituir SOLO los valores de las 3 luces:
+<div class="ia-row">
+<svg id="triggerIA" viewBox="0 0 80 200" width="3.5rem" height="auto"
+  style="cursor:pointer;display:inline-block;vertical-align:middle;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7))">
+  <rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+  <rect x="8" y="8" width="64" height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/>
+  <circle cx="16" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+  <circle cx="64" cy="16" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+  <circle cx="16" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+  <circle cx="64" cy="184" r="3" fill="#333" stroke="#555" stroke-width="1"/>
+  <rect x="8" y="70" width="64" height="3" fill="#222"/>
+  <rect x="8" y="127" width="64" height="3" fill="#222"/>
+  <!-- ROJO cy=42 -->
+  <circle cx="40" cy="42" r="22" fill="[ROJO_FILL]" [ROJO_GLOW]/>
+  <circle cx="40" cy="42" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="34" rx="7" ry="5" fill="white" opacity="[ROJO_REFL]"/>
+  <!-- NARANJA cy=100 -->
+  <circle cx="40" cy="100" r="22" fill="[NARANJA_FILL]" [NARANJA_GLOW]/>
+  <circle cx="40" cy="100" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="92" rx="7" ry="5" fill="white" opacity="[NARANJA_REFL]"/>
+  <!-- VERDE cy=158 -->
+  <circle cx="40" cy="158" r="22" fill="[VERDE_FILL]" [VERDE_GLOW]/>
+  <circle cx="40" cy="158" r="22" fill="none" stroke="#1a1a1a" stroke-width="1.5" opacity="0.5"/>
+  <ellipse cx="33" cy="150" rx="7" ry="5" fill="white" opacity="[VERDE_REFL]"/>
+</svg>
+<div>
+  <div class="ia-text" style="font-size:0.88rem;font-weight:bold;color:[COLOR_ACTIVO]">IA: [VERDE/NARANJA/ROJO]</div>
+  <div style="font-size:0.75rem;color:#94a3b8">[Riesgo Bajo/Medio/Alto]</div>
+</div>
+</div>
+
+TABLA DE VALORES SEMÁFORO (sustituir placeholders):
+NIVEL BAJO (verde encendido):
+  ROJO:    fill="#2d0a0a"  glow:(nada)                                   refl=0.05
+  NARANJA: fill="#3d2800"  glow:(nada)                                   refl=0.05
+  VERDE:   fill="#00c853"  glow:filter="drop-shadow(0 0 10px #00c853)"   refl=0.35
+
+NIVEL MEDIO (naranja encendido):
+  ROJO:    fill="#2d0a0a"  glow:(nada)                                   refl=0.05
+  NARANJA: fill="#ff8c00"  glow:filter="drop-shadow(0 0 10px #ff8c00)"   refl=0.35
+  VERDE:   fill="#003d1a"  glow:(nada)                                   refl=0.05
+
+NIVEL ALTO (rojo encendido):
+  ROJO:    fill="#e53935"  glow:filter="drop-shadow(0 0 10px #e53935)"   refl=0.35
+  NARANJA: fill="#3d2800"  glow:(nada)                                   refl=0.05
+  VERDE:   fill="#003d1a"  glow:(nada)                                   refl=0.05
+
+POPUP IA — mismo JS que execPopup pero activado por triggerIA, borde del color de la luz activa, texto del Bloque D.
+
+MINI-SEMÁFOROS B0 — 4 SVGs al 30% (viewBox="0 0 80 200" width="1.2rem"):
+Misma estructura SVG del semáforo IA pero reducido. Luces apagadas tenues, activa con glow.
+Etiqueta: "B0.1"/"B0.2"/"B0.3"/"Veredicto" 0.65rem #94a3b8.
+Título: "Competencia"/"Simplicidad"/"Predictibilidad"/"General" 0.7rem bold color luz activa.
+Resultado: "VERDE"/"AMARILLO"/"ROJO" 0.7rem bold en color correspondiente.
+Popup hover: fondo #0a1628, borde 1px solid color luz, border-radius 0.5rem, padding 0.8rem, max-width 20rem, z-index 9999.
+Texto debajo: "Pre-filtro Kaufman/Munger/Buffett: [PROCEDER/CAUTELA/TOO HARD]" 0.8rem.
+
+——————————————————————————
+ZONA 2 — KEY STATS
+Grid 4 subgrupos con header 0.75rem uppercase #94a3b8, fondo #080f1c, border-radius 0.4rem, padding 0.8rem.
+VALORACIÓN: P/E TTM · PEG · EPS TTM · Market Cap.
+RENTABILIDAD: Margen Bruto · Margen Operativo · Margen Neto · ROE · ROA.
+CRECIMIENTO: Revenue Growth YoY · EPS Growth YoY · Growth Rate proyectado.
+DIVIDENDO/RIESGO: Dividend Yield · Beta.
+Cards: valor 1.3rem monoespaciado · etiqueta 0.8rem · triángulo semafórico verde/amarillo/rojo.
+grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)).
+
+——————————————————————————
+ZONA 3 — GRÁFICOS FINANCIEROS
+CSS obligatorio:
+.zona3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; width:100%; align-items:start; }
+.zona3-chart { display:flex; flex-direction:column; width:100%; min-height:0; }
+.zona3-chart .chart-wrap { position:relative; width:100%; aspect-ratio:4/3; }
+.zona3-chart .chart-wrap canvas { position:absolute; inset:0; width:100%!important; height:100%!important; }
+
+COL 1 — CRECIMIENTO Y RENTABILIDAD (chart mixto bar+line):
+Labels: 4 trimestres más recientes del FY actual.
+Paso previo: calcular límites dinámicos:
+  const allVals = [...revenueData, ...netIncomeData];
+  const yValMin = Math.min(...allVals) < 0 ? Math.min(...allVals)*1.15 : 0;
+  const yValMax = Math.max(...allVals)*1.15;
+datasets: [
+  { type:'bar',  label:'Revenue ($B)',   data:revenue,   backgroundColor:'#1a3a6e', yAxisID:'yVal', borderRadius:3 },
+  { type:'bar',  label:'Net Income ($B)',data:netIncome, backgroundColor:'#00d4ff', yAxisID:'yVal', borderRadius:3 },
+  { type:'line', label:'Margen Neto %',  data:margin,    borderColor:'#ff8c00', backgroundColor:'transparent', yAxisID:'yMg', pointRadius:4, pointBackgroundColor:'#ff8c00', borderWidth:2, tension:0.3 }
+]
+options: {
+  responsive:true, maintainAspectRatio:false,
+  plugins: { legend:{display:false}, tooltip:{callbacks:{label: ctx => ...}} },
+  scales: {
+    yMg:  { type:'linear', position:'left',  ticks:{color:'#ff8c00', callback:v=>v.toFixed(1)+'%'}, grid:{color:'#1a2a4a'}, title:{display:true, text:'Margen %', color:'#ff8c00'} },
+    yVal: { type:'linear', position:'right', min:yValMin, max:yValMax, ticks:{color:'#c8d8f0', callback:v=>'$'+formatMillions(v)}, grid:{drawOnChartArea:false}, title:{display:true, text:'USD', color:'#c8d8f0'} }
+  }
+}
+Legend custom HTML (NO la nativa de Chart.js):
+  Cuadro azul #1a3a6e = Revenue · Cuadro cian #00d4ff = Net Income · Línea naranja #ff8c00 height:3px width:1rem margin-top:0.25rem = Margen %.
+formatMillions(v): abs(v)>=1000 → (v/1000).toFixed(1)+'B', si no → v.toFixed(0)+'M'.
+Título: "Crecimiento y Rentabilidad [Q? FY??–Q? FY??]"
+
+COL 2 — WATERFALL (trimestre más reciente):
+Barras flotantes: Revenue→COGS→Gross Profit→Op Expenses→Op Income→Non-Op→Taxes→Net Income.
+Colores por naturaleza (NO genérico positivo/negativo):
+  Revenue:#1a3a6e · COGS:#ff3a3a · Gross Profit:#00ff9d · Op Expenses:#ff3a3a ·
+  Op Income:#00d4ff · Non-Op:#ffbb00 · Taxes:#ff6b6b · Net Income:#ffd700(pos)/#ff3a3a(neg)
+Leyenda con un entry por barra con su color real.
+Valor exacto encima de cada barra. Título: "Conversión de Ingresos — [Q? FY??]"
+
+COL 3 — DONA composición ingresos (por segmento o geografía):
+Colores distintos por porción. Porcentaje en tooltip. Leyenda debajo del canvas fuera del chart-wrap.
+Título: "Composición de Ingresos" o "Estructura de Márgenes".
+
+——————————————————————————
+ZONA 4 — ANALISTAS Y PRECIO 52W
+Gráfico de línea 1 año precio histórico (cian #00d4ff).
+Price targets como datasets adicionales line (NO plugin-annotation):
+  { type:'line', label:'[Banco] $XXX — Compra', data:Array(labels.length).fill(valor),
+    borderColor:'#00ff9d', borderWidth:2, borderDash:[8,4], pointRadius:0, fill:false }
+  Color verde si target > precio actual, rojo si target < precio actual.
+Etiquetas de targets con plugin afterDraw seguro:
+  plugins:[{ id:'targetLabels', afterDraw(chart){
+    const {ctx,scales,chartArea}=chart; if(!scales.y) return;
+    targets.forEach(t=>{ const yPx=scales.y.getPixelForValue(t.value); if(!yPx) return;
+    ctx.fillStyle=t.color; ctx.font='11px monospace';
+    ctx.fillText(t.label, chartArea.right+6, yPx+4); }); } }]
+Barra resumen: target consenso · diferencia % · distribución calificaciones mini-barras.
+
+——————————————————————————
+ZONA 5 — PERFIL FEROLDI
+LAYOUT VERTICAL: Spider arriba (ancho completo), Scorecard debajo. NUNCA lado a lado.
+
+SPIDER SVG (viewBox="0 0 600 400" width="100%" height="auto"):
+5 ejes temáticos con promedio del grupo:
+  Crecimiento (puntos 3,13,14) · Rentabilidad (7,11) · Solidez (6,8,12) · Estrategia (1,2,5,10) · Retorno (4,9,16)
+Dataset $TICKER: relleno #00d4ff28, borde #00d4ff 2px, vértices círculos cian sólido.
+Rejilla: #1a2a4a. Etiquetas ejes: 0.9rem color cian.
+Chart.js radar alternativo:
+  labels: ['📈 Crecimiento\n(X.X)', '💰 Rentabilidad\n(X.X)', '🏦 Solidez\n(X.X)', '🏰 Estrategia\n(X.X)', '💎 Retorno\n(X.X)']
+  datasets: [{ label:'[TICKER]', data:[avg1,avg2,avg3,avg4,avg5],
+    backgroundColor:'rgba(0,212,255,0.15)', borderColor:'#00d4ff', borderWidth:2.5,
+    pointBackgroundColor:'#00d4ff', pointRadius:5, pointHoverRadius:7 }]
+  options: { responsive:true, maintainAspectRatio:true,
+    scales:{ r:{ min:0, max:10, ticks:{stepSize:2, color:'#94a3b8', backdropColor:'transparent'},
+    grid:{color:'#1a2a4a'}, angleLines:{color:'#1a3a6e'}, pointLabels:{color:'#00d4ff', font:{size:12,weight:'bold'}} }}}
+Contenedor: width:100%; max-width:40rem; margin:0 auto.
+
+SCORECARD — 5 cajas grid-template-columns:repeat(auto-fit,minmax(14rem,1fr)):
+Cada caja: fondo #0a1628, borde 1px solid #1a3a6e, border-radius 0.5rem, padding 1rem.
+Header caja: nombre grupo 0.95rem bold cian + promedio grupo 1.5rem bold dorado.
+Por punto Feroldi dentro de la caja — PLANTILLA SVG GAUGE INDIVIDUAL (cada uno con id único):
+<div class="feroldi-row" data-tooltip="[DESCRIPCIÓN COMPLETA DEL PUNTO DEL BLOQUE G]" style="position:relative;cursor:pointer;padding:0.3rem 0;">
+  <span style="font-size:0.85rem">[N]. [Nombre del Punto]</span>
+  <svg viewBox="0 0 200 130" width="100%" height="auto" style="display:block;max-width:12rem;margin:0 auto">
+    <defs><linearGradient id="gaugeGrad_[N]" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#e53935"/>
+      <stop offset="25%"  stop-color="#ff8c00"/>
+      <stop offset="50%"  stop-color="#ffd700"/>
+      <stop offset="75%"  stop-color="#76c442"/>
+      <stop offset="100%" stop-color="#00c853"/>
+    </linearGradient></defs>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#gaugeGrad_[N])" stroke-width="20" stroke-linecap="butt"/>
+    <!-- angle=180-(SCORE/10)*180; rad=angle*π/180; nx=100+65*cos(rad); ny=105-65*sin(rad) -->
+    <line x1="100" y1="105" x2="[NX]" y2="[NY]" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="105" r="4" fill="#ffd700"/>
+  </svg>
+  <div style="text-align:center;font-size:1.2rem;font-weight:bold;color:#ffd700;font-family:monospace">[SCORE]</div>
+</div>
+CRÍTICO: id de gradiente único por gauge (gaugeGrad_1, gaugeGrad_2, etc.). NUNCA repetir ids.
+VERIFICAR: score=0 → aguja izq (20,105); score=5 → aguja arriba (100,40); score=10 → aguja der (180,105).
+
+POPUP FEROLDI — insertar UNA VEZ en body:
+<div id="feroldiPopup" style="display:none;position:fixed;background:#0d1f35;
+  border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;
+  font-size:0.9rem;color:#c8d8f0;z-index:9999;pointer-events:none;
+  box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;"></div>
+JS Feroldi — insertar UNA VEZ al final del body:
+<script>
+(function(){
+  const fp=document.getElementById('feroldiPopup'); if(!fp) return;
+  document.querySelectorAll('.feroldi-row').forEach(function(row){
+    row.addEventListener('mouseenter',function(e){
+      fp.textContent=row.getAttribute('data-tooltip')||'';
+      fp.style.display='block';
+      fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+      fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+    });
+    row.addEventListener('mousemove',function(e){
+      fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+      fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+    });
+    row.addEventListener('mouseleave',function(){ fp.style.display='none'; });
+  });
+})();
+</script>
+CRÍTICO: 16 feroldi-row con 16 data-tooltip distintos extraídos del análisis. Sin data-tooltip el popup aparece vacío.
+
+Pie zona 5: "Score Feroldi: [XXX/160 · XX.X%]" 1rem bold dorado.
+
+——————————————————————————
+ZONA 6 — RIESGOS, ANALISTAS, COMPETIDORES, VEREDICTO
+A) Tabla Riesgos Críticos (máx 6 filas): Riesgo · Descripción · ALTO(#ff3a3a)/MEDIO(#ffbb00)/BAJO(#00ff9d).
+   Tabla Catalizadores 24m (máx 6 filas): Catalizador · Fecha estimada · Impacto.
+
+B) Gauge consenso analistas — SVG viewBox="0 0 400 240" width="100%" height="auto" max-width:22rem centrado:
+   Arco M 40 180 A 160 160 gradiente 5 stops: #e53935→#ff8c00→#ffd700→#76c442→#00c853. Grosor 30.
+   Etiquetas: Venta fuerte · Venta · Neutral · Compra · Compra fuerte en #94a3b8 0.85rem.
+   Aguja: score consenso 0-10 → angle=180-(score/10)*180. Aguja blanca stroke-width=4. Pivot r=6.
+   Mini tabla: banco · calificación · target. Alcistas verde, bajistas rojo.
+
+C) Tabla competidores — 5 empresas + $TICKER (primera fila, fondo #0d1f35, negrita):
+   Logo Clearbit 1.2rem height · Nombre+ticker · Market Cap (barra proporcional) · P/E TTM · PEG ·
+   Margen Bruto% (barra) · Margen Neto% (barra) · Precio actual · Rango 52W SVG:
+   <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:8rem;">
+     <svg viewBox="0 0 100 8" width="100%" style="display:block">
+       <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+       <circle cx="[PCT]" cy="4" r="3.5" fill="#00d4ff"/>
+     </svg>
+     <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-top:0.1rem;">
+       <span style="color:#ff3a3a">$[MIN]</span>
+       <span style="color:#00d4ff;font-size:0.65rem">[PCT]% del rango</span>
+       <span style="color:#00ff9d">$[MAX]</span>
+     </div>
+   </div>
+   PCT=Math.round((precio-min)/(max-min)*100). Clamp 2-98.
+   Popup hover por fila competidor: 10 frases comparativas vs $TICKER. Fondo #0d1f35 borde cian max-width:32rem.
+   ETF: Top 10 Holdings. SHORT: Squeeze Risk.
+
+D) Veredicto badge (mismos colores Zona 1) + tesis 3 líneas + "@patonet" 1rem dorado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. PDF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TÍTULO: "Informe Profesional de $TICKER · Método Feroldi"
+REFERENCIA CALIDAD: PDFs del repositorio (MELI, GE). Corporate flyer boutique inversión. NO texto plano.
+
+3.1 PORTADA (1 A4)
+@page{size:A4 portrait;margin:0} html,body{margin:0;padding:0;background:#0d1428!important;height:100%}
+Div portada: height:100vh; background:linear-gradient(135deg,#0d1428 0%,#162447 60%,#1a3a6e 100%);
+  display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem 2rem; overflow:hidden.
+
+6 secciones verticales:
+(1) Logo Clearbit 50px + nombre empresa 14pt blanco bold.
+(2) Título: "Informe Profesional de $TICKER · Método Feroldi" 20pt blanco bold.
+(3) 1 fila: precio 28pt bold + barra 52W SVG + badge veredicto + Score Feroldi + PEG.
+(4) Barra performance: 10 periodos en 1 fila compacta 9pt mono. Verde positivo, rojo negativo.
+(5) Fila B0: 4 círculos color (#00c853 verde, #ffd700 amarillo, #e53935 rojo) con etiqueta B0.1/B0.2/B0.3/Veredicto 9pt.
+(6) Fecha + "@patonet · Informe confidencial" 9pt gris.
+SVG decorativos geométricos en esquinas (triángulos teal translúcidos).
+
+3.2 PÁGINAS SIGUIENTES
+HEADER: franja teal #00838f 8px + logo 30px + "$TICKER · Informe Feroldi" teal monospace 9pt.
+FOOTER: línea teal 1px + "Informe confidencial para @patonet · No constituye asesoramiento financiero" gris 8pt + nº página.
+
+Cada bloque A–I: título caja fondo #0d1428, texto teal, border-left 5px teal, 14pt bold. Cuerpo #1a1a1a 10.5pt line-height 1.4.
+
+TABLA FEROLDI: header #0d1428 blanco bold, filas pares #f0f7ff, impares blanco, borde #dde3f0.
+Scores: ≥7 verde #00c853 · 4-6 amarillo #ffd700 · <4 rojo #e53935. Font monospace bold.
+
+SECCIONES ESPECIALES:
+OOB: borde izq naranja #ff8c00 5px, fondo #fffbf0.
+IA:  borde izq cian #00d4ff 5px, fondo #f0f8ff.
+CEO: cita cursiva, borde izq gris #ccc 4px, fondo #f5f5f5.
+SOTP: escenarios Bear/Base/Bull en cajas rojo/azul/verde.
+Bloque I: degradado por tamaño posición.
+Debate: borde izq púrpura #7c3aed 5px.
+Bloque 0: primera sección del cuerpo, borde izq verde #00c853 5px, fondo #f0fff0.
+
+EVITAR: texto plano, páginas en blanco, letras montadas, bloques cortados (page-break-inside:avoid).
+PDF = versión COMPLETA del informe. NO resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. DIAGRAMA SANKEY — FLUJO DE DINERO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Comando: SANKEY. Archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html en diagramas/equities/
+
+VERIFICACIÓN TRIPLE — OBLIGATORIO ANTES DE DIBUJAR:
+FUENTE 1: SEC EDGAR 10-K / 10-Q (primaria y definitiva).
+FUENTE 2: StockAnalysis.com income statement.
+FUENTE 3: Macrotrends.net o Yahoo Finance financials.
+Reglas:
+- Suma de TODOS los segmentos (incluyendo Corporate & Other, Eliminations) = Revenue Total GAAP exacto.
+- COGS + SGA + R&D + Other expenses = "Total costs and expenses" del 10-K.
+- Revenue − Total costs + Other income − Interest = Pre-tax profit. Cadena debe cerrar.
+- FCF es NON-GAAP. Mostrar como KPI PARALELO. NUNCA como flujo lineal del P&L.
+- Discrepancia >2% entre fuentes → usar dato del 10-K.
+- NUNCA inventar splits que la empresa no reporta.
+
+CSS BASE OBLIGATORIO (copiar exactamente):
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size: clamp(10px, 1.1vw, 16px); }
+body { background:#050a12; color:#c8d8f0; font-family:'Segoe UI',system-ui,sans-serif;
+  min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+body::after { content:''; position:fixed; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none; z-index:999; }
+
+HEADER (sin logo, solo texto):
+<div class="header"> (bg:#020710, border-bottom:2px solid #0d2040, padding:1rem 2rem, flex, space-between)
+  Izquierda: <h1>[Nombre Empresa] <span style="color:#00d4ff">[Descripción]</span> · Flujo de Dinero FY[AÑO]</h1>
+    subtítulo 0.8rem #94a3b8: "Diagrama Sankey · Método Feroldi · Verificación Triple SEC/StockAnalysis/Macrotrends"
+  Derecha (.meta #94a3b8 0.82rem text-align:right):
+    .brand: @patonet 0.9rem #ffd700 bold
+    [EXCHANGE]: [TICKER] · $[PRECIO] · [FECHA]
+    Revenue Total FY[AÑO]: $XXB (GAAP)
+</div>
+
+KPI BAR:
+<div class="kpi-bar"> (bg:#080f1c, border-bottom:1px solid #0d1f35, padding:0.75rem 2rem, flex, gap:1.5rem)
+.kpi-label { font-size:0.72rem; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; }
+.kpi-value { font-size:1.0rem; font-weight:700; color:#00d4ff; font-family:'Courier New',monospace; }
+.kpi-item.green .kpi-value { color:#00ff9d; }
+.kpi-item.gold .kpi-value { color:#ffd700; }
+.kpi-item.teal .kpi-value { color:#00bcd4; }
+Items: Revenue Total · Operating Profit · Net Income · Free Cash Flow · EBITDA · Margen Neto
+BADGES (pill): .badge { padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:700; border:1px solid; }
+  .badge-buy { bg:rgba(0,255,157,0.1); border:#00ff9d; color:#00ff9d; } → Veredicto
+  .badge-score { bg:rgba(0,212,255,0.1); border:#00d4ff; color:#00d4ff; } → Score XX/160 · XX%
+  .badge-peg { bg:rgba(255,215,0,0.1); border:#ffd700; color:#ffd700; } → PEG X.XX
+
+SVG SANKEY: id="sankey" viewBox="0 0 1060 620" width="100%" height="auto"
+max-width:1100px centrado.
+
+ANIMACIONES DE FLUJO (obligatorias):
+@keyframes flowAnim { 0%{stroke-dashoffset:200;opacity:0.35;} 60%{opacity:0.75;} 100%{stroke-dashoffset:0;opacity:0.35;} }
+.flow-path      { stroke-dasharray:200; animation:flowAnim 4s   linear infinite; }
+.flow-path-slow { stroke-dasharray:200; animation:flowAnim 5.5s linear infinite; }
+Flujos principales usan .flow-path. Flujos menores (taxes, intereses, capex) usan .flow-path-slow.
+Curvas bezier: d="M[x1] [y1] C [cx] [y1], [cx] [y2], [x2] [y2]"
+
+FILTROS SVG (en <defs>):
+#glow: feGaussianBlur stdDeviation=2.5 + feMerge(blur+source)
+#glowStrong: feGaussianBlur stdDeviation=4 + feMerge
+
+ESTRUCTURA 5 COLUMNAS:
+COL 1 — SEGMENTOS: nodos con class="node" data-tip="[Nombre]: $X.XB (XX%)"
+  Rect: rx=6, fill oscuro tonal, stroke color del segmento, filter=url(#glow)
+  Texto interno: título 11.5 bold fill=color_segmento · subtítulos 9pt #94a3b8 · valor $: 15 bold #00ff9d · % total 9 #94a3b8 · YoY 9 #00bcd4
+
+COL 2 — REVENUE GAAP TOTAL:
+  Rect: fill=#0d1f35 stroke=#00a8cc sw=2 filter=glowStrong rx=6
+  Valor $: 18 bold #00ff9d · YoY #94a3b8
+
+COL 3 — COSTOS (sin class="node", sin tooltip):
+  Fills oscuros tonales: rojo=#200a0a · naranja=#1f1008 · amarillo=#1a1508 · púrpura=#150a20
+  Strokes: rojo=#ff3a3a · naranja=#ff6b35 · amarillo=#ff9800 · púrpura=#9c27b0 sw=1.5 rx=6
+  Texto: título 10.5 bold fill=color_stroke · subtítulo 9 #94a3b8 · valor $ 14 bold · % revenue 9 #94a3b8
+  Ingreso Operativo: fill=#0a1f0a stroke=#00ff9d sw=2 filter=glow
+
+COL 4 — PRE-TAX:
+  Rect: fill=#0d1f1a stroke=#00bcd4 sw=1.5 filter=glow rx=6
+  EBIT · intereses · pre-tax · impuestos con ETR%
+
+COL 5 — DESTINO: barras verticales 8px width con fill del color destino opacity=0.6-0.7
+  Labels a la derecha: título 9 bold · valor 10 bold · nota 8 #94a3b8
+  Net Income · FCF (paralelo, no deducción) · Recompras · Dividendos · Capex
+
+LEYENDA: bg:#080f1c, border:1px solid #0d1f35, grid auto-fit minmax(13rem,1fr)
+  .legend-title: título con 3 fuentes citadas: "📊 Leyenda — FY[AÑO] Verificado (SEC 10-K · [Fuente2] · StockAnalysis)"
+  .legend-dot: 0.75rem circle · .legend-text: #c8d8f0 · .legend-val: #ffd700 Courier New
+
+TOOLTIP: position:fixed bg:#0a1628 border:1px solid #00d4ff border-radius:0.5rem padding:0.75rem 1rem
+  font-size:0.82rem z-index:9999 display:none pointer-events:none
+  JS: document.querySelectorAll('.node').forEach(el => {
+    el.addEventListener('mouseenter',function(e){ const tip=document.getElementById('tooltip');
+      tip.innerHTML='<strong>'+this.dataset.tip+'</strong>'; tip.style.display='block'; });
+    el.addEventListener('mousemove',function(e){ const tip=document.getElementById('tooltip');
+      tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-30)+'px'; });
+    el.addEventListener('mouseleave',function(){ document.getElementById('tooltip').style.display='none'; });
+  });
+
+TABLA AUDITORÍA (al pie, obligatoria):
+.audit-table th: bg:#0d1428 color:#00d4ff, font-size:0.75rem uppercase letter-spacing:0.06em
+.audit-table td: font-size:0.78rem border-bottom:1px solid #0d1428
+Valores $: <strong style="color:#00ff9d">
+.status-ok: color:#00ff9d bold → "✅ Verificado"
+.status-est: color:#ffd700 → "⚡ Estimado"
+Columnas: Rubro · Valor FY · Fuente Primaria · Estado · Nota
+Incluir TODOS los nodos del diagrama.
+
+FOOTER: bg:#020710 border-top:1px solid #0d2040 font-size:0.78rem color:#94a3b8
+  "@patonet · Análisis Feroldi · $[TICKER] · FY[AÑO] · [FECHA] · No constituye asesoría."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. GITHUB PAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET
+Paso 1: PUT cada archivo (GET SHA si existe para sobrescribir).
+Paso 2: GET index.html → localizar const REPORTS = [...] → agregar entry AL INICIO → PUT index.html.
+Paso 3: Reportar links clicables https://patonet.github.io/informes/...
+
+VEREDICTOS EN REPORTS (siempre en inglés):
+COMPRAR→"buy" · COMPRAR EN RETROCESOS→"pullback" · ACUMULAR→"accumulate" ·
+NEUTRAL→"neutral" · NO COMPRAR→"nobuy" · CORTO→"short"
+
+Formato entry: { ticker, name, desc, type:"equity", verdict, price:"$X", upside:"+/-X%",
+  target:"$X", date:"DD Mon YYYY", url, pdfUrl, diag3Url }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. PROTOCOLO POST-DEBATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Incorporar cambios sin defender el análisis original. Menú regeneración:
+INFOGRAFIA · PDF · SANKEY · TODO. Sobrescribir en GitHub (GET SHA + PUT).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. TONO Y ESTILO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Analítico · neutral · preciso. Cero marketing. Español siempre.
+
+[X0.3-GEN — v1 infografía exacta + v3 Sankey verificación triple + UHS animaciones + SANKEY cmd — @patonet]
