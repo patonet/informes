@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@patonet · Research Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:clamp(10px,1.1vw,16px);}
+body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'Barlow',sans-serif;overflow-x:hidden;}
+:root{
+  --bg:#050a12;--bg2:#080f1c;--bg3:#0a1628;--bg4:#0d1f35;
+  --cyan:#00d4ff;--green:#00ff9d;--gold:#ffd700;--red:#ff3a3a;
+  --orange:#ff8c00;--yellow:#ffbb00;--text:#c8d8f0;--muted:#94a3b8;
+  --mono:'Share Tech Mono',monospace;--head:'Barlow Condensed',sans-serif;
+}
+
+/* ─── PASSWORD GATE ─── */
+#gate{
+  position:fixed;inset:0;z-index:99999;
+  background:#050a12;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.5rem;
+}
+#gate::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 40% at 50% 40%,rgba(0,212,255,0.07) 0%,transparent 70%);
+  pointer-events:none;
+}
+.gate-logo{font-family:var(--head);font-size:3rem;font-weight:900;color:#fff;letter-spacing:0.04em;}
+.gate-logo span{color:var(--cyan);}
+.gate-sub{font-family:var(--mono);font-size:0.75rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+.gate-box{
+  background:var(--bg2);border:1px solid #1a3a6e;border-radius:0.6rem;
+  padding:2rem 2.5rem;display:flex;flex-direction:column;gap:1rem;
+  min-width:22rem;text-align:center;
+}
+.gate-box label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;text-align:left;}
+.gate-input{
+  width:100%;font-family:var(--mono);font-size:1rem;
+  background:#020810;border:1px solid #1a3a6e;color:var(--text);
+  border-radius:0.3rem;padding:0.7rem 1rem;outline:none;
+  letter-spacing:0.08em;transition:border-color 0.15s;
+}
+.gate-input:focus{border-color:var(--cyan);}
+.gate-input.error{border-color:var(--red);animation:shake 0.3s ease;}
+.gate-btn{
+  width:100%;font-family:var(--head);font-size:1rem;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;
+  background:var(--cyan);color:#000;border:none;
+  border-radius:0.3rem;padding:0.75rem;cursor:pointer;
+  transition:background 0.15s,transform 0.1s;
+}
+.gate-btn:hover{background:#00b8e0;transform:translateY(-1px);}
+.gate-btn:active{transform:translateY(0);}
+.gate-error{font-family:var(--mono);font-size:0.75rem;color:var(--red);height:1rem;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}</style>
+<style>
+/* ─── MAIN APP (hidden until auth) ─── */
+#app{display:none;}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:#020810;border-bottom:1px solid #1a3a6e;padding:0.6rem 2rem;gap:1rem;}
+.topbar-brand{font-family:var(--mono);color:var(--cyan);font-size:1.05rem;letter-spacing:0.1em;}
+.topbar-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);}
+.topbar-right{display:flex;gap:1.5rem;align-items:center;}
+#clock{font-family:var(--mono);font-size:0.85rem;color:var(--cyan);}
+.logout-btn{font-family:var(--mono);font-size:0.65rem;color:var(--muted);background:none;border:1px solid #1a3a6e;border-radius:0.2rem;padding:0.25rem 0.6rem;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.15s;}
+.logout-btn:hover{color:var(--red);border-color:var(--red);}
+.hero{padding:3rem 2rem 2rem;border-bottom:1px solid #1a3a6e;background:linear-gradient(180deg,#020810 0%,#050a12 100%);text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(0,212,255,0.06) 0%,transparent 70%);pointer-events:none;}
+.hero-tag{font-family:var(--mono);font-size:0.75rem;color:var(--cyan);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.8rem;opacity:0.7;}
+.hero-title{font-family:var(--head);font-size:3.5rem;font-weight:900;color:#fff;letter-spacing:0.04em;line-height:1;}
+.hero-title span{color:var(--cyan);}
+.hero-sub{font-family:var(--head);font-size:1.1rem;font-weight:300;color:var(--muted);margin-top:0.5rem;letter-spacing:0.08em;}
+.statsbar{display:flex;border-bottom:1px solid #0d1f35;background:var(--bg2);}
+.statsbar-item{flex:1;padding:0.8rem 1.5rem;border-right:1px solid #0d1f35;display:flex;flex-direction:column;gap:0.2rem;}
+.statsbar-item:last-child{border-right:none;}
+.sb-lbl{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+.sb-val{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--cyan);}
+.sb-val.gold{color:var(--gold);}.sb-val.green{color:var(--green);}.sb-val.red{color:var(--red);}
+.filters{display:flex;gap:0.5rem;padding:1.2rem 2rem;border-bottom:1px solid #0d1f35;flex-wrap:wrap;align-items:center;}
+.filter-label{font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-right:0.5rem;}
+.filter-btn{font-family:var(--head);font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:var(--bg2);border:1px solid #1a3a6e;color:var(--muted);border-radius:0.25rem;padding:0.35rem 0.9rem;cursor:pointer;transition:all 0.15s;}
+.filter-btn:hover,.filter-btn.active{background:var(--cyan);color:#000;border-color:var(--cyan);}
+.search-box{margin-left:auto;font-family:var(--mono);font-size:0.8rem;background:var(--bg2);border:1px solid #1a3a6e;color:var(--text);border-radius:0.25rem;padding:0.35rem 0.8rem;outline:none;width:14rem;}
+.search-box::placeholder{color:var(--muted);}.search-box:focus{border-color:var(--cyan);}
+.main{padding:1.5rem 2rem;}
+.section-hdr{display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;border-left:3px solid var(--cyan);padding-left:0.8rem;}
+.section-hdr.etf-hdr{border-color:var(--gold);}.section-hdr.short-hdr{border-color:var(--red);}
+.section-hdr h2{font-family:var(--head);font-size:1.3rem;font-weight:700;color:var(--cyan);letter-spacing:0.05em;}
+.section-hdr.etf-hdr h2{color:var(--gold);}.section-hdr.short-hdr h2{color:var(--red);}
+.section-count{font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-left:auto;}
+.section-divider{border:none;border-top:1px solid #0d1f35;margin:2rem 0;}
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(22rem,1fr));gap:1rem;margin-bottom:0.5rem;}
+.rcard{background:var(--bg2);border:1px solid #1a3a6e;border-radius:0.5rem;padding:1rem 1.2rem;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0.6rem;transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;position:relative;overflow:hidden;}
+.rcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan);opacity:0;transition:opacity 0.15s;}
+.rcard:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.12);transform:translateY(-2px);}
+.rcard:hover::before{opacity:1;}
+.rcard.etf{border-color:#1a1a0a;}.rcard.etf::before{background:var(--gold);}.rcard.etf:hover{border-color:var(--gold);box-shadow:0 0 20px rgba(255,215,0,0.1);}
+.rcard.short{border-color:#1a0a0a;}.rcard.short::before{background:var(--red);}.rcard.short:hover{border-color:var(--red);box-shadow:0 0 20px rgba(255,58,58,0.1);}
+.rcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;}
+.rcard-ticker{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--cyan);}
+.rcard.etf .rcard-ticker{color:var(--gold);}.rcard.short .rcard-ticker{color:var(--red);}
+.rcard-badges{display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;}
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:0.2rem;font-family:var(--head);font-size:0.7rem;font-weight:700;letter-spacing:0.05em;}
+.badge-buy{background:#00c853;color:#000;}.badge-pullback{background:#e65100;color:#fff;}
+.badge-accumulate{background:#00838f;color:#fff;}.badge-watch{background:#1565C0;color:#fff;}
+.badge-neutral{background:#5d4037;color:#fff;}.badge-nobuy{background:#424242;color:#aaa;}
+.badge-short{background:#b71c1c;color:#fff;}
+.badge-type{background:transparent;border:1px solid #1a3a6e;color:var(--muted);}
+.rcard-name{font-family:var(--head);font-size:1rem;font-weight:600;color:var(--text);}
+.rcard-desc{font-size:0.78rem;color:var(--muted);line-height:1.4;}
+.rcard-meta{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.meta-item{display:flex;flex-direction:column;gap:0.1rem;}
+.meta-lbl{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.meta-val{font-family:var(--mono);font-size:0.85rem;color:var(--text);}
+.meta-val.pos{color:var(--green);}.meta-val.neg{color:var(--red);}
+.rcard-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #0d1f35;padding-top:0.5rem;margin-top:0.2rem;}
+.rcard-date{font-family:var(--mono);font-size:0.7rem;color:var(--muted);}
+.rcard-arrow{font-size:0.9rem;color:var(--cyan);opacity:0;transition:opacity 0.15s;}
+.rcard:hover .rcard-arrow{opacity:1;}
+.rcard.etf:hover .rcard-arrow{color:var(--gold);}.rcard.short:hover .rcard-arrow{color:var(--red);}
+.empty-state{grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted);font-family:var(--mono);font-size:0.85rem;}
+.hidden{display:none!important;}
+a,.rcard-btn{color:var(--cyan);text-decoration:none;}
+a:visited{color:var(--cyan);}
+.rcard-btn:hover{color:#fff;background:rgba(0,212,255,0.15);border-radius:0.3rem;}
+.footer{text-align:center;padding:2rem;border-top:1px solid #1a3a6e;font-family:var(--mono);font-size:0.8rem;color:var(--muted);margin-top:2rem;}
+.footer span{color:var(--gold);}
+@media(max-width:600px){.hero-title{font-size:2.2rem;}.statsbar{flex-wrap:wrap;}.statsbar-item{min-width:50%;}.main{padding:1rem;}.topbar-right{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ══ PASSWORD GATE ══════════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-logo"><span>@</span>PATONET</div>
+  <div class="gate-sub">// Research Terminal — Acceso restringido //</div>
+  <div class="gate-box">
+    <label>Contraseña de acceso</label>
+    <input type="password" id="pwInput" class="gate-input" placeholder="••••••••••••••" autocomplete="off">
+    <button class="gate-btn" id="pwBtn">INGRESAR →</button>
+    <div class="gate-error" id="pwError"></div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ═══════════════════════════════════════════════ -->
+<div id="app">
+
+<div class="topbar">
+  <div>
+    <div class="topbar-brand">@PATONET · RESEARCH TERMINAL</div>
+    <div class="topbar-sub">INVESTMENT ANALYSIS · BLOOMBERG-STYLE REPORTS</div>
+  </div>
+  <div class="topbar-right">
+    <div id="clock"></div>
+    <button class="logout-btn" id="logoutBtn">⏻ SALIR</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">// RESEARCH DATABASE //</div>
+  <div class="hero-title"><span>@</span>PATONET</div>
+  <div class="hero-sub">Análisis de inversión · Renta variable · ETFs · Posiciones cortas</div>
+</div>
+
+<div class="statsbar">
+  <div class="statsbar-item"><span class="sb-lbl">Total Informes</span><span class="sb-val" id="sb-total">0</span></div>
+  <div class="statsbar-item"><span class="sb-lbl">Equities</span><span class="sb-val gold" id="sb-equity">0</span></div>
+  <div class="statsbar-item"><span class="sb-lbl">ETFs</span><span class="sb-val" id="sb-etf">0</span></div>
+  <div class="statsbar-item"><span class="sb-lbl">Posiciones Cortas</span><span class="sb-val red" id="sb-short">0</span></div>
+  <div class="statsbar-item"><span class="sb-lbl">Comprar / Acumular</span><span class="sb-val green" id="sb-buy">0</span></div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn active" data-filter="all">Todos</button>
+  <button class="filter-btn" data-filter="equity">Equities</button>
+  <button class="filter-btn" data-filter="etf">ETFs</button>
+  <button class="filter-btn" data-filter="short">Cortos</button>
+  <input type="text" class="search-box" id="searchBox" placeholder="Buscar ticker o empresa...">
+</div>
+
+<div class="main">
+  <div id="section-equity">
+    <div class="section-hdr"><h2>⬡ RENTA VARIABLE — EQUITIES</h2><span class="section-count" id="count-equity"></span></div>
+    <div class="report-grid" id="grid-equity"></div>
+  </div>
+  <hr class="section-divider" id="divider-etf">
+  <div id="section-etf">
+    <div class="section-hdr etf-hdr"><h2>◈ ETFs TEMÁTICOS</h2><span class="section-count" id="count-etf"></span></div>
+    <div class="report-grid" id="grid-etf"></div>
+  </div>
+  <hr class="section-divider" id="divider-short">
+  <div id="section-short">
+    <div class="section-hdr short-hdr"><h2>▼ POSICIONES CORTAS</h2><span class="section-count" id="count-short"></span></div>
+    <div class="report-grid" id="grid-short"></div>
+  </div>
+</div>
+
+<div class="footer"><span>@PATONET</span> · Research Terminal · Los informes no constituyen asesoramiento financiero</div>
+
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════════════════════════
+// AUTH — SHA-256 del password, nunca el texto plano
+// ════════════════════════════════════════════════════════════
+const PWD_HASH = "6eaccd5c0713d3e761400698f588bd569e795eade7e574d0a555a77de6d45713";
+const SESSION_KEY = "pt_auth";
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+async function tryLogin() {
+  const val = document.getElementById("pwInput").value;
+  const hash = await sha256(val);
+  if (hash === PWD_HASH) {
+    sessionStorage.setItem(SESSION_KEY, "1");
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    render();
+  } else {
+    const inp = document.getElementById("pwInput");
+    inp.classList.add("error");
+    document.getElementById("pwError").textContent = "Contraseña incorrecta.";
+    setTimeout(() => { inp.classList.remove("error"); inp.value=""; inp.focus(); }, 600);
+  }
+}
+
+// Check session on load
+if (sessionStorage.getItem(SESSION_KEY) === "1") {
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+document.getElementById("pwBtn").addEventListener("click", tryLogin);
+document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key==="Enter") tryLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+});
+
+// ════════════════════════════════════════════════════════════
+// REGISTRO DE INFORMES
+// ════════════════════════════════════════════════════════════
+const REPORTS = [
+    {
+      ticker: "UHS",
+      name: "Universal Health Services",
+      desc: "Líder en hospitales de salud conductual + cuidados agudos. Medicaid risk descontado en exceso a P/E 7.9x forward.",
+      type: "equity",
+      verdict: "buy",
+      price: "$186.80",
+      upside: "+21%",
+      target: "$226.00",
+      date: "08 Apr 2026",
+      url: "equities/Informe_UHS_186.80_08-04-2026.html",
+      pdfUrl: "pdfs/equities/InformePDF_UHS_186.80_08-04-2026.pdf",
+      diag1Url: "",
+      diag2Url: "diagramas/equities/Diagrama_Sankey_UHS_186.80_08-04-2026.html",
+      diag3Url: ""
+    },
+    {
+      ticker: "GE",
+      name: "GE Aerospace",
+      desc: "Duopolio aeroespacial con modelo navaja-maquinilla: el motor es la plataforma, el servicio es el negocio.",
+      type: "equity",
+      verdict: "pullback",
+      price: "$281.16",
+      upside: "+26.6%",
+      target: "$356.00",
+      date: "06 Apr 2026",
+      url: "equities/Informe_GE_281.16_06-04-2026.html",
+      pdfUrl: "",
+      diag1Url: "",
+      diag2Url: "diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html"
+    },
+  {
+    ticker: "RACE", name: "Ferrari N.V.",
+    desc: "Empresa de lujo que vende escasez manufacturada con F1 como motor de marketing.",
+    type: "equity", verdict: "accumulate",
+    price: "$340.00", upside: "+18%", target: "$401.00", date: "05 Apr 2026",
+    url: "equities/Informe_RACE_340.00_05-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_RACE_340.00_05-04-2026.pdf"
+  },
+  {
+    ticker: "MELI", name: "MercadoLibre, Inc.",
+    desc: "E-commerce + Fintech dominante en LatAm. 28 trimestres >30% YoY. Ecosistema marketplace + crédito + logística.",
+    type: "equity", verdict: "accumulate",
+    price: "$1,715.52", upside: "+59.3%", target: "$2,733.00", date: "02 Apr 2026",
+    url: "equities/Informe_MELI_1715.52_02-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_MELI_1715.52_02-04-2026.pdf"
+  },
+  {
+    ticker: "MRVL", name: "Marvell Technology, Inc.",
+    desc: "AI Infrastructure · Semiconductores · Custom Silicon + Interconnect.",
+    type: "equity", verdict: "accumulate",
+    price: "$103.43", upside: "+12.5%", target: "$116.34", date: "01 Apr 2026",
+    url: "equities/Informe_MRVL_103.43_01-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_MRVL_103.43_01-04-2026.pdf"
+  },
+  {
+    ticker: "TMDX", name: "TransMedics Group",
+    desc: "Monopolio en perfusión normotérmica multiorgánica (OCS/NOP). 26% del mercado nacional de trasplantes EE.UU.",
+    type: "equity", verdict: "accumulate",
+    price: "$99.10", upside: "+58.0%", target: "$157.00", date: "31 Mar 2026",
+    url: "equities/Informe_TMDX_99.10_31-03-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_TMDX_99.10_31-03-2026.pdf"
+  },
+  {
+    ticker: "AVAV", name: "AeroVironment Inc.",
+    desc: "Drones militares y soluciones ISR para defensa y seguridad nacional.",
+    type: "equity", verdict: "buy",
+    price: "$176.97", upside: "+27.4%", target: "$225.00", date: "30 Mar 2026",
+    url: "equities/Informe_AVAV_176_97_300326.html"
+  }
+];
+
+// ════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════
+const VERDICTS = {
+  buy:       {label:"COMPRAR",           cls:"badge-buy"},
+  pullback:  {label:"COMPRAR RETROCESO", cls:"badge-pullback"},
+  accumulate:{label:"ACUMULAR",          cls:"badge-accumulate"},
+  watch:     {label:"VIGILAR",           cls:"badge-watch"},
+  neutral:   {label:"NEUTRAL",           cls:"badge-neutral"},
+  nobuy:     {label:"NO COMPRAR",        cls:"badge-nobuy"},
+  short:     {label:"CORTO",             cls:"badge-short"}
+};
+const TYPE_LABEL = {equity:"EQUITY", etf:"ETF", short:"SHORT"};
+
+function buildCard(r) {
+  const v = VERDICTS[r.verdict] || VERDICTS.neutral;
+  const upsideStr = r.upside ? (typeof r.upside === "number" ? (r.upside >= 0 ? "+"+r.upside.toFixed(1)+"%" : r.upside.toFixed(1)+"%") : String(r.upside)) : ""; const upsideClass = upsideStr.startsWith("+") ? "pos" : "neg";
+  const BASE = "https://patonet.github.io/informes/";
+  const htmlBtn = r.url ? `<a class="rcard-btn btn-html" href="${BASE}${r.url}" target="_blank">📊 HTML</a>` : "";
+  const pdfBtn  = r.pdfUrl ? `<a class="rcard-btn btn-pdf"  href="${BASE}${r.pdfUrl}"  target="_blank">📄 PDF</a>` : "";
+  
+  const diagUrl = r.diag3Url || r.diag2Url || "";
+  const dBtn = diagUrl ? `<a class="rcard-btn btn-diag" href="${BASE}${diagUrl}" target="_blank">💰 Ingresos</a>` : "";
+  return `
+  <div class="rcard ${r.type}">
+    <div class="rcard-top">
+      <div class="rcard-ticker">$${r.ticker}</div>
+      <div class="rcard-badges">
+        <span class="badge ${v.cls}">${v.label}</span>
+        <span class="badge badge-type">${TYPE_LABEL[r.type]||r.type}</span>
+      </div>
+    </div>
+    <div class="rcard-name">${r.name}</div>
+    <div class="rcard-desc">${r.desc}</div>
+    <div class="rcard-meta">
+      ${r.price?`<div class="meta-item"><div class="meta-lbl">Precio</div><div class="meta-val">${r.price}</div></div>`:""}
+      ${r.target?`<div class="meta-item"><div class="meta-lbl">Objetivo</div><div class="meta-val">${r.target}</div></div>`:""}
+      ${upsideStr?`<div class="meta-item"><div class="meta-lbl">Potencial</div><div class="meta-val ${upsideClass}">${upsideStr}</div></div>`:""}
+    </div>
+    <div class="rcard-footer">
+      <span class="rcard-date">${r.date}</span>
+    </div>
+    <div class="rcard-btns">${htmlBtn}${pdfBtn}${dBtn}</div>
+  </div>`;
+}
+
+function render(filter="all", query="") {
+  const grids = {equity:document.getElementById("grid-equity"), etf:document.getElementById("grid-etf"), short:document.getElementById("grid-short")};
+  const counts = {equity:0, etf:0, short:0};
+  Object.values(grids).forEach(g=>g.innerHTML="");
+  const q = query.toLowerCase();
+  REPORTS.forEach(r => {
+    if(filter!=="all" && r.type!==filter) return;
+    if(q && !r.ticker.toLowerCase().includes(q) && !r.name.toLowerCase().includes(q)) return;
+    grids[r.type].innerHTML += buildCard(r);
+    counts[r.type]++;
+  });
+  Object.keys(grids).forEach(t => {
+    if(!grids[t].innerHTML) grids[t].innerHTML="<div class='empty-state'>— Sin informes en esta categoría —</div>";
+  });
+  const total = counts.equity+counts.etf+counts.short;
+  document.getElementById("sb-total").textContent = total;
+  document.getElementById("sb-equity").textContent = counts.equity;
+  document.getElementById("sb-etf").textContent = counts.etf;
+  document.getElementById("sb-short").textContent = counts.short;
+  document.getElementById("sb-buy").textContent = REPORTS.filter(r=>r.verdict==="buy"||r.verdict==="accumulate").length;
+  document.getElementById("count-equity").textContent = counts.equity+" informe(s)";
+  document.getElementById("count-etf").textContent = counts.etf+" informe(s)";
+  document.getElementById("count-short").textContent = counts.short+" informe(s)";
+  ["etf","short"].forEach(t=>{
+    document.getElementById("section-"+t).classList.toggle("hidden", filter!=="all" && filter!==t && counts[t]===0);
+    document.getElementById("divider-"+t).classList.toggle("hidden", filter!=="all" && filter!==t && counts[t]===0);
+  });
+}
+
+let activeFilter="all";
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter=btn.dataset.filter;
+    render(activeFilter,document.getElementById("searchBox").value);
+  });
+});
+document.getElementById("searchBox").addEventListener("input",e=>render(activeFilter,e.target.value));
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById("clock").textContent=now.toLocaleTimeString("es-EC",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})+" ECT";
+}
+updateClock(); setInterval(updateClock,1000);
+</script>
+</body>
+</html>
