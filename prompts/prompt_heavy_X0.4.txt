@@ -1,0 +1,130 @@
+[X0.4-HEAVY]
+ANÁLISIS HEAVY — PROFUNDIDAD MÁXIMA
+v X0.4 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRINCIPIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Todos los datos del Paso de Recolección están en contexto. El Heavy expande con datos adicionales
+que el nucleo no recopila. Si se completó un Light previamente: copiar Feroldi íntegro y
+añadir [Actualizado Heavy: ...] donde earnings call o SOTP aporten algo nuevo.
+Si no hubo Light: ejecutar Feroldi completo aquí.
+Outputs de progreso concisos. Bloques de análisis: COMPLETOS sin resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECOLECCIÓN ADICIONAL HEAVY
+(ejecutar antes del análisis — output mínimo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+H1 — EARNINGS CALL TRANSCRIPT
+Buscar: "[TICKER] earnings call transcript Q[N] [AÑO]" en Seeking Alpha, The Motley Fool o Motley Fool Transcripts.
+Extraer: tono CEO, guidance exacta citada, preguntas duras de analistas, red flags, catalizadores mencionados.
+Output: "✓ Earnings call [Q?][AÑO] cargado"
+
+H2 — ANALISTAS INDIVIDUALES
+Buscar: "[TICKER] analyst price target 2026" y "[TICKER] wall street consensus rating".
+Extraer: hasta 8 analistas con banco, calificación (Buy/Hold/Sell) y price target en $.
+Output: "✓ [N] analistas verificados — consenso $[PT]"
+
+H3 — DATOS SOTP (si ≥2 segmentos >10% del revenue)
+Para cada segmento identificado en EDGAR:
+  Buscar pure-play comparable: "[sector del segmento] pure play company EV/EBITDA multiple 2026"
+  Obtener múltiplo de valoración y aplicar al EBITDA del segmento.
+Output: "✓ SOTP — [N] segmentos con múltiplos" o "✓ Sin SOTP (empresa con 1 segmento)"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE A — RESUMEN EJECUTIVO (150-200 palabras)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cómo gana dinero, calidad económica, ventajas competitivas, riesgos principales.
+Frase definitoria en cursiva al cierre.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE B — CONTEXTO PRECIO Y NOTICIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Comportamiento día/semana/mes/3m. Transcript del earnings call (H1):
+tono CEO, guidance exacta, preguntas críticas, riesgos, catalizadores.
+Commodity check si aplica. Movimientos explosivos → integrar en Feroldi. 5+ líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE C — OUT OF THE BOX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Riesgos no obvios · Oportunidades ocultas · Lo que el mercado ignora (mínimo 2).
+Al menos 1 idea no convencional que desafíe el consenso. Sin límite de extensión.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE D — ¿LA IA ES AMIGA O ENEMIGA?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Título: "¿La IA, amiga o enemiga de $TICKER?"
+A) Eficiencia IA y Workforce — impacto en headcount y costos
+B) 11 Amenazas (B.1–B.11) — específicas al modelo de negocio
+C) 9 Oportunidades (C.1–C.9) — concretas, cuantificadas si posible
+D) Timeline de Impacto — 1a / 3a / 5a+
+E) Variant Perception — qué ve el mercado vs qué es real
+F) Semáforo VERDE/NARANJA/ROJO con justificación 3+ líneas
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE E — EL CEO DEFENDIENDO A $TICKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fuente: transcript earnings call (H1).
+Tono CEO · Guidance vs consenso · Narrativa estratégica · 3 preguntas duras ·
+Red flags/bull signals · Cita clave traducida al español.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE F — SOTP + ESCENARIOS BEAR/BASE/BULL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÚNICO bloque de escenarios. No repetir en ningún otro bloque.
+SOTP (si datos H3 disponibles y ≥2 segmentos >10%):
+  Por segmento: revenue/EBITDA · múltiplo vs pure-play · valor implícito.
+  Suma + ajustes (deuda neta, holding discount) = valor por acción.
+Escenarios:
+  Bear: -20% múltiplos, riesgos materializados.
+  Base: múltiplos actuales del análisis.
+  Bull: +20%, opcionalidad realizada.
+Rango de precio implicado por escenario.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE G — FEROLDI 16 PUNTOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Si hubo Light: copiar íntegro + añadir [Actualizado Heavy: ...] donde aplique.
+Si no hubo Light: ejecutar con mismo formato del Light (preguntas + respuestas + score).
+Repetir verificación aritmética y score total.
+Umbrales: 🟢 >60% · 🟡 50-60% · 🔴 <50%.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE H — SÍNTESIS Y TESIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tabla-resumen 16 puntos: calificación + comentario máx 10 palabras.
+Score/160 + %. Tabla Riesgos Críticos. Tabla Catalizadores 24m.
+Tesis horizonte 1-2a. Veredicto (mismas 6 opciones). PROHIBIDO ambigüedades.
+STOP LOSS / TAKE PROFIT si veredicto COMPRAR. R/R mínimo 1:3.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE I — CIERRE DE PORTAFOLIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I.1 Costo de Oportunidad vs 2-3 alternativas concretas.
+I.2 Patience Filter: LARGO (>2a) / MEDIO (6m-2a) / CORTO (<6m).
+I.3 Bear Case sistémico: referenciar Bloque F. NO duplicar.
+I.4 Tamaño posición: GRANDE 5-10% / MEDIANA 2-5% / PEQUEÑA / STARTER / CERO.
+I.5 Exit Criteria: T1 ruptura tesis · T2 ROIC -3pp · T3 rebalanceo ·
+    T4 mejor oportunidad · T5 imperativo institucional · T6 bear case materializado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE X — AUTO-CRÍTICA (SIEMPRE AL FINAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+X1) CONTRAARGUMENTO MÁS FUERTE — rol short seller, mín 5 líneas.
+X2) DATOS CLAVE OMITIDOS — 3-5 ítems brutalmente honestos.
+X3) PENSAMIENTO NO CONVENCIONAL — insight original, mín 5 líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CIERRE HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Informe Heavy completado.
+Escribe: INFOGRAFIA · PDF · SANKEY · TODO
+
+Cargar generador Heavy:
+  INTENTO 1: web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.4.txt")
+  INTENTO 2: bash curl -s "https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.4.txt"
+  FALLA: avisar y pedir que el usuario pegue el archivo.
+  Primera línea esperada: [X0.4-GEN-HEAVY]
+  GH_TOKEN_PATONET = token del nucleo.
+
+[X0.4-HEAVY — Recolección H1/H2/H3 · Feroldi hereda Light · SOTP · Bloque I — @patonet]
