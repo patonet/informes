@@ -55,7 +55,24 @@ body{width:100%;min-height:100vh;background:#050a12;color:#c8d8f0;font-family:'B
 .gate-btn:hover{background:#00b8e0;transform:translateY(-1px);}
 .gate-btn:active{transform:translateY(0);}
 .gate-error{font-family:var(--mono);font-size:0.75rem;color:var(--red);height:1rem;}
-@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}</style>
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+  /* X0.4 — Button groups */
+  .rcard-btns-grouped { display:flex; flex-direction:column; gap:0.4rem; margin-top:0.8rem; }
+  .rcard-btn-group { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+  .btn-group-lbl { font-size:0.65rem; color:#64748b; text-transform:uppercase;
+    letter-spacing:0.08em; min-width:2.5rem; }
+  .rcard-btn { display:inline-block; padding:0.3rem 0.7rem; border-radius:0.3rem;
+    font-size:0.78rem; font-weight:600; text-decoration:none; transition:opacity 0.15s; }
+  .rcard-btn:hover { opacity:0.8; }
+  .btn-html    { background:rgba(0,212,255,0.15); color:#00d4ff; border:1px solid #00d4ff; }
+  .btn-pdf     { background:rgba(255,215,0,0.12);  color:#ffd700;  border:1px solid #ffd700; }
+  .btn-light   { background:rgba(0,200,83,0.12);   color:#00c853;  border:1px solid #00c853; }
+  .btn-pdflite { background:rgba(0,200,83,0.08);   color:#76c442;  border:1px solid #76c442; }
+  .btn-sankey  { background:rgba(255,140,0,0.12);  color:#ff8c00;  border:1px solid #ff8c00; }
+  /* Legacy support */
+  .rcard-btns { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.8rem; }
+  .btn-diag { background:rgba(255,140,0,0.12); color:#ff8c00; border:1px solid #ff8c00; }
+</style>
 <style>
 /* ─── MAIN APP (hidden until auth) ─── */
 #app{display:none;}
@@ -247,44 +264,33 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 // REGISTRO DE INFORMES
 // ════════════════════════════════════════════════════════════
 const REPORTS = [
-    {
-      ticker: "UHS",
-      name: "Universal Health Services",
-      desc: "Líder en hospitales de salud conductual + cuidados agudos. Medicaid risk descontado en exceso a P/E 7.9x forward.",
-      type: "equity",
-      verdict: "buy",
-      price: "$186.80",
-      upside: "+21%",
-      target: "$226.00",
-      date: "08 Apr 2026",
-      url: "equities/Informe_UHS_186.80_08-04-2026.html",
-      pdfUrl: "pdfs/equities/InformePDF_UHS_186.80_08-04-2026.pdf",
-      diag1Url: "",
-      diag2Url: "diagramas/equities/Diagrama_Sankey_UHS_186.80_08-04-2026.html",
-      diag3Url: ""
-    },
-    {
-      ticker: "GE",
-      name: "GE Aerospace",
-      desc: "Duopolio aeroespacial con modelo navaja-maquinilla: el motor es la plataforma, el servicio es el negocio.",
-      type: "equity",
-      verdict: "pullback",
-      price: "$281.16",
-      upside: "+26.6%",
-      target: "$356.00",
-      date: "06 Apr 2026",
-      url: "equities/Informe_GE_281.16_06-04-2026.html",
-      pdfUrl: "",
-      diag1Url: "",
-      diag2Url: "diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html"
-    },
+  {
+    ticker: "UHS", name: "Universal Health Services",
+    desc: "Líder en hospitales de salud conductual + cuidados agudos. Medicaid risk descontado en exceso a P/E 7.9x forward.",
+    type: "equity", verdict: "buy",
+    price: "$186.80", upside: "+21%", target: "$226.00", date: "08 Apr 2026",
+    url: "equities/Informe_UHS_186.80_08-04-2026.html",
+    pdfUrl: "pdfs/equities/InformePDF_UHS_186.80_08-04-2026.pdf",
+    urlLight: "", pdfLightUrl: "",
+    sankeyUrl: "diagramas/equities/Diagrama_Sankey_UHS_186.80_08-04-2026.html"
+  },
+  {
+    ticker: "GE", name: "GE Aerospace",
+    desc: "Duopolio aeroespacial con modelo navaja-maquinilla: el motor es la plataforma, el servicio es el negocio.",
+    type: "equity", verdict: "pullback",
+    price: "$281.16", upside: "+26.6%", target: "$356.00", date: "06 Apr 2026",
+    url: "equities/Informe_GE_281.16_06-04-2026.html",
+    pdfUrl: "", urlLight: "", pdfLightUrl: "",
+    sankeyUrl: "diagramas/equities/Diagrama_Sankey_GE_281.16_06-04-2026.html"
+  },
   {
     ticker: "RACE", name: "Ferrari N.V.",
     desc: "Empresa de lujo que vende escasez manufacturada con F1 como motor de marketing.",
     type: "equity", verdict: "accumulate",
     price: "$340.00", upside: "+18%", target: "$401.00", date: "05 Apr 2026",
     url: "equities/Informe_RACE_340.00_05-04-2026.html",
-    pdfUrl: "pdfs/equities/InformePDF_RACE_340.00_05-04-2026.pdf"
+    pdfUrl: "pdfs/equities/InformePDF_RACE_340.00_05-04-2026.pdf",
+    urlLight: "", pdfLightUrl: "", sankeyUrl: ""
   },
   {
     ticker: "MELI", name: "MercadoLibre, Inc.",
@@ -292,7 +298,8 @@ const REPORTS = [
     type: "equity", verdict: "accumulate",
     price: "$1,715.52", upside: "+59.3%", target: "$2,733.00", date: "02 Apr 2026",
     url: "equities/Informe_MELI_1715.52_02-04-2026.html",
-    pdfUrl: "pdfs/equities/InformePDF_MELI_1715.52_02-04-2026.pdf"
+    pdfUrl: "pdfs/equities/InformePDF_MELI_1715.52_02-04-2026.pdf",
+    urlLight: "", pdfLightUrl: "", sankeyUrl: ""
   },
   {
     ticker: "MRVL", name: "Marvell Technology, Inc.",
@@ -300,7 +307,8 @@ const REPORTS = [
     type: "equity", verdict: "accumulate",
     price: "$103.43", upside: "+12.5%", target: "$116.34", date: "01 Apr 2026",
     url: "equities/Informe_MRVL_103.43_01-04-2026.html",
-    pdfUrl: "pdfs/equities/InformePDF_MRVL_103.43_01-04-2026.pdf"
+    pdfUrl: "pdfs/equities/InformePDF_MRVL_103.43_01-04-2026.pdf",
+    urlLight: "", pdfLightUrl: "", sankeyUrl: ""
   },
   {
     ticker: "TMDX", name: "TransMedics Group",
@@ -308,14 +316,16 @@ const REPORTS = [
     type: "equity", verdict: "accumulate",
     price: "$99.10", upside: "+58.0%", target: "$157.00", date: "31 Mar 2026",
     url: "equities/Informe_TMDX_99.10_31-03-2026.html",
-    pdfUrl: "pdfs/equities/InformePDF_TMDX_99.10_31-03-2026.pdf"
+    pdfUrl: "pdfs/equities/InformePDF_TMDX_99.10_31-03-2026.pdf",
+    urlLight: "", pdfLightUrl: "", sankeyUrl: ""
   },
   {
     ticker: "AVAV", name: "AeroVironment Inc.",
     desc: "Drones militares y soluciones ISR para defensa y seguridad nacional.",
     type: "equity", verdict: "buy",
     price: "$176.97", upside: "+27.4%", target: "$225.00", date: "30 Mar 2026",
-    url: "equities/Informe_AVAV_176_97_300326.html"
+    url: "equities/Informe_AVAV_176_97_300326.html",
+    pdfUrl: "", urlLight: "", pdfLightUrl: "", sankeyUrl: ""
   }
 ];
 
@@ -337,11 +347,16 @@ function buildCard(r) {
   const v = VERDICTS[r.verdict] || VERDICTS.neutral;
   const upsideStr = r.upside ? (typeof r.upside === "number" ? (r.upside >= 0 ? "+"+r.upside.toFixed(1)+"%" : r.upside.toFixed(1)+"%") : String(r.upside)) : ""; const upsideClass = upsideStr.startsWith("+") ? "pos" : "neg";
   const BASE = "https://patonet.github.io/informes/";
-  const htmlBtn = r.url ? `<a class="rcard-btn btn-html" href="${BASE}${r.url}" target="_blank">📊 HTML</a>` : "";
-  const pdfBtn  = r.pdfUrl ? `<a class="rcard-btn btn-pdf"  href="${BASE}${r.pdfUrl}"  target="_blank">📄 PDF</a>` : "";
-  
-  const diagUrl = r.diag3Url || r.diag2Url || "";
-  const dBtn = diagUrl ? `<a class="rcard-btn btn-diag" href="${BASE}${diagUrl}" target="_blank">💰 Ingresos</a>` : "";
+  const htmlBtn     = r.url        ? `<a class="rcard-btn btn-html"   href="${BASE}${r.url}"        target="_blank">📊 Heavy</a>` : "";
+  const pdfBtn      = r.pdfUrl     ? `<a class="rcard-btn btn-pdf"    href="${BASE}${r.pdfUrl}"     target="_blank">📄 PDF</a>` : "";
+  const htmlLightBtn= r.urlLight   ? `<a class="rcard-btn btn-light"  href="${BASE}${r.urlLight}"   target="_blank">📊 Light</a>` : "";
+  const pdfLightBtn = r.pdfLightUrl? `<a class="rcard-btn btn-pdflite"href="${BASE}${r.pdfLightUrl}"target="_blank">📄 Lite</a>` : "";
+  const sankeyBtn   = r.sankeyUrl  ? `<a class="rcard-btn btn-sankey" href="${BASE}${r.sankeyUrl}"  target="_blank">💰 Sankey</a>` : "";
+  const hasHeavy  = r.url || r.pdfUrl;
+  const hasLight  = r.urlLight || r.pdfLightUrl;
+  const heavyRow  = hasHeavy  ? `<div class="rcard-btn-group"><span class="btn-group-lbl">Heavy</span>${htmlBtn}${pdfBtn}</div>` : "";
+  const lightRow  = hasLight  ? `<div class="rcard-btn-group"><span class="btn-group-lbl">Light</span>${htmlLightBtn}${pdfLightBtn}</div>` : "";
+  const sankeyRow = r.sankeyUrl ? `<div class="rcard-btn-group"><span class="btn-group-lbl">Flujo</span>${sankeyBtn}</div>` : "";
   return `
   <div class="rcard ${r.type}">
     <div class="rcard-top">
@@ -361,7 +376,7 @@ function buildCard(r) {
     <div class="rcard-footer">
       <span class="rcard-date">${r.date}</span>
     </div>
-    <div class="rcard-btns">${htmlBtn}${pdfBtn}${dBtn}</div>
+    <div class="rcard-btns-grouped">${heavyRow}${lightRow}${sankeyRow}</div>
   </div>`;
 }
 
