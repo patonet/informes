@@ -1,0 +1,101 @@
+[X0.4-GEN-LIGHT]
+GENERADOR LIGHT — Infografía 4 Zonas · PDF Lite · Sankey
+v X0.4 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMANDOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SANKEY     → cargar prompt_generador_sankey_X0.4.txt y ejecutar.
+PDF        → generar PDF Lite con bloques A-H+X del Light.
+INFOGRAFIA → generar infografía HTML 4 zonas.
+TODO       → ejecutar SANKEY + PDF + INFOGRAFIA en ese orden.
+
+Token: GH_TOKEN_PATONET. Subir todo a GitHub. Actualizar REPORTS en index.html.
+
+NOMBRES:
+- Infografía Light: infografia_light_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → equities/
+- PDF Lite:         InformePDF_lite_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf   → pdfs/equities/
+- Sankey:           Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html  → diagramas/equities/
+
+CARGA SANKEY:
+  web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_sankey_X0.4.txt")
+  Si falla: bash curl -s misma URL. Si falla: avisar y pedir que el usuario pegue el archivo.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISEÑO — IDÉNTICO AL HEAVY EN ASPECTO VISUAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mismos colores, tipografía, semáforo SVG, gauge, popups, barra 52W, performance bar.
+La diferencia es de CONTENIDO (4 zonas vs 6), NO de diseño.
+Nota visible: "Versión Light — para análisis completo ejecutar HEAVY"
+
+PALETA: fondo #050a12 · texto #c8d8f0 · cian #00d4ff · verde #00ff9d · dorado #ffd700 · rojo #ff3a3a.
+ROOT: html { font-size: clamp(10px, 1.15vw, 17px); } Solo rem/em/%/fr.
+Scanlines body::after obligatorio. const DATA={...} al inicio del script.
+Librería: Chart.js 4.4.0 cdnjs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFOGRAFÍA LIGHT — 4 ZONAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ZONA 1 — CABECERA (idéntica al Heavy)
+Logo Clearbit + fallback iniciales + popup ejecutivo (Bloque A).
+Frase definitoria id=triggerFrase. Barra 52W. Performance bar 10 periodos.
+Precio + delta. Badge veredicto. Tarjetas Feroldi score/160 + gauge circular.
+Semáforo IA SVG 3 luces (tabla valores BAJO/MEDIO/ALTO). Popup IA (Bloque D).
+Mini-semáforos B0 × 4 (width=1.2rem).
+
+SEMÁFORO IA (viewBox="0 0 80 200" width="3.5rem"):
+Carcasa rect 4,4 w72 h192 rx12 #1a1a1a + rect 8,8 w64 h184 rx10 #111.
+Tornillos 4× r3 #333. Separadores y=70 y=127 #222.
+3 luces cy=42/100/158 r=22:
+  BAJO(verde ON):   rojo=#2d0a0a · naranja=#3d2800 · verde=#00c853+glow+refl=0.35
+  MEDIO(naranja ON):rojo=#2d0a0a · naranja=#ff8c00+glow+refl=0.35 · verde=#003d1a
+  ALTO(rojo ON):    rojo=#e53935+glow+refl=0.35 · naranja=#3d2800 · verde=#003d1a
+Reflejo inactivo: ellipse opacity=0.05. Glow: filter="drop-shadow(0 0 10px [color])".
+
+GAUGE CIRCULAR (viewBox="0 0 120 70" width="7rem"):
+Arco fondo M 10 60 A 50 50 stroke:#1a2a4a sw=12.
+Arco color stroke=url(#gaugeG) sw=10. Gradiente #e53935→#ffd700→#00c853.
+Aguja: angle=(pct/100)*180; nx=60+45*cos((180-angle)*π/180); ny=60-45*sin((180-angle)*π/180).
+Line stroke=#ffd700 sw=2.5. Circle r=3 fill=#ffd700.
+
+ZONA 2 — KEY STATS
+Grid 4 subgrupos: VALORACIÓN · RENTABILIDAD · CRECIMIENTO · DIVIDENDO/RIESGO.
+Cards valor 1.3rem monoespaciado + triángulo semafórico. PEG siempre presente.
+
+ZONA 3 — GRÁFICOS (Chart.js)
+.chart-wrap { position:relative; width:100%; aspect-ratio:4/3; }
+.chart-wrap canvas { position:absolute; inset:0; width:100%!important; height:100%!important; }
+Col1 mixto: Revenue+NI barras (yVal derecho) + Margen% línea naranja (yMg izquierdo).
+  Límites dinámicos. Legend custom HTML (no nativa Chart.js).
+Col2 waterfall: Revenue→Net Income trimestre reciente. Colores por naturaleza.
+Col3 dona: composición ingresos por segmento. Leyenda debajo del canvas.
+
+ZONA 4 — FEROLDI 16 PUNTOS + VEREDICTO
+Scorecard .feroldi-row + data-tooltip + popup #feroldiPopup (JS posicionamiento inteligente).
+Gauge individual SVG por punto (viewBox="0 0 200 130" gradiente 5 stops id único gaugeGrad_[N]).
+score=0→(20,105) · score=5→(100,40) · score=10→(180,105). NUNCA repetir ids.
+Score total dorado. Escenarios Bear/Base/Bull. Veredicto badge + SL/TP.
+
+NO INCLUIR: zona analistas completa · SOTP · tabla competidores · spider chart.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PDF LITE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Portada: gradiente #0d1428→#1a3a6e, logo Clearbit, título, precio+score+PEG,
+  performance bar 10 periodos, B0 4 círculos, fecha+@patonet.
+Páginas: header franja teal 8px. Footer @patonet + nº página.
+Contenido: bloques A-H + Bloque X. Sin Bloque I. Sin SOTP completo.
+Mismos estilos sección: OOB naranja · IA cian · CEO cursiva.
+COMPLETO en lo que incluye. NO resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GITHUB Y REPORTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET.
+PUT cada archivo. GET index.html → actualizar entry REPORTS → PUT.
+Campos: { ticker, name, desc, type:"equity", verdict, price, upside, target, date,
+  url, pdfUrl, urlLight, pdfLightUrl, sankeyUrl }
+Veredictos en inglés: buy·pullback·speculative·accumulate·neutral·nobuy·short.
+
+[X0.4-GEN-LIGHT — 4 zonas · PDF Lite · SANKEY via archivo separado · @patonet]
