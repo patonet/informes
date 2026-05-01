@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infografía Light - Nokia NOK @ $13.80</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:clamp(10px,1.15vw,17px);}
+:root{
+  --bg:#050a12;--bg2:#080f1c;--bg3:#0a1628;--bg4:#0d1f35;
+  --cyan:#00d4ff;--green:#00ff9d;--gold:#ffd700;--red:#ff3a3a;--orange:#ff8c00;
+  --text:#c8d8f0;--muted:#94a3b8;
+}
+body{width:100%;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999;}
+
+.container{max-width:1200px;margin:0 auto;padding:2rem 1rem;}
+
+/* ZONA 1: CABECERA */
+.header{background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);border-bottom:1px solid var(--bg4);padding:2rem;margin-bottom:2rem;border-radius:0.5rem;}
+.header-top{display:flex;align-items:center;gap:2rem;margin-bottom:2rem;}
+.logo-section{display:flex;align-items:center;gap:1rem;}
+.logo-img{width:3rem;height:3rem;border-radius:50%;background:var(--cyan);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bg);font-size:1.2rem;}
+.header-title{font-size:2rem;font-weight:700;color:var(--text);}
+.header-title span{color:var(--cyan);}
+.header-meta{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);}
+.header-meta-item{display:flex;align-items:center;gap:0.5rem;}
+.price-section{display:flex;align-items:baseline;gap:1rem;font-size:1.8rem;font-weight:700;}
+.price-section .price{color:var(--cyan);}
+.price-section .delta{font-size:1rem;color:var(--green);}
+.badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:0.3rem;font-size:0.75rem;font-weight:700;background:rgba(0,200,83,0.15);color:var(--green);border:1px solid var(--green);}
+
+.header-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg3);border:0.5px solid var(--bg4);border-radius:0.4rem;padding:0.8rem;text-align:center;}
+.stat-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.stat-value{font-size:1.3rem;font-weight:700;color:var(--cyan);font-family:'Share Tech Mono',monospace;margin-top:0.4rem;}
+.stat-value.green{color:var(--green);}
+.stat-value.gold{color:var(--gold);}
+
+/* 52W Range Bar */
+.range-bar{background:var(--bg3);border:0.5px solid var(--bg4);border-radius:0.3rem;height:20px;position:relative;margin:1rem 0;overflow:hidden;}
+.range-low{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:0.7rem;color:var(--muted);padding:0 0.4rem;}
+.range-high{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:0.7rem;color:var(--muted);padding:0 0.4rem;}
+.range-track{height:100%;background:linear-gradient(90deg,var(--red) 0%,var(--orange) 25%,var(--gold) 50%,var(--green) 75%,var(--green) 100%);position:relative;}
+.range-cursor{position:absolute;width:2px;height:100%;background:var(--cyan);top:0;}
+
+/* Semáforo IA SVG */
+.semaforo-ia{margin:1.5rem 0;display:flex;align-items:center;gap:2rem;}
+.semaforo-label{font-size:0.85rem;color:var(--muted);text-transform:uppercase;}
+.semaforo-svg{width:3.5rem;}
+.mini-semaforos{display:flex;gap:0.5rem;}
+.mini-semaforo{width:1.2rem;height:1.2rem;border-radius:50%;border:1px solid var(--bg4);}
+
+/* ZONA 2: KEY STATS */
+.key-stats{background:var(--bg2);border:0.5px solid var(--bg4);border-radius:0.5rem;padding:2rem;margin-bottom:2rem;}
+.key-stats h2{font-size:1.2rem;margin-bottom:1.5rem;color:var(--text);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;}
+.stats-subgroup{border-left:2px solid var(--cyan);padding-left:1rem;}
+.stats-subgroup h3{font-size:0.8rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.8rem;letter-spacing:0.08em;}
+.stat-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.8rem;font-size:0.9rem;}
+.stat-row-label{color:var(--muted);}
+.stat-row-value{font-weight:700;font-family:'Share Tech Mono',monospace;color:var(--cyan);}
+.stat-row-value.green{color:var(--green);}
+.stat-row-value.gold{color:var(--gold);}
+.triangle{display:inline-block;width:8px;height:8px;margin-left:0.3rem;}
+.triangle.up{border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid var(--green);}
+.triangle.down{border-left:4px solid transparent;border-right:4px solid transparent;border-top:8px solid var(--red);}
+
+/* ZONA 3: GRÁFICOS */
+.charts-section{margin-bottom:2rem;}
+.charts-section h2{font-size:1.2rem;margin-bottom:1.5rem;color:var(--text);}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.chart-wrap{background:var(--bg2);border:0.5px solid var(--bg4);border-radius:0.5rem;padding:1rem;position:relative;aspect-ratio:1.3/1;}
+.chart-wrap canvas{width:100%!important;height:100%!important;}
+.chart-title{font-size:0.85rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.8rem;letter-spacing:0.08em;}
+
+/* ZONA 4: FEROLDI */
+.feroldi-section{background:var(--bg2);border:0.5px solid var(--bg4);border-radius:0.5rem;padding:2rem;margin-bottom:2rem;}
+.feroldi-section h2{font-size:1.2rem;margin-bottom:1.5rem;color:var(--text);}
+.feroldi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
+.feroldi-row{background:var(--bg3);border:0.5px solid var(--bg4);border-radius:0.4rem;padding:1rem;cursor:pointer;transition:all 0.15s;}
+.feroldi-row:hover{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,255,0.1);}
+.feroldi-title{font-size:0.75rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+.feroldi-score{font-size:1.5rem;font-weight:700;color:var(--gold);}
+.feroldi-label{font-size:0.7rem;color:var(--muted);}
+
+.feroldi-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:2rem;padding-top:2rem;border-top:1px solid var(--bg4);}
+.summary-card{background:var(--bg3);border-left:3px solid var(--cyan);padding:1rem;border-radius:0.3rem;}
+.summary-label{font-size:0.75rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+.summary-value{font-size:1.3rem;font-weight:700;color:var(--cyan);}
+.summary-value.green{color:var(--green);}
+.summary-value.red{color:var(--red);}
+
+/* Escenarios */
+.scenarios{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:2rem;}
+.scenario{background:var(--bg3);border:0.5px solid var(--bg4);border-radius:0.4rem;padding:1rem;}
+.scenario-title{font-size:0.9rem;font-weight:700;margin-bottom:0.5rem;}
+.scenario-bear .scenario-title{color:var(--red);}
+.scenario-base .scenario-title{color:var(--orange);}
+.scenario-bull .scenario-title{color:var(--green);}
+.scenario-price{font-size:1.5rem;font-weight:700;font-family:'Share Tech Mono',monospace;margin:0.5rem 0;}
+.scenario-delta{font-size:0.9rem;font-weight:700;}
+.scenario-delta.red{color:var(--red);}
+.scenario-delta.gold{color:var(--gold);}
+.scenario-delta.green{color:var(--green);}
+.scenario-logic{font-size:0.75rem;color:var(--muted);margin-top:0.5rem;}
+
+/* Veredicto */
+.verdict{background:linear-gradient(135deg,rgba(0,200,83,0.1) 0%,rgba(0,212,255,0.1) 100%);border:1px solid var(--green);border-radius:0.5rem;padding:1.5rem;margin-top:2rem;}
+.verdict-badge{display:inline-block;padding:0.4rem 1rem;background:var(--green);color:var(--bg);font-weight:700;border-radius:0.3rem;margin-bottom:1rem;}
+.verdict-text{font-size:0.95rem;line-height:1.6;color:var(--text);}
+
+/* Footer */
+.footer{text-align:center;padding:2rem;border-top:1px solid var(--bg4);font-size:0.8rem;color:var(--muted);}
+.note-light{background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:0.4rem;padding:1rem;margin:2rem 0;font-size:0.85rem;color:var(--gold);}
+
+/* Popups */
+.popup{display:none;position:fixed;background:var(--bg2);border:1px solid var(--cyan);border-radius:0.5rem;padding:1.5rem;max-width:400px;z-index:1000;box-shadow:0 0 30px rgba(0,212,255,0.2);}
+.popup.show{display:block;}
+.popup-close{float:right;cursor:pointer;color:var(--muted);font-size:1.2rem;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ZONA 1: CABECERA -->
+<div class="header">
+<div class="header-top">
+<div class="logo-section">
+<div class="logo-img">NOK</div>
+<div>
+<div class="header-title">Nokia <span>Oyj</span></div>
+<div class="header-meta">
+<div class="header-meta-item">NYSE:NOK</div>
+<div class="header-meta-item">FY2025</div>
+<div class="header-meta-item">01 May 2026</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="margin-bottom:1.5rem;">
+<div class="price-section">
+<span class="price">$13.80</span>
+<span class="delta">+159.76% (52W)</span>
+<span class="badge">ACCUMULATE</span>
+</div>
+</div>
+
+<!-- Exec Summary Popup Trigger -->
+<div style="margin-bottom:1rem;padding:1rem;background:var(--bg3);border-radius:0.4rem;cursor:pointer;" onclick="showPopup('execPopup')">
+<div style="font-size:0.75rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;">Executive Summary</div>
+<div style="font-size:0.95rem;color:var(--text);font-style:italic;">"Infrastructure compounder oculto que se reinventa como proveedor de redes nativas en IA"</div>
+</div>
+
+<!-- Key Stats Cards -->
+<div class="header-stats">
+<div class="stat-card">
+<div class="stat-label">Feroldi Score</div>
+<div class="stat-value gold">107.8</div>
+<div class="stat-label" style="margin-top:0.3rem;">/ 160 (67.4%)</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Revenue FY2025</div>
+<div class="stat-value">€19.9B</div>
+<div class="stat-label" style="margin-top:0.3rem;">+3% YoY</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">FCF (millions)</div>
+<div class="stat-value green">€1,500</div>
+<div class="stat-label" style="margin-top:0.3rem;">72% conversion</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">P/E TTM</div>
+<div class="stat-value">~70x</div>
+<div class="stat-label" style="margin-top:0.3rem;">Premium to peers</div>
+</div>
+</div>
+
+<!-- 52W Range -->
+<div style="margin-top:1.5rem;">
+<div style="font-size:0.75rem;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">52-week range</div>
+<div class="range-bar">
+<div class="range-low">$4.00</div>
+<div class="range-high">$12.60</div>
+<div class="range-track">
+<div class="range-cursor" style="left:68%;"></div>
+</div>
+</div>
+</div>
+
+<!-- Semáforo IA -->
+<div class="semaforo-ia">
+<div class="semaforo-label">AI Impact</div>
+<svg viewBox="0 0 80 200" class="semaforo-svg">
+<rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a"/>
+<rect x="8" y="8" width="64" height="184" rx="10" fill="#111"/>
+<circle cx="40" cy="18" r="3" fill="#333"/>
+<circle cx="40" cy="40" r="3" fill="#333"/>
+<circle cx="40" cy="182" r="3" fill="#333"/>
+<line x1="12" y1="70" x2="68" y2="70" stroke="#222" stroke-width="0.5"/>
+<line x1="12" y1="127" x2="68" y2="127" stroke="#222" stroke-width="0.5"/>
+<circle cx="40" cy="42" r="22" fill="#00c853" opacity="0.8" filter="drop-shadow(0 0 10px #00c853)"/>
+<ellipse cx="40" cy="42" rx="22" ry="22" fill="#00ff9d" opacity="0.08"/>
+<circle cx="40" cy="100" r="22" fill="#3d2800"/>
+<ellipse cx="40" cy="100" rx="22" ry="22" fill="none" stroke="#3d2800" stroke-width="0.5"/>
+<circle cx="40" cy="158" r="22" fill="#2d0a0a"/>
+<ellipse cx="40" cy="158" rx="22" ry="22" fill="none" stroke="#2d0a0a" stroke-width="0.5"/>
+<text x="40" y="190" text-anchor="middle" font-size="10" fill="#94a3b8">AMIGA</text>
+</svg>
+<div class="mini-semaforos">
+<div class="mini-semaforo" style="background:#00c853;"></div>
+<div class="mini-semaforo" style="background:#1a2a4a;"></div>
+<div class="mini-semaforo" style="background:#1a2a4a;"></div>
+<div class="mini-semaforo" style="background:#1a2a4a;"></div>
+</div>
+</div>
+
+</div>
+
+<!-- ZONA 2: KEY STATS -->
+<div class="key-stats">
+<h2>Key Financial Metrics</h2>
+<div class="stats-grid">
+<div class="stats-subgroup">
+<h3>📊 Valuation</h3>
+<div class="stat-row">
+<span class="stat-row-label">P/E TTM</span>
+<span class="stat-row-value">~70x<span class="triangle down"></span></span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">EV/EBITDA</span>
+<span class="stat-row-value">22.9x<span class="triangle down"></span></span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">PEG</span>
+<span class="stat-row-value gold">N/D</span>
+</div>
+</div>
+
+<div class="stats-subgroup">
+<h3>💰 Profitability</h3>
+<div class="stat-row">
+<span class="stat-row-label">Op Margin</span>
+<span class="stat-row-value">10.0%<span class="triangle down"></span></span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">Net Margin</span>
+<span class="stat-row-value">3.7%<span class="triangle down"></span></span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">ROIC</span>
+<span class="stat-row-value">6.2%</span>
+</div>
+</div>
+
+<div class="stats-subgroup">
+<h3>📈 Growth</h3>
+<div class="stat-row">
+<span class="stat-row-label">Revenue CAGR 3Y</span>
+<span class="stat-row-value">+1.4%</span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">EPS CAGR 3Y</span>
+<span class="stat-row-value red">-40%</span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">Optical Networks</span>
+<span class="stat-row-value green">+17%</span>
+</div>
+</div>
+
+<div class="stats-subgroup">
+<h3>🎁 Capital Return</h3>
+<div class="stat-row">
+<span class="stat-row-label">Dividend Yield</span>
+<span class="stat-row-value">2.0%</span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">Deuda/EBITDA</span>
+<span class="stat-row-value green">0.9x</span>
+</div>
+<div class="stat-row">
+<span class="stat-row-label">FCF Yield</span>
+<span class="stat-row-value green">10.8%</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ZONA 3: GRÁFICOS -->
+<div class="charts-section">
+<h2>Performance & Composition</h2>
+<div class="charts-grid">
+<div class="chart-wrap">
+<div class="chart-title">Revenue, NI & Op Margin Trend</div>
+<canvas id="chart1"></canvas>
+</div>
+<div class="chart-wrap">
+<div class="chart-title">FY2025 Revenue by Segment</div>
+<canvas id="chart2"></canvas>
+</div>
+<div class="chart-wrap">
+<div class="chart-title">Feroldi Score Distribution</div>
+<canvas id="chart3"></canvas>
+</div>
+</div>
+</div>
+
+<!-- ZONA 4: FEROLDI 16 PUNTOS + VEREDICTO -->
+<div class="feroldi-section">
+<h2>Feroldi 16-Point Analysis (107.8/160)</h2>
+
+<div class="feroldi-grid">
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_1')" style="border-left:3px solid #ff8c00;">
+<div class="feroldi-title">1. Industry</div>
+<div class="feroldi-score">6.5</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_2')" style="border-left:3px solid #ff8c00;">
+<div class="feroldi-title">2. Business Model</div>
+<div class="feroldi-score">7.8</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_3')" style="border-left:3px solid #ff3a3a;">
+<div class="feroldi-title">3. Historical Growth</div>
+<div class="feroldi-score">5.2</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_4')" style="border-left:3px solid #ff3a3a;">
+<div class="feroldi-title">4. Value Creation</div>
+<div class="feroldi-score">4.8</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_5')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">5. Moat</div>
+<div class="feroldi-score">6.1</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_6')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">6. Capital Intensity</div>
+<div class="feroldi-score">6.8</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_7')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">7. Profitability</div>
+<div class="feroldi-score">6.9</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_8')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">8. Balance Sheet</div>
+<div class="feroldi-score">7.1</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_9')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">9. Capital Return</div>
+<div class="feroldi-score">5.6</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_10')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">10. Management</div>
+<div class="feroldi-score">6.3</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_11')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">11. Cap Allocation</div>
+<div class="feroldi-score">6.5</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_12')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">12. Stock Comp</div>
+<div class="feroldi-score">6.7</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_13')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">13. Outlook</div>
+<div class="feroldi-score">6.8</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_14')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">14. Optionality</div>
+<div class="feroldi-score">6.4</div>
+<div class="feroldi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_15')" style="border-left:3px solid #ff3a3a;">
+<div class="feroldi-title">15. Risks</div>
+<div class="feroldi-score">5.1</div>
+<div class="felordi-label">/10</div>
+</div>
+<div class="feroldi-row" onclick="showPopup('feroldiDetail_16')" style="border-left:3px solid #ffa500;">
+<div class="feroldi-title">16. Valuation</div>
+<div class="feroldi-score">6.2</div>
+<div class="feroldi-label">/10</div>
+</div>
+</div>
+
+<!-- Feroldi Summary -->
+<div class="feroldi-summary">
+<div class="summary-card">
+<div class="summary-label">Main Weakness</div>
+<div class="summary-value red">Growth</div>
+<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">Revenue flat 3Y</div>
+</div>
+<div class="summary-card">
+<div class="summary-label">Main Strength</div>
+<div class="summary-value green">FCF</div>
+<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">€1.5B @ 72%</div>
+</div>
+<div class="summary-card">
+<div class="summary-label">Critical Risk</div>
+<div class="summary-value red">Infinera</div>
+<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">Integration binary</div>
+</div>
+<div class="summary-card">
+<div class="summary-label">Valuation</div>
+<div class="summary-value gold">Fair to Premium</div>
+<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">EV/EBITDA 23x</div>
+</div>
+</div>
+
+<!-- Escenarios -->
+<div style="margin-top:2rem;">
+<div style="font-size:1rem;margin-bottom:1rem;color:var(--text);font-weight:700;">Price Scenarios (vs $13.80)</div>
+<div class="scenarios">
+<div class="scenario scenario-bear">
+<div class="scenario-title">🔴 Bear Case</div>
+<div class="scenario-price">$9.20</div>
+<div class="scenario-delta red">-33%</div>
+<div class="scenario-logic">Infinera failure + AI cliff 2027 + deuda/EBITDA 3.5x</div>
+</div>
+<div class="scenario scenario-base">
+<div class="scenario-title">🟡 Base Case</div>
+<div class="scenario-price">$17.31</div>
+<div class="scenario-delta gold">+25%</div>
+<div class="scenario-logic">Guidance hit, Optical +10%, ROIC 7%+, FCF €1.8B</div>
+</div>
+<div class="scenario scenario-bull">
+<div class="scenario-title">🟢 Bull Case</div>
+<div class="scenario-price">$23.50</div>
+<div class="scenario-delta green">+70%</div>
+<div class="scenario-logic">Infinera synergies, AI-RAN ramps, Nokia Tech spun-off</div>
+</div>
+</div>
+</div>
+
+<!-- Veredicto -->
+<div class="verdict">
+<div class="verdict-badge">🟡 ACCUMULATE ON DIPS</div>
+<div class="verdict-text">
+Infrastructure compounder oculto resurgiendo en epicentro AI capex. FCF €1.5B actual será €1.8-2.0B en 2026-27 si Infinera integración sale bien. EV/EBITDA 23x es cara vs peers, pero Optical subsegment merece premium. R/R: -24% SL vs +81% Bull.
+</div>
+</div>
+
+</div>
+
+<!-- Nota Light -->
+<div class="note-light">
+⚠️ <strong>Versión Light</strong> — Para análisis completo con SOTP, spider chart, tabla competidores y proyecciones DCF, ejecutar <strong>HEAVY</strong>
+</div>
+
+<div class="footer">
+@patonet · Análisis Feroldi X0.4 · Nokia NOK @ $13.80 · FY2025 · 01.05.2026<br>
+No constituye asesoría de inversión. Verificación triple (SEC 10-K · StockAnalysis · Macrotrends)
+</div>
+
+</div>
+
+<!-- Popups (hidden) -->
+<div id="execPopup" class="popup">
+<span class="popup-close" onclick="closePopup('execPopup')">✕</span>
+<h3>Bloque A: Resumen Ejecutivo</h3>
+<p>"Empresa de infraestructura de telecomunicaciones que se reinventa como proveedor de redes nativas en IA, canalizando inversión masiva en adquisición estratégica (Infinera) hacia el epicentro del boom de datacenters."</p>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA = {
+  ticker: 'NOK',
+  price: 13.80,
+  date: '01.05.2026',
+  feroldi: 107.8,
+  feroldiMax: 160,
+  pct: 67.4
+};
+
+function showPopup(id) {
+  const popup = document.getElementById(id);
+  if(popup) {
+    popup.classList.add('show');
+    const rect = event.target.getBoundingClientRect();
+    popup.style.top = (rect.top + window.scrollY - popup.offsetHeight - 10) + 'px';
+    popup.style.left = (rect.left + window.scrollX) + 'px';
+  }
+}
+function closePopup(id) {
+  const popup = document.getElementById(id);
+  if(popup) popup.classList.remove('show');
+}
+
+// CHART 1: Revenue, NI, Margin Trend
+const ctx1 = document.getElementById('chart1').getContext('2d');
+new Chart(ctx1, {
+  type: 'bar',
+  data: {
+    labels: ['2021', '2022', '2023', '2024', '2025'],
+    datasets: [
+      { label: 'Revenue (€B)', data: [19.0, 20.8, 20.8, 19.3, 19.9], yAxisID: 'y', backgroundColor: 'rgba(0,212,255,0.4)', borderColor: '#00d4ff', borderWidth: 1.5, order: 2 },
+      { label: 'NI (€B)', data: [1.2, 1.3, 0.85, 1.38, 0.74], yAxisID: 'y', backgroundColor: 'rgba(0,255,157,0.3)', borderColor: '#00ff9d', borderWidth: 1.5, order: 2 },
+      { label: 'Op Margin %', data: [8.5, 9.7, 9.4, 10.6, 10.0], yAxisID: 'y2', type: 'line', borderColor: '#ff8c00', borderWidth: 2.5, fill: false, pointRadius: 4, tension: 0.3, order: 1 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '€ Billions', color: '#94a3b8', font: { size: 11 } }, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(0,212,255,0.05)' } },
+      y2: { type: 'linear', display: true, position: 'right', title: { display: true, text: '% Margin', color: '#94a3b8', font: { size: 11 } }, ticks: { color: '#94a3b8' }, grid: { drawOnChartArea: false } },
+      x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(0,212,255,0.05)' } }
+    }
+  }
+});
+
+// CHART 2: Revenue by Segment (Doughnut)
+const ctx2 = document.getElementById('chart2').getContext('2d');
+new Chart(ctx2, {
+  type: 'doughnut',
+  data: {
+    labels: ['Network Infra', 'Mobile Infra', 'Portfolio Bus.'],
+    datasets: [{
+      data: [7.6, 11.4, 0.8],
+      backgroundColor: ['#00d4ff', '#ff8c00', '#ff3a3a'],
+      borderColor: '#050a12',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': €' + ctx.parsed.y + 'B'; } } }
+    }
+  }
+});
+
+// CHART 3: Feroldi Score Gauge
+const ctx3 = document.getElementById('chart3').getContext('2d');
+new Chart(ctx3, {
+  type: 'bar',
+  data: {
+    labels: ['Growth', 'Value Creation', 'Moat', 'Profitability', 'Risk', 'Valuation'],
+    datasets: [{
+      label: 'Score / 10',
+      data: [5.2, 4.8, 6.1, 6.9, 5.1, 6.2],
+      backgroundColor: ['#ff3a3a', '#ff3a3a', '#ff8c00', '#ff8c00', '#ff3a3a', '#ff8c00'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { max: 10, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(0,212,255,0.05)' } },
+      y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(0,212,255,0.05)' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
