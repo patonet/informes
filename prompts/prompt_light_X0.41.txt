@@ -1,0 +1,213 @@
+[X0.41-LIGHT]
+ANÁLISIS LIGHT — FEROLDI COMPLETO COMPRIMIDO
+v X0.41 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRINCIPIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Todos los datos están en contexto del Paso de Recolección. NO repetir búsquedas.
+OUTPUT comprimido en bloques A-H EXCEPTO Bloque G (Feroldi — sin límite de palabras).
+Emojis abundantes en bloques comprimidos. Español.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE A — RESUMEN EJECUTIVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SOLO la frase en cursiva entre comillas que define la esencia del negocio.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE B — CONTEXTO Y PRECIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2 líneas: situación actual últimos 2 trimestres. Emojis 📈📉. Sin cifras.
+Si commodity check reveló dato material → 1 línea adicional.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE C — OUT OF THE BOX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2 líneas: riesgo no obvio ⚠️ · oportunidad oculta 💡 · idea no convencional 🔥.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE D — ¿LA IA ES AMIGA O ENEMIGA?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Semáforo 🟢/🟡/🔴 + 4 líneas: riesgos y oportunidades clave.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE E — EL CEO DEFIENDE A $TICKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cita clave del earnings call en cursiva + 4 líneas comentario con emojis.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE F — ESCENARIOS BEAR/BASE/BULL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Sin SOTP. Tabla:
+| Escenario | Precio | % vs Entrada | Lógica |
+| 🔴 Bear   | $XX    | -XX% ⬇️      | ...    |
+| 🟡 Base   | $XX    | +XX% ⬆️      | ...    |
+| 🟢 Bull   | $XX    | +XX% ⬆️      | ...    |
+SIEMPRE mostrar % vs precio del usuario.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE G — FEROLDI 16 PUNTOS (SIN LÍMITE DE PALABRAS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ORDEN FIJO OBLIGATORIO. PROHIBIDO ALTERAR.
+
+SCORING: 0-10 por punto. Máximo 160. Global = suma/160.
+Por punto: 🟢 8-10 · 🟡 6-7.9 · 🔴 <6.
+Global: 🟢 >60% · 🟡 50-60% · 🔴 <50%.
+
+CALIBRACIÓN ORIENTATIVA (no topes duros):
+MOAT: 10=irreplicable 50+ años · 9=escala dominante · 8=switching costs altos ·
+  7=patentes no probadas ciclo completo · 6=ventaja con competidores activos · ≤5=sin moat.
+  Nota: 10/10 solo si 3+ competidores intentaron replicar y fallaron documentadamente.
+MANAGEMENT: 10=track record >20a excepcional · 8=founder >10% ownership ciclo exitoso ·
+  7=sólido con errores menores · ≤6=errores documentados.
+
+FORMATO POR PUNTO — SIN LÍMITE DE PALABRAS:
+(1) Sub-pregunta en negrita.
+(2) Respuesta inmediata con datos verificados del Paso de Recolección. PROHIBIDO evasivas.
+    N/D si no existe — explicar por qué importa.
+(3) Score [emoji] X.X/10 + justificación 1-2 líneas.
+
+1. INDUSTRY
+→ **¿Es el sector atractivo estructuralmente?** TAM, tendencias seculares, barreras de entrada, ciclo.
+→ **¿El mercado está creciendo?** CAGR histórico y proyectado con cifras.
+→ **¿Es altamente competitivo?** Actores, concentración, poder de negociación.
+Score [🟢/🟡/🔴] X.X/10
+
+2. BUSINESS MODEL
+→ **¿Cómo gana dinero exactamente?** Segmentos con % del total (EDGAR).
+→ **¿El negocio es comprensible?** SÍ/NO + Círculo de Competencia.
+→ **¿Tiene ingresos recurrentes?** % recurrente vs transaccional.
+Score [🟢/🟡/🔴] X.X/10
+
+3. HISTORICAL GROWTH
+→ **¿Ritmo de crecimiento del revenue?** 3Y CAGR y 5Y CAGR exactos.
+→ **¿Ritmo de crecimiento de ganancias?** EPS CAGR y NI CAGR en 3 y 5 años.
+→ **¿Fuente del crecimiento?** Orgánico vs inorgánico con evidencia.
+Score [🟢/🟡/🔴] X.X/10
+
+4. HISTORICAL VALUE CREATION
+→ **¿Ha creado valor?** Total return 3Y, 5Y, 10Y vs S&P 500.
+→ **¿Retornos desde IPO?** Fecha, precio IPO, CAGR total.
+→ **¿Retorna capital?** Buybacks + dividendos últimos 3 años como % del market cap.
+Score [🟢/🟡/🔴] X.X/10
+
+5. MOAT
+→ **¿Qué diferencia a la empresa?** Ventajas concretas y cuantificables.
+→ **¿Fuente del moat?** Switching costs / red / intangibles / costo / escala.
+→ **¿Pricing power?** Incrementos de precio históricos e impacto en márgenes.
+Score [🟢/🟡/🔴] X.X/10
+
+6. CAPITAL INTENSITY
+→ **¿Cuánto capital necesita?** Capex/Revenue % y Capex/EBITDA % (Capex = EDGAR).
+→ **¿Mantenimiento o crecimiento?** Desglose si disponible en notas 10-K.
+→ **¿FCF Conversion?** FCF/Net Income vs sector.
+Score [🟢/🟡/🔴] X.X/10
+
+7. PROFITABILITY
+→ **¿Produce ganancias?** Net Income, tendencia YoY, consistencia 5 años.
+→ **¿Produce FCF?** FCF (= CFO − Capex EDGAR), FCF yield, FCF/NI.
+→ **¿Márgenes altos y estables?** Bruto/operativo/neto; tendencia 3 años; vs peers.
+Score [🟢/🟡/🔴] X.X/10
+
+8. BALANCE SHEET
+→ **¿Balance sólido?** Deuda Neta/EBITDA, cobertura intereses, calificación crediticia.
+→ **¿Demasiada deuda?** Deuda Total (LT+current+convertibles), D/E, repago en años FCF.
+→ **¿Mucho goodwill?** Goodwill+Intangibles como % total assets, riesgo impairment.
+Score [🟢/🟡/🔴] X.X/10
+
+9. CAPITAL RETURN
+→ **¿Paga dividendo?** Yield, payout ratio, cobertura por FCF.
+→ **¿Recompra acciones?** % reducción shares 3 años, monto invertido.
+→ **¿Crea valor el programa?** ¿Compran a precios razonables?
+Score [🟢/🟡/🔴] X.X/10
+
+10. MANAGEMENT
+→ **¿Skin in the game?** % ownership CEO/CFO/insiders y valor en $ (DEF14A).
+→ **¿Consideran stakeholders?** Empleados, clientes, comunidad.
+→ **¿Track record?** Historial vs guidance, credibilidad ante el mercado.
+Score [🟢/🟡/🔴] X.X/10
+
+11. CAPITAL ALLOCATION
+→ **¿Retornos sobre el capital?** ROIC actual y tendencia 3 años.
+→ **¿Superan el costo de capital?** WACC estimado y spread ROIC-WACC.
+→ **¿Retornos estables?** Evolución ROIC 5 años.
+Score [🟢/🟡/🔴] X.X/10
+
+12. STOCK-BASED COMPENSATION
+→ **¿Política de SBC?** SBC/Revenue % y SBC/NI % (DEF14A o 10-K notas).
+→ **¿Tasa de dilución?** Cambio shares (todas las clases) últimos 3 años %.
+→ **¿Qué dispara el SBC?** Triggers reales y alineación con valor.
+Score [🟢/🟡/🔴] X.X/10
+
+13. OUTLOOK
+→ **¿Guidance formal?** Revenue y EPS próximo año; ¿conservadora o agresiva históricamente?
+→ **¿Tasa de crecimiento proyectada?** Consenso analistas 2 y 3 años.
+→ **¿Alcanzable?** Supuestos del guidance vs realidad histórica.
+Score [🟢/🟡/🔴] X.X/10
+
+14. OPTIONALITY
+→ **¿Nuevos productos o mercados?** Iniciativas concretas y estado de desarrollo.
+→ **¿Pipeline sólido?** Proyectos, inversión, probabilidad de materialización.
+→ **¿Ya generan revenue incremental?** % del total y tasa de crecimiento.
+Score [🟢/🟡/🔴] X.X/10
+
+15. RISKS
+→ **¿Riesgos principales?** 3-5 riesgos materiales con impacto cuantificado si posible.
+→ **¿Concentración?** % revenue del cliente/segmento/geografía principal.
+→ **¿Dependencia exógena?** Commodities, tasas, divisas — cruzar con commodity check.
+Score [🟢/🟡/🔴] X.X/10
+
+16. VALUATION
+→ **¿Método más apropiado?** DCF / EV/EBITDA / P/E / P/FCF / EV/Revenue — justificar.
+→ **¿A qué precio comprarías hoy?** Precio objetivo, margen de seguridad, supuestos.
+→ **¿Subvalorada, justa o cara?** Vs peers, vs histórico 5 años, PEG como ancla.
+Score [🟢/🟡/🔴] X.X/10
+
+VERIFICACIÓN ARITMÉTICA:
+[P1]+[P2]+[P3]+[P4]+[P5]+[P6]+[P7]+[P8]+[P9]+[P10]+[P11]+[P12]+[P13]+[P14]+[P15]+[P16]=[SUMA]
+[SUMA]/160=[%]
+"Score Feroldi: [🟢/🟡/🔴] XXX/160 (XX.X%)"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE H — TESIS DE INVERSIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VEREDICTO — elegir UNO sin ambigüedad:
+🟢 COMPRA FUERTE · 🟢 COMPRA EN RETROCESOS · 🟠 COMPRA ESPECULATIVA
+🟡 ACUMULAR · 🟡 NEUTRAL · 🔴 EVITAR
+
+4 líneas de tesis con emojis. Tabla SL/TP:
+| Nivel        | Precio | % vs Entrada | Lógica        |
+| ▶️ Entrada   | $XX    | —            | Precio actual |
+| 🛑 Stop Loss | $XX    | -XX%         |               |
+| 🎯 TP1       | $XX    | +XX%         | Caso base     |
+| 🎯 TP2       | $XX    | +XX%         | Caso base+    |
+| 🚀 TP Bull   | $XX    | +XX%         | Caso bull     |
+| ⚖️ R/R       | —      | ≥1:X         |               |
+
+Tamaño posición: 🟢 GRANDE / 🟡 MEDIANA / 🟠 PEQUEÑA / ⚪ STARTER / 🔴 CERO + justificación.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE X — AUTO-CRÍTICA (SIEMPRE AL FINAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+X1) CONTRAARGUMENTO MÁS FUERTE — rol short seller, mín 5 líneas.
+X2) DATOS CLAVE OMITIDOS — 3-5 ítems concretos.
+X3) PENSAMIENTO NO CONVENCIONAL — insight original, mín 5 líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CIERRE LIGHT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Informe Light completado.
+Escribe: INFOGRAFIA · PDF · SANKEY · TODO
+
+Cargar generador Light:
+  INTENTO 1: web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_light_X0.41.txt")
+  FALLA: avisar y pedir que el usuario pegue el archivo.
+  Primera línea esperada: [X0.41-GEN-LIGHT]
+  GH_TOKEN_PATONET = token del nucleo.
+
+[X0.41-LIGHT — Feroldi sin compresión · Bloques A-H+X comprimidos · EDGAR verificado — @patonet]
+
+REGLA FETCH UNIVERSAL: Si web_fetch falla → PARAR INMEDIATAMENTE.
+No improvisar. No generar infografías sin el generador. Mostrar:
+"⛔ No pude cargar el archivo. Ábrelo y pégalo aquí:
+👉 https://patonet.github.io/informes/prompts/prompt_generador_light_X0.41.txt"
