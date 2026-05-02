@@ -1,0 +1,237 @@
+[X0.41-GEN-HEAVY]
+GENERADOR HEAVY — Infografía 6 Zonas · PDF Completo · Sankey
+v X0.41 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMANDOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SANKEY     → cargar prompt_generador_sankey_X0.41.txt y ejecutar.
+PDF        → generar PDF completo bloques A-I+X.
+INFOGRAFIA → generar infografía HTML 6 zonas completa.
+TODO       → ejecutar SANKEY + PDF + INFOGRAFIA en ese orden.
+
+Token: GH_TOKEN_PATONET. Subir todo a GitHub. Actualizar REPORTS en index.html.
+
+NOMBRES:
+- Infografía Heavy: infografia_[TICKER]_[PRECIO]_[DD-MM-AAAA].html      → equities/
+- PDF Completo:     InformePDF_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf       → pdfs/equities/
+- Sankey:           Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → diagramas/equities/
+
+CARGA SANKEY:
+  web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_sankey_X0.41.txt")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISEÑO BASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PALETA: fondo #050a12 · texto #c8d8f0 · cian #00d4ff · verde #00ff9d · dorado #ffd700 · rojo #ff3a3a · amarillo #ffbb00.
+SHORT: cian → #ff1744.
+ROOT: html { font-size: clamp(10px, 1.15vw, 17px); } Solo rem/em/%/fr.
+Scanlines body::after obligatorio. const DATA={...} al inicio del script.
+Librería: Chart.js 4.4.0 cdnjs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFOGRAFÍA HEAVY — 6 ZONAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ZONA 1 — CABECERA
+Grid 2 cols [logo+identidad | precio+scores+semáforos].
+
+LOGO (copiar exactamente):
+<img id="triggerLogo" src="https://logo.clearbit.com/[DOMINIO].com"
+  onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=[DOMINIO].com&sz=128';
+  this.onerror=function(){this.style.display='none';document.getElementById('logoFallback').style.display='flex';};"
+  style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem;">
+<div id="logoFallback" style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;
+  border-radius:0.4rem;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer;">[INICIALES]</div>
+
+POPUP EJECUTIVO:
+<div id="execPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#0a1628;border:2px solid #00d4ff;border-radius:0.8rem;padding:1.5rem;
+  max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:0.95rem;
+  color:#c8d8f0;box-shadow:0 0 40px rgba(0,212,255,0.3);">
+  <h3 style="color:#00d4ff;margin-bottom:0.8rem;">Resumen Ejecutivo</h3>
+  <div id="execPopupText"></div>
+</div>
+JS popup ejecutivo (al final del body):
+(function(){
+  var EXEC='[BLOQUE A COMPLETO]';
+  var popup=document.getElementById('execPopup');
+  var tx=document.getElementById('execPopupText');
+  var timer=null;
+  function show(){if(timer){clearTimeout(timer);timer=null;} tx.textContent=EXEC; popup.style.display='block';}
+  function hide(){timer=setTimeout(function(){popup.style.display='none';},300);}
+  function cancel(){if(timer){clearTimeout(timer);timer=null;}}
+  ['triggerLogo','triggerNombre','triggerFrase'].forEach(function(id){
+    var el=document.getElementById(id); if(!el)return;
+    el.style.cursor='pointer';
+    el.addEventListener('mouseenter',show); el.addEventListener('mouseleave',hide);
+  });
+  popup.addEventListener('mouseenter',cancel); popup.addEventListener('mouseleave',hide);
+  document.addEventListener('click',function(e){if(!popup.contains(e.target))popup.style.display='none';});
+})();
+
+Frase: id="triggerFrase" cursiva #00d4ff fondo #0d1f35 border-left 3px #00d4ff cursor:pointer.
+Precio: 2.2rem bold + delta semafórico.
+
+Barra 52W: track #1a2a4a h=0.45rem fill gradiente #ff3a3a→#ffd700→#00ff9d width=[PCT]%
+  marker cian #00d4ff en [PCT]% · labels: min #ff3a3a / max #00ff9d.
+
+Perf Bar (10 periodos 1D·5D·1M·3M·6M·YTD·1Y·5Y·10Y·IPO):
+  const PERF_DATA embebido. Fondo #080f1c sep 1px #1a2a4a.
+  Etiqueta 0.7rem #94a3b8 · valor 0.9rem bold monoespaciado · >1000%→X.XXK%.
+  Verde #00c853 positivo · rojo #e53935 negativo · gris #555 null.
+
+Veredicto (5 opciones): COMPRAR #00c853 · RETROCESOS #1565C0 · ACUMULAR #00838f · NEUTRAL #5d4037 · NO COMPRAR #e53935.
+Tarjetas Feroldi: %+score/160+gauge circular.
+
+GAUGE CIRCULAR (viewBox="0 0 120 70" width="7rem"):
+Arco fondo M 10 60 A 50 50 stroke:#1a2a4a sw=12.
+Arco color stroke=url(#gaugeG) sw=10. Gradiente #e53935→#ffd700→#00c853.
+Aguja: angle=(pct/100)*180; nx=60+45*cos((180-angle)*π/180); ny=60-45*sin((180-angle)*π/180).
+Line stroke=#ffd700 sw=2.5. Circle cx=60 cy=60 r=3 fill=#ffd700. Texto fill=#ffd700 Courier New.
+
+SEMÁFORO IA (viewBox="0 0 80 200" width="3.5rem" id=triggerIA):
+Carcasa rect 4,4 w72 h192 rx12 #1a1a1a stroke #555 sw=2 + rect 8,8 w64 h184 rx10 #111 stroke #333.
+4 tornillos r=3 #333. Separadores y=70 y=127 #222.
+3 luces cy=42/100/158 r=22:
+  BAJO (verde ON): rojo=#2d0a0a refl=0.05 · naranja=#3d2800 refl=0.05 · verde=#00c853 glow refl=0.35
+  MEDIO(naranja ON): rojo=#2d0a0a refl=0.05 · naranja=#ff8c00 glow refl=0.35 · verde=#003d1a refl=0.05
+  ALTO (rojo ON): rojo=#e53935 glow refl=0.35 · naranja=#3d2800 refl=0.05 · verde=#003d1a refl=0.05
+Glow: filter="drop-shadow(0 0 10px [color])". Reflejo: ellipse cx=33 cy=[cy-8] rx=7 ry=5 fill=white.
+.ia-row { display:flex; align-items:center; gap:0.5rem; }
+.ia-text { font-size:0.88rem; font-weight:bold; color:[color_activo]; }
+Subtexto: 0.75rem #94a3b8 → "Riesgo Bajo/Medio/Alto".
+Popup IA: mismo JS que execPopup, borde del color activo, texto Bloque D.
+
+Mini-semáforos B0 (4× viewBox="0 0 80 200" width="1.2rem"):
+Misma estructura SVG. Apagadas tenues. Activa con glow.
+Etiqueta: B0.1/B0.2/B0.3/Veredicto 0.65rem #94a3b8.
+Título: Competencia/Simplicidad/Predictibilidad/General 0.7rem bold color luz activa.
+Resultado: VERDE/AMARILLO/ROJO 0.7rem bold.
+Popup hover: fondo #0a1628 borde 1px solid color luz border-radius 0.5rem max-width 20rem z-index 9999.
+
+ZONA 2 — KEY STATS
+Grid 4 subgrupos: VALORACIÓN · RENTABILIDAD · CRECIMIENTO · DIVIDENDO/RIESGO.
+Fondo #080f1c border-radius 0.4rem header 0.75rem uppercase #94a3b8.
+Cards: valor 1.3rem monoespaciado + triángulo semafórico.
+grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)). PEG siempre.
+
+ZONA 3 — GRÁFICOS (Chart.js)
+.zona3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; }
+.chart-wrap { position:relative; width:100%; aspect-ratio:4/3; }
+.chart-wrap canvas { position:absolute; inset:0; width:100%!important; height:100%!important; }
+
+Col1 mixto bar+line: Revenue barras #1a3a6e (yVal) · NI barras #00d4ff (yVal) · Margen% línea #ff8c00 (yMg).
+  Límites dinámicos: yValMin=min<0?min*1.15:0; yValMax=max*1.15.
+  responsive:true maintainAspectRatio:false. legend:{display:false}.
+  yMg: position:left color:#ff8c00 callback:v=>v.toFixed(1)+'%' grid:#1a2a4a.
+  yVal: position:right no grid en área. formatMillions: >=1000→(v/1000).toFixed(1)+'B'.
+  Legend custom HTML: cuadro #1a3a6e=Revenue · cuadro #00d4ff=NI · línea naranja h3px=Margen%.
+
+Col2 waterfall Q reciente: Revenue→COGS→GP→OpExp→OpIncome→NonOp→Taxes→NI.
+  Colores por naturaleza. Valor exacto sobre cada barra.
+
+Col3 dona: composición ingresos por segmento/geografía. Leyenda debajo fuera del chart-wrap.
+
+ZONA 4 — ANALISTAS Y PRECIO HISTÓRICO
+Line chart 1 año precio (cian). Price targets como datasets adicionales (NO plugin-annotation):
+  { type:'line', data:Array(len).fill(valor), borderDash:[8,4], pointRadius:0, fill:false }
+  Verde si target>precio, rojo si target<precio.
+Plugin afterDraw para labels (guard: if(!scales.y)return).
+Resumen: target consenso · % diferencia · mini-barras calificaciones Buy/Hold/Sell.
+Lista analistas: banco · calificación · PT.
+
+ZONA 5 — PERFIL FEROLDI
+VERTICAL: Spider arriba (ancho completo), Scorecard debajo.
+
+Spider Chart.js radar:
+  labels: ['📈 Crecimiento\n(X.X)','💰 Rentabilidad\n(X.X)','🏦 Solidez\n(X.X)','🏰 Estrategia\n(X.X)','💎 Retorno\n(X.X)']
+  Grupos: Crecimiento(3,13,14)·Rentabilidad(7,11)·Solidez(6,8,12)·Estrategia(1,2,5,10)·Retorno(4,9,16).
+  datasets: [{ label:'[TICKER]', data:[avg1..5], backgroundColor:'rgba(0,212,255,0.15)',
+    borderColor:'#00d4ff', borderWidth:2.5, pointBackgroundColor:'#00d4ff', pointRadius:5 }]
+  options: responsive:true, maintainAspectRatio:true,
+    scales:{ r:{ min:0, max:10, ticks:{stepSize:2,color:'#94a3b8',backdropColor:'transparent'},
+    grid:{color:'#1a2a4a'}, angleLines:{color:'#1a3a6e'}, pointLabels:{color:'#00d4ff',font:{size:12,weight:'bold'}}}}
+  Contenedor: max-width:40rem; margin:0 auto.
+
+Scorecard 5 cajas grid-template-columns:repeat(auto-fit,minmax(14rem,1fr)):
+  .feroldi-row data-tooltip="[ANÁLISIS COMPLETO BLOQUE G]" cursor:pointer.
+  Gauge individual viewBox="0 0 200 130" width="100%" max-width:12rem:
+    Gradiente 5 stops id ÚNICO gaugeGrad_[N]: #e53935·#ff8c00·#ffd700·#76c442·#00c853.
+    Arco fondo M 20 105 A 80 80 stroke:#1a2a4a sw=22.
+    Arco color stroke=url(#gaugeGrad_[N]) sw=20.
+    Aguja: angle=180-(score/10)*180; nx=100+65*cos(rad); ny=105-65*sin(rad).
+    score=0→(20,105) · score=5→(100,40) · score=10→(180,105). NUNCA repetir ids.
+  Score bajo gauge: 1.2rem bold #ffd700 monospace.
+
+Popup Feroldi (div único + JS único al final del body):
+<div id="feroldiPopup" style="display:none;position:fixed;background:#0d1f35;
+  border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;
+  font-size:0.9rem;color:#c8d8f0;z-index:9999;pointer-events:none;
+  box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;"></div>
+JS: document.querySelectorAll('.feroldi-row').forEach(function(row){
+  row.addEventListener('mouseenter',function(e){
+    var fp=document.getElementById('feroldiPopup');
+    fp.textContent=row.getAttribute('data-tooltip')||'';
+    fp.style.display='block';
+    fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+    fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mousemove',function(e){
+    var fp=document.getElementById('feroldiPopup');
+    fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+    fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mouseleave',function(){document.getElementById('feroldiPopup').style.display='none';});
+});
+Pie: "Score Feroldi: [XXX/160 · XX.X%]" 1rem bold dorado.
+
+ZONA 6 — RIESGOS · ANALISTAS · COMPETIDORES · VEREDICTO
+
+A) Tabla Riesgos: riesgo·descripción·ALTO(#ff3a3a)/MEDIO(#ffbb00)/BAJO(#00ff9d).
+   Tabla Catalizadores 24m: catalizador·fecha·impacto.
+
+B) Gauge consenso analistas viewBox="0 0 400 240" max-width:22rem centrado:
+   Arco M 40 180 A 160 160 gradiente 5 stops #e53935→#ff8c00→#ffd700→#76c442→#00c853 grosor=30.
+   Etiquetas: Venta fuerte·Venta·Neutral·Compra·Compra fuerte 0.85rem #94a3b8.
+   Aguja: angle=180-(score/10)*180. Blanca sw=4. Pivot r=6.
+
+C) Tabla competidores — 5 peers + $TICKER (primera fila #0d1f35 negrita):
+   Logo Clearbit 1.2rem · Nombre+ticker · Market Cap · P/E · PEG · Revenue FY · Op Margin%.
+   Rango 52W SVG: viewBox="0 0 100 8" width="100%"
+     <rect x="0" y="2" width="100" height="4" rx="2" fill="#1a2a4a"/>
+     <circle cx="[PCT]" cy="4" r="3.5" fill="#00d4ff"/>
+   PCT=Math.round((precio-min)/(max-min)*100) clamped 2-98.
+   Popup hover por fila: comparativa vs $TICKER. Fondo #0d1f35 borde cian max-width:32rem.
+
+D) Badge veredicto (colores Zona 1) + tesis 3 líneas + "@patonet" 1rem dorado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PDF COMPLETO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Portada gradient #0d1428→#1a3a6e height:100vh flex flex-direction:column:
+(1) Logo Clearbit 50px + nombre 14pt bold blanco.
+(2) Título "Informe Profesional $TICKER · Método Feroldi" 20pt bold.
+(3) Precio 28pt + barra 52W SVG + badge veredicto + Score Feroldi + PEG.
+(4) Performance 10 periodos 9pt mono. Verde positivo, rojo negativo.
+(5) B0: 4 círculos color + etiqueta 9pt.
+(6) Fecha + "@patonet · Informe confidencial" 9pt gris.
+
+Páginas: header franja #00838f 8px + logo 30px + ticker monospace 9pt teal.
+Footer: línea teal 1px + "@patonet · No asesoramiento" gris 8pt + nº pág.
+Bloques A-I + X. Tabla Feroldi semafórica (≥7 verde · 4-6 amarillo · <4 rojo).
+OOB naranja · IA cian · CEO cursiva · SOTP coloreado · Debate púrpura · B0 verde.
+page-break-inside:avoid. Sin resumir. Sin páginas en blanco.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GITHUB Y REPORTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET.
+PUT cada archivo. GET index.html → actualizar/agregar entry en const REPORTS → PUT.
+Campos: { ticker, name, desc, type:"equity", verdict, price, upside, target, date,
+  url, pdfUrl, urlLight, pdfLightUrl, sankeyUrl }
+Veredictos inglés: buy·pullback·speculative·accumulate·neutral·nobuy·short.
+Links finales clicables https://patonet.github.io/informes/...
+
+[X0.41-GEN-HEAVY — 6 zonas exactas · PDF A-I+X · SANKEY via archivo separado · @patonet]
