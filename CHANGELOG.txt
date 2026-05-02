@@ -1,0 +1,156 @@
+SISTEMA FEROLDI — CHANGELOG DE VERSIONES
+@patonet | Repositorio: patonet/informes
+=========================================
+
+VERSIÓN X0.41 — 02 May 2026
+Correcciones críticas y cambios de arquitectura
+------------------------------------------------
+CORREGIDO:
+  - URLs de fetch en prompt_light apuntaban a "prompt_generador_infografia_X0.41.txt" (inexistente)
+  - URLs de fetch en prompt_heavy apuntaban a nombre incorrecto
+  - Primera línea de los generadores no coincidía con la esperada en los prompts de análisis
+  - bash curl eliminado como fallback (no disponible en todos los entornos, ej: Comet/Perplexity)
+
+NUEVO:
+  - Regla universal PARAR: si fetch falla → detener y mostrar link directo al usuario para copiar/pegar
+  - Link directo clicable en cada instrucción de fetch (abre nueva ventana del navegador)
+  - Headers de verificación de versión en cada fetch (primera línea esperada)
+  - EDGAR XBRL API integrada en nucleo como fuente primaria de datos financieros
+    → Endpoint: https://data.sec.gov/api/xbrl/companyfacts/CIK[10 dígitos].json
+    → Queries específicas por concepto contable (no lectura del 10-K completo)
+    → Tags clave: Revenues, NetIncomeLoss, NetCashProvidedByUsedInOperatingActivities,
+      PaymentsToAcquirePropertyPlantAndEquipment, LongTermDebt, ShareBasedCompensation
+  - Nota de autorización del operador en nucleo (elimina preguntas de verificación del token)
+  - GitHub se mantiene solo como respaldo — no como fuente primaria de descarga de prompts
+
+SUPRIMIDO:
+  - Instrucción "bash curl" como fallback de fetch (no universal)
+  - Generación autónoma cuando fetch falla (causaba alucinaciones de informes)
+  - GitHub como fuente de descarga en tiempo real de prompts
+
+ARCHIVOS (6):
+  prompt_nucleo_X0.41.txt
+  prompt_light_X0.41.txt
+  prompt_heavy_X0.41.txt
+  prompt_generador_sankey_X0.41.txt
+  prompt_generador_light_X0.41.txt
+  prompt_generador_heavy_X0.41.txt
+
+=========================================
+VERSIÓN X0.4 — 01 May 2026
+Arquitectura de 6 archivos + dashboard actualizado
+---------------------------------------------------
+NUEVO:
+  - 6to archivo: prompt_generador_sankey separado (liviano, solo para SANKEY directo)
+  - EDGAR XBRL API probada exitosamente en $OWL (Blue Owl Capital)
+  - Token GitHub en nucleo con instrucción de sustitución del placeholder GH_TOKEN_PATONET
+  - Dashboard index.html actualizado: botones Heavy/Light/Sankey por separado
+  - Campos nuevos en REPORTS: urlLight, pdfLightUrl, sankeyUrl
+  - Backup index_v1_backup.html guardado antes de actualizar
+  - TradingView Scanner API: columnas correctas price_52_week_high/low verificadas
+  - Nota de autorización del operador (parcial)
+  - Competidores: fuente específica StockAnalysis + TradingView API
+
+CORREGIDO:
+  - Token GitHub bloqueado por GitHub secret scanning → placeholder GH_TOKEN_PATONET en repo
+  - Columnas TradingView incorrectas (52WeekHigh no existe → price_52_week_high)
+  - Nucleo anterior pedía datos del Heavy (earnings call, SOTP) → separados correctamente
+  - Heavy sin recolección propia → añadidos pasos H1/H2/H3
+
+ARCHIVOS (6):
+  prompt_nucleo_X0.4.txt
+  prompt_light_X0.4.txt
+  prompt_heavy_X0.4.txt
+  prompt_generador_sankey_X0.4.txt
+  prompt_generador_light_X0.4.txt
+  prompt_generador_heavy_X0.4.txt
+
+=========================================
+VERSIÓN X0.3 — 30 Apr 2026
+Rediseño completo de arquitectura
+----------------------------------
+NUEVO:
+  - Arquitectura de 5 archivos separados (nucleo/light/heavy/gen-light/gen-heavy)
+  - Comando SANKEY reemplaza INGRESOS (resuelve ambigüedad semántica)
+  - Recolección de datos separada del análisis en nucleo
+  - Cuadro de cierre único como output del nucleo
+  - TradingView Scanner API para 52W range y performance
+  - Competidores via StockAnalysis.com con campos específicos
+  - Reglas EDGAR: FCF estandarizado (CFO − Capex exacto del Cash Flow Statement)
+  - Market Cap con todas las clases de acciones
+  - Deuda Total incluyendo convertibles
+  - Verificación consistencia P/E Forward × EPS ≈ Precio (±10%)
+  - Commodity check condicional (>10% de costos)
+  - Eventos recientes: verificación últimos 15 días
+  - Generadores con specs exactas extraídas de GE infografía y UHS Sankey
+
+CORREGIDO:
+  - Sankey generaba árbol de KPIs y diagrama "ComoGanaDinero" → eliminados definitivamente
+  - Infografía dependía de fetch de CRDO (URL 404) → reemplazada por UHS como referencia
+  - HTML embebido de 85KB en generador → revertido a especificaciones de diseño
+  - Mezcla de instrucciones Heavy en el Light → separados correctamente
+  - MA50/MA200 eliminadas de Key Stats (no son análisis fundamental)
+
+SUPRIMIDO:
+  - Diagrama ComoGanaDinero
+  - Diagrama árbol KPIs
+  - Tabla de auditoría en Sankey (redundante)
+  - Injertos Buffett del Feroldi (Owner Earnings, Institutional Imperative, ROTC)
+
+=========================================
+VERSIÓN X0.2 — 29 Apr 2026
+Mejoras de rigor de datos
+--------------------------
+NUEVO:
+  - Jerarquía de fuentes TIER 1-4 (EDGAR primaria, no negociable)
+  - Definiciones estandarizadas: FCF, Market Cap, Deuda Total
+  - Commodity check (>10% costos)
+  - Frescura de datos: "2026" en todas las queries
+  - Temporalidad: fecha del filing por métrica
+  - Consistencia P/E Forward
+  - Deuda incremental (últimos 60 días)
+  - Verificación aritmética obligatoria del score Feroldi (suma P1..P16)
+  - Calibraciones orientativas Moat y Management
+  - Eventos recientes: últimos 15 días
+
+SUPRIMIDO:
+  - Hard constraints de scoring (demasiado rígidos, distorsionaban el análisis)
+
+=========================================
+VERSIÓN X0.1 — 28 Apr 2026
+Primera arquitectura modular
+-----------------------------
+NUEVO:
+  - Separación nucleo/light/heavy/generador
+  - Bloque G Feroldi con preguntas explícitas por punto + respuesta obligatoria
+  - Bloque X auto-crítica (X1 contraargumento, X2 omitidos, X3 no convencional)
+  - Score Feroldi: umbrales revisados (>60% verde, 50-60% naranja, <50% rojo)
+  - Key Stats tabla completa coloreada (para auditoría por otras IAs)
+  - PEG Ratio obligatorio
+  - MA50/MA200 eliminadas
+  - 6 opciones de veredicto (añadida COMPRA ESPECULATIVA)
+
+=========================================
+VERSIONES HISTÓRICAS (antes de arquitectura modular)
+-----------------------------------------------------
+v8.0 — Última versión monolítica funcional. Infografías GE, MELI, UHS generadas correctamente.
+       Generador v8 era el que funcionaba bien con Sankey y infografías.
+v6.0 — Primer Sankey oscuro estilo GE. Comando INGRESOS. Verificación triple.
+v5.0 — Barra de performance TradingView. Mini-semáforos B0. Sankey con referencia GE.
+v3.0 — Primer Sankey propio sin referencia externa. 5 columnas. Verificación triple.
+v1.0 — Primera versión con código SVG exacto del semáforo, gauge y popups.
+       Base de las infografías que funcionaron bien.
+
+=========================================
+NOTAS DE ARQUITECTURA
+---------------------
+- GitHub Pages sirve los prompts en https://patonet.github.io/informes/prompts/
+- El fetch desde algunos entornos (Comet/Perplexity sandbox) falla aleatoriamente
+- Token GitHub: no embeber en archivos del repo (GitHub secret scanning lo bloquea)
+  El token va SOLO en el nucleo que el usuario pega manualmente
+- TradingView Scanner API: columnas correctas son price_52_week_high / price_52_week_low
+  El endpoint requiere Origin: https://www.tradingview.com en headers
+- EDGAR XBRL API: CIK debe tener 10 dígitos con ceros a la izquierda
+  Endpoint: https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json
+  User-Agent obligatorio: patonet@example.com
+=========================================
