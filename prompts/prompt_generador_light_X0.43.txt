@@ -1,0 +1,270 @@
+[X0.43-GEN-LIGHT]
+▓▓▓▓▓▓▓▓▓▓
+SECCIÓN D — GENERADOR LIGHT
+Infografía 4 Zonas + Spider · PDF Lite · Sankey
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+
+Comandos: INFOGRAFIA · PDF · SANKEY · TODO
+Datos: Sección A + B. No re-buscar. Token: GH_TOKEN_PATONET.
+
+NOMBRES:
+  infografia_light_[TICKER]_[PRECIO]_[DD-MM-AAAA].html → equities/
+  InformePDF_lite_[TICKER]_[PRECIO]_[DD-MM-AAAA].pdf   → pdfs/equities/
+  Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html  → diagramas/equities/
+
+SANKEY → ejecutar SECCIÓN F.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DISEÑO BASE (aplica a toda la infografía)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Paleta: fondo #050a12 · texto #c8d8f0 · cian #00d4ff · verde #00ff9d · dorado #ffd700 · rojo #ff3a3a.
+Tipografía: 'Segoe UI',system-ui + 'Courier New',monospace para datos.
+html { font-size: clamp(10px, 1.15vw, 17px); } SOLO rem/em/%/fr. PROHIBIDO px en layout.
+body::after scanlines: repeating-linear-gradient(0deg,transparent 2px,rgba(0,0,0,0.04) 4px) fixed z-index:999.
+const DATA={...} al inicio del script con TODOS los datos. Chart.js 4.4.0 cdnjs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZONA 1 — CABECERA (grid 2 cols: izq=identidad | der=precio+scores)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOGO — código exacto:
+<img id="triggerLogo" src="https://logo.clearbit.com/[DOMINIO].com"
+  onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=[DOMINIO].com&sz=128';
+  this.onerror=function(){this.style.display='none';document.getElementById('logoFallback').style.display='flex';};"
+  style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:0.3rem;" alt="[TICKER]">
+<div id="logoFallback" style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;
+  border-radius:0.4rem;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:bold;color:#00d4ff;cursor:pointer;">[INICIALES]</div>
+
+POPUP EJECUTIVO (#execPopup) — activa con hover sobre logo, nombre y frase:
+<div id="execPopup" style="display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);background:#0a1628;border:2px solid #00d4ff;
+  border-radius:0.8rem;padding:1.5rem;max-width:36rem;max-height:80vh;
+  overflow-y:auto;z-index:10000;font-size:0.95rem;color:#c8d8f0;
+  box-shadow:0 0 40px rgba(0,212,255,0.3);">
+  <h3 style="color:#00d4ff;margin-bottom:0.8rem;">[NOMBRE EMPRESA]</h3>
+  <div id="execPopupText"></div>
+</div>
+JS (al final del body):
+(function(){
+  const EXEC='[BLOQUE A COMPLETO EN ESPAÑOL]';
+  const popup=document.getElementById('execPopup');
+  const tx=document.getElementById('execPopupText');
+  let timer=null;
+  function show(){if(timer){clearTimeout(timer);timer=null;}tx.textContent=EXEC;popup.style.display='block';}
+  function hide(){timer=setTimeout(function(){popup.style.display='none';},300);}
+  function cancel(){if(timer){clearTimeout(timer);timer=null;}}
+  ['triggerLogo','triggerNombre','triggerFrase'].forEach(function(id){
+    const el=document.getElementById(id);if(!el)return;
+    el.style.cursor='pointer';
+    el.addEventListener('mouseenter',show);el.addEventListener('mouseleave',hide);
+  });
+  popup.addEventListener('mouseenter',cancel);popup.addEventListener('mouseleave',hide);
+  document.addEventListener('click',function(e){if(!popup.contains(e.target))popup.style.display='none';});
+})();
+
+FRASE: id="triggerFrase" cursiva color:#00d4ff fondo:#0d1f35 border-left:3px solid #00d4ff.
+PRECIO: font-size:2.2rem bold + delta semafórico verde/rojo.
+
+BARRA 52W:
+Track: height:0.45rem background:#1a2a4a border-radius:0.25rem position:relative.
+Fill: background:linear-gradient(90deg,#ff3a3a,#ffd700,#00ff9d) width:[PCT]%.
+Marker: position:absolute width:0.15rem height:0.85rem top:-0.2rem background:#00d4ff left:[PCT]%.
+PCT=Math.round((precio-min52)/(max52-min52)*100) clamped 2-98.
+Labels: min #ff3a3a · max #00ff9d · "● Precio al [PCT]% del rango" #00d4ff.
+
+PERF BAR (8 periodos: 5D·1M·3M·6M·YTD·1Y·5Y·IPO):
+const PERF_DATA embebido desde TradingView. CSS:
+.perf-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:0.15rem;background:#080f1c;
+  border-radius:0.4rem;padding:0.6rem 0.4rem;border:1px solid #0d1f35}
+.perf-cell{display:flex;flex-direction:column;align-items:center;gap:0.15rem;
+  padding:0.25rem 0.1rem;border-right:1px solid #1a2a4a}
+.perf-cell:last-child{border-right:none}
+.perf-lbl{font-size:0.72rem;color:#94a3b8;text-align:center}
+.perf-val{font-size:0.88rem;font-weight:bold;font-family:'Courier New',monospace}
+.pos{color:#00c853} .neg{color:#e53935} .na{color:#555}
+Valores >1000% → X.XXK%.
+
+SCORE FEROLDI (tarjeta):
+% EN GRANDE: font-size:2.5rem bold color:#ffd700 font-family:Courier New (ej: 81.3%)
+Score en pequeño debajo: font-size:0.85rem color:#94a3b8 (ej: 130/160)
++ Gauge circular SVG viewBox="0 0 120 70" width="7rem":
+  Arco fondo: M 10 60 A 50 50 0 0 1 110 60 stroke:#1a2a4a sw=12.
+  Arco color: mismo stroke=url(#gaugeG) sw=10.
+  Gradiente #gaugeG: #e53935→#ffd700→#00c853.
+  Aguja: angle=(pct/100)*180; nx=60+45*cos((180-angle)*PI/180); ny=60-45*sin((180-angle)*PI/180).
+  <line x1="60" y1="60" x2="[nx]" y2="[ny]" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="60" cy="60" r="3" fill="#ffd700"/>
+
+VEREDICTO badge (color según tipo):
+COMPRAR #00c853 · RETROCESOS #1565C0 · ACUMULAR #00838f · NEUTRAL #5d4037 · NO COMPRAR #e53935.
+
+SEMÁFORO IA — esquina superior derecha de Zona 1:
+viewBox="0 0 80 200" width="3.5rem" id="triggerIA" cursor:pointer
+Carcasa: rect 4,4 w72 h192 rx12 fill:#1a1a1a stroke:#555 sw=2
+         rect 8,8 w64 h184 rx10 fill:#111 stroke:#333 sw=1
+Tornillos: 4× circle r=3 fill:#333 stroke:#555 en (16,16)(64,16)(16,184)(64,184)
+Separadores: rect x=8 y=70 w=64 h=3 fill:#222 · rect x=8 y=127 w=64 h=3 fill:#222
+3 luces cy=42/100/158 r=22:
+  NIVEL BAJO (verde ON):   rojo=#2d0a0a refl=0.05 · naranja=#3d2800 refl=0.05 · verde=#00c853 glow refl=0.35
+  NIVEL MEDIO(naranja ON): rojo=#2d0a0a refl=0.05 · naranja=#ff8c00 glow refl=0.35 · verde=#003d1a refl=0.05
+  NIVEL ALTO (rojo ON):    rojo=#e53935 glow refl=0.35 · naranja=#3d2800 refl=0.05 · verde=#003d1a refl=0.05
+Glow: filter="drop-shadow(0 0 10px [color])".
+Reflejo: <ellipse cx="33" cy="[cy-8]" rx="7" ry="5" fill="white" opacity="[refl]"/>
+Label .ia-row: flex align-items:center gap:0.5rem
+  .ia-text: 0.88rem bold color=[color activo] → "IA: VERDE/NARANJA/ROJO"
+  Subtexto: 0.75rem #94a3b8 → "Riesgo Bajo/Medio/Alto"
+Popup #iaPopup: hover sobre triggerIA → 3-4 líneas justificación del nivel IA del Bloque D.
+  Borde color del nivel activo. Mismo estilo que execPopup.
+
+MINI-SEMÁFOROS B0 (4× viewBox="0 0 80 200" width="1.2rem"):
+Misma estructura SVG. Etiqueta 0.65rem #94a3b8 + título 0.7rem bold + resultado.
+  "B0.1" Competencia · "B0.2" Simplicidad · "B0.3" Predictibilidad · "Veredicto" General.
+Popup hover: 2-3 líneas justificación. Fondo #0a1628 borde 1px color activo max-width:20rem z-index:9999.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZONA 2 — KEY STATISTICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4 subgrupos con emoji+nombre en header 0.75rem uppercase #94a3b8. Fondo #080f1c border-radius 0.4rem.
+Cards: valor 1.3rem Courier New + etiqueta 0.8rem + dot semafórico (verde/amarillo/rojo).
+
+VALORACIÓN 🏦:        P/E TTM · PEG Ratio · EPS TTM · Market Cap
+RENTABILIDAD 💰:      Margen Bruto · Margen EBITDA · Margen Neto · ROIC · ROA
+CRECIMIENTO 📈:       Revenue YoY · Net Income YoY · EPS Proj [AÑO+1] · (Backlog si aplica)
+BALANCE & RIESGO ⚖️:  Dividend Yield · Beta · D/E Ratio · EV/EBITDA · FCF FY[AÑO] · Current Ratio
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZONA 3 — RENDIMIENTO FINANCIERO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.zona3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem}
+.chart-wrap{position:relative;width:100%;aspect-ratio:4/3}
+.chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+COL 1 — "Ingresos & Rentabilidad — Q1-Q4 FY[AÑO]" (chart MIXTO):
+Labels: 4 trimestres del FY más reciente.
+Límites dinámicos: yValMin=min<0?min*1.15:0; yValMax=max*1.15.
+datasets: [
+  {type:'bar', label:'Revenue', data:revenue, backgroundColor:'#1a3a6e', yAxisID:'yVal', borderRadius:3},
+  {type:'bar', label:'Net Income', data:netIncome, backgroundColor:'#00d4ff', yAxisID:'yVal', borderRadius:3},
+  {type:'line', label:'Margen Neto %', data:margin, borderColor:'#ff8c00', yAxisID:'yMg',
+   backgroundColor:'transparent', pointRadius:4, pointBackgroundColor:'#ff8c00', borderWidth:2, tension:0.3}
+]
+options: responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}
+scales: {
+  yMg: {type:'linear', position:'left', ticks:{color:'#ff8c00', callback:v=>v.toFixed(1)+'%'}, grid:{color:'#1a2a4a'}},
+  yVal: {type:'linear', position:'right', min:yValMin, max:yValMax,
+         ticks:{color:'#c8d8f0', callback:v=>formatMillions(v)}, grid:{drawOnChartArea:false}}
+}
+Legend CUSTOM HTML (NO nativa Chart.js):
+  cuadro #1a3a6e=Revenue · cuadro #00d4ff=Net Income · línea naranja h:3px w:1rem=Margen Neto %.
+formatMillions: v>=1000→(v/1000).toFixed(1)+'B' sino v.toFixed(0)+'M'.
+
+COL 2 — "Conversión Ingresos → Utilidad — Q[N] FY[AÑO]" (WATERFALL flotante):
+Revenue→COGS→Gross Profit→Op Expenses→Op Income→No Operativo→Impuestos→Net Income.
+Colores por naturaleza:
+  Revenue:#1a3a6e · COGS:#ff3a3a · Gross Profit:#00ff9d · Op Expenses:#ff3a3a
+  Op Income:#00d4ff · No Operativo:#ffbb00 · Impuestos:#ff6b6b · Net Income:#ffd700(pos)/#ff3a3a(neg)
+Valor exacto encima de cada barra. Leyenda con color real por entry.
+
+COL 3 — "Composición de Ingresos FY[AÑO]" (DONA):
+Por segmento o geografía según 10-K. Colores distintos por porción.
+Leyenda debajo del canvas FUERA del chart-wrap.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ZONA 4 — PERFIL FEROLDI (LIGHT: 4 zonas = esta es la última)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LAYOUT VERTICAL: Spider arriba (ancho completo) · Scorecard 5 columnas debajo.
+
+SPIDER Chart.js radar:
+labels: ['📈 Crecimiento\n([avg])', '💰 Rentabilidad\n([avg])', '🏦 Solidez\n([avg])',
+         '🏰 Estrategia\n([avg])', '💎 Retorno\n([avg])']
+Grupos: Crecimiento(3,13,14)·Rentabilidad(7,11)·Solidez(6,8,12)·Estrategia(1,2,5,10)·Retorno(4,9,16)
+avg = promedio de los scores del grupo, 1 decimal.
+datasets:[{label:'[TICKER]', data:[avg1..5],
+  backgroundColor:'rgba(0,212,255,0.15)', borderColor:'#00d4ff', borderWidth:2.5,
+  pointBackgroundColor:'#00d4ff', pointRadius:5, pointHoverRadius:7}]
+options:{responsive:true, maintainAspectRatio:true,
+  scales:{r:{min:0,max:10,
+    ticks:{stepSize:2,color:'#94a3b8',backdropColor:'transparent',font:{size:10}},
+    grid:{color:'#1a2a4a'}, angleLines:{color:'#1a3a6e'},
+    pointLabels:{color:'#00d4ff',font:{size:12,weight:'bold'}}}}}
+Contenedor: max-width:40rem margin:0 auto.
+
+SCORECARD — 5 columnas, una por grupo (display:grid grid-template-columns:repeat(5,1fr)):
+HEADER por columna: emoji + nombre grupo (font-size:0.92rem bold color:#00d4ff)
+  + promedio del grupo (font-size:1.5rem bold color:#ffd700 Courier New)
+  + línea separadora cian.
+
+Por cada punto dentro de la columna:
+  Nombre: "[N]. [Nombre del Punto]" font-size:0.83rem color:#c8d8f0
+  GAUGE SVG viewBox="0 0 200 130" width="100%" style="max-width:10rem;display:block;margin:0 auto"
+    <defs><linearGradient id="gaugeGrad_[N]" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e53935"/>
+      <stop offset="25%" stop-color="#ff8c00"/>
+      <stop offset="50%" stop-color="#ffd700"/>
+      <stop offset="75%" stop-color="#76c442"/>
+      <stop offset="100%" stop-color="#00c853"/>
+    </linearGradient></defs>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/>
+    <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#gaugeGrad_[N])" stroke-width="20" stroke-linecap="butt"/>
+    <!-- Aguja: angle=180-(score/10)*180; rad=angle*PI/180; nx=100+65*cos(rad); ny=105-65*sin(rad) -->
+    <line x1="100" y1="105" x2="[nx]" y2="[ny]" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="105" r="4" fill="#ffd700"/>
+  Score: font-size:1.2rem bold color:#ffd700 Courier New text-align:center (ej: 8.5)
+  CRÍTICO: id gaugeGrad_[N] ÚNICO por punto (gaugeGrad_1...gaugeGrad_16). NUNCA repetir.
+  Verificar posiciones: score=0→aguja(20,105) · score=5→aguja(100,40) · score=10→aguja(180,105).
+
+POPUP por punto (class="feroldi-row" data-tooltip="[RESUMEN 3-4 LÍNEAS del análisis del Bloque G]"):
+<div id="feroldiPopup" style="display:none;position:fixed;background:#0d1f35;
+  border:1px solid #00d4ff;border-radius:0.5rem;padding:1rem;max-width:22rem;
+  font-size:0.9rem;color:#c8d8f0;z-index:9999;pointer-events:none;
+  box-shadow:0 0 20px rgba(0,212,255,0.2);line-height:1.5;"></div>
+JS Feroldi popup:
+document.querySelectorAll('.feroldi-row').forEach(function(row){
+  row.addEventListener('mouseenter',function(e){
+    var fp=document.getElementById('feroldiPopup');
+    fp.textContent=row.getAttribute('data-tooltip')||'';
+    fp.style.display='block';
+    fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+    fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mousemove',function(e){
+    var fp=document.getElementById('feroldiPopup');
+    fp.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';
+    fp.style.top=Math.min(e.clientY+10,window.innerHeight-220)+'px';
+  });
+  row.addEventListener('mouseleave',function(){document.getElementById('feroldiPopup').style.display='none';});
+});
+data-tooltip = resumen 3-4 líneas del por qué de la calificación (extracto del Bloque G).
+PROHIBIDO usar el análisis completo — solo el argumento central de la calificación.
+
+Score global al pie: % EN GRANDE font-size:2rem bold #ffd700 Courier New
+  + score pequeño debajo: font-size:0.9rem #94a3b8 (ej: 130/160)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PDF LITE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Portada gradiente #0d1428→#1a3a6e height:100vh:
+(1) Logo Clearbit 50px + nombre empresa 14pt bold blanco
+(2) Título "Informe Feroldi Light · $[TICKER] · [PRECIO]" 20pt bold
+(3) Precio + 52W range + badge veredicto + Score % grande + PEG
+(4) Perf bar 8 periodos 9pt mono
+(5) B0: 4 círculos color + etiqueta 9pt
+(6) Fecha + @patonet gris
+
+Páginas: header franja #00838f 8px + $TICKER teal mono 9pt.
+Footer: @patonet + No constituye asesoramiento + nº página.
+Bloques A-H + X completos. Sin Bloque I. Sin SOTP.
+page-break-inside:avoid. Sin resumir.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GITHUB — LIGHT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET. Repo: patonet/informes.
+GET SHA → PUT archivo → GET index.html → INICIO const REPORTS → PUT.
+Campos: {ticker,name,desc,type:"equity",verdict(inglés),price,upside,target,date,
+  url,pdfUrl,urlLight,pdfLightUrl,sankeyUrl}
+Veredictos inglés: buy·pullback·speculative·accumulate·neutral·nobuy·short.
+
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+
+[X0.43-GEN-LIGHT — Spider+velocímetros · Key Stats exactas · PDF Lite — @patonet]
