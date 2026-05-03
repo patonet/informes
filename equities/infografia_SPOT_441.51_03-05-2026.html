@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$SPOT · Heavy Analysis · @patonet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b0f;
+  --bg2: #0d1117;
+  --bg3: #111820;
+  --border: #1e2d3d;
+  --border2: #243446;
+  --green: #00ff9d;
+  --green2: #00cc7a;
+  --green-dim: rgba(0,255,157,0.08);
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,0.07);
+  --gold: #ffd700;
+  --gold-dim: rgba(255,215,0,0.08);
+  --red: #ff3a5c;
+  --red-dim: rgba(255,58,92,0.08);
+  --orange: #ff8c42;
+  --purple: #b388ff;
+  --text: #c9d8ea;
+  --text-dim: #5a7a96;
+  --text-mid: #8ba3bc;
+  --mono: 'Share Tech Mono', monospace;
+  --display: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+html { font-size: clamp(9px, 1vw, 14px); }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* GRID BACKGROUND */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* SCANLINES */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none;
+  z-index: 999;
+}
+
+.page-wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+/* ═══ HEADER ═══ */
+.header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.2rem 1.8rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--green);
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  animation: scanH 4s linear infinite;
+}
+@keyframes scanH {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.h-ticker {
+  font-family: var(--display);
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(0,255,157,0.4);
+}
+.h-ticker span { color: var(--text-dim); font-size: 1.8rem; font-weight: 400; }
+
+.h-center { text-align: center; }
+.h-name { font-family: var(--display); font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: 0.05em; text-transform: uppercase; }
+.h-sub { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; }
+.h-sub em { color: var(--gold); font-style: normal; }
+
+.h-right { text-align: right; }
+.h-price { font-family: var(--mono); font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.h-meta { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); margin-top: 0.3rem; }
+.h-meta .brand { color: var(--gold); }
+
+/* VERDICT BADGE */
+.verdict-strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.8rem;
+  background: linear-gradient(90deg, rgba(0,255,157,0.12), rgba(0,255,157,0.04), transparent);
+  border: 1px solid rgba(0,255,157,0.2);
+  border-left: 4px solid var(--green);
+  margin-bottom: 1rem;
+  font-family: var(--display);
+}
+.verdict-label { font-size: 1.6rem; font-weight: 900; color: var(--green); letter-spacing: 0.1em; }
+.verdict-sub { font-size: 0.85rem; color: var(--text-mid); }
+.verdict-score { margin-left: auto; font-family: var(--mono); font-size: 0.85rem; }
+.verdict-score strong { color: var(--gold); font-size: 1.1rem; }
+.verdict-targets { display: flex; gap: 1.5rem; }
+.vt-item { display: flex; flex-direction: column; align-items: center; }
+.vt-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+.vt-val { font-family: var(--mono); font-size: 0.9rem; color: var(--text); }
+.vt-val.green { color: var(--green); }
+.vt-val.red { color: var(--red); }
+.vt-val.gold { color: var(--gold); }
+
+/* ═══ KPI ROW ═══ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.8rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent, var(--cyan));
+  opacity: 0.5;
+}
+.kpi-card:hover { border-color: var(--accent, var(--cyan)); }
+.kpi-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.kpi-val { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; color: var(--accent, var(--cyan)); margin-top: 0.15rem; line-height: 1.1; }
+.kpi-note { font-size: 0.6rem; color: var(--text-dim); margin-top: 0.1rem; }
+
+/* ═══ SECTION HEADER ═══ */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.sec-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border2), transparent);
+}
+.sec-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+.sec-label em { color: var(--cyan); font-style: normal; }
+
+/* ═══ MAIN GRID ═══ */
+.grid-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* ═══ PERFORMANCE BAR ═══ */
+.perf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0.8rem;
+}
+.perf-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.perf-period { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); }
+.perf-bar-wrap { width: 100%; height: 3rem; display: flex; align-items: flex-end; justify-content: center; }
+.perf-bar {
+  width: 60%;
+  border-radius: 1px 1px 0 0;
+  min-height: 2px;
+  transition: height 0.5s ease;
+}
+.perf-bar.pos { background: linear-gradient(180deg, var(--green), var(--green2)); box-shadow: 0 -4px 12px rgba(0,255,157,0.3); }
+.perf-bar.neg { background: linear-gradient(0deg, var(--red), #cc2040); box-shadow: 0 -4px 12px rgba(255,58,92,0.3); }
+.perf-val { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; }
+.perf-val.pos { color: var(--green); }
+.perf-val.neg { color: var(--red); }
+
+/* ═══ 52W RANGE ═══ */
+.range-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.range-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+.range-bar-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--red), #ffaa00, var(--green));
+  border-radius: 3px;
+  position: relative;
+  margin: 0.4rem 0;
+}
+.range-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan);
+}
+.range-ends { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.65rem; }
+.range-ends .low { color: var(--red); }
+.range-ends .cur { color: var(--cyan); font-weight: 700; }
+.range-ends .hi { color: var(--green); }
+
+/* ═══ B0 SEMAPHORES ═══ */
+.b0-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+.b0-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 0.6rem;
+  text-align: center;
+  position: relative;
+}
+.b0-light {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  margin: 0 auto 0.3rem;
+}
+.b0-light.green { background: var(--green); box-shadow: 0 0 10px var(--green); }
+.b0-light.yellow { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.b0-light.red { background: var(--red); box-shadow: 0 0 10px var(--red); }
+.b0-name { font-family: var(--mono); font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; }
+.b0-result { font-family: var(--display); font-size: 0.85rem; font-weight: 700; margin-top: 0.1rem; }
+
+/* ═══ IA SEMAPHORE ═══ */
+.ia-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  padding: 0.8rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.ia-light-col { display: flex; flex-direction: column; gap: 0.25rem; align-items: center; }
+.ia-circle {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.ia-circle.active-yellow { background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+.ia-circle.dim { background: #1a1a1a; }
+.ia-text { flex: 1; font-size: 0.75rem; color: var(--text-mid); line-height: 1.5; }
+.ia-text strong { color: var(--gold); font-family: var(--display); font-size: 0.9rem; }
+
+/* ═══ CEO QUOTE ═══ */
+.ceo-quote {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.ceo-quote blockquote {
+  font-style: italic;
+  color: var(--cyan);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  quotes: "\201C" "\201D";
+}
+.ceo-quote blockquote::before { content: open-quote; font-size: 1.5rem; line-height: 0; vertical-align: -0.4rem; color: var(--border2); }
+.ceo-attr { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); margin-top: 0.4rem; }
+
+/* ═══ CORRECTION BADGE ═══ */
+.correction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.3);
+  color: var(--gold);
+}
+.correction-badge.up { background: rgba(0,255,157,0.08); border-color: rgba(0,255,157,0.3); color: var(--green); }
+.correction-badge.down { background: rgba(255,58,92,0.08); border-color: rgba(255,58,92,0.3); color: var(--red); }
+
+/* ═══ KEY STATS TABLE ═══ */
+.stats-grid {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+}
+.stats-group-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.4rem 0.8rem;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row:hover { background: rgba(0,212,255,0.03); }
+.stat-name { font-size: 0.7rem; color: var(--text-mid); flex: 1; }
+.stat-val { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; text-align: right; }
+.stat-val.green { color: var(--green); }
+.stat-val.gold { color: var(--gold); }
+.stat-val.red { color: var(--red); }
+.stat-val.cyan { color: var(--cyan); }
+.stat-val.default { color: var(--text); }
+
+/* ═══ WATERFALL CHART ═══ */
+.waterfall-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0.8rem;
+}
+.wf-bars { display: flex; align-items: flex-end; gap: 0.3rem; height: 8rem; margin-bottom: 0.4rem; }
+.wf-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.wf-bar { width: 100%; border-radius: 1px 1px 0 0; min-height: 3px; transition: opacity 0.2s; }
+.wf-bar:hover { opacity: 0.8; }
+.wf-bar.revenue { background: linear-gradient(180deg, #1e90ff, #0050cc); }
+.wf-bar.cogs { background: linear-gradient(180deg, #ff3a5c, #aa1030); }
+.wf-bar.gross { background: linear-gradient(180deg, #00ff9d, #00aa66); }
+.wf-bar.opex { background: linear-gradient(180deg, #ff8c42, #cc5500); }
+.wf-bar.opincome { background: linear-gradient(180deg, #00e5ff, #0099bb); }
+.wf-bar.ni { background: linear-gradient(180deg, #00ff9d, #00cc77); box-shadow: 0 -6px 20px rgba(0,255,157,0.4); }
+.wf-bar.fcf { background: repeating-linear-gradient(45deg, #00ff9d, #00ff9d 4px, #00aa66 4px, #00aa66 8px); }
+.wf-label { font-family: var(--mono); font-size: 0.55rem; color: var(--text-dim); text-align: center; white-space: nowrap; }
+.wf-val { font-family: var(--mono); font-size: 0.6rem; color: var(--text); text-align: center; }
+
+/* ═══ SCENARIOS ═══ */
+.scenarios {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 0.7rem;
+}
+.sc-card { padding: 0.6rem; border: 1px solid; border-radius: 2px; }
+.sc-card.bear { border-color: rgba(255,58,92,0.3); background: var(--red-dim); }
+.sc-card.base { border-color: rgba(255,215,0,0.3); background: var(--gold-dim); }
+.sc-card.bull { border-color: rgba(0,255,157,0.3); background: var(--green-dim); }
+.sc-label { font-family: var(--display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.sc-card.bear .sc-label { color: var(--red); }
+.sc-card.base .sc-label { color: var(--gold); }
+.sc-card.bull .sc-label { color: var(--green); }
+.sc-pt { font-family: var(--mono); font-size: 1.4rem; font-weight: 700; margin: 0.2rem 0; }
+.sc-card.bear .sc-pt { color: var(--red); }
+.sc-card.base .sc-pt { color: var(--gold); }
+.sc-card.bull .sc-pt { color: var(--green); }
+.sc-pct { font-family: var(--mono); font-size: 0.68rem; }
+.sc-desc { font-size: 0.65rem; color: var(--text-mid); margin-top: 0.3rem; line-height: 1.4; }
+
+/* ═══ ZONE 4: FEROLDI ═══ */
+.feroldi-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.feroldi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.feroldi-title { font-family: var(--display); font-size: 1rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em; }
+.feroldi-score { font-family: var(--mono); font-size: 0.8rem; }
+.feroldi-score strong { color: var(--green); font-size: 1.1rem; }
+.feroldi-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+.f-card {
+  padding: 0.6rem 0.7rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.f-card:hover { background: rgba(0,212,255,0.04); }
+.f-card:nth-child(4n) { border-right: none; }
+.f-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
+.f-num { font-family: var(--mono); font-size: 0.58rem; color: var(--text-dim); }
+.f-emoji { font-size: 0.75rem; }
+.f-name { font-family: var(--display); font-size: 0.78rem; font-weight: 600; color: var(--text); }
+.f-score-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+.f-score-num { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; }
+.f-score-num.green { color: var(--green); }
+.f-score-num.yellow { color: var(--gold); }
+.f-score-num.red { color: var(--red); }
+.f-bar-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.f-bar-fill { height: 100%; border-radius: 2px; }
+.f-bar-fill.green { background: var(--green); }
+.f-bar-fill.yellow { background: var(--gold); }
+.f-bar-fill.red { background: var(--red); }
+.f-desc { font-size: 0.6rem; color: var(--text-dim); line-height: 1.4; margin-top: 0.2rem; }
+
+/* Gauge arc */
+.f-gauge-svg { display: block; margin: 0.2rem auto 0; }
+
+/* ═══ ZONE 5: SPIDER ═══ */
+.zone5-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.spider-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.spider-title { font-family: var(--display); font-size: 0.85rem; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em; margin-bottom: 0.5rem; text-transform: uppercase; }
+
+/* ═══ ZONE 6: RISKS+ANALYSTS+COMPETITORS ═══ */
+.zone6-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* ANALYSTS */
+.analyst-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+.analyst-table th { font-family: var(--mono); font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
+.analyst-table td { padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border); }
+.analyst-table tr:hover td { background: var(--cyan-dim); }
+.at-firm { color: var(--text); font-weight: 500; }
+.at-rating { font-family: var(--mono); font-size: 0.62rem; }
+.at-rating.buy { color: var(--green); }
+.at-rating.hold { color: var(--gold); }
+.at-pt { font-family: var(--mono); color: var(--cyan); font-weight: 700; }
+.at-chg.neg { color: var(--red); font-family: var(--mono); font-size: 0.65rem; }
+.at-chg.pos { color: var(--green); font-family: var(--mono); font-size: 0.65rem; }
+
+/* 52W bar inline */
+.at-52w { width: 5rem; }
+.at-52w-track { height: 3px; background: var(--border2); border-radius: 2px; position: relative; }
+.at-52w-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--red), var(--gold), var(--green)); }
+.at-52w-dot { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 4px var(--cyan); }
+
+/* RISKS */
+.risk-list { list-style: none; }
+.risk-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.risk-item:last-child { border-bottom: none; }
+.risk-icon { font-size: 0.75rem; flex-shrink: 0; margin-top: 0.05rem; }
+.risk-text { font-size: 0.68rem; color: var(--text-mid); line-height: 1.4; }
+.risk-text strong { color: var(--text); }
+.risk-severity { font-family: var(--mono); font-size: 0.55rem; padding: 0.1rem 0.3rem; border-radius: 2px; flex-shrink: 0; }
+.risk-severity.high { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,58,92,0.2); }
+.risk-severity.med { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,215,0,0.2); }
+
+/* CORRECTION SECTION */
+.corrections-wrap {
+  background: rgba(255,215,0,0.04);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-left: 3px solid var(--gold);
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+}
+.corr-title { font-family: var(--mono); font-size: 0.65rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
+.corr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.corr-item { display: flex; flex-direction: column; gap: 0.2rem; }
+.corr-label { font-size: 0.62rem; color: var(--text-dim); }
+.corr-old { font-family: var(--mono); font-size: 0.68rem; color: var(--red); text-decoration: line-through; }
+.corr-new { font-family: var(--mono); font-size: 0.78rem; color: var(--green); font-weight: 700; }
+.corr-source { font-size: 0.55rem; color: var(--text-dim); }
+
+/* VERDICT FINAL */
+.verdict-final {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--green);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.vf-main { }
+.vf-badge { font-family: var(--display); font-size: 1.8rem; font-weight: 900; color: var(--green); letter-spacing: 0.05em; }
+.vf-tesis { font-size: 0.72rem; color: var(--text-mid); line-height: 1.5; margin-top: 0.4rem; font-style: italic; }
+.vf-targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
+.vf-t { display: flex; flex-direction: column; align-items: center; padding: 0.4rem; border: 1px solid var(--border); }
+.vf-t-label { font-family: var(--mono); font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; }
+.vf-t-val { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; }
+.vf-t-val.red { color: var(--red); }
+.vf-t-val.gold { color: var(--gold); }
+.vf-t-val.green { color: var(--green); }
+.vf-position { }
+.vf-pos-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.3rem; }
+.vf-size-bar { display: flex; gap: 0.2rem; margin-bottom: 0.4rem; }
+.vf-size-seg { height: 8px; flex: 1; border-radius: 1px; }
+.vf-size-seg.active { background: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+.vf-size-seg.inactive { background: var(--border2); }
+.vf-exit-list { list-style: none; }
+.vf-exit-item { font-size: 0.62rem; color: var(--text-dim); padding: 0.15rem 0; border-bottom: 1px solid var(--border); }
+.vf-exit-item strong { color: var(--text); font-family: var(--mono); }
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  padding: 0.8rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+}
+.footer span { color: var(--text-mid); }
+.footer em { color: var(--red); font-style: normal; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.fade-up { animation: fadeUp 0.5s ease forwards; }
+.pulse { animation: pulse 2s ease infinite; }
+
+/* TOOLTIP */
+#tooltip {
+  position: fixed;
+  background: var(--bg3);
+  border: 1px solid var(--cyan);
+  border-radius: 3px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.72rem;
+  color: var(--text);
+  max-width: 22rem;
+  pointer-events: none;
+  z-index: 9999;
+  display: none;
+  line-height: 1.5;
+  box-shadow: 0 0 20px rgba(0,212,255,0.15);
+}
+#tooltip strong { color: var(--cyan); display: block; margin-bottom: 0.2rem; font-family: var(--display); font-size: 0.85rem; }
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .grid-main { grid-template-columns: 1fr; }
+  .feroldi-grid { grid-template-columns: repeat(2, 1fr); }
+  .zone5-wrap { grid-template-columns: 1fr; }
+  .zone6-wrap { grid-template-columns: 1fr; }
+  .corr-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="tooltip"></div>
+<div class="page-wrap">
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 1 — CABECERA
+════════════════════════════════════════════════ -->
+<header class="header fade-up">
+  <div class="h-ticker">SPOT <span>NYSE</span></div>
+  <div class="h-center">
+    <div class="h-name">Spotify Technology S.A.</div>
+    <div class="h-sub">Streaming Audio · Freemium · <em>Heavy Analysis · 03-May-2026</em></div>
+    <div class="h-sub" style="margin-top:0.3rem">Fuentes: SEC EDGAR IFRS · 6-K Q1-Q4 2025 · Q1 2026 Transcript · Debate Feroldi 3-Analistas</div>
+  </div>
+  <div class="h-right">
+    <div class="h-price">$441.51</div>
+    <div class="h-meta"><span class="brand">@patonet · Feroldi X0.41</span></div>
+    <div class="h-meta">MktCap $90.9B · 205.6M shares</div>
+  </div>
+</header>
+
+<!-- VERDICT STRIP -->
+<div class="verdict-strip fade-up" style="animation-delay:0.1s">
+  <div>
+    <div class="verdict-label">🟢 COMPRA EN RETROCESOS</div>
+    <div class="verdict-sub">Score Feroldi: 122.7/160 (76.7%) · Revisado con debate tri-analista · R/R ≥ 1:3.1</div>
+  </div>
+  <div class="verdict-targets">
+    <div class="vt-item">
+      <div class="vt-label">Entry</div>
+      <div class="vt-val cyan">$420–445</div>
+    </div>
+    <div class="vt-item">
+      <div class="vt-label">Stop</div>
+      <div class="vt-val red">$355</div>
+    </div>
+    <div class="vt-item">
+      <div class="vt-label">T1 (12m)</div>
+      <div class="vt-val gold">$555</div>
+    </div>
+    <div class="vt-item">
+      <div class="vt-label">T2 (24m)</div>
+      <div class="vt-val green">$720</div>
+    </div>
+    <div class="vt-item">
+      <div class="vt-label">Tamaño</div>
+      <div class="vt-val gold">MEDIANA</div>
+    </div>
+  </div>
+  <div class="verdict-score">Feroldi <strong>122.7</strong>/160</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     KPI BAR
+════════════════════════════════════════════════ -->
+<div class="kpi-row fade-up" style="animation-delay:0.15s">
+  <div class="kpi-card" style="--accent:var(--green)">
+    <div class="kpi-label">Revenue FY25</div>
+    <div class="kpi-val">€17.19B</div>
+    <div class="kpi-note">+9.6% YoY · +13% FXN</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--green)">
+    <div class="kpi-label">Gross Margin</div>
+    <div class="kpi-val">32.0%</div>
+    <div class="kpi-note">+240bps YoY · Q1'26: 33%</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--cyan)">
+    <div class="kpi-label">Op Margin FY25</div>
+    <div class="kpi-val">12.8%</div>
+    <div class="kpi-note">Q1 2026: <strong style="color:var(--green)">15.8%</strong> ↑</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--green)">
+    <div class="kpi-label">Net Income</div>
+    <div class="kpi-val">€2.21B</div>
+    <div class="kpi-note">+94% YoY · Margin 12.9%</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--green)">
+    <div class="kpi-label">FCF FY25</div>
+    <div class="kpi-val">€2.87B</div>
+    <div class="kpi-note">16.7% margin · Q1'26: €824M</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--gold)">
+    <div class="kpi-label">Cash ✓CORR.</div>
+    <div class="kpi-val">€8.8B</div>
+    <div class="kpi-note">Q1'26 end · €9.47B FY25 end</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--gold)">
+    <div class="kpi-label">ROIC</div>
+    <div class="kpi-val">96.5%</div>
+    <div class="kpi-note">Asset-light · Capex 0.35%</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--cyan)">
+    <div class="kpi-label">P/E Fwd NTM</div>
+    <div class="kpi-val">~29x</div>
+    <div class="kpi-note">CY2026: 33x · TTM: 35x</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--gold)">
+    <div class="kpi-label">PEG Real</div>
+    <div class="kpi-val">1.18x</div>
+    <div class="kpi-note">5Y EPS CAGR 24.6%</div>
+  </div>
+  <div class="kpi-card" style="--accent:var(--cyan)">
+    <div class="kpi-label">MAUs · Subs</div>
+    <div class="kpi-val">761M</div>
+    <div class="kpi-note">293M premium · +3M⚠️ seq</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CORRECCIONES SUPERVISORES
+════════════════════════════════════════════════ -->
+<div class="corrections-wrap fade-up" style="animation-delay:0.18s">
+  <div class="corr-title">⚠️ Correcciones post-debate tri-analista (Gemini + ChatGPT + revisión propia)</div>
+  <div class="corr-grid">
+    <div class="corr-item">
+      <div class="corr-label">Cash position (tag EDGAR incorrecto)</div>
+      <div class="corr-old">€5.26B</div>
+      <div class="corr-new">€9.47B FY25 / €8.8B Q1'26</div>
+      <div class="corr-source">Incluye CurrentInvestments €4.21B · ChatGPT ✓</div>
+    </div>
+    <div class="corr-item">
+      <div class="corr-label">Ad revenue contexto Q1 2026</div>
+      <div class="corr-old">-4.9% YoY (FY2025 completo)</div>
+      <div class="corr-new">+3% YoY en Q1 2026</div>
+      <div class="corr-source">Error de período en Bloque C · ChatGPT ✓</div>
+    </div>
+    <div class="corr-item">
+      <div class="corr-label">OpMargin trayectoria</div>
+      <div class="corr-old">Target 2027E: 14.3%</div>
+      <div class="corr-new">Q1 2026 ya: 15.8%</div>
+      <div class="corr-source">Target JPM 2027 ya superado · ChatGPT ✓</div>
+    </div>
+    <div class="corr-item">
+      <div class="corr-label">Subs adición Q1 2026 (señal nueva)</div>
+      <div class="corr-old">No señalado</div>
+      <div class="corr-new">+3M sequencial ⚠️ mínimo histórico</div>
+      <div class="corr-source">Saturación mercados maduros · ChatGPT ✓</div>
+    </div>
+    <div class="corr-item">
+      <div class="corr-label">Dual-class share structure</div>
+      <div class="corr-old">No analizada</div>
+      <div class="corr-new">Ek controla voto · minority risk</div>
+      <div class="corr-source">Accountability limitada accionistas · ChatGPT ✓</div>
+    </div>
+    <div class="corr-item">
+      <div class="corr-label">Riesgo nuevo: cláusulas MFN labels</div>
+      <div class="corr-old">No planteado por ninguno</div>
+      <div class="corr-new">MFN bloquea estrategia anti-label</div>
+      <div class="corr-source">Insight propio post-debate · sin precedente análisis</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 2 — MAIN GRID: PERFORMANCE + STATS
+════════════════════════════════════════════════ -->
+<div class="sec-head fade-up" style="animation-delay:0.2s"><span class="sec-label">[ <em>02</em> ] Performance &amp; Key Stats</span></div>
+<div class="grid-main fade-up" style="animation-delay:0.22s">
+
+  <div>
+    <!-- 52W RANGE -->
+    <div class="range-wrap" style="margin-bottom:0.5rem">
+      <div class="range-label">52-Week Range · Price vs High/Low</div>
+      <div class="range-bar-track">
+        <div class="range-marker" style="left: calc((441.51-405)/(785-405)*100%)"></div>
+      </div>
+      <div class="range-ends">
+        <span class="low">$405 ▼52W Low</span>
+        <span class="cur">$441.51 ← NOW (9.6% from low)</span>
+        <span class="hi">$785 ▲52W High</span>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE BARS -->
+    <div class="perf-grid" style="margin-bottom:0.5rem">
+      <div class="perf-item">
+        <div class="perf-period">5D</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:70%"></div></div>
+        <div class="perf-val neg">-13.9%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">1M</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:44%"></div></div>
+        <div class="perf-val neg">-8.8%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">3M</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:67%"></div></div>
+        <div class="perf-val neg">-13.4%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">6M</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:100%"></div></div>
+        <div class="perf-val neg">-33.3%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">YTD</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:74%"></div></div>
+        <div class="perf-val neg">-24.6%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">1Y</div>
+        <div class="perf-bar-wrap"><div class="perf-bar neg" style="height:82%"></div></div>
+        <div class="perf-val neg">-27.2%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">5Y</div>
+        <div class="perf-bar-wrap"><div class="perf-bar pos" style="height:42%"></div></div>
+        <div class="perf-val pos">+69.8%</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-period">IPO</div>
+        <div class="perf-bar-wrap"><div class="perf-bar pos" style="height:60%"></div></div>
+        <div class="perf-val pos">+196%</div>
+      </div>
+    </div>
+
+    <!-- WATERFALL -->
+    <div class="waterfall-wrap" style="margin-bottom:0.5rem">
+      <div class="range-label" style="margin-bottom:0.6rem">Income Waterfall FY2025 (€B)</div>
+      <div class="wf-bars">
+        <div class="wf-bar-col">
+          <div class="wf-val">17.19</div>
+          <div class="wf-bar revenue" style="height:100%"></div>
+          <div class="wf-label">Revenue</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val" style="color:var(--red)">-11.69</div>
+          <div class="wf-bar cogs" style="height:68%"></div>
+          <div class="wf-label">COGS</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val">5.50</div>
+          <div class="wf-bar gross" style="height:32%"></div>
+          <div class="wf-label">Gross P.</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val" style="color:var(--orange)">-3.30</div>
+          <div class="wf-bar opex" style="height:19.2%"></div>
+          <div class="wf-label">OpEx</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val">2.20</div>
+          <div class="wf-bar opincome" style="height:12.8%"></div>
+          <div class="wf-label">Op Inc</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val">2.21</div>
+          <div class="wf-bar ni" style="height:12.9%"></div>
+          <div class="wf-label">Net Inc</div>
+        </div>
+        <div class="wf-bar-col">
+          <div class="wf-val">2.87</div>
+          <div class="wf-bar fcf" style="height:16.7%"></div>
+          <div class="wf-label">FCF ⊘</div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:0.55rem;color:var(--text-dim);text-align:right">⊘ FCF = CFO €2.93B − Capex €0.06B · paralelo (no lineal)</div>
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="sec-head" style="margin-top:0.5rem"><span class="sec-label">[ Escenarios 24m ]</span></div>
+    <div class="scenarios">
+      <div class="sc-card bear">
+        <div class="sc-label">🔴 Bear</div>
+        <div class="sc-pt">$280</div>
+        <div class="sc-pct" style="color:var(--red)">-37% vs entrada</div>
+        <div class="sc-desc">Labels renegocian +300-400bps. FCF 2027 cae a €2.6B. Múltiplo comprime a 20x. IA generativa acelera churn.</div>
+      </div>
+      <div class="sc-card base">
+        <div class="sc-label">🟡 Base</div>
+        <div class="sc-pt">$520</div>
+        <div class="sc-pct" style="color:var(--gold)">+18% vs entrada</div>
+        <div class="sc-desc">OpMargin 14% 2027. Ad programático 50%+ mix. US price hike Q3. FCF €3.3B × 25x.</div>
+      </div>
+      <div class="sc-card bull">
+        <div class="sc-label">🟢 Bull</div>
+        <div class="sc-pt">$720</div>
+        <div class="sc-pct" style="color:var(--green)">+63% vs entrada</div>
+        <div class="sc-desc">Investor Day 21-mayo: framework IA con ROI cuantificado. ARPU €5.50+ 2027. FCF €4B+. Re-rating 29x.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COL: KEY STATS -->
+  <div>
+    <div class="stats-grid">
+      <div class="stats-group-label">— VALORACIÓN</div>
+      <div class="stat-row"><span class="stat-name">P/E TTM</span><span class="stat-val gold">35.2x</span></div>
+      <div class="stat-row"><span class="stat-name">P/E Fwd NTM</span><span class="stat-val cyan">~29x</span></div>
+      <div class="stat-row"><span class="stat-name">P/E CY2026</span><span class="stat-val default">~33x</span></div>
+      <div class="stat-row"><span class="stat-name">EV/EBITDA</span><span class="stat-val default">30.1x</span></div>
+      <div class="stat-row"><span class="stat-name">P/FCF (FY25)</span><span class="stat-val default">31.6x</span></div>
+      <div class="stat-row"><span class="stat-name">P/FCF (Q1 ann.)</span><span class="stat-val cyan">~27x ✓</span></div>
+      <div class="stat-row"><span class="stat-name">PEG real (5Y)</span><span class="stat-val gold">1.18x</span></div>
+      <div class="stat-row"><span class="stat-name">SOTP base</span><span class="stat-val default">~$424</span></div>
+      <div class="stat-row"><span class="stat-name">SOTP 2027E FCF</span><span class="stat-val green">~$536</span></div>
+      <div class="stats-group-label">— RENTABILIDAD</div>
+      <div class="stat-row"><span class="stat-name">Gross Margin</span><span class="stat-val green">32.0%</span></div>
+      <div class="stat-row"><span class="stat-name">GM Q1 2026</span><span class="stat-val green">33.0% ↑</span></div>
+      <div class="stat-row"><span class="stat-name">Op Margin FY25</span><span class="stat-val cyan">12.8%</span></div>
+      <div class="stat-row"><span class="stat-name">Op Margin Q1'26</span><span class="stat-val green">15.8% ★</span></div>
+      <div class="stat-row"><span class="stat-name">FCF Margin</span><span class="stat-val green">16.7%</span></div>
+      <div class="stat-row"><span class="stat-name">FCF Yield</span><span class="stat-val default">~3.5%</span></div>
+      <div class="stat-row"><span class="stat-name">ROIC</span><span class="stat-val gold">96.5%</span></div>
+      <div class="stat-row"><span class="stat-name">ROE</span><span class="stat-val default">38.0%</span></div>
+      <div class="stats-group-label">— BALANCE ✓CORREGIDO</div>
+      <div class="stat-row">
+        <span class="stat-name">Cash (Q1 2026)</span>
+        <span class="stat-val green">€8.8B ✓</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-name">Cash+STInv (FY25)</span>
+        <span class="stat-val green">€9.47B ✓</span>
+      </div>
+      <div class="stat-row"><span class="stat-name">Deuda LT</span><span class="stat-val green">€0</span></div>
+      <div class="stat-row"><span class="stat-name">D/E</span><span class="stat-val green">0.06</span></div>
+      <div class="stat-row"><span class="stat-name">Cash/share neto</span><span class="stat-val green">~$47 ✓</span></div>
+      <div class="stats-group-label">— CRECIMIENTO</div>
+      <div class="stat-row"><span class="stat-name">Revenue CAGR 3Y</span><span class="stat-val green">+13.7%</span></div>
+      <div class="stat-row"><span class="stat-name">Revenue CAGR 5Y</span><span class="stat-val green">+16.8%</span></div>
+      <div class="stat-row"><span class="stat-name">EPS CAGR 3Y fwd</span><span class="stat-val cyan">+24.6%</span></div>
+      <div class="stat-row"><span class="stat-name">MAU YoY</span><span class="stat-val cyan">+12%</span></div>
+      <div class="stat-row"><span class="stat-name">Sub add Q1'26 ⚠️</span><span class="stat-val gold">+3M seq</span></div>
+      <div class="stat-row"><span class="stat-name">ARPU Q1 2026</span><span class="stat-val default">€4.98/mo</span></div>
+      <div class="stats-group-label">— SBC / DILUCIÓN</div>
+      <div class="stat-row"><span class="stat-name">SBC FY25</span><span class="stat-val default">€247M (1.44%)</span></div>
+      <div class="stat-row"><span class="stat-name">Dilución/año</span><span class="stat-val default">+0.80%</span></div>
+      <div class="stat-row"><span class="stat-name">Buybacks Q1'26</span><span class="stat-val green">$361M</span></div>
+      <div class="stat-row"><span class="stat-name">Dividend</span><span class="stat-val default">€0</span></div>
+    </div>
+
+    <!-- B0 SEMAPHORES -->
+    <div style="margin-top:0.5rem">
+      <div class="sec-head"><span class="sec-label">[ Pre-filtro B0 ]</span></div>
+      <div class="b0-row">
+        <div class="b0-card">
+          <div class="b0-light green"></div>
+          <div class="b0-name">Modelo</div>
+          <div class="b0-result" style="color:var(--green)">VERDE</div>
+        </div>
+        <div class="b0-card">
+          <div class="b0-light yellow"></div>
+          <div class="b0-name">Márgenes</div>
+          <div class="b0-result" style="color:var(--gold)">CAUTELA</div>
+        </div>
+        <div class="b0-card">
+          <div class="b0-light green"></div>
+          <div class="b0-name">Consenso</div>
+          <div class="b0-result" style="color:var(--green)">VERDE</div>
+        </div>
+        <div class="b0-card">
+          <div class="b0-light yellow"></div>
+          <div class="b0-name">IA Risk</div>
+          <div class="b0-result" style="color:var(--gold)">CAUTELA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IA SEMAPHORE -->
+    <div style="margin-top:0.5rem">
+      <div class="sec-head"><span class="sec-label">[ Señal IA ]</span></div>
+      <div class="ia-wrap">
+        <div class="ia-light-col">
+          <div class="ia-circle dim" style="background:#2d0a0a"></div>
+          <div class="ia-circle active-yellow pulse"></div>
+          <div class="ia-circle dim" style="background:#003d1a"></div>
+        </div>
+        <div class="ia-text">
+          <strong>🟡 RIESGO MEDIO — Inversión IA sin payback cuantificado</strong><br>
+          OpMargin Q1'26 en 15.8% supera targets 2027 — señal positiva. Pero costes de inferencia escalan más rápido que revenue atribuible. Engagement↑ = royalties↑ sin precio adicional. Investor Day 21-mayo es el pivote binario. La "trampa de personalización" (Gemini) puede erosionar switching cost psicológico si IA hace invisible a Spotify como marca.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 3 — CEO + OOB
+════════════════════════════════════════════════ -->
+<div class="sec-head fade-up" style="animation-delay:0.25s"><span class="sec-label">[ <em>03</em> ] Earnings Call Q1 2026 · OOB · Tesis</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="fade-up" style="animation-delay:0.27s">
+  <div>
+    <div class="ceo-quote">
+      <blockquote>La decisión que tomamos fue difícil porque tuvimos que reconstruir todo el stack desde cero. Lo hicimos sabiendo que enfrentaríamos presión en el corto plazo, pero que nos desbloquearía un mercado mucho más grande a largo plazo. Esa transición ya está hecha. Ahora se trata de ejecución.</blockquote>
+      <div class="ceo-attr">Alex Norström, Co-CEO · Q1 2026 Earnings Call · 28-Apr-2026 · Sobre la reconstrucción del Ad Stack</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:0.7rem;font-size:0.68rem;color:var(--text-mid);line-height:1.5">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;margin-bottom:0.4rem">Red Flags Q1 2026</div>
+      <div style="display:flex;flex-direction:column;gap:0.3rem">
+        <div>⚠️ <strong style="color:var(--text)">Ad gross margin negativo interanual</strong> — engagement↑ pero CPMs no compensan royalties↑</div>
+        <div>⚠️ <strong style="color:var(--text)">Q2 OpIncome guidance €630M</strong> — regresión vs Q1 actuals €715M (patrón beat vs señal débil)</div>
+        <div>⚠️ <strong style="color:var(--text)">+3M subs Q1 sequencial</strong> — mínimo histórico. Saturación tier Premium en mercados maduros</div>
+        <div>⚠️ <strong style="color:var(--text)">Sin guidance OpMargin anual</strong> — opacidad inusual sobre ciclo de inversión IA</div>
+        <div>⚠️ <strong style="color:var(--text)">Payback IA sin cuantificar</strong> — Benchmark: "cost bridge sin revenue projections"</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--orange);padding:0.8rem;height:100%">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--orange);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem">💡 Out of the Box — Lo que nadie planteó</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.68rem;color:var(--text-mid);line-height:1.5">
+        <div style="border-bottom:1px solid var(--border);padding-bottom:0.4rem">
+          <strong style="color:var(--orange)">1. La paradoja del precio único vs IA</strong><br>
+          Si la IA aumenta el engagement medio, el coste de royalties por suscriptor sube pero el precio no. El modelo flat-rate all-you-can-eat puede destruir margen con su propio éxito. Ningún analista modeló este mecanismo.
+        </div>
+        <div style="border-bottom:1px solid var(--border);padding-bottom:0.4rem">
+          <strong style="color:var(--orange)">2. Cláusulas MFN — la trampa contractual invisible</strong><br>
+          Los contratos con UMG/Sony/WMG incluyen MFN: si Spotify da mejores condiciones a artistas independientes (para evadir labels), las majors exigen las mismas. La estrategia "música sin labels" está contractualmente bloqueada.
+        </div>
+        <div style="border-bottom:1px solid var(--border);padding-bottom:0.4rem">
+          <strong style="color:var(--orange)">3. El ARPU mix geográfico oculta la realidad</strong><br>
+          El crecimiento de subs viene de India/Brasil/Indonesia (€2-3/mes ARPU). Los price hikes en EEUU suben el ARPU de mercados maduros pero el mix global puede dilucionar el ARPU agregado. El mercado celebra el número de subs sin el análisis de calidad.
+        </div>
+        <div>
+          <strong style="color:var(--orange)">4. Investor Day como capital allocation framework</strong><br>
+          No solo es guidance de márgenes. Es la primera vez que Spotify rentable define ¿mantienen buybacks? ¿dividendo? ¿M&A defensivo ante riesgo LLM? Nadie en el sell-side modela esto explícitamente.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 4 — FEROLDI 16 PUNTOS
+════════════════════════════════════════════════ -->
+<div class="sec-head fade-up" style="animation-delay:0.3s"><span class="sec-label">[ <em>04</em> ] Feroldi 16 Puntos · Score Final Post-Debate</span></div>
+<div class="feroldi-wrap fade-up" style="animation-delay:0.32s">
+  <div class="feroldi-header">
+    <div class="feroldi-title">SISTEMA FEROLDI · $SPOT · Revisado con debate Gemini + ChatGPT</div>
+    <div class="feroldi-score">Score: <strong>122.7</strong>/160 = 76.7% 🟢</div>
+  </div>
+  <div class="feroldi-grid" id="feroldi-grid">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+</div><!-- end page-wrap -->
+
+<script>
+const FEROLDI = [
+  [1,"Industry",8.5,"green","Oligopolio audio. TAM €50B+, CAGR 8-10%. Barreras de entrada altas. Apple, Amazon, Google llevan 10 años sin cerrar el gap.","0"],
+  [2,"Business Model",8.3,"green","+0.3 CORR: Ad Q1 2026 fue +3% YoY (no -4.9% FY25). >89% revenue recurrente. Dependencia labels es estructural — costo sin control.","▲+0.3"],
+  [3,"Crecimiento",8.0,"green","Revenue CAGR 3Y +13.7%, 5Y +16.8%. NI: de -€532M (2023) a +€2.21B (2025). Orgánico puro sin M&A de revenue material.","0"],
+  [4,"Valor histórico",6.5,"yellow","IPO $149→$441 = +196%, CAGR 13.3% vs S&P ~12%. Underperformance en 5Y. Sin dividendo. Buybacks iniciando.","0"],
+  [5,"Moat",7.4,"yellow","-0.6 neto: -0.3 por +3M subs secuencial Q1 (saturación Premium). -0.3 por trampa personalización IA (Gemini): si IA es invisible, switching cost psicológico baja.","▼-0.6"],
+  [6,"Capital Intensity",9.0,"green","Capex 0.35% revenue. FCF conversion 130%. Cloud puro. Única amenaza: costes inferencia IA como capex variable oculto no contabilizado en XBRL.","0"],
+  [7,"Profitability",9.0,"green","+0.5 CORR: Q1 2026 OpMargin 15.8% ya supera target 2027E de JPM (14.3%). Gross margin trend: 27.6% (Q1'24)→33.0% (Q1'26) = +540bps en 8 trimestres.","▲+0.5"],
+  [8,"Balance Sheet",9.5,"green","+0.5 CORR: Error de tag EDGAR — usé solo CashAndCashEquivalents (€5.26B) omitiendo CurrentInvestments (€4.21B). Real: €9.47B FY25, €8.8B Q1'26. Cash/share ~$47.","▲+0.5"],
+  [9,"Capital Return",6.5,"yellow","+0.5: Con €8.8B liquidez real y €0 deuda, capacidad de buybacks 3x superior a lo modelado. $361M solo en Q1'26. Sin dividendo previsible.","▲+0.5"],
+  [10,"Management",7.0,"yellow","-0.5: Dual-class structure omitida (Ek controla voto). Car Thing = fracaso HW documentado — relevante para riesgo distribución LLM. CEO no ejecutivo desde 2023.","▼-0.5"],
+  [11,"Capital Alloc.",8.0,"green","ROIC 96.5%. El debate Gemini (artefacto contable) ya estaba en mi autocrítica — no aporta nuevo argumento. Podcast pivot fue un error documentado de asignación.","0"],
+  [12,"SBC",8.0,"green","€247M = 1.44% revenue. SBC/NI = 11.2%. Dilución +0.8%/año. Buybacks Q1'26 compensan parcialmente. Planes de vesting estándar 4Y cliff 1Y.","0"],
+  [13,"Outlook",7.5,"green","+0.5: Spotify ha batido gross margin guidance 5 trimestres consecutivos. Q2 guidance €630M es conservadurismo deliberado, no señal de deterioro estructural.","▲+0.5"],
+  [14,"Optionality",8.5,"green","Fitness hub+Peloton. Audiobooks LatAm (TAM virgen). Ad tech B2B (stack reconstruido valorizable). Live events. Artist services. Investor Day 21-mayo como catalizador capital allocation.","0"],
+  [15,"Risks",5.0,"red","-0.5 neto: Car Thing fracaso (riesgo HW distribución LLM). Cláusulas MFN bloquean estrategia anti-label. Paradoja engagement→royalties con IA. Royalty share real ~64% (más alto que 59% citado).","▼-0.5"],
+  [16,"Valuation",6.5,"yellow","P/FCF annualizado Q1'26: ~27x (mejor que 31x FY25). SOTP base $424, 2027E $536. PEG real 1.18x. Margen seguridad delgado a $441 si 2027 no cumple expectativas.","0"],
+];
+
+const grid = document.getElementById('feroldi-grid');
+FEROLDI.forEach(([num,name,score,color,desc,adj]) => {
+  const pct = (score/10)*100;
+  const adjColor = adj.startsWith('▲') ? 'color:var(--green)' : adj.startsWith('▼') ? 'color:var(--red)' : 'color:var(--text-dim)';
+  const div = document.createElement('div');
+  div.className = 'f-card';
+  div.innerHTML = `
+    <div class="f-top">
+      <span class="f-num">${String(num).padStart(2,'0')}</span>
+      ${adj ? `<span style="font-family:var(--mono);font-size:0.58rem;${adjColor}">${adj}</span>` : ''}
+    </div>
+    <div class="f-name">${name}</div>
+    <div class="f-score-row">
+      <span class="f-score-num ${color}">${score}</span>
+      <div class="f-bar-track"><div class="f-bar-fill ${color}" style="width:${pct}%"></div></div>
+      <span style="font-family:var(--mono);font-size:0.55rem;color:var(--text-dim)">/10</span>
+    </div>
+    <div class="f-desc">${desc}</div>
+  `;
+  div.addEventListener('mouseenter', e => showTip(e, name, score, desc, adj));
+  div.addEventListener('mousemove', moveTip);
+  div.addEventListener('mouseleave', hideTip);
+  grid.appendChild(div);
+});
+
+function showTip(e, name, score, desc, adj) {
+  const t = document.getElementById('tooltip');
+  t.innerHTML = `<strong>${name} — ${score}/10</strong>${adj ? `<br><em style="color:var(--gold)">${adj}</em>` : ''}<br>${desc}`;
+  t.style.display = 'block';
+  moveTip(e);
+}
+function moveTip(e) {
+  const t = document.getElementById('tooltip');
+  let x = e.clientX + 14, y = e.clientY - 20;
+  if (x + 340 > window.innerWidth) x = e.clientX - 350;
+  if (y + 120 > window.innerHeight) y = e.clientY - 130;
+  t.style.left = x + 'px'; t.style.top = y + 'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 5 — SPIDER + SCORECARD GRUPOS
+════════════════════════════════════════════════ -->
+<div class="page-wrap" style="padding-top:0">
+<div class="sec-head fade-up"><span class="sec-label">[ <em>05</em> ] Perfil Feroldi — Spider &amp; Grupos</span></div>
+<div class="zone5-wrap fade-up">
+  <div class="spider-wrap">
+    <div class="spider-title">Radar 5 Grupos</div>
+    <canvas id="radarChart" width="320" height="280" style="max-width:320px"></canvas>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.3rem;margin-top:0.6rem;width:100%">
+      <div style="text-align:center;font-size:0.6rem;color:var(--text-dim)">📈 Crec.<br><span style="color:var(--cyan);font-family:var(--mono)">7.97</span></div>
+      <div style="text-align:center;font-size:0.6rem;color:var(--text-dim)">💰 Rent.<br><span style="color:var(--green);font-family:var(--mono)">9.0</span></div>
+      <div style="text-align:center;font-size:0.6rem;color:var(--text-dim)">🏦 Solidez<br><span style="color:var(--green);font-family:var(--mono)">8.83</span></div>
+      <div style="text-align:center;font-size:0.6rem;color:var(--text-dim)">🏰 Estrat.<br><span style="color:var(--cyan);font-family:var(--mono)">7.70</span></div>
+      <div style="text-align:center;font-size:0.6rem;color:var(--text-dim)">💎 Retorno<br><span style="color:var(--gold);font-family:var(--mono)">6.87</span></div>
+    </div>
+  </div>
+
+  <div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.4rem;margin-bottom:0.5rem">
+      <!-- Group cards -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--cyan);padding:0.6rem;text-align:center">
+        <div style="font-family:var(--display);font-size:0.7rem;font-weight:700;color:var(--cyan)">📈 CREC.</div>
+        <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--cyan);margin:0.2rem 0">7.97</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">P3+P13+P14</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">8.0+7.5+8.5</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--green);padding:0.6rem;text-align:center">
+        <div style="font-family:var(--display);font-size:0.7rem;font-weight:700;color:var(--green)">💰 RENT.</div>
+        <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--green);margin:0.2rem 0">9.0</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">P7+P11</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">9.0+8.0 ÷2</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--green);padding:0.6rem;text-align:center">
+        <div style="font-family:var(--display);font-size:0.7rem;font-weight:700;color:var(--green)">🏦 SOLID.</div>
+        <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--green);margin:0.2rem 0">8.83</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">P6+P8+P12</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">9.0+9.5+8.0 ÷3</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--cyan);padding:0.6rem;text-align:center">
+        <div style="font-family:var(--display);font-size:0.7rem;font-weight:700;color:var(--cyan)">🏰 ESTRAT.</div>
+        <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--cyan);margin:0.2rem 0">7.70</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">P1+P2+P5+P10</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">8.5+8.3+7.4+7.0 ÷4</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--gold);padding:0.6rem;text-align:center">
+        <div style="font-family:var(--display);font-size:0.7rem;font-weight:700;color:var(--gold)">💎 RETORNO</div>
+        <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--gold);margin:0.2rem 0">6.87</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">P4+P9+P16</div>
+        <div style="font-size:0.55rem;color:var(--text-dim)">6.5+6.5+6.5 ÷3</div>
+      </div>
+    </div>
+
+    <!-- Insights from debate -->
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:0.7rem">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem">Síntesis del Debate Tri-Analista</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.67rem;line-height:1.5">
+        <div>
+          <div style="color:var(--green);font-family:var(--mono);font-size:0.6rem;margin-bottom:0.2rem">✅ Aceptado de Gemini</div>
+          <div style="color:var(--text-mid)">· Trampa personalización IA: si el AI DJ es invisible, la marca se erosiona antes que el hábito</div>
+          <div style="color:var(--text-mid)">· Techo estructural del margen vs SaaS: cada stream tiene costo marginal real (royalty)</div>
+        </div>
+        <div>
+          <div style="color:var(--green);font-family:var(--mono);font-size:0.6rem;margin-bottom:0.2rem">✅ Aceptado de ChatGPT</div>
+          <div style="color:var(--text-mid)">· Cash real €9.47B (error de tag EDGAR — crítico)</div>
+          <div style="color:var(--text-mid)">· OpMargin Q1'26 15.8% supera ya el target 2027 JPM</div>
+          <div style="color:var(--text-mid)">· +3M subs secuencial: mínimo histórico no señalado</div>
+          <div style="color:var(--text-mid)">· Dual-class structure y Car Thing omitidos</div>
+        </div>
+        <div>
+          <div style="color:var(--red);font-family:var(--mono);font-size:0.6rem;margin-bottom:0.2rem">❌ Rechazado — sin fundamento</div>
+          <div style="color:var(--text-mid)">· ROIC "más penalizable" (Gemini): ya estaba en mi autocrítica, no agrega nada</div>
+          <div style="color:var(--text-mid)">· "Spotify OS en dispositivos médicos" (Gemini): ciencia ficción, no accionable</div>
+          <div style="color:var(--text-mid)">· Investor Day "no es variant perception" (ChatGPT): el catalizador es conocido; el contenido no</div>
+        </div>
+        <div>
+          <div style="color:var(--orange);font-family:var(--mono);font-size:0.6rem;margin-bottom:0.2rem">🔥 Nadie planteó (nuevo)</div>
+          <div style="color:var(--text-mid)">· Paradoja precio único: IA↑ engagement = royalties↑ sin precio↑</div>
+          <div style="color:var(--text-mid)">· Cláusulas MFN: estrategia anti-label contractualmente bloqueada</div>
+          <div style="color:var(--text-mid)">· ARPU mix geográfico diluyendo el agregado silenciosamente</div>
+          <div style="color:var(--text-mid)">· Investor Day como capital allocation framework (buybacks, M&A)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ZONA 6 — ANALISTAS + COMPETIDORES + RIESGOS
+════════════════════════════════════════════════ -->
+<div class="sec-head fade-up"><span class="sec-label">[ <em>06</em> ] Analistas · Riesgos · Veredicto Final</span></div>
+<div class="zone6-wrap fade-up">
+
+  <!-- ANALYSTS -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:0.8rem">
+    <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Analistas Post-Q1 2026 · 8 Firmas</div>
+
+    <!-- Consensus gauge -->
+    <div style="text-align:center;margin-bottom:0.7rem">
+      <svg viewBox="0 0 300 160" width="100%" style="max-width:280px">
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff3a5c"/>
+            <stop offset="40%" stop-color="#ff8c42"/>
+            <stop offset="60%" stop-color="#ffd700"/>
+            <stop offset="80%" stop-color="#00cc7a"/>
+            <stop offset="100%" stop-color="#00ff9d"/>
+          </linearGradient>
+          <filter id="gaugeGlow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Track -->
+        <path d="M 30 130 A 120 120 0 0 1 270 130" fill="none" stroke="#1e2d3d" stroke-width="16" stroke-linecap="round"/>
+        <!-- Fill -->
+        <path d="M 30 130 A 120 120 0 0 1 270 130" fill="none" stroke="url(#gaugeGrad)" stroke-width="16" stroke-linecap="round"/>
+        <!-- Needle: consensus $668 vs range $400-$800 → position ~67% → angle ~120deg from left -->
+        <!-- $441 current = (441-400)/(800-400)=10.25% → angle at -180+0.1025*180 = -161.5° -->
+        <!-- But we want to show where consensus $668 points: (668-400)/(800-400)=67% → -180+67%*180=-59.4° -->
+        <!-- Needle for current price $441 -->
+        <line x1="150" y1="130" x2="52" y2="118"
+              stroke="white" stroke-width="2.5" stroke-linecap="round" filter="url(#gaugeGlow)"/>
+        <circle cx="150" cy="130" r="6" fill="#111820" stroke="var(--cyan)" stroke-width="1.5"/>
+        <!-- Labels -->
+        <text x="22" y="150" fill="#ff3a5c" font-size="9" font-family="Share Tech Mono">$400</text>
+        <text x="250" y="150" fill="#00ff9d" font-size="9" font-family="Share Tech Mono">$800</text>
+        <text x="150" y="155" text-anchor="middle" fill="#ffd700" font-size="11" font-family="Share Tech Mono" font-weight="bold">PT Consenso: $668</text>
+        <text x="150" y="170" text-anchor="middle" fill="#5a7a96" font-size="9" font-family="Share Tech Mono">Actual: $441.51 → +51.4% upside</text>
+        <text x="150" y="75" text-anchor="middle" fill="#00d4ff" font-size="13" font-family="Barlow Condensed" font-weight="700">33 BUY · 8 HOLD · 0 SELL</text>
+      </svg>
+    </div>
+
+    <table class="analyst-table">
+      <thead>
+        <tr><th>Firma</th><th>Rating</th><th>PT</th><th>Cambio</th><th>52W</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="at-firm">KeyBanc</td><td class="at-rating buy">Overweight</td><td class="at-pt">$680</td><td class="at-chg neg">-$65</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">BofA</td><td class="at-rating buy">Buy</td><td class="at-pt">$685</td><td class="at-chg neg">-$65</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Canaccord</td><td class="at-rating buy">Buy</td><td class="at-pt">$720</td><td class="at-chg neg">-$30</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Benchmark</td><td class="at-rating buy">Buy</td><td class="at-pt">$695</td><td class="at-chg neg">-$65</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Morgan Stanley</td><td class="at-rating buy">Overweight</td><td class="at-pt">$590</td><td class="at-chg neg">-$40</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Bernstein</td><td class="at-rating buy">Outperform</td><td class="at-pt">$625</td><td class="at-chg neg">0</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Barclays</td><td class="at-rating buy">Overweight</td><td class="at-pt">$500</td><td class="at-chg neg">-$100</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+        <tr><td class="at-firm">Rosenblatt</td><td class="at-rating buy">Buy ↑</td><td class="at-pt">$500</td><td class="at-chg pos">↑ upgrade</td><td class="at-52w"><div class="at-52w-track"><div class="at-52w-fill" style="width:100%"></div><div class="at-52w-dot" style="left:9.6%"></div></div></td></tr>
+      </tbody>
+    </table>
+    <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);margin-top:0.4rem;padding-top:0.3rem;border-top:1px solid var(--border)">
+      Rango PTs: $400 (Cantor) → $800 (BofA Jun-25). 4 firmas cortaron tras Q1. Catalizador clave: Investor Day 21-May-2026
+    </div>
+  </div>
+
+  <!-- RISKS + CATALYSTS -->
+  <div style="display:flex;flex-direction:column;gap:0.5rem">
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:0.7rem;flex:1">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--red);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem">🔴 Riesgos Críticos — Actualizados Post-Debate</div>
+      <ul class="risk-list">
+        <li class="risk-item">
+          <span class="risk-icon">🏷️</span>
+          <span class="risk-text"><strong>Labels renegocian royalties</strong> — cada +100bps = -€172M gross profit. MFN bloquea respuesta estratégica vía artistas independientes.</span>
+          <span class="risk-severity high">ALTO</span>
+        </li>
+        <li class="risk-item">
+          <span class="risk-icon">🤖</span>
+          <span class="risk-text"><strong>Paradoja IA + precio único</strong> — Más engagement via IA = más royalties sin más revenue. Puede destruir margen con su propio éxito.</span>
+          <span class="risk-severity high">ALTO</span>
+        </li>
+        <li class="risk-item">
+          <span class="risk-icon">📱</span>
+          <span class="risk-text"><strong>LLMs como interfaz de audio</strong> — Si ChatGPT/Gemini son el punto de entrada al audio, Spotify pierde el interfaz. Car Thing fue descontinuado — sin hardware propio.</span>
+          <span class="risk-severity high">ALTO</span>
+        </li>
+        <li class="risk-item">
+          <span class="risk-icon">📉</span>
+          <span class="risk-text"><strong>Saturación subs Premium</strong> — +3M Q1'26 secuencial = mínimo histórico. Penetración >40% en mercados maduros. ARPU mix geográfico se diluye.</span>
+          <span class="risk-severity med">MEDIO</span>
+        </li>
+        <li class="risk-item">
+          <span class="risk-icon">🍎</span>
+          <span class="risk-text"><strong>Apple bundling agresivo</strong> — Apple Music a $5.99 en bundle o gratis iPhone Pro 17. Spotify no puede responder bajando precio. Ciclo exclusivos falló.</span>
+          <span class="risk-severity med">MEDIO</span>
+        </li>
+        <li class="risk-item">
+          <span class="risk-icon">💰</span>
+          <span class="risk-text"><strong>ROI IA sin cuantificar</strong> — Costes inferencia escalan más rápido que revenue atribuible. Benchmark: "cost bridge sin revenue projections".</span>
+          <span class="risk-severity med">MEDIO</span>
+        </li>
+      </ul>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);padding:0.7rem">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem">🟢 Catalizadores 24m</div>
+      <div style="display:flex;flex-direction:column;gap:0.25rem;font-size:0.67rem;color:var(--text-mid)">
+        <div>🗓️ <strong style="color:var(--text)">21-May-2026</strong> — Investor Day: si hay framework IA cuantificado → re-rating inmediato</div>
+        <div>💵 <strong style="color:var(--text)">US price hike</strong> — probable H2 2026: +€150-200M revenue incremental</div>
+        <div>📢 <strong style="color:var(--text)">Ad programático >50%</strong> — mix flip en Q3-Q4 2026: Ad margin expansion +500bps</div>
+        <div>📚 <strong style="color:var(--text)">Audiobooks LatAm</strong> — lanzamiento masivo: €300M TAM directo virgen</div>
+        <div>🔄 <strong style="color:var(--text)">FCF 2027E €3.5B</strong> — si se cumple, múltiplo actual 27x P/FCF es barato</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VEREDICTO FINAL ═══ -->
+<div class="sec-head fade-up"><span class="sec-label">[ <em>VEREDICTO</em> ] Posición · Exit · Tesis</span></div>
+<div class="verdict-final fade-up">
+  <div class="vf-main">
+    <div class="vf-badge">🟢 COMPRA EN RETROCESOS</div>
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--green);margin-top:0.2rem">Score: 122.7/160 (76.7%) · R/R ≥ 1:3.1</div>
+    <div class="vf-tesis">
+      Spotify es el negocio de audio más defensible del mundo — cotizando con descuento de ciclo de inversión mientras construye la capa de IA que hará que los márgenes 2027 sean incomparables con 2025. El balance sheet es más sólido de lo modelado (€8.8B liquidez real). Los márgenes van más rápido de lo esperado (15.8% Q1'26 ya supera target 2027 JPM). El riesgo subestimado no son las labels ni la IA generativa — es que los LLMs de conversación desintermedien a Spotify como punto de entrada al audio, y que la paradoja precio-único/engagement destruya margen con su propio éxito.
+    </div>
+    <div style="margin-top:0.6rem;font-family:var(--mono);font-size:0.6rem;color:var(--gold)">⚠️ Investor Day 21-Mayo-2026 = evento binario. Si framework IA es solo narrativa → presión adicional.</div>
+  </div>
+
+  <div>
+    <div class="vf-pos-label">Gestión de Posición</div>
+    <div style="font-size:0.65rem;color:var(--text-mid);margin-bottom:0.4rem">Tamaño: <span style="color:var(--gold);font-family:var(--mono)">MEDIANA (3-5% cartera)</span></div>
+    <div class="vf-size-bar">
+      <div class="vf-size-seg active"></div>
+      <div class="vf-size-seg active"></div>
+      <div class="vf-size-seg active"></div>
+      <div class="vf-size-seg inactive"></div>
+      <div class="vf-size-seg inactive"></div>
+    </div>
+    <div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:0.5rem">50% ahora · 25% si baja a $380-400 · 25% post Investor Day</div>
+    <div class="vf-targets">
+      <div class="vf-t"><div class="vf-t-label">Entry</div><div class="vf-t-val cyan">$420-445</div></div>
+      <div class="vf-t"><div class="vf-t-label">Stop</div><div class="vf-t-val red">$355 (-20%)</div></div>
+      <div class="vf-t"><div class="vf-t-label">T1 12m</div><div class="vf-t-val gold">$555 (+26%)</div></div>
+      <div class="vf-t"><div class="vf-t-label">T2 24m</div><div class="vf-t-val green">$720 (+63%)</div></div>
+      <div class="vf-t"><div class="vf-t-label">Bear</div><div class="vf-t-val red">$280 (-37%)</div></div>
+      <div class="vf-t"><div class="vf-t-label">Base</div><div class="vf-t-val gold">$520 (+18%)</div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="vf-pos-label">Exit Criteria (T1–T6)</div>
+    <ul class="vf-exit-list">
+      <li class="vf-exit-item"><strong>T1:</strong> Venta parcial 25% si precio alcanza $555 en &lt;12m</li>
+      <li class="vf-exit-item"><strong>T2:</strong> Salida total si labels logran &gt;63% royalty share</li>
+      <li class="vf-exit-item"><strong>T3:</strong> Salida total si Investor Day 21-mayo sin framework cuantitativo + guidance rebajada</li>
+      <li class="vf-exit-item"><strong>T4:</strong> Trailing stop: cierre semanal sostenido &lt;$355</li>
+      <li class="vf-exit-item"><strong>T5:</strong> Revisión tesis si MAU growth &lt;8% YoY por 2T consecutivos</li>
+      <li class="vf-exit-item"><strong>T6:</strong> Salida si IA generativa captura &gt;15% consumo streaming (indicador 2027-28)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>@patonet · Feroldi System X0.41</span> &nbsp;·&nbsp;
+  <span>$SPOT · NYSE · Heavy Analysis · 03-May-2026</span> &nbsp;·&nbsp;
+  <span>Revisado: Debate tri-analista (Gemini · ChatGPT · Claude)</span> &nbsp;·&nbsp;
+  <span>Fuentes: EDGAR IFRS · 6-K SEC · Motley Fool Transcript · StockAnalysis · TradingView</span> &nbsp;·&nbsp;
+  <em>No constituye asesoría de inversión</em>
+</div>
+</div><!-- end page-wrap zone56 -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// RADAR CHART
+const ctx = document.getElementById('radarChart').getContext('2d');
+new Chart(ctx, {
+  type: 'radar',
+  data: {
+    labels: ['📈 Crec\n(7.97)','💰 Rent.\n(9.0)','🏦 Solidez\n(8.83)','🏰 Estrat.\n(7.70)','💎 Retorno\n(6.87)'],
+    datasets: [{
+      label: 'SPOT',
+      data: [7.97, 9.0, 8.83, 7.70, 6.87],
+      backgroundColor: 'rgba(0,212,255,0.12)',
+      borderColor: '#00d4ff',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#00d4ff',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      r: {
+        min: 0, max: 10,
+        grid: { color: '#1e2d3d' },
+        angleLines: { color: '#1e3050' },
+        pointLabels: {
+          color: '#00d4ff',
+          font: { size: 10, family: 'Barlow Condensed', weight: '600' }
+        },
+        ticks: {
+          stepSize: 2,
+          backdropColor: 'transparent',
+          color: '#5a7a96',
+          font: { size: 8, family: 'Share Tech Mono' }
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0d1117',
+        borderColor: '#00d4ff',
+        borderWidth: 1,
+        titleColor: '#00d4ff',
+        bodyColor: '#c9d8ea',
+        titleFont: { family: 'Barlow Condensed', size: 12 },
+        bodyFont: { family: 'Share Tech Mono', size: 10 }
+      }
+    }
+  }
+});
+
+// Stagger animations
+document.querySelectorAll('.fade-up').forEach((el,i) => {
+  el.style.opacity = '0';
+  el.style.animation = `fadeUp 0.5s ease ${i*0.04}s forwards`;
+});
+</script>
+
+</body>
+</html>
+<!-- INJECT ZONES 5-6 BEFORE CLOSING BODY -->
