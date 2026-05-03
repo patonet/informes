@@ -205,3 +205,28 @@ CORREGIDO:
 
 ARCHIVOS: prompt_maestro_X0.42.txt (592 lineas, 34KB)
 =========================================
+
+=========================================
+VERSION X0.43 -- 03 May 2026
+Maestro corregido post-auditoria $SPOT
+---------------------------------------
+CORREGIDO:
+  - Orden secciones: A-B-C-D-E-F correcto (X0.42 tenia F antes que E)
+  - Seccion E (Heavy) completa con Zonas 4/5/6 y PDF (estaban truncadas)
+  - Spider chart añadido en Light (Zona 4) y Heavy (Zona 5)
+  - Velocimetros individuales en 5 categorias: Crecimiento/Rentabilidad/
+    Solidez/Estrategia/Retorno — igual en Light y Heavy
+  - Key Stats exactas: VALORACION/RENTABILIDAD/CRECIMIENTO/BALANCE&RIESGO
+    con los campos exactos segun imagen de referencia ($GE)
+  - Score Feroldi: % en grande, score/160 en pequeno debajo
+  - Semaforo IA en esquina superior derecha con popup justificacion
+  - COMP_DATA con popup narrativo comparativo vs $TICKER (solo Heavy)
+  - 52W range SVG prominente en tabla competidores
+  - Doble eje Y en chart Col1 (yVal derecho + yMg izquierdo)
+  - Zona 4 Heavy: chart precio historico 1 anio + price targets analistas
+  - COMP_DATA: modelo construye analisis comparativo desde datos Paso 7
+  - Logo Clearbit con doble fallback en infografia Light y Heavy
+  - PDF completo especificado en Seccion E
+
+TAMANIO: 661 lineas · 40KB
+=========================================
