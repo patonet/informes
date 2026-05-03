@@ -1,0 +1,175 @@
+[X0.43-GEN-SANKEY]
+GENERADOR SANKEY — DIAGRAMA FLUJO DE DINERO
+v X0.43 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCCIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generar ÚNICAMENTE el archivo HTML del diagrama Sankey.
+PROHIBIDO: análisis narrativo, proyecciones, árboles de KPIs, Excel, Markdown o cualquier otro output.
+Datos: usar los del Paso de Recolección ya completado. No re-buscar salvo verificación.
+Token GitHub: GH_TOKEN_PATONET (sustituir por token del nucleo).
+Nombre archivo: Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+Carpeta GitHub: diagramas/equities/
+Link: https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERIFICACIÓN TRIPLE (antes de dibujar)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EDGAR 10-K + StockAnalysis + Macrotrends o Yahoo Finance.
+Reglas:
+- Suma segmentos (incl. Corporate & Other, Eliminations) = Revenue GAAP exacto.
+- COGS + SGA + R&D + Other expenses = Total costs del 10-K.
+- Revenue − Total costs + Other income − Interest = Pre-tax. Cadena debe cerrar.
+- FCF = FCF Operativo − Capex. Es KPI PARALELO. NUNCA flujo lineal del P&L.
+- Discrepancia >2% entre fuentes → usar EDGAR.
+- NUNCA inventar splits que la empresa no reporta.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CSS BASE (copiar exactamente)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size: clamp(10px, 1.1vw, 16px); }
+body { background:#050a12; color:#c8d8f0; font-family:'Segoe UI',system-ui,sans-serif;
+  min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+body::after { content:''; position:fixed; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none; z-index:999; }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HEADER (sin logo, solo texto)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.header { background:#020710; border-bottom:2px solid #0d2040; padding:1rem 2rem;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; }
+Izquierda: h1 "[Nombre Empresa] · Flujo de Dinero FY[AÑO]" (span ticker en #00d4ff)
+  + subtítulo 0.8rem #94a3b8: "Diagrama Sankey · Método Feroldi · Verificación Triple SEC/StockAnalysis/Macrotrends"
+Derecha: .brand "@patonet" 0.9rem #ffd700 bold + [EXCHANGE]:[TICKER]·$[PRECIO]·[FECHA] + Revenue FY: $XXB GAAP
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KPI BAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.kpi-bar { padding:0.75rem 2rem; background:#080f1c; border-bottom:1px solid #0d1f35;
+  display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; }
+.kpi-label { font-size:0.72rem; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; }
+.kpi-value { font-size:1.0rem; font-weight:700; font-family:'Courier New',monospace; }
+.kpi-item.default .kpi-value { color:#00d4ff; }
+.kpi-item.green .kpi-value { color:#00ff9d; }
+.kpi-item.gold .kpi-value { color:#ffd700; }
+Items: Revenue · EBITDA · Net Income · FCF Operativo · Margen Neto · ROIC
+BADGES pill (.badge { padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:700; border:1px solid; }):
+  .badge-verdict → color según veredicto · .badge-score → #00d4ff · .badge-peg → #ffd700
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANIMACIONES (obligatorias)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@keyframes flowAnim {
+  0%   { stroke-dashoffset: 200; opacity: 0.35; }
+  60%  { opacity: 0.75; }
+  100% { stroke-dashoffset: 0; opacity: 0.35; }
+}
+.flow-path      { stroke-dasharray:200; animation:flowAnim 4s   linear infinite; }
+.flow-path-slow { stroke-dasharray:200; animation:flowAnim 5.5s linear infinite; }
+Flujos principales → .flow-path. Flujos menores (taxes, intereses, capex) → .flow-path-slow.
+Curvas bezier: d="M[x1] [y1] C [cx] [y1], [cx] [y2], [x2] [y2]"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SVG SANKEY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+id="sankey" viewBox="0 0 1060 620" width="100%" height="auto"
+Contenedor: max-width:1100px; margin:0 auto; padding:1.5rem.
+FILTROS en <defs>:
+  #glow: feGaussianBlur stdDeviation=2.5 + feMerge(source+blur)
+  #glowStrong: feGaussianBlur stdDeviation=4 + feMerge(source+blur)
+
+5 COLUMNAS izquierda→derecha:
+
+COL 1 — SEGMENTOS (class="node" data-tip="[Nombre]: $X.XB (XX%)"):
+  rect rx=6, fill oscuro tonal, stroke=color segmento, filter=url(#glow), cursor:pointer.
+  Texto interno por nodo:
+    Título: font-size=11.5 font-weight=bold fill=color_segmento text-anchor=middle
+    Subtítulos operativos: font-size=9 fill=#94a3b8 (métricas del segmento)
+    Valor $: font-size=15 font-weight=bold fill=#00ff9d
+    % del total: font-size=9 fill=#94a3b8
+    YoY%: font-size=9 fill=#00bcd4
+
+COL 2 — REVENUE GAAP TOTAL:
+  rect fill=#0d1f35 stroke=#00a8cc sw=2 filter=url(#glowStrong) rx=6.
+  Valor $ font-size=18 bold fill=#00ff9d · YoY fill=#94a3b8.
+
+COL 3 — COSTOS (sin class="node", sin tooltip):
+  Fills oscuros: rojo=#200a0a · naranja=#1f1008 · amarillo=#1a1508 · púrpura=#150a20.
+  Strokes: rojo=#ff3a3a · naranja=#ff6b35 · amarillo=#ff9800 · púrpura=#9c27b0. sw=1.5 rx=6.
+  Texto: título font-size=10.5 bold fill=stroke_color · subtítulo font-size=9 fill=#94a3b8
+         valor $ font-size=14 bold · % revenue font-size=9 fill=#94a3b8.
+  Op Income/EBIT: fill=#0a1f0a stroke=#00ff9d sw=2 filter=url(#glow).
+
+COL 4 — PRE-TAX:
+  rect fill=#0d1f1a stroke=#00bcd4 sw=1.5 filter=url(#glow) rx=6.
+  EBIT · Intereses netos · Pre-tax income · Impuestos (ETR%).
+
+COL 5 — DESTINO:
+  Barras verticales 8px width fill=color_destino opacity=0.6-0.7.
+  Labels derecha: título 9pt bold · valor 10pt bold · nota 8pt #94a3b8.
+  Net Income · FCF (paralelo) · Recompras · Dividendos · Capex.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOOLTIP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<div id="tooltip" style="position:fixed;background:#0a1628;border:1px solid #00d4ff;
+  border-radius:0.5rem;padding:0.75rem 1rem;font-size:0.82rem;color:#c8d8f0;
+  max-width:18rem;pointer-events:none;z-index:9999;display:none;line-height:1.5;
+  box-shadow:0 0 20px rgba(0,212,255,0.2);"></div>
+JS al final del body:
+document.querySelectorAll('.node').forEach(function(el){
+  el.addEventListener('mouseenter',function(e){
+    var t=document.getElementById('tooltip');
+    t.innerHTML='<strong style="color:#00d4ff">'+this.dataset.tip+'</strong>';
+    t.style.display='block';
+  });
+  el.addEventListener('mousemove',function(e){
+    var t=document.getElementById('tooltip');
+    t.style.left=(e.clientX+12)+'px'; t.style.top=(e.clientY-30)+'px';
+  });
+  el.addEventListener('mouseleave',function(){
+    document.getElementById('tooltip').style.display='none';
+  });
+});
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEYENDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.legend-section { background:#080f1c; border:1px solid #0d1f35; border-radius:0.5rem;
+  padding:1rem 1.5rem; max-width:1100px; margin:1rem auto; }
+Título: "📊 Leyenda FY[AÑO] — Verificado (SEC 10-K · StockAnalysis · [Fuente3])"
+Grid auto-fit minmax(13rem,1fr). .legend-dot 0.75rem circle.
+.legend-text { color:#c8d8f0; } .legend-val { color:#ffd700; font-family:'Courier New',monospace; }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TABLA AUDITORÍA (al pie, obligatoria)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.audit-table th { background:#0d1428; color:#00d4ff; font-size:0.75rem;
+  text-transform:uppercase; letter-spacing:0.06em; padding:0.5rem 0.8rem; }
+.audit-table td { font-size:0.78rem; border-bottom:1px solid #0d1428; padding:0.45rem 0.8rem; }
+tr:hover td { background:#0a1628; }
+Valores $: <strong style="color:#00ff9d">.
+.status-ok { color:#00ff9d; font-weight:bold; } → "✅ Verificado"
+.status-est { color:#ffd700; } → "⚡ Estimado"
+Columnas: Rubro · Valor FY · Fuente Primaria · Estado · Nota.
+Incluir TODOS los nodos del diagrama.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FOOTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+background:#020710; border-top:1px solid #0d2040; padding:0.75rem 2rem;
+font-size:0.78rem; color:#94a3b8; text-align:center.
+"@patonet · Análisis Feroldi · $[TICKER] · FY[AÑO] · [FECHA] · No constituye asesoría de inversión."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GITHUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token: GH_TOKEN_PATONET
+PUT archivo → diagramas/equities/.
+GET index.html → agregar/actualizar sankeyUrl en entry de REPORTS → PUT index.html.
+Link final clicable: https://patonet.github.io/informes/diagramas/equities/Diagrama_Sankey_[TICKER]_[PRECIO]_[DD-MM-AAAA].html
+
+[X0.43-GEN-SANKEY — Solo Sankey · Verificación triple · Animaciones flowAnim · @patonet]
