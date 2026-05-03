@@ -183,3 +183,25 @@ ARCHIVO:
   Contiene: Sección A (Recolección) · B (Light) · C (Heavy) ·
             D (Gen Light) · E (Gen Heavy) · F (Gen Sankey)
 =========================================
+
+=========================================
+VERSION X0.42 -- 03 May 2026
+Correccion maestro post primera corrida real ($SPOT)
+----------------------------------------------------
+CORREGIDO:
+  - Feroldi en HEAVY: responder TODAS las sub-preguntas igual que Light.
+    PROHIBIDO resumir. Mismo formato punto por punto.
+  - CEO quote: SIEMPRE traducir al espanol. Nunca en ingles.
+  - N/D: ultimo empujon adicional antes del cuadro de cierre.
+  - Recoleccion adicional Heavy H1/H2/H3: intento adicional si incompletos.
+  - Cash real = CashAndCashEquivalents + ShortTermInvestments (no solo Cash).
+  - GitHub PUT: GET SHA antes de PUT para sobrescritura correcta.
+  - SANKEY sin analisis previo: verdict=neutral, upside=N/D.
+  - EPS_TTM null en TradingView: fallback a StockAnalysis financials.
+  - REPO explicito en prompt: patonet/informes.
+  - Key Stats: max 5-6 metricas por subgrupo.
+  - Infografia: gauges en 5 categorias agrupadas (igual que spider).
+  - Infografia Heavy: 6 zonas con diseno correcto (logo, popup, analistas, competidores).
+
+ARCHIVOS: prompt_maestro_X0.42.txt (592 lineas, 34KB)
+=========================================
