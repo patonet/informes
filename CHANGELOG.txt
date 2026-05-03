@@ -154,3 +154,32 @@ NOTAS DE ARQUITECTURA
   Endpoint: https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json
   User-Agent obligatorio: patonet@example.com
 =========================================
+
+=========================================
+VERSIÓN X0.41 — ADICIÓN PROMPT MAESTRO — 02 May 2026
+-----------------------------------------------------
+NUEVO:
+  - prompt_maestro_X0.41.txt — 7mo archivo del sistema
+
+RAZÓN DE CREACIÓN:
+  Descubrimiento durante sesión de optimización: el input del System Prompt
+  en Claude Projects está cacheado y NO cuenta contra los límites de uso
+  cuando se reutiliza en conversaciones posteriores. Esto hace que tener
+  un prompt grande en el Project tenga el mismo costo de input que uno pequeño,
+  eliminando la ventaja de fragmentarlo en archivos separados.
+
+  El prompt maestro unifica las 6 secciones (Recolección + Light + Heavy +
+  Generador Light + Generador Heavy + Generador Sankey) en un solo archivo
+  diseñado específicamente para vivir en el System Prompt de un Claude Project.
+  El modelo lee todo pero ejecuta únicamente la sección que el usuario solicita.
+
+MODULARIDAD PRESERVADA:
+  Los 6 archivos modulares se mantienen para uso en otros LLMs (Perplexity,
+  Gemini, GPT) que tienen limitaciones de API o ventana de contexto reducida.
+  El maestro es adicional, no reemplaza los modulares.
+
+ARCHIVO:
+  prompt_maestro_X0.41.txt — 440 líneas · ~25KB
+  Contiene: Sección A (Recolección) · B (Light) · C (Heavy) ·
+            D (Gen Light) · E (Gen Heavy) · F (Gen Sankey)
+=========================================
