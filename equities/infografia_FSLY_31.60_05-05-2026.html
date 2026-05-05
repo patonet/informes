@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FSLY — Fastly · Feroldi X0.50 · 05-05-2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#050a12;--bg2:#080f1c;--bg3:#0d1f35;--bg4:#0a1628;
+  --txt:#c8d8f0;--muted:#94a3b8;
+  --cyan:#00d4ff;--green:#00ff9d;--gold:#ffd700;--red:#ff3a3a;
+  --orange:#ff8c00;--blue:#1a3a6e;--purple:#7c3aed;
+  --border:#1a2a4a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:clamp(10px,1.1vw,16px)}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999}
+.wrap{max-width:1600px;margin:0 auto;padding:1rem 1.5rem}
+
+/* ===== ZONA 1 ===== */
+.zona1{display:grid;grid-template-columns:1fr auto;gap:1rem;background:linear-gradient(135deg,#050a12 0%,#0a1e3a 50%,#050a12 100%);border:1px solid var(--border);border-radius:.8rem;padding:1.2rem 1.5rem;margin-bottom:1.2rem;position:relative}
+.z1-left{display:flex;flex-direction:column;gap:.6rem}
+.z1-top{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.logo-wrap img{height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:.3rem}
+.logo-fb{display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:.4rem;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:var(--cyan);cursor:pointer}
+.ticker-name h1{font-size:1.6rem;font-weight:900;color:var(--cyan);letter-spacing:.05em;cursor:pointer}
+.ticker-name span{font-size:.85rem;color:var(--muted);display:block}
+.z1-frase{font-style:italic;color:var(--cyan);background:var(--bg4);border-left:3px solid var(--cyan);padding:.5rem .8rem;border-radius:0 .4rem .4rem 0;font-size:.88rem;line-height:1.5;cursor:pointer;max-width:55rem}
+
+/* Price column */
+.z1-right{display:flex;flex-direction:column;align-items:flex-end;gap:.7rem;min-width:14rem}
+.price-big{font-size:2.2rem;font-weight:900;font-family:'Courier New',monospace;color:var(--green);text-align:right}
+.price-delta{font-size:.95rem;font-weight:700;color:var(--green);text-align:right}
+
+/* 52W bar */
+.w52{width:100%}
+.w52-label{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.2rem}
+.w52-label .lo{color:var(--red)} .w52-label .hi{color:var(--green)}
+.w52-track{height:.45rem;background:var(--border);border-radius:.25rem;position:relative}
+.w52-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));border-radius:.25rem}
+.w52-mark{position:absolute;width:.15rem;height:.85rem;top:-0.2rem;background:var(--cyan)}
+.w52-pct{font-size:.7rem;color:var(--cyan);text-align:center;margin-top:.25rem}
+
+/* Perf bar */
+.perf-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:.1rem;background:var(--bg2);border-radius:.4rem;padding:.5rem .3rem;border:1px solid var(--border);margin-top:.5rem}
+.perf-cell{display:flex;flex-direction:column;align-items:center;gap:.1rem;padding:.2rem .05rem;border-right:1px solid var(--border)}
+.perf-cell:last-child{border-right:none}
+.perf-lbl{font-size:.65rem;color:var(--muted);text-align:center}
+.perf-val{font-size:.8rem;font-weight:700;font-family:'Courier New',monospace}
+.pos{color:#00c853} .neg{color:#e53935} .na{color:#555}
+
+/* Scores top-right */
+.scores-row{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+
+/* Feroldi card */
+.feroldi-card{background:var(--bg4);border:1px solid var(--gold);border-radius:.6rem;padding:.7rem 1rem;text-align:center;min-width:7rem}
+.fc-pct{font-size:2rem;font-weight:900;color:var(--gold);font-family:'Courier New',monospace}
+.fc-score{font-size:.8rem;color:var(--muted);margin-top:.1rem}
+.fc-gauge{margin:.4rem auto 0;display:block}
+
+/* Veredicto badge */
+.badge{display:inline-block;padding:.3rem .9rem;border-radius:2rem;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.badge-neutral{background:#5d4037;color:#ffcc80;border:1px solid #ff8c00}
+.badge-buy{background:#1b5e20;color:#a5d6a7;border:1px solid #00c853}
+.badge-avoid{background:#b71c1c;color:#ffcdd2;border:1px solid var(--red)}
+.badge-spec{background:#e65100;color:#ffe0b2;border:1px solid #ff8c00}
+
+/* Semáforos */
+.semaforos-row{display:flex;gap:.5rem;align-items:flex-start;flex-wrap:wrap}
+.sem-item{display:flex;flex-direction:column;align-items:center;gap:.2rem;cursor:pointer;position:relative}
+.sem-lbl{font-size:.6rem;color:var(--muted);text-align:center;max-width:3rem}
+
+/* EARNINGS ALERT */
+.earnings-alert{background:linear-gradient(90deg,rgba(255,58,58,.15),rgba(255,140,0,.1));border:1px solid var(--red);border-radius:.5rem;padding:.5rem 1rem;display:flex;align-items:center;gap:.6rem;font-size:.82rem;font-weight:700;color:var(--red);margin-bottom:.8rem}
+.earnings-alert .blip{width:.7rem;height:.7rem;border-radius:50%;background:var(--red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* IA row */
+.ia-row{display:flex;align-items:center;gap:.5rem;margin-top:.3rem}
+.ia-text{font-size:.82rem;font-weight:700}
+
+/* ===== ZONA 2 ===== */
+.zona2{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.2rem}
+.stat-group{background:var(--bg2);border:1px solid var(--border);border-radius:.5rem;padding:.7rem}
+.stat-group-title{font-size:.7rem;text-transform:uppercase;color:var(--muted);letter-spacing:.08em;margin-bottom:.6rem;display:flex;align-items:center;gap:.3rem}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.stat-card{background:var(--bg4);border-radius:.4rem;padding:.45rem .5rem}
+.stat-val{font-size:1.1rem;font-weight:700;font-family:'Courier New',monospace;display:flex;align-items:center;gap:.3rem}
+.stat-label{font-size:.68rem;color:var(--muted);margin-top:.1rem}
+.dot{width:.5rem;height:.5rem;border-radius:50%;flex-shrink:0}
+.dg{background:#00c853}.dy{background:#ffd700}.dr{background:#e53935}
+
+/* ===== ZONA 3 ===== */
+.zona3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+.chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:.8rem}
+.chart-title{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.chart-wrap{position:relative;width:100%;aspect-ratio:4/3}
+.chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.chart-legend{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.4rem}
+.leg-item{display:flex;align-items:center;gap:.3rem;font-size:.7rem;color:var(--muted)}
+.leg-box{width:.9rem;height:.7rem;border-radius:.15rem}
+.leg-line{width:1.2rem;height:.2rem;border-radius:.1rem}
+
+/* ===== ZONA 4 (Analysts — Heavy) ===== */
+.zona4{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:1rem;margin-bottom:1.2rem}
+.z4-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.analyst-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.analyst-table th{color:var(--cyan);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:.3rem .5rem;border-bottom:1px solid var(--border);text-align:left}
+.analyst-table td{padding:.35rem .5rem;border-bottom:1px solid var(--border)}
+.analyst-table tr:last-child td{border-bottom:none}
+.analyst-table tr:hover td{background:var(--bg3)}
+.rat-buy{color:#00c853;font-weight:700}.rat-hold{color:var(--gold);font-weight:700}.rat-sell{color:var(--red);font-weight:700}.rat-op{color:var(--cyan);font-weight:700}
+.consensus-box{background:var(--bg4);border:1px solid var(--border);border-radius:.5rem;padding:.8rem}
+.cons-title{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.cons-pts{font-size:2rem;font-weight:900;font-family:'Courier New',monospace;color:var(--gold)}
+.cons-sub{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+.cons-range{font-size:.85rem;color:var(--cyan);font-family:'Courier New',monospace;margin-top:.3rem}
+.cons-bars{display:flex;gap:.4rem;align-items:flex-end;height:3rem;margin-top:.6rem}
+.cons-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:.2rem;flex:1}
+.cons-bar{width:100%;border-radius:.2rem .2rem 0 0;transition:height .3s}
+.cons-bar-lbl{font-size:.65rem;color:var(--muted);text-align:center}
+.cons-bar-n{font-size:.72rem;font-weight:700;font-family:'Courier New',monospace}
+/* vs price marker */
+.vs-price{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.75rem;padding:.3rem .5rem;background:var(--bg3);border-radius:.3rem}
+.vs-price .below{color:var(--red)}.vs-price .above{color:var(--green)}
+
+/* SOTP */
+.sotp-box{background:var(--bg4);border:1px solid var(--border);border-radius:.5rem;padding:.8rem}
+.sotp-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.sotp-row:last-child{border-bottom:none;font-weight:700;color:var(--gold)}
+.sotp-seg{color:var(--txt)}
+.sotp-val{font-family:'Courier New',monospace;color:var(--cyan)}
+.sotp-target{font-size:1.4rem;font-weight:900;font-family:'Courier New',monospace;color:var(--red);margin-top:.4rem}
+
+/* ===== ZONA 5 Feroldi ===== */
+.zona5{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:1rem;margin-bottom:1.2rem}
+.z5-inner{display:grid;grid-template-columns:28rem 1fr;gap:1.5rem;align-items:start}
+.spider-wrap{position:relative;aspect-ratio:1;max-width:28rem;margin:0 auto}
+.spider-wrap canvas{width:100%!important;height:100%!important}
+.scorecard{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem}
+.sc-group{background:var(--bg4);border-radius:.5rem;padding:.5rem;border-top:2px solid var(--cyan)}
+.sc-group-title{font-size:.72rem;font-weight:700;color:var(--cyan);text-align:center;margin-bottom:.2rem}
+.sc-group-avg{font-size:1.3rem;font-weight:900;font-family:'Courier New',monospace;color:var(--gold);text-align:center;margin-bottom:.4rem}
+.sc-point{margin-bottom:.4rem;cursor:pointer}
+.sc-point-name{font-size:.68rem;color:var(--txt);margin-bottom:.15rem}
+.gauge-mini{display:block;margin:0 auto}
+.sc-score{font-size:1rem;font-weight:700;font-family:'Courier New',monospace;color:var(--gold);text-align:center}
+.z5-global{text-align:center;margin-top:.8rem;padding:.5rem;background:var(--bg4);border-radius:.4rem}
+.z5-global-pct{font-size:2rem;font-weight:900;font-family:'Courier New',monospace;color:var(--gold)}
+.z5-global-score{font-size:.85rem;color:var(--muted)}
+
+/* ===== ZONA 6 ===== */
+.zona6{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+.risks-box,.comp-box{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:.8rem}
+.section-title{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem}
+.risk-table{width:100%;border-collapse:collapse;font-size:.75rem}
+.risk-table th{color:var(--cyan);font-size:.68rem;text-transform:uppercase;padding:.25rem .4rem;border-bottom:1px solid var(--border);text-align:left}
+.risk-table td{padding:.3rem .4rem;border-bottom:1px solid var(--border);vertical-align:top}
+.risk-table tr:last-child td{border-bottom:none}
+.risk-badge{display:inline-block;padding:.1rem .4rem;border-radius:.2rem;font-size:.65rem;font-weight:700;letter-spacing:.05em}
+.rb-high{background:rgba(229,57,53,.2);color:#e57373;border:1px solid #e57373}
+.rb-med{background:rgba(255,152,0,.15);color:#ffb74d;border:1px solid #ffb74d}
+.rb-low{background:rgba(0,200,83,.1);color:#69f0ae;border:1px solid #69f0ae}
+
+/* Competitor table */
+.comp-table{width:100%;border-collapse:collapse;font-size:.72rem}
+.comp-table th{color:var(--cyan);font-size:.66rem;text-transform:uppercase;padding:.25rem .35rem;border-bottom:1px solid var(--border);text-align:right}
+.comp-table th:first-child{text-align:left}
+.comp-table td{padding:.3rem .35rem;border-bottom:1px solid var(--border);text-align:right;font-family:'Courier New',monospace}
+.comp-table td:first-child{text-align:left;font-family:'Segoe UI',system-ui}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-fsly td{background:var(--bg4);border-left:3px solid var(--cyan)!important}
+.comp-logo{width:1.4rem;height:1.4rem;object-fit:contain;vertical-align:middle;margin-right:.3rem;border-radius:.2rem}
+.w52-mini{display:inline-block;vertical-align:middle}
+
+/* Verdict + tesis */
+.verdict-box{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:1rem;margin-bottom:1.2rem}
+.verdict-inner{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:start}
+.verdict-left{text-align:center}
+.verdict-badge-big{font-size:1.1rem;font-weight:900;padding:.5rem 1.2rem;border-radius:.4rem;display:inline-block;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.08em}
+.sl-tp-table{border-collapse:collapse;font-size:.78rem;width:100%}
+.sl-tp-table th{color:var(--muted);font-size:.68rem;text-transform:uppercase;padding:.25rem .4rem;border-bottom:1px solid var(--border);text-align:left}
+.sl-tp-table td{padding:.28rem .4rem;border-bottom:1px solid var(--border);font-family:'Courier New',monospace}
+.sl-tp-table tr:last-child td{border-bottom:none}
+.verdict-right{}
+.tesis-txt{font-size:.8rem;color:var(--txt);line-height:1.6;margin-bottom:.6rem}
+.patonet{font-size:.75rem;color:var(--gold);font-weight:700;text-align:right}
+
+/* Popups */
+.popup-base{display:none;position:fixed;background:var(--bg4);border:2px solid var(--cyan);border-radius:.8rem;padding:1.2rem;max-width:36rem;max-height:80vh;overflow-y:auto;z-index:10000;font-size:.9rem;color:var(--txt);box-shadow:0 0 40px rgba(0,212,255,.3);line-height:1.5}
+.popup-base h3{color:var(--cyan);margin-bottom:.6rem}
+#feroldiPopup{display:none;position:fixed;background:var(--bg3);border:1px solid var(--cyan);border-radius:.5rem;padding:.8rem;max-width:22rem;font-size:.85rem;color:var(--txt);z-index:9999;pointer-events:none;box-shadow:0 0 20px rgba(0,212,255,.2);line-height:1.5}
+#compPopup{display:none;position:fixed;background:var(--bg4);border:1px solid var(--cyan);border-radius:.5rem;padding:1rem;max-width:28rem;font-size:.82rem;color:var(--txt);z-index:9999;pointer-events:none;box-shadow:0 0 20px rgba(0,212,255,.2)}
+#semPopup{display:none;position:fixed;background:var(--bg4);border:1px solid;border-radius:.4rem;padding:.7rem;max-width:20rem;font-size:.8rem;color:var(--txt);z-index:9999;pointer-events:none}
+.footer-bar{text-align:center;font-size:.7rem;color:var(--muted);padding:1rem 0 2rem;border-top:1px solid var(--border);margin-top:.5rem}
+
+@media(max-width:900px){
+  .zona1{grid-template-columns:1fr}
+  .zona2{grid-template-columns:repeat(2,1fr)}
+  .zona3,.z4-grid,.z5-inner,.zona6{grid-template-columns:1fr}
+  .scorecard{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- EARNINGS ALERT -->
+<div class="earnings-alert">
+  <div class="blip"></div>
+  🚨 Q1 2026 EARNINGS MAÑANA · 06-05-2026 AFTER MARKET CLOSE · Consenso: Rev $170.3M · EPS nGAAP $0.08
+</div>
+
+<!-- ===== ZONA 1 ===== -->
+<div class="zona1">
+  <div class="z1-left">
+    <div class="z1-top">
+      <div class="logo-wrap">
+        <img id="triggerLogo" src="https://logo.clearbit.com/fastly.com"
+          onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=fastly.com&sz=128';this.onerror=function(){this.style.display='none';document.getElementById('logoFallback').style.display='flex';};"
+          style="height:3.5rem;width:auto;object-fit:contain;cursor:pointer;border-radius:.3rem" alt="FSLY">
+        <div id="logoFallback" style="display:none;width:3.5rem;height:3.5rem;background:#1a3a6e;border-radius:.4rem;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:var(--cyan);cursor:pointer">FL</div>
+      </div>
+      <div class="ticker-name">
+        <h1 id="triggerNombre">FSLY</h1>
+        <span>Fastly, Inc. · NASDAQ · Edge Cloud Platform</span>
+      </div>
+      <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+        <div class="badge badge-neutral">🟡 NEUTRAL</div>
+        <div class="ia-row" id="triggerIA" style="cursor:pointer">
+          <svg viewBox="0 0 80 200" width="2.8rem" xmlns="http://www.w3.org/2000/svg">
+            <defs><filter id="glow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <rect x="4" y="4" width="72" height="192" rx="12" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+            <rect x="8" y="8" width="64" height="184" rx="10" fill="#111" stroke="#333" stroke-width="1"/>
+            <circle cx="16" cy="16" r="3" fill="#333" stroke="#555"/><circle cx="64" cy="16" r="3" fill="#333" stroke="#555"/>
+            <circle cx="16" cy="184" r="3" fill="#333" stroke="#555"/><circle cx="64" cy="184" r="3" fill="#333" stroke="#555"/>
+            <rect x="8" y="70" width="64" height="3" fill="#222"/><rect x="8" y="127" width="64" height="3" fill="#222"/>
+            <!-- NARANJA ON = riesgo medio -->
+            <circle cx="40" cy="42" r="22" fill="#2d0a0a"/>
+            <ellipse cx="33" cy="34" rx="7" ry="5" fill="white" opacity="0.05"/>
+            <circle cx="40" cy="100" r="22" fill="#3d2800" filter="url(#glow2)"/>
+            <ellipse cx="33" cy="92" rx="7" ry="5" fill="white" opacity="0.35"/>
+            <circle cx="40" cy="100" r="22" stroke="#ff8c00" stroke-width="1.5" fill="none" filter="url(#glow2)"/>
+            <circle cx="40" cy="158" r="22" fill="#003d1a"/>
+            <ellipse cx="33" cy="150" rx="7" ry="5" fill="white" opacity="0.05"/>
+          </svg>
+          <div>
+            <div class="ia-text" style="color:#ff8c00">IA: NARANJA</div>
+            <div style="font-size:.72rem;color:var(--muted)">Riesgo Medio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="triggerFrase" class="z1-frase">"La capa de software que decide si el internet responde en 50 milisegundos o en 5 segundos — y que ahora apuesta a convertirse en la memoria caché de los modelos de inteligencia artificial."</div>
+
+    <!-- Perf Bar -->
+    <div class="perf-bar">
+      <div class="perf-cell"><div class="perf-lbl">5D</div><div class="perf-val pos">+20.8%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">1M</div><div class="perf-val pos">+3.5%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">3M</div><div class="perf-val pos">+263.5%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">6M</div><div class="perf-val pos">+228.7%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">YTD</div><div class="perf-val pos">+208.6%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">1Y</div><div class="perf-val pos">+460.3%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">5Y</div><div class="perf-val neg">-32.6%</div></div>
+      <div class="perf-cell"><div class="perf-lbl">IPO</div><div class="perf-val pos">+99.3%</div></div>
+    </div>
+
+    <!-- Mini B0 semáforos -->
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.3rem">
+      <span style="font-size:.7rem;color:var(--muted)">B0:</span>
+      <div class="sem-item" data-sem="B0.1 Competencia · AMARILLO — Sector competitivo (NET/AKAM dominantes) pero nicho técnico de Fastly en alto-dinámica workloads es real y documentado. Price erosión mejoró de mid-teens a mid-single digits Q4 2025.">
+        <svg viewBox="0 0 80 200" width="1.2rem"><rect x="4" y="4" width="72" height="192" rx="10" fill="#1a1a1a" stroke="#555" stroke-width="2"/><circle cx="40" cy="42" r="20" fill="#3d3200" stroke="#ffd700" stroke-width="1.5"/><circle cx="40" cy="100" r="20" fill="#111"/><circle cx="40" cy="158" r="20" fill="#111"/></svg>
+        <div class="sem-lbl">B0.1</div>
+      </div>
+      <div class="sem-item" data-sem="B0.2 Simplicidad · AMARILLO — Modelo usage-based comprensible (CDN+Security+Compute). AI Accelerator narrativa agrega complejidad estratégica especulativa.">
+        <svg viewBox="0 0 80 200" width="1.2rem"><rect x="4" y="4" width="72" height="192" rx="10" fill="#1a1a1a" stroke="#555" stroke-width="2"/><circle cx="40" cy="42" r="20" fill="#3d3200" stroke="#ffd700" stroke-width="1.5"/><circle cx="40" cy="100" r="20" fill="#111"/><circle cx="40" cy="158" r="20" fill="#111"/></svg>
+        <div class="sem-lbl">B0.2</div>
+      </div>
+      <div class="sem-item" data-sem="B0.3 Predictibilidad · AMARILLO — RPO +55% y NRR 110% mejoran visibilidad. Pero modelo usage-based volátil y ByteDance risk elevado. CFO hedgeó con 'macroeconomic and geopolitical uncertainty'.">
+        <svg viewBox="0 0 80 200" width="1.2rem"><rect x="4" y="4" width="72" height="192" rx="10" fill="#1a1a1a" stroke="#555" stroke-width="2"/><circle cx="40" cy="42" r="20" fill="#3d3200" stroke="#ffd700" stroke-width="1.5"/><circle cx="40" cy="100" r="20" fill="#111"/><circle cx="40" cy="158" r="20" fill="#111"/></svg>
+        <div class="sem-lbl">B0.3</div>
+      </div>
+      <div class="sem-item" data-sem="Veredicto B0 · AMARILLO — PROCEDER CON CAUTELA. Triple AMARILLO: competencia alta pero nicho viable, modelo comprensible con narrativa AI especulativa, predictibilidad mejorando pero aún volátil.">
+        <svg viewBox="0 0 80 200" width="1.2rem"><rect x="4" y="4" width="72" height="192" rx="10" fill="#1a1a1a" stroke="#555" stroke-width="2"/><circle cx="40" cy="42" r="20" fill="#3d3200" stroke="#ffd700" stroke-width="1.5"/><circle cx="40" cy="100" r="20" fill="#111"/><circle cx="40" cy="158" r="20" fill="#111"/></svg>
+        <div class="sem-lbl">Vrd</div>
+      </div>
+      <span style="font-size:.72rem;color:var(--gold);font-weight:700">🟡 PROCEDER CON CAUTELA</span>
+    </div>
+  </div>
+
+  <!-- Right side -->
+  <div class="z1-right">
+    <div>
+      <div class="price-big">$31.60</div>
+      <div class="price-delta">↑ +5.6% (5D) · NASDAQ</div>
+    </div>
+
+    <!-- 52W bar -->
+    <div class="w52">
+      <div class="w52-label">
+        <span class="lo">▼ $5.84</span>
+        <span style="color:var(--muted);font-size:.7rem">Rango 52W</span>
+        <span class="hi">▲ $34.82</span>
+      </div>
+      <div class="w52-track">
+        <div class="w52-fill" style="width:91%"></div>
+        <div class="w52-mark" style="left:89%"></div>
+      </div>
+      <div class="w52-pct">● Precio al 91% del rango · Cerca del máximo histórico 52W</div>
+    </div>
+
+    <!-- Feroldi gauge -->
+    <div class="feroldi-card">
+      <div class="fc-pct">51.6%</div>
+      <div class="fc-score">82.5 / 160 pts</div>
+      <svg class="fc-gauge" viewBox="0 0 120 70" width="7rem" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="gaugeG" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#e53935"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#00c853"/>
+        </linearGradient></defs>
+        <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="#1a2a4a" stroke-width="12"/>
+        <path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="url(#gaugeG)" stroke-width="10"/>
+        <!-- angle = (51.6/100)*180 = 92.9 deg → nx=60+45*cos((180-92.9)*PI/180)=60+45*cos(87.1°)=60+2.3=62.3, ny=60-45*sin(87.1°)=60-44.9=15.1 -->
+        <line x1="60" y1="60" x2="62" y2="15" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="60" cy="60" r="3" fill="#ffd700"/>
+      </svg>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">🟡 Zona Amarilla</div>
+    </div>
+
+    <!-- Segmentos snapshot -->
+    <div style="background:var(--bg4);border:1px solid var(--border);border-radius:.5rem;padding:.6rem;font-size:.72rem">
+      <div style="color:var(--muted);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">Segmentos FY2025</div>
+      <div style="display:flex;flex-direction:column;gap:.2rem">
+        <div style="display:flex;justify-content:space-between"><span>🔵 CDN Services</span><span style="color:var(--cyan);font-family:monospace">$477.8M <span style="color:var(--green)">+12%</span></span></div>
+        <div style="display:flex;justify-content:space-between"><span>🔴 Security</span><span style="color:var(--cyan);font-family:monospace">$125.1M <span style="color:var(--green)">+21%</span></span></div>
+        <div style="display:flex;justify-content:space-between"><span>🟡 Compute+Obs</span><span style="color:var(--cyan);font-family:monospace">$21.1M <span style="color:var(--green)">+64%</span></span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:.2rem;font-weight:700"><span>Total</span><span style="color:var(--green);font-family:monospace">$624.0M ✅</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZONA 2 ===== -->
+<div class="zona2">
+  <!-- Valoración -->
+  <div class="stat-group">
+    <div class="stat-group-title">🏦 Valoración</div>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>N/A</div><div class="stat-label">P/E TTM (GAAP)</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>~122×</div><div class="stat-label">P/E Fwd nGAAP</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-$0.83</div><div class="stat-label">EPS TTM GAAP</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>$4.5B</div><div class="stat-label">Market Cap</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>~8.2×</div><div class="stat-label">EV / Sales</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>$0.26</div><div class="stat-label">EPS Fwd nGAAP '26</div></div>
+    </div>
+  </div>
+  <!-- Rentabilidad -->
+  <div class="stat-group">
+    <div class="stat-group-title">💰 Rentabilidad</div>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>57.1%</div><div class="stat-label">Margen Bruto GAAP</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-4.7%</div><div class="stat-label">Margen EBITDA</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-19.1%</div><div class="stat-label">Margen Operativo</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-19.5%</div><div class="stat-label">Margen Neto</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-5.43%</div><div class="stat-label">ROIC</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-8.1%</div><div class="stat-label">ROA</div></div>
+    </div>
+  </div>
+  <!-- Crecimiento -->
+  <div class="stat-group">
+    <div class="stat-group-title">📈 Crecimiento</div>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>+15.0%</div><div class="stat-label">Revenue YoY</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>+23%</div><div class="stat-label">Rev Q4 2025 YoY</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>+14%</div><div class="stat-label">Rev Guide FY2026</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>110%</div><div class="stat-label">NRR Q4 2025</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>$354M</div><div class="stat-label">RPO (+55% YoY)</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>628</div><div class="stat-label">Clientes Ent.</div></div>
+    </div>
+  </div>
+  <!-- Balance & Riesgo -->
+  <div class="stat-group">
+    <div class="stat-group-title">⚖️ Balance & Riesgo</div>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>0.46</div><div class="stat-label">D/E Ratio</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>2.61</div><div class="stat-label">Current Ratio</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dy"></div>0.92</div><div class="stat-label">Beta ⚠️anóm.</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dg"></div>$65.8M</div><div class="stat-label">FCF GAAP FY25</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>-$51.6M</div><div class="stat-label">FCF post-SBC 🚨</div></div>
+      <div class="stat-card"><div class="stat-val"><div class="dot dr"></div>0%</div><div class="stat-label">Div. Yield</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZONA 3 ===== -->
+<div class="zona3">
+  <!-- Col 1: Revenue & Net Income quarterly -->
+  <div class="chart-box">
+    <div class="chart-title">Ingresos & Rentabilidad — Q1–Q4 FY2025</div>
+    <div class="chart-wrap"><canvas id="chartRev"></canvas></div>
+    <div class="chart-legend">
+      <div class="leg-item"><div class="leg-box" style="background:#1a3a6e"></div>Revenue</div>
+      <div class="leg-item"><div class="leg-box" style="background:#00d4ff"></div>Net Income (pérdida)</div>
+      <div class="leg-item"><div class="leg-line" style="background:#ff8c00"></div>Margen Neto %</div>
+    </div>
+  </div>
+
+  <!-- Col 2: Waterfall Q4 2025 -->
+  <div class="chart-box">
+    <div class="chart-title">Conversión Ingresos → Utilidad — Q4 FY2025</div>
+    <div class="chart-wrap"><canvas id="chartWF"></canvas></div>
+  </div>
+
+  <!-- Col 3: Donut segmentos -->
+  <div class="chart-box">
+    <div class="chart-title">Composición de Ingresos FY2025</div>
+    <div class="chart-wrap"><canvas id="chartDon"></canvas></div>
+    <div class="chart-legend" style="justify-content:center;margin-top:.3rem">
+      <div class="leg-item"><div class="leg-box" style="background:#1a5fa0"></div>CDN 76.6%</div>
+      <div class="leg-item"><div class="leg-box" style="background:#e53935"></div>Security 20.1%</div>
+      <div class="leg-item"><div class="leg-box" style="background:#ffd700"></div>Compute 3.4%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZONA 4: Analistas & SOTP ===== -->
+<div class="zona4">
+  <div style="font-size:.85rem;font-weight:700;color:var(--cyan);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.06em">📊 Consenso Analistas H2 · SOTP Valoración</div>
+  <div class="z4-grid">
+    <!-- Analysts table -->
+    <div>
+      <table class="analyst-table">
+        <thead><tr><th>Banco</th><th>Analista</th><th>Rating</th><th>PT</th><th>vs $31.60</th></tr></thead>
+        <tbody>
+          <tr><td>Evercore ISI</td><td style="color:var(--muted)">P. Levine</td><td class="rat-op">Strong Buy</td><td style="font-family:monospace;color:var(--green)">$32.00</td><td style="color:var(--green);font-family:monospace">+1.3%</td></tr>
+          <tr><td>Piper Sandler</td><td style="color:var(--muted)">J. Fish</td><td class="rat-hold">Neutral</td><td style="font-family:monospace;color:var(--gold)">$30.00</td><td style="color:var(--red);font-family:monospace">-5.1%</td></tr>
+          <tr><td>RBC Capital</td><td style="color:var(--muted)">R. Jaluria</td><td class="rat-hold">Sector Perform</td><td style="font-family:monospace;color:var(--gold)">$20.00</td><td style="color:var(--red);font-family:monospace">-36.7%</td></tr>
+          <tr><td>William Blair</td><td style="color:var(--muted)">—</td><td class="rat-buy">Outperform</td><td style="font-family:monospace;color:var(--muted)">N/D</td><td style="color:var(--muted);font-family:monospace">—</td></tr>
+          <tr><td>Citigroup</td><td style="color:var(--muted)">F. Boolani</td><td class="rat-hold">Neutral</td><td style="font-family:monospace;color:var(--red)">$13.00</td><td style="color:var(--red);font-family:monospace">-58.9%</td></tr>
+          <tr><td>KeyBanc</td><td style="color:var(--muted)">J. Ader</td><td class="rat-buy">Overweight</td><td style="font-family:monospace;color:var(--red)">$14.00</td><td style="color:var(--red);font-family:monospace">-55.7%</td></tr>
+          <tr><td>DA Davidson</td><td style="color:var(--muted)">R. Kessinger</td><td class="rat-hold">Neutral</td><td style="font-family:monospace;color:var(--red)">$9.00</td><td style="color:var(--red);font-family:monospace">-71.5%</td></tr>
+          <tr><td>Morgan Stanley</td><td style="color:var(--muted)">—</td><td class="rat-hold">Neutral</td><td style="font-family:monospace;color:var(--red)">$8.00</td><td style="color:var(--red);font-family:monospace">-74.7%</td></tr>
+        </tbody>
+      </table>
+      <!-- Consensus summary -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.7rem">
+        <div class="consensus-box">
+          <div class="cons-title">Consenso · 8 analistas</div>
+          <div class="cons-pts">$19.00</div>
+          <div class="cons-sub">Precio objetivo mediano</div>
+          <div class="cons-range">Rango: $8 — $32</div>
+          <div class="vs-price">
+            <span class="below">Stock sobre media analistas</span>
+            <span style="color:var(--red);font-family:monospace;font-weight:700">+66.3%</span>
+          </div>
+          <div class="cons-bars">
+            <div class="cons-bar-wrap">
+              <div class="cons-bar-n" style="color:#00c853">3</div>
+              <div class="cons-bar" style="height:100%;background:#00c853"></div>
+              <div class="cons-bar-lbl">Buy</div>
+            </div>
+            <div class="cons-bar-wrap">
+              <div class="cons-bar-n" style="color:#ffd700">5</div>
+              <div class="cons-bar" style="height:167%;background:#ffd700"></div>
+              <div class="cons-bar-lbl">Hold</div>
+            </div>
+            <div class="cons-bar-wrap">
+              <div class="cons-bar-n" style="color:#e53935">0</div>
+              <div class="cons-bar" style="height:0%;background:#e53935"></div>
+              <div class="cons-bar-lbl">Sell</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:.75rem;background:var(--bg4);border-radius:.4rem;padding:.6rem">
+          <div style="color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Dispersión PT — Insight</div>
+          <div style="line-height:1.6;color:var(--txt)">Rango <span style="color:var(--red);font-family:monospace">$8–$32</span> = 4× dispersión extrema. <strong style="color:var(--gold)">El stock ($31.60) supera incluso al PT más optimista ($32 Evercore).</strong> Señal de que el mercado está pagando por optionalidad AI que Wall Street no ha modelado. Consenso implica <span style="color:var(--red)">-39.9%</span> downside al precio objetivo promedio de $19.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOTP -->
+    <div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">H3 — SOTP Valoración (3 Segmentos)</div>
+      <div class="sotp-box">
+        <div class="sotp-row" style="font-size:.7rem;color:var(--muted);border-bottom:1px solid var(--border)">
+          <span style="font-weight:700;color:var(--cyan)">Segmento</span>
+          <span style="font-weight:700;color:var(--cyan)">Rev × Mult</span>
+          <span style="font-weight:700;color:var(--cyan)">EV Parcial</span>
+        </div>
+        <div class="sotp-row">
+          <span class="sotp-seg">🔵 CDN Services</span>
+          <span style="font-size:.72rem;color:var(--muted)">$477.8M × 3.5×</span>
+          <span class="sotp-val">$1,672M</span>
+        </div>
+        <div class="sotp-row">
+          <span class="sotp-seg">🔴 Security</span>
+          <span style="font-size:.72rem;color:var(--muted)">$125.1M × 7.0×</span>
+          <span class="sotp-val">$876M</span>
+        </div>
+        <div class="sotp-row">
+          <span class="sotp-seg">🟡 Compute+AI</span>
+          <span style="font-size:.72rem;color:var(--muted)">$21.1M × 15×</span>
+          <span class="sotp-val">$317M</span>
+        </div>
+        <div class="sotp-row" style="border-top:1px solid var(--border)">
+          <span>EV Total</span>
+          <span></span>
+          <span class="sotp-val">$2,865M</span>
+        </div>
+        <div class="sotp-row">
+          <span>Menos Deuda Neta</span>
+          <span></span>
+          <span class="sotp-val" style="color:var(--red)">-$610M</span>
+        </div>
+        <div class="sotp-row" style="border-top:2px solid var(--gold)">
+          <span class="sotp-seg" style="color:var(--gold);font-weight:700">Equity SOTP</span>
+          <span></span>
+          <span class="sotp-val" style="color:var(--gold)">$2,255M</span>
+        </div>
+        <div class="sotp-row" style="font-size:.78rem">
+          <span style="color:var(--txt)">÷ 147M shares</span>
+          <span></span>
+          <span class="sotp-val" style="color:var(--txt)">—</span>
+        </div>
+        <div style="text-align:center;padding:.5rem;background:rgba(255,58,58,.07);border-radius:.3rem;margin-top:.4rem">
+          <div style="font-size:.7rem;color:var(--muted)">SOTP Precio/Share (Base)</div>
+          <div class="sotp-target">$15.34</div>
+          <div style="font-size:.75rem;color:var(--red);margin-top:.2rem">-51.5% vs $31.60 actual</div>
+        </div>
+        <div style="text-align:center;padding:.4rem;background:rgba(0,200,83,.05);border-radius:.3rem;margin-top:.3rem">
+          <div style="font-size:.68rem;color:var(--muted)">SOTP Bull (CDN 4.5×, Sec 9×, AI 25×)</div>
+          <div style="font-size:1.1rem;font-weight:700;font-family:'Courier New',monospace;color:var(--green)">$23.20</div>
+          <div style="font-size:.72rem;color:var(--red)">-26.6% vs precio actual</div>
+        </div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.4rem;line-height:1.4">
+          <span style="color:var(--gold)">Implicit AI premium pagado:</span> $9–$16/share para el segmento Compute ($21M rev) que crece +64%. El mercado valúa este segmento a <span style="color:var(--red);font-weight:700">60-110× EV/Sales</span>.
+        </div>
+      </div>
+
+      <!-- Escenarios -->
+      <div style="margin-top:.7rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;font-size:.75rem">
+        <div style="background:rgba(229,57,53,.1);border:1px solid var(--red);border-radius:.4rem;padding:.5rem;text-align:center">
+          <div style="color:var(--red);font-weight:700;margin-bottom:.2rem">🔴 Bear</div>
+          <div style="font-family:monospace;font-size:1.1rem;color:var(--red);font-weight:700">$10</div>
+          <div style="color:var(--muted)">-68%</div>
+          <div style="color:var(--muted);font-size:.65rem;margin-top:.2rem">ByteDance ban + Edgio fade + miss</div>
+        </div>
+        <div style="background:rgba(255,215,0,.08);border:1px solid var(--gold);border-radius:.4rem;padding:.5rem;text-align:center">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:.2rem">🟡 Base</div>
+          <div style="font-family:monospace;font-size:1.1rem;color:var(--gold);font-weight:700">$34</div>
+          <div style="color:var(--muted)">+7.6%</div>
+          <div style="color:var(--muted);font-size:.65rem;margin-top:.2rem">Guidance cumplido, sin AI traction</div>
+        </div>
+        <div style="background:rgba(0,200,83,.08);border:1px solid #00c853;border-radius:.4rem;padding:.5rem;text-align:center">
+          <div style="color:#00c853;font-weight:700;margin-bottom:.2rem">🟢 Bull</div>
+          <div style="font-family:monospace;font-size:1.1rem;color:#00c853;font-weight:700">$55</div>
+          <div style="color:var(--muted)">+74%</div>
+          <div style="color:var(--muted);font-size:.65rem;margin-top:.2rem">AI Accelerator + GAAP near-breakeven</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZONA 5: FEROLDI SPIDER + SCORECARD ===== -->
+<div class="zona5">
+  <div style="font-size:.85rem;font-weight:700;color:var(--cyan);margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.06em">🕷️ Perfil Feroldi Heavy — 82.5/160 (51.6%)</div>
+  <div class="z5-inner">
+    <div>
+      <div class="spider-wrap" style="max-width:26rem">
+        <canvas id="chartSpider"></canvas>
+      </div>
+      <div class="z5-global" style="max-width:26rem;margin:0 auto">
+        <div class="z5-global-pct">51.6%</div>
+        <div class="z5-global-score">82.5 / 160 puntos · 🟡 Zona Amarilla Límite</div>
+      </div>
+    </div>
+    <div>
+      <div class="scorecard" id="scorecard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZONA 6: RIESGOS + COMPETIDORES ===== -->
+<div class="zona6">
+  <!-- Risks + Catalysts -->
+  <div class="risks-box">
+    <div class="section-title">⚠️ Riesgos Principales</div>
+    <table class="risk-table">
+      <thead><tr><th>Riesgo</th><th>Descripción</th><th>Nivel</th></tr></thead>
+      <tbody>
+        <tr><td>Earnings Mañana</td><td>Q1 2026 AMC · Stock 91% máx 52W</td><td><span class="risk-badge rb-high">ALTO</span></td></tr>
+        <tr><td>ByteDance ban</td><td>~$60-75M revenue en riesgo regulatorio</td><td><span class="risk-badge rb-high">ALTO</span></td></tr>
+        <tr><td>Convertibles 2026</td><td>~$250M vencen este año → dilución +13%</td><td><span class="risk-badge rb-high">ALTO</span></td></tr>
+        <tr><td>SOTP downside</td><td>SOTP base $15.34 = -51% vs precio actual</td><td><span class="risk-badge rb-high">ALTO</span></td></tr>
+        <tr><td>Edgio fade</td><td>Windfall no-recurrente puede ocultar desaceleración orgánica H2 2026</td><td><span class="risk-badge rb-med">MEDIO</span></td></tr>
+        <tr><td>Capex + DRAM</td><td>FCF baja $65.8M→$40-50M pese a revenue +14%</td><td><span class="risk-badge rb-med">MEDIO</span></td></tr>
+        <tr><td>SBC dilutiva</td><td>18.8% revenue · FCF post-SBC -$51.6M real</td><td><span class="risk-badge rb-med">MEDIO</span></td></tr>
+        <tr><td>NET competitive gap</td><td>Cloudflare 3.5× revenue, 2× crecimiento, más PoPs</td><td><span class="risk-badge rb-med">MEDIO</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:.7rem">
+      <div class="section-title">🚀 Catalizadores 24 meses</div>
+      <div style="font-size:.75rem;display:grid;grid-template-columns:1fr 1fr;gap:.3rem">
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ Q1 2026 beat + guidance sostenido → $34-40</div>
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ AI Accelerator contrato enterprise público</div>
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ GAAP op margin breakeven Q4 2026</div>
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ RPO cruza $500M + NRR 112%+</div>
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ Refinanciación exitosa convertibles 2026</div>
+        <div style="padding:.3rem .4rem;background:var(--bg4);border-radius:.3rem;color:var(--txt)">✅ LALIGA → new sports streaming vertical</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitors -->
+  <div class="comp-box">
+    <div class="section-title">🏁 Tabla Competidores (vs FSLY)</div>
+    <table class="comp-table">
+      <thead><tr><th>Empresa</th><th>Precio</th><th>52W Pos.</th><th>MCap</th><th>P/E</th><th>Rev FY</th><th>Op Mg</th></tr></thead>
+      <tbody>
+        <tr class="comp-fsly">
+          <td><img class="comp-logo" src="https://logo.clearbit.com/fastly.com" onerror="this.style.display='none'"> <strong style="color:var(--cyan)">FSLY</strong></td>
+          <td style="color:var(--green)">$31.88</td>
+          <td>
+            <svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="89" cy="4" r="3.5" fill="#00d4ff"/></svg>
+          </td>
+          <td>$4.5B</td>
+          <td style="color:var(--red)">N/A</td>
+          <td>$624M</td>
+          <td style="color:var(--red)">-19.1%</td>
+        </tr>
+        <tr>
+          <td><img class="comp-logo" src="https://logo.clearbit.com/cloudflare.com" onerror="this.style.display='none'"> NET</td>
+          <td>$166.45</td>
+          <td><svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="58" cy="4" r="3.5" fill="#00d4ff"/></svg></td>
+          <td>~$50B</td>
+          <td style="color:var(--red)">N/A</td>
+          <td>$2.17B</td>
+          <td style="color:var(--red)">neg GAAP</td>
+        </tr>
+        <tr>
+          <td><img class="comp-logo" src="https://logo.clearbit.com/akamai.com" onerror="this.style.display='none'"> AKAM</td>
+          <td>$92.29</td>
+          <td><svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="40" cy="4" r="3.5" fill="#00d4ff"/></svg></td>
+          <td>~$13.7B</td>
+          <td style="color:var(--green)">~27×</td>
+          <td>$4.21B</td>
+          <td style="color:var(--green)">~25%</td>
+        </tr>
+        <tr>
+          <td><img class="comp-logo" src="https://logo.clearbit.com/zscaler.com" onerror="this.style.display='none'"> ZS</td>
+          <td>$187.89</td>
+          <td><svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="55" cy="4" r="3.5" fill="#00d4ff"/></svg></td>
+          <td>~$28B</td>
+          <td style="color:var(--red)">N/A</td>
+          <td>~$2.40B</td>
+          <td style="color:var(--orange)">22% nG</td>
+        </tr>
+        <tr>
+          <td><img class="comp-logo" src="https://logo.clearbit.com/f5.com" onerror="this.style.display='none'"> FFIV</td>
+          <td>$329.93</td>
+          <td><svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="72" cy="4" r="3.5" fill="#00d4ff"/></svg></td>
+          <td>$18.5B</td>
+          <td style="color:var(--green)">~28×</td>
+          <td>~$3.00B</td>
+          <td style="color:var(--green)">~26%</td>
+        </tr>
+        <tr>
+          <td><img class="comp-logo" src="https://logo.clearbit.com/paloaltonetworks.com" onerror="this.style.display='none'"> PANW</td>
+          <td>$166.28</td>
+          <td><svg class="w52-mini" viewBox="0 0 100 8" width="4rem"><rect x="0" y="2" width="100" height="4" fill="#1a2a4a" rx="2"/><circle cx="65" cy="4" r="3.5" fill="#00d4ff"/></svg></td>
+          <td>$133B</td>
+          <td style="color:var(--red)">N/A</td>
+          <td>~$8.70B</td>
+          <td style="color:var(--orange)">25% nG</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:.68rem;color:var(--muted);margin-top:.4rem">*Precios Google Finance 05-05-2026. FSLY cotiza al 91% de su máximo 52W y supera el PT medio del consenso ($19) en +66.3%.</div>
+  </div>
+</div>
+
+<!-- ===== VEREDICTO FINAL ===== -->
+<div class="verdict-box">
+  <div style="font-size:.85rem;font-weight:700;color:var(--cyan);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.06em">🏁 Veredicto Final · SL/TP</div>
+  <div class="verdict-inner">
+    <div class="verdict-left">
+      <div class="verdict-badge-big badge-neutral">🟡 NEUTRAL</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem">Tamaño posición</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--muted)">⚪ STARTER</div>
+      <div style="font-size:.7rem;color:var(--muted);max-width:8rem;text-align:center;margin-top:.2rem">Solo post-earnings beat confirmado · Máx 2-3% portfolio</div>
+      <div style="margin-top:.8rem">
+        <table class="sl-tp-table">
+          <thead><tr><th>Nivel</th><th>Precio</th><th>vs $31.60</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--red)">🛡️ SL Cons.</td><td>$24.50</td><td style="color:var(--red)">-22.5%</td></tr>
+            <tr><td style="color:var(--red)">🛡️ SL Agres.</td><td>$20.00</td><td style="color:var(--red)">-36.7%</td></tr>
+            <tr><td style="color:var(--green)">🎯 TP1</td><td>$37.00</td><td style="color:var(--green)">+17.1%</td></tr>
+            <tr><td style="color:var(--green)">🎯 TP2</td><td>$48.00</td><td style="color:var(--green)">+51.9%</td></tr>
+            <tr><td style="color:var(--green)">🎯 TP3</td><td>$57.00</td><td style="color:var(--green)">+80.4%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="verdict-right">
+      <div class="tesis-txt">
+        <strong style="color:var(--cyan)">Tesis central:</strong> Fastly es un turnaround real en industria con tailwinds AI genuinos. Mejora de fundamentals FY2025 verificable: margen bruto +270bps, Non-GAAP profitability alcanzada, RPO +55%, NRR 110%, price erosion CDN mejorada de mid-teens a mid-single digits. El problema es de precio: a 8.4× EV/Sales, el mercado ya descontó la mejora de fundamentals más parte del escenario AI optimista. SOTP base implica -51% downside. El stock supera al PT más alcista del Street ($32 Evercore).
+      </div>
+      <div class="tesis-txt">
+        <strong style="color:var(--gold)">⚠️ Acción recomendada pre-earnings:</strong> NO iniciar posición nueva antes de Q1 2026 earnings (mañana 06-05-2026 AMC). Esperar resultado y guidance Q2. Si beat + guidance mantenido + ByteDance sin riesgo materializado → revisar como "Acumular en retrocesos" con entrada gradual $27-29. Si miss o guidance cut → potencial reentrada $18-22.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;font-size:.75rem">
+        <div style="background:var(--bg4);border-radius:.4rem;padding:.4rem .5rem">
+          <div style="color:var(--muted);font-size:.65rem">FCF real post-SBC</div>
+          <div style="color:var(--red);font-family:monospace;font-weight:700">-$51.6M 🚨</div>
+        </div>
+        <div style="background:var(--bg4);border-radius:.4rem;padding:.4rem .5rem">
+          <div style="color:var(--muted);font-size:.65rem">Siguiente earnings</div>
+          <div style="color:var(--red);font-family:monospace;font-weight:700">06-05-26 AMC</div>
+        </div>
+        <div style="background:var(--bg4);border-radius:.4rem;padding:.4rem .5rem">
+          <div style="color:var(--muted);font-size:.65rem">Revenue Guide FY26</div>
+          <div style="color:var(--cyan);font-family:monospace;font-weight:700">$700-720M</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <span style="color:var(--gold);font-weight:700">@patonet</span> · Sistema Feroldi X0.50 · $FSLY · FY2025 · 05-05-2026 · No constituye asesoramiento financiero. Para fines informativos y educativos únicamente.
+</div>
+
+</div><!-- /wrap -->
+
+<!-- Popups -->
+<div id="execPopup" class="popup-base">
+  <h3>Fastly, Inc. (FSLY)</h3>
+  <div id="execPopupText"></div>
+</div>
+<div id="iaPopup" class="popup-base" style="max-width:28rem;border-color:#ff8c00;box-shadow:0 0 30px rgba(255,140,0,.3)">
+  <h3 style="color:#ff8c00">Semáforo IA: NARANJA · Riesgo Medio</h3>
+  <p>La narrativa de "infraestructura indispensable para la IA Agentic" capturó la imaginación del mercado en febrero 2026, pero el segmento que toca directamente la IA (Compute+Obs) representa el 3.4% del revenue total ($21.1M). La mejora de fundamentals FY2025 es real, pero el precio actual ($31.88) ya descontó esa mejora. El riesgo no es que Fastly fracase — es que ejecute en línea con guidance y el múltiplo se comprima igualmente porque no crece rápido suficiente para justificar 7-8× EV/Sales. Calificación NARANJA: inversión plausible a largo plazo, riesgo real a corto.</p>
+</div>
+<div id="feroldiPopup"></div>
+<div id="semPopup"></div>
+
+<script>
+const DATA = {
+  ticker:'FSLY', precio:31.88, fecha:'05-05-2026',
+  rev:[144.5,148.7,158.2,172.6],
+  ni:[-40,-36.7,-29.5,-15.5],
+  mg:[-27.7,-24.7,-18.6,-9.0],
+  feroldi:[7.5,6.5,5.5,4.0,5.5,6.0,5.0,5.0,2.5,5.5,3.5,3.5,7.0,7.5,4.5,3.0],
+  feroldiNames:['1.Industria','2.BizModel','3.Crecim.','4.ValorHist.','5.Moat','6.Capex','7.Profit.','8.Balance','9.Cap.Ret.','10.Mgmt','11.ROIC','12.SBC','13.Outlook','14.Optionality','15.Riesgos','16.Valuación'],
+  feroldiTips:[
+    '1. Industria 7.5/10: CDN/Edge Cloud $25-30B TAM CAGR 15-20%. Erosión de precios mejoró de mid-teens a mid-single digits Q4 2025 — cambio de régimen positivo.',
+    '2. Business Model 6.5/10: Usage-based enterprise-first (94% ent.). NRR 110% Q4 2025. RPO $354M (+55%). Model comprensible pero volátil por naturaleza usage-based.',
+    '3. Crecimiento Histórico 5.5/10: 3Y CAGR +13.1%. FY2024 bache +7.5%. FY2025 reaceleración +15% con Q4 +23%. Parcialmente impulsado por windfall ex-Edgio clients.',
+    '4. Creación de Valor Histórico 4.0/10: IPO $16 → $31.88 = +99% en 7 años vs S&P +120%. 5Y: -32.6%. Dilución +11.8% en 4 años. Sin dividendos ni buybacks.',
+    '5. Moat 5.5/10: Switching costs técnicos reales (VCL/Wasm migration). Performance edge documentado. Developer community incipiente. Cloudflare ha reducido el moat a estrecho.',
+    '6. Capital Intensity 6.0/10: FY2025 Capex 4.6% rev (bajo). FY2026 guiado 10-12% (triplicación). FCF guidance cae $65.8M → $40-50M. Front-loaded en H1 antes de tráfico.',
+    '7. Profitabilidad 5.0/10: NI -$122M FY2025 (mejora). Q4 2025: GAAP op margin -8.7% vs -24.4% año anterior. FCF post-SBC real: -$51.6M. Vs peers: posición más débil.',
+    '8. Balance Sheet 5.0/10: Cash Real $361.8M. Current Ratio 2.61. D/E 0.46. Pero: convertibles 2026 ~$250M pendientes → dilución +13%. Goodwill $670M = 44.7% activos.',
+    '9. Capital Return 2.5/10: Sin dividendo. Sin buybacks. Dilución activa +3.5%/año + 13% adicional vía conversión 2026 notes. FCF real negativo post-SBC. Capital return neto negativo.',
+    '10. Management 5.5/10: Kip Compton (cuarto CEO en 5 años). 12 meses track record. Q4 2025 ejecutado +100% vs consenso EPS. CFO Wong mayor continuidad. Evercore validó management execution.',
+    '11. ROIC 3.5/10: ROIC TTM -5.43%. WACC ~9-10%. Spread: -14-16 pp. Destrucción activa de valor económico. Signal Sciences ($775M, 2020) → Security $125M FY2025 = retorno lento.',
+    '12. SBC 3.5/10: SBC $117.3M = 18.8% revenue. FCF post-SBC: -$51.6M. Dilución ~3.5%/año. RSUs con vesting por tiempo (no precio) desalinea parcialmente. Sin señal de reducción.',
+    '13. Outlook 7.0/10: FY2026: Rev $700-720M, nGAAP EPS $0.23-0.29, FCF $40-50M. Q1 guidance $168-174M (+18% YoY). Consenso $170.3M. Guidance beat histórico en Q4 2025 (+100% EPS).',
+    '14. Optionality 7.5/10: AI Accelerator (semantic caching LLMs). MCP Server (agentic layer). Object Storage edge. API Security. LALIGA anti-piracy. RPO +55% y NRR 110% validando expansión.',
+    '15. Riesgos 4.5/10: ByteDance ~$60-75M en riesgo. Dilución convertibles 2026 +13%. Edgio windfall no-recurrente. Capex FY2026 comprime FCF. SOTP base -51% downside. Earnings mañana.',
+    '16. Valoración 3.0/10: EV/Sales 8.2× para 15% growth con GAAP losses. SOTP base $15.34 (-51%). Bull SOTP $23.20 (-27%). Consenso PT $19 (-40%). DA Davidson $9. Evercore $32. Extrema dispersión.'
+  ]
+};
+
+// ===== CHART 1: Revenue + NI + Margin =====
+const ctx1 = document.getElementById('chartRev').getContext('2d');
+const yValMin = Math.min(...DATA.ni)*1.15;
+const yValMax = Math.max(...DATA.rev)*1.15;
+new Chart(ctx1,{
+  data:{
+    labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025'],
+    datasets:[
+      {type:'bar',label:'Revenue',data:DATA.rev,backgroundColor:'#1a3a6e',yAxisID:'yVal',borderRadius:3},
+      {type:'bar',label:'Net Income',data:DATA.ni,backgroundColor:'#00d4ff',yAxisID:'yVal',borderRadius:3},
+      {type:'line',label:'Margen Neto %',data:DATA.mg,borderColor:'#ff8c00',yAxisID:'yMg',backgroundColor:'transparent',pointRadius:4,pointBackgroundColor:'#ff8c00',borderWidth:2,tension:.3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+(c.dataset.yAxisID==='yMg'?c.raw.toFixed(1)+'%':'$'+c.raw.toFixed(0)+'M')}}}},scales:{yMg:{type:'linear',position:'left',ticks:{color:'#ff8c00',font:{size:9},callback:v=>v.toFixed(0)+'%'},grid:{color:'#1a2a4a'}},yVal:{type:'linear',position:'right',min:yValMin,max:yValMax,ticks:{color:'#c8d8f0',font:{size:9},callback:v=>v>=100?'$'+(v/1000).toFixed(1)+'B':'$'+v.toFixed(0)+'M'},grid:{drawOnChartArea:false}}}}
+});
+
+// ===== CHART 2: Waterfall Q4 2025 =====
+const ctx2 = document.getElementById('chartWF').getContext('2d');
+// Q4 2025: Rev=172.6, COGS=66.7, GrossProfit=105.9, OpExp=121.0, OpInc=-15.1, Interest=0.2, NetInc=-15.5
+const wfLabels=['Revenue','COGS','Gross P.','Op Exp.','Op Inc.','No-Op.','Imp.','Net Inc.'];
+const wfData=[172.6,-66.7,105.9,-121.0,-15.1,0.2,-0.6,-15.5];
+const wfColors=['#1a3a6e','#ff3a3a','#00ff9d','#ff3a3a','#00d4ff','#ffbb00','#ff6b6b','#ff3a3a'];
+// floating bars: [start, end]
+const wfFloats = [];
+let running = 0;
+wfFloats.push([0,172.6]); running=172.6;
+wfFloats.push([running+wfData[1],running]); running+=wfData[1];
+wfFloats.push([0,running]);
+running=running;
+wfFloats.push([running,running+wfData[3]]); running+=wfData[3];
+wfFloats.push([running+wfData[4],running]); running+=wfData[4];
+wfFloats.push([running,running+wfData[5]]); running+=wfData[5];
+wfFloats.push([running+wfData[6],running]); running+=wfData[6];
+wfFloats.push([0,running]);
+new Chart(ctx2,{
+  data:{
+    labels:wfLabels,
+    datasets:[{
+      type:'bar',
+      data:wfFloats,
+      backgroundColor:wfColors,
+      borderRadius:3,
+      borderSkipped:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){const d=c.raw;return '$'+(d[1]-d[0]).toFixed(1)+'M'}}}},scales:{x:{ticks:{color:'#c8d8f0',font:{size:9}}},y:{ticks:{color:'#94a3b8',font:{size:9},callback:v=>'$'+v.toFixed(0)+'M'},grid:{color:'#1a2a4a'}}}}
+});
+
+// ===== CHART 3: Donut =====
+const ctx3 = document.getElementById('chartDon').getContext('2d');
+new Chart(ctx3,{
+  type:'doughnut',
+  data:{
+    labels:['Network Services','Security','Compute+Obs.'],
+    datasets:[{data:[477.8,125.1,21.1],backgroundColor:['#1a5fa0','#e53935','#ffd700'],borderColor:'#050a12',borderWidth:3,hoverOffset:6}]
+  },
+  options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': $'+c.raw.toFixed(1)+'M ('+((c.raw/624)*100).toFixed(1)+'%)'}}}}},
+});
+
+// ===== CHART Spider =====
+const groups = {
+  'Crecimiento':[2,12,13],'Rentabilidad':[6,10],'Solidez':[5,7,11],'Estrategia':[0,1,4,9],'Retorno':[3,8,15]
+};
+const groupAvgs = Object.values(groups).map(idxs=>idxs.reduce((s,i)=>s+DATA.feroldi[i],0)/idxs.length);
+const spiderCtx = document.getElementById('chartSpider').getContext('2d');
+new Chart(spiderCtx,{
+  type:'radar',
+  data:{
+    labels:Object.keys(groups).map((k,i)=>k+'\n('+groupAvgs[i].toFixed(1)+')'),
+    datasets:[{label:'FSLY',data:groupAvgs,backgroundColor:'rgba(0,212,255,.15)',borderColor:'#00d4ff',borderWidth:2.5,pointBackgroundColor:'#00d4ff',pointRadius:5,pointHoverRadius:7}]
+  },
+  options:{responsive:true,maintainAspectRatio:true,scales:{r:{min:0,max:10,ticks:{stepSize:2,color:'#94a3b8',backdropColor:'transparent',font:{size:10}},grid:{color:'#1a2a4a'},angleLines:{color:'#1a3a6e'},pointLabels:{color:'#00d4ff',font:{size:11,weight:'bold'}}}},plugins:{legend:{display:false}}}
+});
+
+// ===== SCORECARD =====
+const scGroups = [
+  {name:'Crecimiento',emoji:'📈',indices:[2,12,13]},
+  {name:'Rentabilidad',emoji:'💰',indices:[6,10]},
+  {name:'Solidez',emoji:'🏦',indices:[5,7,11]},
+  {name:'Estrategia',emoji:'🏰',indices:[0,1,4,9]},
+  {name:'Retorno',emoji:'💎',indices:[3,8,15]}
+];
+const sc = document.getElementById('scorecard');
+scGroups.forEach(g=>{
+  const avg=(g.indices.reduce((s,i)=>s+DATA.feroldi[i],0)/g.indices.length).toFixed(1);
+  const col=document.createElement('div');
+  col.className='sc-group';
+  let html=`<div class="sc-group-title">${g.emoji} ${g.name}</div><div class="sc-group-avg">${avg}</div>`;
+  g.indices.forEach(i=>{
+    const s=DATA.feroldi[i];
+    const angle=(180-(s/10)*180)*Math.PI/180;
+    const nx=100+65*Math.cos(angle);
+    const ny=105-65*Math.sin(angle);
+    html+=`<div class="sc-point feroldi-row" data-tooltip="${DATA.feroldiTips[i]}">
+      <div class="sc-point-name">${DATA.feroldiNames[i]}</div>
+      <svg class="gauge-mini" viewBox="0 0 200 130" width="100%" style="max-width:9rem">
+        <defs><linearGradient id="gaugeGrad_${i}" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#e53935"/><stop offset="25%" stop-color="#ff8c00"/>
+          <stop offset="50%" stop-color="#ffd700"/><stop offset="75%" stop-color="#76c442"/>
+          <stop offset="100%" stop-color="#00c853"/></linearGradient></defs>
+        <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1a2a4a" stroke-width="22" stroke-linecap="butt"/>
+        <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#gaugeGrad_${i})" stroke-width="20" stroke-linecap="butt"/>
+        <line x1="100" y1="105" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#ffd700" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="100" cy="105" r="4" fill="#ffd700"/>
+      </svg>
+      <div class="sc-score">${s.toFixed(1)}</div>
+    </div>`;
+  });
+  col.innerHTML=html;
+  sc.appendChild(col);
+});
+
+// ===== POPUPS =====
+const EXEC_TEXT = `Fastly es la capa de software que decide si el internet responde en 50 milisegundos o 5 segundos — y que apuesta a convertirse en la memoria caché de los modelos de IA. CEO: Kip Compton (cuarto CEO en 5 años, ex-Cisco). FY2025 récord: Revenue $624M (+15%), primer año non-GAAP rentable, margen bruto GAAP 57.1%, FCF $65.8M. RPO +55% a $354M. NRR 110% Q4 2025. Price erosion CDN mejoró de mid-teens a mid-single digits — cambio de régimen positivo. Q1 2026 earnings MAÑANA 06-05-2026 AMC. Guidance FY2026: $700-720M (+14%). Riesgos: ByteDance ~$60-75M, dilución SBC+convertibles, SOTP base implica -51% downside. Score Feroldi Heavy: 82.5/160 (51.6%) 🟡 NEUTRAL.`;
+const popup=document.getElementById('execPopup');
+const ptx=document.getElementById('execPopupText');
+let timer=null;
+function showExec(){if(timer)clearTimeout(timer);ptx.textContent=EXEC_TEXT;popup.style.display='block'}
+function hideExec(){timer=setTimeout(()=>{popup.style.display='none'},300)}
+function cancelExec(){if(timer){clearTimeout(timer);timer=null}}
+['triggerLogo','triggerNombre','triggerFrase'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('mouseenter',showExec);el.addEventListener('mouseleave',hideExec);
+});
+popup.addEventListener('mouseenter',cancelExec);popup.addEventListener('mouseleave',hideExec);
+document.addEventListener('click',e=>{if(!popup.contains(e.target))popup.style.display='none'});
+
+// IA popup
+const iaPopup=document.getElementById('iaPopup');
+const trigIA=document.getElementById('triggerIA');
+let iaTimer=null;
+trigIA.addEventListener('mouseenter',()=>{if(iaTimer)clearTimeout(iaTimer);iaPopup.style.display='block'});
+trigIA.addEventListener('mouseleave',()=>{iaTimer=setTimeout(()=>{iaPopup.style.display='none'},300)});
+iaPopup.addEventListener('mouseenter',()=>{if(iaTimer)clearTimeout(iaTimer)});
+iaPopup.addEventListener('mouseleave',()=>{iaTimer=setTimeout(()=>{iaPopup.style.display='none'},300)});
+
+// B0 semáforos popups
+const semPopup=document.getElementById('semPopup');
+document.querySelectorAll('.sem-item').forEach(el=>{
+  el.addEventListener('mouseenter',e=>{
+    semPopup.style.cssText='display:block;position:fixed;background:#0a1628;border:1px solid #ffd700;border-radius:.4rem;padding:.7rem;max-width:22rem;font-size:.78rem;color:#c8d8f0;z-index:9999;pointer-events:none;left:'+(Math.min(e.clientX+15,window.innerWidth-380))+'px;top:'+(Math.min(e.clientY+10,window.innerHeight-200))+'px';
+    semPopup.textContent=el.dataset.sem;
+  });
+  el.addEventListener('mouseleave',()=>{semPopup.style.display='none'});
+});
+
+// Feroldi row popups
+const fpop=document.getElementById('feroldiPopup');
+document.querySelectorAll('.feroldi-row').forEach(row=>{
+  row.addEventListener('mouseenter',e=>{fpop.textContent=row.dataset.tooltip||'';fpop.style.display='block';fpop.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';fpop.style.top=Math.min(e.clientY+10,window.innerHeight-200)+'px'});
+  row.addEventListener('mousemove',e=>{fpop.style.left=Math.min(e.clientX+15,window.innerWidth-380)+'px';fpop.style.top=Math.min(e.clientY+10,window.innerHeight-200)+'px'});
+  row.addEventListener('mouseleave',()=>{fpop.style.display='none'});
+});
+</script>
+</body>
+</html>
