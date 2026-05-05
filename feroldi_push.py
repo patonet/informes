@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 """
-FEROLDI PUSH — v X0.50
+FEROLDI PUSH — v X0.50.1
 Sistema Feroldi · @patonet
 ======================================
-Sube archivos generados por Claude al repo patonet/informes.
-Detecta automáticamente el tipo de archivo y la carpeta destino.
-Actualiza el dashboard index.html.
+Busca automáticamente en ~/Downloads/:
+  - ZIPs con archivos Feroldi → descomprime y procesa
+  - Archivos sueltos .html/.pdf con nombre Feroldi → procesa directo
+
+Lógica anti-duplicados: si el archivo ya existe en GitHub → skip.
+Organiza copia local en ~/feroldi_informes/TICKER/FECHA/
+Actualiza dashboard index.html
+Pregunta si borrar los archivos procesados de Downloads.
 
 USO:
-  python3 feroldi_push.py [archivo]         # sube un archivo específico
-  python3 feroldi_push.py                   # detecta y sube todos en ~/Downloads
+  python3 feroldi_push.py
 
-INSTALAR (una sola vez):
-  pip3 install requests
-
-TOKEN: configurar variable de entorno GH_TOKEN
+TOKEN: variable de entorno GH_TOKEN
   export GH_TOKEN="ghp_tu_token_aqui"
   O añadir a ~/.zshrc para que sea permanente
 """
@@ -22,248 +23,255 @@ TOKEN: configurar variable de entorno GH_TOKEN
 import requests
 import base64
 import os
-import json
-import sys
 import re
+import sys
+import zipfile
 from pathlib import Path
-from datetime import datetime
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
-TOKEN = os.environ.get("GH_TOKEN", "")   # Token desde variable de entorno
-REPO  = "patonet/informes"
-API   = "https://api.github.com"
-HDRS  = {
-    "Authorization": f"token {TOKEN}",
-    "Accept": "application/vnd.github.v3+json"
-}
+TOKEN     = os.environ.get("GH_TOKEN", "")
+REPO      = "patonet/informes"
+API       = "https://api.github.com"
+HDRS      = {"Authorization": f"token {TOKEN}", "Accept": "application/vnd.github.v3+json"}
+DOWNLOADS = Path.home() / "Downloads"
+INFORMES  = Path.home() / "feroldi_informes"
+DASHBOARD = "index.html"
 
-# Patrones de nombre → carpeta destino en GitHub
+# Patrones nombre → (carpeta GitHub, tipo, clave)
 PATRONES = [
-    # (regex_patron, carpeta_github, tipo)
-    (r"^infografia_light_.+\.html$",      "equities/",          "Infografía Light"),
-    (r"^infografia_.+\.html$",            "equities/",          "Infografía Heavy"),
-    (r"^InformePDF_lite_.+\.pdf$",        "pdfs/equities/",     "PDF Lite"),
-    (r"^InformePDF_.+\.pdf$",             "pdfs/equities/",     "PDF Heavy"),
-    (r"^Diagrama_Sankey_.+\.html$",       "diagramas/equities/","Sankey"),
+    (r"^infografia_light_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",  "equities/",           "Infografía Light", "infografia_light"),
+    (r"^infografia_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",        "equities/",           "Infografía Heavy", "infografia_heavy"),
+    (r"^InformePDF_lite_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",    "pdfs/equities/",      "PDF Lite",         "pdf_lite"),
+    (r"^InformePDF_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",         "pdfs/equities/",      "PDF Heavy",        "pdf_heavy"),
+    (r"^Diagrama_Sankey_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",   "diagramas/equities/", "Sankey",           "sankey"),
 ]
 
-DASHBOARD_PATH = "index.html"
-
 # ─── HELPERS ───────────────────────────────────────────────────────────────────
-def get_sha(ruta_repo):
-    """Obtiene SHA del archivo si ya existe en el repo."""
-    url = f"{API}/repos/{REPO}/contents/{ruta_repo}"
-    r = requests.get(url, headers=HDRS)
-    if r.status_code == 200:
-        return r.json().get("sha")
+def detectar(nombre):
+    """Retorna (ruta_repo, tipo, clave, ticker, precio, fecha) o None."""
+    for patron, carpeta, tipo, clave in PATRONES:
+        m = re.match(patron, nombre)
+        if m:
+            ticker, precio, fecha = m.group(1), m.group(2), m.group(3)
+            return carpeta + nombre, tipo, clave, ticker, precio, fecha
     return None
 
+def get_sha(ruta_repo):
+    r = requests.get(f"{API}/repos/{REPO}/contents/{ruta_repo}", headers=HDRS)
+    return r.json().get("sha") if r.status_code == 200 else None
 
-def subir_archivo(ruta_local, ruta_repo, tipo):
-    """Sube o actualiza un archivo en GitHub."""
-    with open(ruta_local, "rb") as f:
-        contenido_b64 = base64.b64encode(f.read()).decode()
-
+def subir_bytes(contenido_bytes, ruta_repo, tipo, nombre):
+    """Sube archivo. Retorna URL si subió, 'skip' si ya existe, None si error."""
     sha = get_sha(ruta_repo)
+    if sha:
+        print(f"  ⏭  Skip (ya existe en GitHub): {nombre}")
+        return "skip"
+
+    contenido_b64 = base64.b64encode(contenido_bytes).decode()
     payload = {
-        "message": f"feat: {tipo} via feroldi_push v X0.50",
+        "message": f"feat: {tipo} via feroldi_push v X0.50.1",
         "content": contenido_b64
     }
-    if sha:
-        payload["sha"] = sha
-
-    url = f"{API}/repos/{REPO}/contents/{ruta_repo}"
-    r = requests.put(url, headers=HDRS, json=payload)
+    r = requests.put(f"{API}/repos/{REPO}/contents/{ruta_repo}", headers=HDRS, json=payload)
 
     if r.status_code in (200, 201):
-        nombre = Path(ruta_local).name
-        url_pages = f"https://patonet.github.io/informes/{ruta_repo}"
+        url = f"https://patonet.github.io/informes/{ruta_repo}"
         print(f"  ✅ {tipo}: {nombre}")
-        print(f"     → {url_pages}")
-        return url_pages
+        print(f"     → {url}")
+        return url
     else:
-        msg = r.json().get("message", "error desconocido")
-        print(f"  ❌ Error {r.status_code}: {msg}")
+        print(f"  ❌ Error {r.status_code}: {r.json().get('message','?')} ({nombre})")
         return None
 
+def guardar_local(contenido_bytes, ticker, fecha, nombre):
+    """Guarda copia organizada en ~/feroldi_informes/TICKER/FECHA/"""
+    carpeta = INFORMES / ticker / fecha
+    carpeta.mkdir(parents=True, exist_ok=True)
+    destino = carpeta / nombre
+    destino.write_bytes(contenido_bytes)
+    return destino
 
-def detectar_tipo(nombre_archivo):
-    """Determina la carpeta destino y tipo según el nombre del archivo."""
-    for patron, carpeta, tipo in PATRONES:
-        if re.match(patron, nombre_archivo):
-            return carpeta + nombre_archivo, tipo
-    return None, None
-
-
-def extraer_meta_del_nombre(nombre_archivo):
-    """Extrae ticker, precio y fecha del nombre del archivo."""
-    # Patrón: infografia_TICKER_PRECIO_DD-MM-AAAA.html
-    match = re.search(r"_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4})", nombre_archivo)
-    if match:
-        return match.group(1), match.group(2), match.group(3)
-    return None, None, None
-
-
-def actualizar_dashboard(urls_generadas):
-    """Actualiza index.html con los nuevos archivos."""
-    if not urls_generadas:
-        return
-
-    print("\n  📊 Actualizando dashboard...")
-
-    # Obtener index.html actual
-    r = requests.get(f"{API}/repos/{REPO}/contents/{DASHBOARD_PATH}", headers=HDRS)
+def actualizar_dashboard(ticker, fecha, urls):
+    """Inserta entrada al inicio de const REPORTS en index.html."""
+    r = requests.get(f"{API}/repos/{REPO}/contents/{DASHBOARD}", headers=HDRS)
     if r.status_code != 200:
-        print(f"  ⚠ No se pudo obtener index.html: {r.status_code}")
+        print(f"  ⚠ No se pudo obtener index.html ({r.status_code})")
         return
 
     data = r.json()
-    sha = data.get("sha")
-    contenido = base64.b64decode(data.get("content", "")).decode("utf-8")
+    sha  = data.get("sha")
+    html = base64.b64decode(data.get("content", "")).decode("utf-8")
 
-    # Encontrar el ticker de los archivos subidos
-    ticker = None
-    for url in urls_generadas.values():
-        match = re.search(r"/([A-Z]+)_[\d.]+_\d{2}-\d{2}-\d{4}", url or "")
-        if match:
-            ticker = match.group(1)
-            break
-
-    if not ticker:
-        print("  ⚠ No se pudo determinar ticker para actualizar dashboard")
+    if "const REPORTS = [" not in html:
+        print("  ⚠ No se encontró const REPORTS = [ en index.html")
         return
 
-    # Construir entry para REPORTS
-    today = datetime.now().strftime("%d-%m-%Y")
-    new_entry = f"""    {{
+    entry = f"""    {{
       ticker: "{ticker}",
       name: "{ticker}",
-      desc: "Análisis Feroldi · {today}",
+      desc: "Análisis Feroldi · {fecha}",
       type: "equity",
       verdict: "neutral",
-      price: 0,
-      upside: 0,
-      target: 0,
-      date: "{today}",
-      url: "{urls_generadas.get('infografia_heavy', '')}",
-      pdfUrl: "{urls_generadas.get('pdf_heavy', '')}",
-      urlLight: "{urls_generadas.get('infografia_light', '')}",
-      pdfLightUrl: "{urls_generadas.get('pdf_lite', '')}",
-      sankeyUrl: "{urls_generadas.get('sankey', '')}"
+      price: 0, upside: 0, target: 0,
+      date: "{fecha}",
+      url: "{urls.get('infografia_heavy', '')}",
+      pdfUrl: "{urls.get('pdf_heavy', '')}",
+      urlLight: "{urls.get('infografia_light', '')}",
+      pdfLightUrl: "{urls.get('pdf_lite', '')}",
+      sankeyUrl: "{urls.get('sankey', '')}"
     }},"""
 
-    # Insertar al inicio del array REPORTS
-    if "const REPORTS = [" in contenido:
-        contenido_nuevo = contenido.replace(
-            "const REPORTS = [",
-            f"const REPORTS = [\n{new_entry}"
-        )
-
-        nuevo_b64 = base64.b64encode(contenido_nuevo.encode()).decode()
-        payload = {
-            "message": f"feat: dashboard actualizado con {ticker}",
-            "content": nuevo_b64,
-            "sha": sha
-        }
-        r2 = requests.put(
-            f"{API}/repos/{REPO}/contents/{DASHBOARD_PATH}",
-            headers=HDRS,
-            json=payload
-        )
-        if r2.status_code in (200, 201):
-            print(f"  ✅ Dashboard actualizado con {ticker}")
-        else:
-            print(f"  ⚠ No se pudo actualizar dashboard: {r2.json().get('message')}")
+    nuevo_html = html.replace("const REPORTS = [", f"const REPORTS = [\n{entry}")
+    nuevo_b64  = base64.b64encode(nuevo_html.encode()).decode()
+    payload    = {
+        "message": f"feat: dashboard — {ticker} {fecha}",
+        "content": nuevo_b64,
+        "sha": sha
+    }
+    r2 = requests.put(f"{API}/repos/{REPO}/contents/{DASHBOARD}", headers=HDRS, json=payload)
+    if r2.status_code in (200, 201):
+        print(f"  ✅ Dashboard actualizado — {ticker} {fecha}")
     else:
-        print("  ⚠ No se encontró const REPORTS = [ en index.html")
+        print(f"  ⚠ Dashboard no actualizado: {r2.json().get('message','?')}")
 
+# ─── RECOLECCIÓN ───────────────────────────────────────────────────────────────
+def recolectar():
+    """
+    Busca en ~/Downloads/:
+      1. ZIPs que contengan archivos Feroldi → extrae en memoria
+      2. Archivos sueltos .html/.pdf con nombre Feroldi
+    Retorna lista de (nombre, contenido_bytes, fuente_path)
+    """
+    candidatos  = []
+    nombres_zip = set()
 
-def verificar_token():
-    """Verifica que el token sea válido."""
-    if not TOKEN:
-        print("\n❌ TOKEN no configurado.")
-        print("   Ejecuta: export GH_TOKEN='tu_token_aqui'")
-        print("   O añade a ~/.zshrc: export GH_TOKEN='tu_token_aqui'")
-        return False
+    # 1. ZIPs
+    for zip_path in sorted(DOWNLOADS.glob("*.zip")):
+        try:
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                encontrados = []
+                for entry in zf.namelist():
+                    nombre_base = Path(entry).name
+                    if nombre_base and detectar(nombre_base):
+                        encontrados.append((nombre_base, zf.read(entry)))
+                        nombres_zip.add(nombre_base)
+                if encontrados:
+                    print(f"  📦 ZIP: {zip_path.name} → {len(encontrados)} archivo(s) Feroldi")
+                    for nb, contenido in encontrados:
+                        candidatos.append((nb, contenido, zip_path))
+        except Exception as e:
+            print(f"  ⚠ No se pudo leer {zip_path.name}: {e}")
 
-    r = requests.get(f"{API}/user", headers=HDRS)
-    if r.status_code == 200:
-        usuario = r.json().get("login")
-        rate = r.headers.get("X-RateLimit-Remaining", "?")
-        print(f"  ✅ Token válido — usuario: {usuario} · Rate limit: {rate}/5000")
-        return True
-    else:
-        print(f"  ❌ Token inválido (HTTP {r.status_code})")
-        return False
+    # 2. Archivos sueltos (no duplicar lo que ya vino de ZIP)
+    for ext in ("*.html", "*.pdf"):
+        for archivo in sorted(DOWNLOADS.glob(ext)):
+            if archivo.name not in nombres_zip and detectar(archivo.name):
+                candidatos.append((archivo.name, archivo.read_bytes(), archivo))
 
+    return candidatos
 
 # ─── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
     print(f"\n{'='*55}")
-    print(f"  FEROLDI PUSH — v X0.50 · @patonet")
+    print(f"  FEROLDI PUSH — v X0.50.1 · @patonet")
     print(f"{'='*55}\n")
 
-    if not verificar_token():
+    if not TOKEN:
+        print("❌ GH_TOKEN no configurado.")
+        print("   Ejecuta: export GH_TOKEN='tu_token'")
         sys.exit(1)
 
-    # Determinar archivos a subir
-    if len(sys.argv) > 1:
-        # Archivo específico pasado como argumento
-        archivos = [Path(sys.argv[1])]
-    else:
-        # Auto-detectar en directorio actual y ~/Downloads
-        directorios = [Path("."), Path.home() / "Downloads"]
-        archivos = []
-        for d in directorios:
-            if d.exists():
-                for f in d.iterdir():
-                    if f.is_file():
-                        _, tipo = detectar_tipo(f.name)
-                        if tipo:
-                            archivos.append(f)
+    r = requests.get(f"{API}/user", headers=HDRS)
+    if r.status_code != 200:
+        print(f"❌ Token inválido (HTTP {r.status_code})")
+        sys.exit(1)
+    usuario = r.json().get("login")
+    rate    = r.headers.get("X-RateLimit-Remaining", "?")
+    print(f"  ✅ Token válido — {usuario} · Rate: {rate}/5000\n")
 
-    if not archivos:
-        print("⚠️  No se encontraron archivos para subir.")
-        print("   Busqué archivos con estos prefijos:")
-        for _, _, tipo in PATRONES:
-            print(f"   • {tipo}")
-        print(f"\n   En: directorio actual y ~/Downloads")
+    print(f"  🔍 Buscando en {DOWNLOADS}...\n")
+    candidatos = recolectar()
+
+    if not candidatos:
+        print("  ⚠ No se encontraron archivos Feroldi en ~/Downloads/")
+        print("  Nombres esperados:")
+        print("    infografia_light_TICKER_PRECIO_DD-MM-AAAA.html")
+        print("    infografia_TICKER_PRECIO_DD-MM-AAAA.html")
+        print("    InformePDF_lite_TICKER_PRECIO_DD-MM-AAAA.pdf")
+        print("    InformePDF_TICKER_PRECIO_DD-MM-AAAA.pdf")
+        print("    Diagrama_Sankey_TICKER_PRECIO_DD-MM-AAAA.html")
+        print("  O un ZIP que los contenga.")
         sys.exit(0)
 
-    print(f"📁 {len(archivos)} archivo(s) encontrado(s):\n")
+    print(f"  📁 {len(candidatos)} archivo(s) encontrado(s)\n")
 
-    urls_generadas = {}
-    tipo_map = {
-        "Infografía Heavy": "infografia_heavy",
-        "Infografía Light": "infografia_light",
-        "PDF Heavy":        "pdf_heavy",
-        "PDF Lite":         "pdf_lite",
-        "Sankey":           "sankey"
-    }
+    # Procesar cada archivo
+    urls_por_ticker   = {}  # {ticker: {clave: url}}
+    fechas_por_ticker = {}
+    procesados        = []  # (nombre, fuente_path) — para preguntar borrar
+    fuentes_zip       = set()
 
-    for ruta_local in archivos:
-        ruta_repo, tipo = detectar_tipo(ruta_local.name)
-        if not ruta_repo:
-            print(f"  ⚠ Ignorado (tipo no reconocido): {ruta_local.name}")
+    for nombre, contenido, fuente in candidatos:
+        resultado = detectar(nombre)
+        if not resultado:
             continue
+        ruta_repo, tipo, clave, ticker, precio, fecha = resultado
 
-        url = subir_archivo(str(ruta_local), ruta_repo, tipo)
-        if url and tipo in tipo_map:
-            urls_generadas[tipo_map[tipo]] = url
+        url = subir_bytes(contenido, ruta_repo, tipo, nombre)
+
+        # Guardar local siempre (nuevo o skip)
+        dest = guardar_local(contenido, ticker, fecha, nombre)
+        print(f"     💾 Local: {dest}")
+
+        if url and url != "skip":
+            if ticker not in urls_por_ticker:
+                urls_por_ticker[ticker]   = {}
+                fechas_por_ticker[ticker] = fecha
+            urls_por_ticker[ticker][clave] = url
+            procesados.append((nombre, fuente))
+
+        elif url == "skip":
+            procesados.append((nombre, fuente))
+
+        if isinstance(fuente, Path) and fuente.suffix == ".zip":
+            fuentes_zip.add(fuente)
 
     # Actualizar dashboard
-    if urls_generadas:
-        actualizar_dashboard(urls_generadas)
+    for ticker, urls in urls_por_ticker.items():
+        print(f"\n  📊 Actualizando dashboard — {ticker}...")
+        actualizar_dashboard(ticker, fechas_por_ticker[ticker], urls)
 
     # Resumen
+    nuevos = sum(1 for _, f in procesados if not (isinstance(f, Path) and f.suffix == ".zip"))
     print(f"\n{'='*55}")
-    print(f"  ✅ {len(urls_generadas)}/{len(archivos)} archivo(s) subido(s)")
-    print(f"\n  🔗 Links (activos en ~2 min por caché CDN de GitHub Pages):")
-    for tipo_key, url in urls_generadas.items():
-        print(f"  {url}")
-    print(f"  Dashboard: https://patonet.github.io/informes/")
+    print(f"  📊 {len(candidatos)} detectado(s) · {len(urls_por_ticker)} ticker(s) procesado(s)")
+    print(f"  💾 Copias locales: ~/feroldi_informes/")
+    if urls_por_ticker:
+        print(f"  🔗 Dashboard: https://patonet.github.io/informes/")
     print(f"{'='*55}\n")
 
+    # Preguntar borrar de Downloads
+    archivos_borrar = list(fuentes_zip)
+    for nombre, fuente in procesados:
+        if isinstance(fuente, Path) and fuente.suffix != ".zip" and fuente not in archivos_borrar:
+            archivos_borrar.append(fuente)
+
+    if archivos_borrar:
+        print("  🗑  ¿Borrar de ~/Downloads/ los archivos procesados?")
+        for f in archivos_borrar:
+            print(f"     • {f.name}")
+        resp = input("\n  Borrar? [s/N]: ").strip().lower()
+        if resp == "s":
+            for f in archivos_borrar:
+                try:
+                    f.unlink()
+                    print(f"  🗑  Borrado: {f.name}")
+                except Exception as e:
+                    print(f"  ⚠ No se pudo borrar {f.name}: {e}")
+        else:
+            print("  ✓ Archivos conservados en Downloads")
+
+    print()
 
 if __name__ == "__main__":
     main()
