@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sankey — First Solar FSLR — FY2025</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:clamp(9px,1.05vw,15px)}
+body{background:#050a12;color:#c8d8f0;font-family:'Segoe UI',system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:999}
+
+/* HEADER */
+.hdr{background:#020710;border-bottom:2px solid #0d2040;padding:.8rem 2rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem}
+.hdr-l h1{font-size:1.15rem;font-weight:700;letter-spacing:.02em}
+.hdr-l h1 #tkr{color:#00d4ff;font-family:'Courier New',monospace}
+.hdr-l .sub{font-size:.7rem;color:#475569;margin-top:.1rem}
+.hdr-r{text-align:right;line-height:1.6}
+.hdr-r .auth{color:#ffd700;font-weight:700;font-size:.85rem}
+.hdr-r .px{color:#00d4ff;font-family:'Courier New',monospace;font-size:.8rem}
+.hdr-r .rv{color:#00ff9d;font-family:'Courier New',monospace;font-size:.75rem}
+
+/* KPI BAR */
+.kpi{padding:.6rem 2rem;background:#080f1c;border-bottom:1px solid #0d1f35;
+  display:flex;gap:1.4rem;flex-wrap:wrap;align-items:center}
+.ki{display:flex;flex-direction:column}
+.kl{font-size:.63rem;color:#475569;text-transform:uppercase;letter-spacing:.07em}
+.kv{font-size:.9rem;font-weight:700;font-family:'Courier New',monospace;color:#00d4ff}
+.kv.g{color:#00ff9d}.kv.d{color:#ffd700}.kv.r{color:#ff3a3a}.kv.o{color:#ff8c00}
+.bdg{padding:.18rem .6rem;border-radius:999px;font-size:.67rem;font-weight:700;
+  border:1px solid;margin-left:.3rem}
+.bdg-c{color:#00c853;border-color:#00c853;background:rgba(0,200,83,.08)}
+.bdg-b{color:#00d4ff;border-color:#00d4ff;background:rgba(0,212,255,.07)}
+.bdg-g{color:#ffd700;border-color:#ffd700;background:rgba(255,215,0,.07)}
+.badges{display:flex;align-items:center;flex-wrap:wrap;margin-left:auto}
+
+/* NOTE BAR */
+.note45{background:#0d1a00;border-top:1px solid #3a5000;border-bottom:1px solid #3a5000;
+  padding:.45rem 2rem;font-size:.72rem;color:#7cb342;display:flex;align-items:center;gap:.5rem}
+.note45 strong{color:#a5d640}
+
+/* SVG */
+.skwrap{flex:1;padding:.8rem 1.5rem;display:flex;justify-content:center}
+.skwrap svg{width:100%;max-width:1100px;height:auto}
+
+/* TOOLTIP */
+#tip{position:fixed;background:#0a1628;border:1px solid #00d4ff;border-radius:.45rem;
+  padding:.55rem .8rem;font-size:.75rem;color:#c8d8f0;max-width:17rem;
+  pointer-events:none;z-index:9999;display:none;
+  box-shadow:0 0 18px rgba(0,212,255,.22);line-height:1.55}
+
+/* LEGEND */
+.leg{padding:.65rem 2rem;background:#080f1c;border-top:1px solid #0d1f35;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.35rem .75rem}
+.ltit{font-size:.7rem;color:#00d4ff;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;grid-column:1/-1;padding-bottom:.2rem}
+.li{display:flex;align-items:center;gap:.4rem;font-size:.71rem;color:#94a3b8}
+.ld{width:.7rem;height:.7rem;border-radius:.12rem;flex-shrink:0}
+.lv{color:#c8d8f0;font-family:'Courier New',monospace;font-size:.68rem}
+
+/* AUDIT TABLE */
+.aud{padding:.75rem 2rem 1.5rem;overflow-x:auto}
+.atit{font-size:.73rem;color:#00d4ff;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:.45rem}
+table{width:100%;border-collapse:collapse;font-size:.71rem}
+th{background:#0d1428;color:#00d4ff;font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.05em;padding:.35rem .55rem;text-align:left;border-bottom:1px solid #0d2040}
+td{padding:.3rem .55rem;border-bottom:1px solid #0a1020;color:#94a3b8}
+td strong{color:#00ff9d}
+.ok{color:#00ff9d;font-weight:700}.est{color:#ffd700;font-weight:700}
+
+/* FOOTER */
+footer{background:#020710;padding:.5rem 2rem;font-size:.67rem;color:#475569;
+  border-top:1px solid #0d1f35}
+
+/* FLOW ANIMATIONS */
+@keyframes flow{
+  0%{stroke-dashoffset:200;opacity:.3}
+  50%{opacity:.65}
+  100%{stroke-dashoffset:0;opacity:.3}
+}
+@keyframes flowSlow{
+  0%{stroke-dashoffset:200;opacity:.25}
+  50%{opacity:.55}
+  100%{stroke-dashoffset:0;opacity:.25}
+}
+.fp{stroke-dasharray:200;animation:flow 4s linear infinite}
+.fps{stroke-dasharray:200;animation:flowSlow 5.8s linear infinite}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <h1>First Solar · Flujo de Dinero &nbsp;<span id="tkr">FSLR</span></h1>
+    <div class="sub">Sankey · Método Feroldi · Verificación Triple (SEC 10-K · StockAnalysis · Macrotrends)</div>
+  </div>
+  <div class="hdr-r">
+    <div class="auth">@patonet</div>
+    <div class="px">NASDAQ:FSLR &nbsp;$211.39 &nbsp;04-05-2026</div>
+    <div class="rv">Revenue GAAP FY2025: $5.22B</div>
+  </div>
+</div>
+
+<div class="kpi">
+  <div class="ki"><span class="kl">Revenue FY2025</span><span class="kv g">$5.22B</span></div>
+  <div class="ki"><span class="kl">EBITDA</span><span class="kv d">$2.07B</span></div>
+  <div class="ki"><span class="kl">Net Income</span><span class="kv g">$1.53B</span></div>
+  <div class="ki"><span class="kl">FCF</span><span class="kv g">$1.20B</span></div>
+  <div class="ki"><span class="kl">Gross Margin</span><span class="kv d">41.0%</span></div>
+  <div class="ki"><span class="kl">Net Margin</span><span class="kv d">29.3%</span></div>
+  <div class="ki"><span class="kl">ROIC</span><span class="kv d">20.3%</span></div>
+  <div class="ki"><span class="kl">45X Credits</span><span class="kv o">$1.60B</span></div>
+  <div class="badges">
+    <span class="bdg bdg-c">🟢 COMPRA EN RETROCESOS</span>
+    <span class="bdg bdg-b">Feroldi 121.5/160 · 75.9%</span>
+    <span class="bdg bdg-g">PEG 0.38</span>
+  </div>
+</div>
+
+<div class="note45">
+  <span>⚡</span>
+  <span><strong>Créditos IRA §45X:</strong> $1.60B reconocidos como reducción del COGS en FY2025.
+  Sin estos créditos: Gross Margin ~8% · Op. Income ~$17M · Net Income ~$0.
+  El moat financiero de FSLR es, en su mayoría, un subsidio de política pública.</span>
+</div>
+
+<div class="skwrap">
+<svg viewBox="0 0 1060 580" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="gl"><feGaussianBlur stdDeviation="2.5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="glS"><feGaussianBlur stdDeviation="4" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+  <linearGradient id="gMR" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1a3a6e" stop-opacity=".55"/>
+    <stop offset="100%" stop-color="#0d2a5e" stop-opacity=".35"/></linearGradient>
+  <linearGradient id="gRC" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00a8cc" stop-opacity=".38"/>
+    <stop offset="100%" stop-color="#ff3a3a" stop-opacity=".48"/></linearGradient>
+  <linearGradient id="gRO" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00a8cc" stop-opacity=".3"/>
+    <stop offset="100%" stop-color="#ff8c00" stop-opacity=".45"/></linearGradient>
+  <linearGradient id="gRI" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00a8cc" stop-opacity=".38"/>
+    <stop offset="100%" stop-color="#00ff9d" stop-opacity=".38"/></linearGradient>
+  <linearGradient id="gIT" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00ff9d" stop-opacity=".28"/>
+    <stop offset="100%" stop-color="#9c27b0" stop-opacity=".48"/></linearGradient>
+  <linearGradient id="gIN" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00ff9d" stop-opacity=".38"/>
+    <stop offset="100%" stop-color="#ffd700" stop-opacity=".48"/></linearGradient>
+  <linearGradient id="gND" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#ffd700" stop-opacity=".35"/>
+    <stop offset="100%" stop-color="#ffd700" stop-opacity=".18"/></linearGradient>
+</defs>
+
+<!-- ── COLUMN HEADERS ── -->
+<text x="78" y="68" text-anchor="middle" fill="#475569" font-size="9.5" letter-spacing=".08em" font-family="Segoe UI">SEGMENTOS</text>
+<text x="288" y="68" text-anchor="middle" fill="#475569" font-size="9.5" letter-spacing=".08em" font-family="Segoe UI">REVENUE GAAP</text>
+<text x="503" y="68" text-anchor="middle" fill="#475569" font-size="9.5" letter-spacing=".08em" font-family="Segoe UI">ESTRUCTURA DE COSTOS</text>
+<text x="713" y="68" text-anchor="middle" fill="#475569" font-size="9.5" letter-spacing=".08em" font-family="Segoe UI">RESULTADO</text>
+<text x="940" y="68" text-anchor="middle" fill="#475569" font-size="9.5" letter-spacing=".08em" font-family="Segoe UI">DESTINO</text>
+
+<!-- ── SEPARATOR LINES ── -->
+<line x1="240" y1="74" x2="240" y2="550" stroke="#0d1f35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="458" y1="74" x2="458" y2="550" stroke="#0d1f35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="668" y1="74" x2="668" y2="550" stroke="#0d1f35" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="878" y1="74" x2="878" y2="550" stroke="#0d1f35" stroke-width="1" stroke-dasharray="4,4"/>
+
+<!-- ════════════════════════════
+     FLOW PATHS (drawn under nodes)
+     ════════════════════════════ -->
+
+<!-- COL1 Modules → COL2 Revenue (top 98.1%) -->
+<path class="fp" d="M113 80 C182 80,182 80,250 80 L250 537 C182 537,182 537,113 537 Z"
+  fill="url(#gMR)" stroke="none"/>
+
+<!-- COL1 Systems → COL2 Revenue (bottom 1.9%) -->
+<path class="fps" d="M113 543 C182 543,182 537,250 537 L250 546 C182 546,182 552,113 552 Z"
+  fill="url(#gMR)" stroke="none" opacity=".5"/>
+
+<!-- COL2 Revenue → COGS (59%) -->
+<path class="fp" d="M323 80 C393 80,393 80,461 80 L461 363 C393 363,393 363,323 363 Z"
+  fill="url(#gRC)" stroke="none"/>
+
+<!-- COL2 Revenue → OpEx (10%) -->
+<path class="fps" d="M323 366 C393 366,393 368,461 368 L461 416 C393 416,393 414,323 412 Z"
+  fill="url(#gRO)" stroke="none"/>
+
+<!-- COL2 Revenue → Op Income (31%) -->
+<path class="fp" d="M323 415 C393 415,393 420,461 420 L461 546 C393 546,393 546,323 546 Z"
+  fill="url(#gRI)" stroke="none"/>
+
+<!-- COL3 Op Income → Tax (tiny) -->
+<path class="fps" d="M536 420 C604 420,604 420,671 420 L671 434 C604 434,604 434,536 434 Z"
+  fill="url(#gIT)" stroke="none"/>
+
+<!-- COL3 Op Income → Net Income -->
+<path class="fp" d="M536 437 C604 437,604 438,671 438 L671 546 C604 546,604 546,536 546 Z"
+  fill="url(#gIN)" stroke="none"/>
+
+<!-- COL4 Net Income → COL5 bar -->
+<path class="fp" d="M746 438 C815 438,815 438,882 438 L882 546 C815 546,815 546,746 546 Z"
+  fill="url(#gND)" stroke="none"/>
+
+<!-- ════════════════════════════
+     COL 1 — SEGMENT NODES
+     ════════════════════════════ -->
+
+<!-- Modules node ($5.12B, 98.1%) — y=80 h=455 -->
+<rect class="nd" x="42" y="80" width="71" height="455" rx="5"
+  fill="#071428" stroke="#1a4a7e" stroke-width="1.5" filter="url(#gl)"
+  data-tip="Módulos CdTe (Thin-Film): $5.12B · 98.1% del revenue · Series 6 + Series 7 · 16.1 GW prod. FY2025 · 17.5 GW vendidos · ASP ~$0.35/W US domestic · US: 96% · India: ~4%"/>
+<text x="77" y="104" text-anchor="middle" fill="#00d4ff" font-size="10.5" font-weight="bold" font-family="Segoe UI">MÓDULOS</text>
+<text x="77" y="118" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="Segoe UI">CdTe Thin-Film</text>
+<text x="77" y="150" text-anchor="middle" fill="#00ff9d" font-size="15.5" font-weight="bold" font-family="Courier New">$5.12B</text>
+<text x="77" y="166" text-anchor="middle" fill="#00bcd4" font-size="9" font-family="Courier New">98.1%</text>
+<text x="77" y="181" text-anchor="middle" fill="#4db6ac" font-size="8.5" font-family="Courier New">+24% YoY</text>
+<line x1="52" y1="194" x2="102" y2="194" stroke="#0d2040" stroke-width="1"/>
+<text x="77" y="210" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">16.1 GW producidos</text>
+<text x="77" y="223" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">17.5 GW vendidos</text>
+<text x="77" y="236" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">ASP ~$0.35/W US</text>
+<line x1="52" y1="250" x2="102" y2="250" stroke="#0d2040" stroke-width="1"/>
+<text x="77" y="266" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">US: 96%</text>
+<text x="77" y="279" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">India: ~4%</text>
+<line x1="52" y1="293" x2="102" y2="293" stroke="#0d2040" stroke-width="1"/>
+<text x="77" y="309" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">Serie 7: OH·AL·LA</text>
+<text x="77" y="322" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">Serie 6: MY·VN·IN</text>
+<text x="77" y="380" text-anchor="middle" fill="#1e3a5e" font-size="8" font-family="Segoe UI">Backlog: 50.1 GW</text>
+<text x="77" y="393" text-anchor="middle" fill="#1e3a5e" font-size="8" font-family="Segoe UI">$15B en contratos</text>
+<text x="77" y="490" text-anchor="middle" fill="#7cb342" font-size="8" font-family="Courier New">45X: $1.60B</text>
+<text x="77" y="503" text-anchor="middle" fill="#5a7a00" font-size="7.5" font-family="Segoe UI">en COGS reduction</text>
+
+<!-- Systems node (~$100M, <2%) — y=541 h=20 -->
+<rect class="nd" x="42" y="541" width="71" height="22" rx="3"
+  fill="#050e0e" stroke="#005a5a" stroke-width="1"
+  data-tip="Sistemas / EPC: ~$100M · &lt;2% revenue · Servicios O&amp;M residuales · Segmento en reducción estratégica"/>
+<text x="77" y="553" text-anchor="middle" fill="#007070" font-size="8.5" font-weight="bold" font-family="Segoe UI">SISTEMAS</text>
+<text x="77" y="564" text-anchor="middle" fill="#006060" font-size="7.5" font-family="Courier New">~$100M · &lt;2%</text>
+
+<!-- ════════════════════════════
+     COL 2 — REVENUE NODE
+     ════════════════════════════ -->
+
+<rect x="250" y="80" width="73" height="467" rx="5"
+  fill="#0a1828" stroke="#00a8cc" stroke-width="2" filter="url(#glS)"/>
+<text x="286" y="104" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="bold" font-family="Segoe UI">REVENUE</text>
+<text x="286" y="118" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="Segoe UI">GAAP · FY2025</text>
+<text x="286" y="150" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="bold" font-family="Courier New">$5.22B</text>
+<text x="286" y="168" text-anchor="middle" fill="#4db6ac" font-size="9" font-family="Courier New">+24.1% YoY</text>
+<line x1="258" y1="180" x2="315" y2="180" stroke="#0d2040" stroke-width="1"/>
+
+<!-- 45X Badge inside Revenue -->
+<rect x="254" y="188" width="65" height="52" rx="3" fill="#0d1a00" stroke="#5a7a00" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="286" y="202" text-anchor="middle" fill="#7cb342" font-size="8" font-weight="bold">§45X CREDITS</text>
+<text x="286" y="216" text-anchor="middle" fill="#a5d640" font-size="12" font-weight="bold" font-family="Courier New">$1.60B</text>
+<text x="286" y="229" text-anchor="middle" fill="#5a7a00" font-size="7.5">↓ reduce COGS</text>
+
+<line x1="258" y1="247" x2="315" y2="247" stroke="#0d2040" stroke-width="1"/>
+<text x="286" y="262" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Segoe UI">Gross Margin: 41%</text>
+<text x="286" y="275" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Segoe UI">Op. Margin: 31.0%</text>
+<text x="286" y="288" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Segoe UI">Net Margin: 29.3%</text>
+<line x1="258" y1="300" x2="315" y2="300" stroke="#0d2040" stroke-width="1"/>
+<text x="286" y="315" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">EBITDA: $2.07B</text>
+<text x="286" y="328" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">CFO: ~$2.07B</text>
+<text x="286" y="341" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">CapEx: $870M</text>
+<line x1="258" y1="353" x2="315" y2="353" stroke="#0d2040" stroke-width="1"/>
+<text x="286" y="369" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">EPS: $14.21</text>
+<text x="286" y="382" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">Shares: 107.3M</text>
+<text x="286" y="395" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">Market Cap: $22.7B</text>
+<line x1="258" y1="407" x2="315" y2="407" stroke="#0d2040" stroke-width="1"/>
+<text x="286" y="424" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">Cash Neto: $2.4B</text>
+<text x="286" y="437" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">LT Debt: $283M</text>
+<text x="286" y="450" text-anchor="middle" fill="#475569" font-size="8" font-family="Segoe UI">D/E: 0.07</text>
+
+<!-- Gross profit label between COL2 and COL3 -->
+<text x="393" y="398" text-anchor="middle" fill="#00d4ff" font-size="8" opacity=".7" font-family="Segoe UI">Gross Profit</text>
+<text x="393" y="410" text-anchor="middle" fill="#00d4ff" font-size="8.5" font-weight="bold" opacity=".7" font-family="Courier New">$2.14B (41%)</text>
+
+<!-- ════════════════════════════
+     COL 3 — COST NODES
+     ════════════════════════════ -->
+
+<!-- COGS node — y=80 h=283 -->
+<rect class="nd" x="461" y="80" width="75" height="283" rx="5"
+  fill="#1a0606" stroke="#cc2a2a" stroke-width="1.5"
+  data-tip="COGS neto: $3.08B · 59% Revenue · Incluye manufacturing labor, telúrio, vidrio, marcos · 45X créditos ya descontados (-$1.60B) · Bruto pre-descuento: ~$4.68B · Ex-45X gross margin sería ~8%"/>
+<text x="498" y="104" text-anchor="middle" fill="#ff3a3a" font-size="10.5" font-weight="bold" font-family="Segoe UI">COGS</text>
+<text x="498" y="118" text-anchor="middle" fill="#64748b" font-size="8" font-family="Segoe UI">Costo de Producción</text>
+<text x="498" y="148" text-anchor="middle" fill="#ff6b6b" font-size="15.5" font-weight="bold" font-family="Courier New">$3.08B</text>
+<text x="498" y="164" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-family="Segoe UI">59% Revenue</text>
+<text x="498" y="178" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">Neto de §45X credits</text>
+<line x1="470" y1="190" x2="526" y2="190" stroke="#2a0808" stroke-width="1"/>
+<text x="498" y="204" text-anchor="middle" fill="#555" font-size="7.5" font-family="Segoe UI">Bruto: ~$4.68B</text>
+<text x="498" y="217" text-anchor="middle" fill="#555" font-size="7.5" font-family="Segoe UI">45X reducción: -$1.60B</text>
+<line x1="470" y1="229" x2="526" y2="229" stroke="#2a0808" stroke-width="1"/>
+<text x="498" y="243" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">Telúrio · Glass</text>
+<text x="498" y="256" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">Cadmio · Frames</text>
+<text x="498" y="269" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">Labor · Utilities</text>
+<text x="498" y="283" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">~14 GW US cap.</text>
+<text x="498" y="350" text-anchor="middle" fill="#cc4400" font-size="7.5" font-family="Segoe UI">Gross sin 45X: ~8%</text>
+
+<!-- OpEx aggregate node — y=368 h=48 -->
+<rect class="nd" x="461" y="368" width="75" height="48" rx="4"
+  fill="#1a0c04" stroke="#cc6600" stroke-width="1.5"
+  data-tip="Operating Expenses: $523M · SG&amp;A ~$200M · R&amp;D ~$180M · Production Startup ~$143M · Todo confirmado Q4 2025 earnings call como agregado · Detalle interno estimado"/>
+<text x="498" y="386" text-anchor="middle" fill="#ff8c00" font-size="10" font-weight="bold" font-family="Segoe UI">OP. EXPENSES</text>
+<text x="498" y="400" text-anchor="middle" fill="#ff9f40" font-size="13" font-weight="bold" font-family="Courier New">$523M</text>
+<text x="498" y="412" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="Segoe UI">SG&amp;A · R&amp;D · Startup</text>
+
+<!-- Op Income node — y=420 h=143 -->
+<rect class="nd" x="461" y="420" width="75" height="126" rx="5"
+  fill="#061a06" stroke="#00cc7a" stroke-width="2" filter="url(#gl)" cursor="pointer"
+  data-tip="Operating Income: $1.617B · Margen Op 31% · Incluye $1.60B de 45X credits · Sin créditos: Op Income ~$17M (0.3%) · EBITDA: $2.07B (39.7%) · D&amp;A estimado ~$450M"/>
+<text x="498" y="443" text-anchor="middle" fill="#00ff9d" font-size="10.5" font-weight="bold" font-family="Segoe UI">OP. INCOME</text>
+<text x="498" y="461" text-anchor="middle" fill="#00ff9d" font-size="15.5" font-weight="bold" font-family="Courier New">$1.62B</text>
+<text x="498" y="477" text-anchor="middle" fill="#00bcd4" font-size="9" font-family="Courier New">31.0% Mrg Op</text>
+<line x1="470" y1="490" x2="526" y2="490" stroke="#0a2a0a" stroke-width="1"/>
+<text x="498" y="504" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">EBITDA: $2.07B</text>
+<text x="498" y="517" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">D&amp;A: ~$450M</text>
+<text x="498" y="530" text-anchor="middle" fill="#333f22" font-size="7.5" font-family="Segoe UI">Ex-45X: ~$17M</text>
+
+<!-- ════════════════════════════
+     COL 4 — RESULTADO
+     ════════════════════════════ -->
+
+<!-- Tax node — y=420 h=14 -->
+<rect x="671" y="420" width="75" height="14" rx="3"
+  fill="#100a1a" stroke="#7e22ce" stroke-width="1.5"/>
+<text x="708" y="430" text-anchor="middle" fill="#9c27b0" font-size="8.5" font-weight="bold" font-family="Segoe UI">IMPUESTOS &nbsp;<tspan font-family="Courier New" font-size="8">$87M</tspan></text>
+
+<!-- Net Income node — y=437 h=109 -->
+<rect class="nd" x="671" y="437" width="75" height="109" rx="5"
+  fill="#0a1520" stroke="#ccaa00" stroke-width="2" filter="url(#gl)" cursor="pointer"
+  data-tip="Net Income: $1.530B · EPS: $14.21 diluted · Tax rate efectiva: ~5.4% (créditos 45X reducen carga fiscal) · +18.3% YoY · EPS TTM (con Q1-2026): $15.48 · P/E TTM: 13.7x · P/E Fwd: 11.7x · FCF yield: 5.3%"/>
+<text x="708" y="460" text-anchor="middle" fill="#ffd700" font-size="10.5" font-weight="bold" font-family="Segoe UI">NET INCOME</text>
+<text x="708" y="479" text-anchor="middle" fill="#ffd700" font-size="16.5" font-weight="bold" font-family="Courier New">$1.53B</text>
+<text x="708" y="496" text-anchor="middle" fill="#ffcc00" font-size="9" font-family="Courier New">29.3% Mrg</text>
+<line x1="680" y1="508" x2="736" y2="508" stroke="#1a1400" stroke-width="1"/>
+<text x="708" y="521" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">EPS: $14.21</text>
+<text x="708" y="533" text-anchor="middle" fill="#475569" font-size="7.5" font-family="Segoe UI">P/E: 13.7x · PEG: 0.38</text>
+
+<!-- ════════════════════════════
+     COL 5 — DESTINO BARS
+     ════════════════════════════ -->
+
+<!-- Column 5 header labels -->
+<text x="895" y="400" text-anchor="middle" fill="#ffd700" font-size="8.5" font-family="Segoe UI">Net Inc.</text>
+<text x="919" y="400" text-anchor="middle" fill="#00ff9d" font-size="8.5" font-family="Segoe UI">FCF</text>
+<text x="943" y="400" text-anchor="middle" fill="#ff8c00" font-size="8.5" font-family="Segoe UI">CapEx</text>
+<text x="970" y="400" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Segoe UI">Divid.</text>
+<text x="995" y="400" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Segoe UI">Recomp.</text>
+
+<!-- Net Income bar (full height of NI node = 109px) -->
+<rect x="889" y="437" width="10" height="109" rx="2" fill="#ffd700" opacity=".7"/>
+
+<!-- FCF bar (1200/1530 × 109 = 85px) -->
+<rect x="913" y="451" width="10" height="85" rx="2" fill="#00ff9d" opacity=".7"/>
+
+<!-- CapEx bar (870/1530 × 109 = 62px) -->
+<rect x="937" y="459" width="10" height="62" rx="2" fill="#ff8c00" opacity=".65"/>
+
+<!-- Dividends → $0 -->
+<text x="967" y="464" text-anchor="middle" fill="#2a3a4a" font-size="12" font-weight="bold" font-family="Courier New">$0</text>
+<line x1="960" y1="437" x2="975" y2="546" stroke="#1e2a3a" stroke-width="1" stroke-dasharray="2,3"/>
+
+<!-- Buybacks → $0 -->
+<text x="992" y="464" text-anchor="middle" fill="#2a3a4a" font-size="12" font-weight="bold" font-family="Courier New">$0</text>
+<line x1="985" y1="437" x2="1000" y2="546" stroke="#1e2a3a" stroke-width="1" stroke-dasharray="2,3"/>
+
+<!-- Values below bars -->
+<text x="894" y="557" text-anchor="middle" fill="#ffd700" font-size="8" font-family="Courier New">$1.53B</text>
+<text x="918" y="557" text-anchor="middle" fill="#00ff9d" font-size="8" font-family="Courier New">$1.20B</text>
+<text x="942" y="557" text-anchor="middle" fill="#ff8c00" font-size="8" font-family="Courier New">$870M</text>
+
+<!-- FCF formula -->
+<rect x="884" y="418" width="130" height="18" rx="3" fill="#050a0a" stroke="#0d2a1a" stroke-width="1"/>
+<text x="950" y="430" text-anchor="middle" fill="#4db6ac" font-size="7.5" font-family="Courier New">CFO $2.07B − CapEx $0.87B = FCF $1.20B</text>
+
+<!-- Cash position callout -->
+<rect x="880" y="478" width="170" height="36" rx="3" fill="#050a12" stroke="#0d2040" stroke-width="1"/>
+<text x="966" y="492" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="Segoe UI">Cash bruto: $2.90B · Neto: $2.40B</text>
+<text x="966" y="505" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="Segoe UI">Deuda LT: $283M · D/E: 0.07</text>
+
+<!-- Cash/Net Income annotation -->
+<text x="966" y="524" text-anchor="middle" fill="#64748b" font-size="7.5" font-family="Segoe UI">FCF Yield: 5.3% · ROIC: 20.3%</text>
+
+</svg>
+</div>
+
+<div id="tip"></div>
+
+<div class="leg">
+  <div class="ltit">📊 Leyenda FY2025 — Verificado (SEC 10-K · Q4 2025 Earnings · StockAnalysis · Macrotrends)</div>
+  <div class="li"><div class="ld" style="background:#1a4a7e"></div>Módulos CdTe — <span class="lv">$5.12B (98.1%)</span></div>
+  <div class="li"><div class="ld" style="background:#00a8cc"></div>Revenue GAAP — <span class="lv">$5.22B (+24.1%)</span></div>
+  <div class="li"><div class="ld" style="background:#cc2a2a"></div>COGS neto §45X — <span class="lv">$3.08B (59%)</span></div>
+  <div class="li"><div class="ld" style="background:#cc6600"></div>OpEx (SG&amp;A+R&D+Startup) — <span class="lv">$523M (10%)</span></div>
+  <div class="li"><div class="ld" style="background:#00cc7a"></div>Op. Income — <span class="lv">$1.617B (31%)</span></div>
+  <div class="li"><div class="ld" style="background:#7e22ce"></div>Impuestos — <span class="lv">~$87M (5.4% ef.)</span></div>
+  <div class="li"><div class="ld" style="background:#ccaa00"></div>Net Income — <span class="lv">$1.530B (29.3%)</span></div>
+  <div class="li"><div class="ld" style="background:#00ff9d"></div>FCF (CFO−CapEx) — <span class="lv">$1.20B</span></div>
+  <div class="li"><div class="ld" style="background:#7cb342"></div>§45X Tax Credits — <span class="lv">$1.60B (en COGS)</span></div>
+  <div class="li"><div class="ld" style="background:#475569"></div>Dividendos / Recompras — <span class="lv">$0 / $0</span></div>
+</div>
+
+<div class="aud">
+  <div class="atit">📋 Auditoría de Datos — Verificación Triple (SEC · StockAnalysis · Macrotrends)</div>
+  <table>
+    <thead><tr>
+      <th>Rubro</th><th>Valor FY2025</th><th>Fuente Principal</th><th>Estado</th><th>Nota</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Revenue Total</td><td><strong>$5.220B</strong></td><td>SEC 10-K FY2025 / Q4 Press Release BusinessWire</td><td class="ok">✅ Verificado</td><td>+24.1% YoY vs $4.206B FY2024. 24% aumento en volumen módulos.</td></tr>
+      <tr><td>Módulos Segmento</td><td><strong>~$5.120B</strong></td><td>10-K nota geográfica (US=96% net sales)</td><td class="est">⚡ Estimado</td><td>98.1% del revenue; segmento dominante. Sistemas en reducción.</td></tr>
+      <tr><td>Sistemas Segmento</td><td><strong>~$100M</strong></td><td>10-K segmentos / delta cálculo</td><td class="est">⚡ Estimado</td><td>&lt;2% del revenue. Servicios EPC/O&amp;M residuales.</td></tr>
+      <tr><td>COGS (neto §45X)</td><td><strong>$3.080B</strong></td><td>Q4 2025 Earnings — Gross Margin 41% confirmado</td><td class="ok">✅ Verificado</td><td>$5.22B × (1 − 0.41) = $3.08B. §45X reduce COGS en $1.6B.</td></tr>
+      <tr><td>Gross Profit</td><td><strong>$2.140B</strong></td><td>Q4 2025 Earnings Call / Mercom India</td><td class="ok">✅ Verificado</td><td>41% gross margin. Down from 44% FY2024 (tariff/underutilization).</td></tr>
+      <tr><td>OpEx Total</td><td><strong>$523M</strong></td><td>Q4 2025 Earnings Call (literal: "SG&amp;A, R&amp;D, Production Start-up")</td><td class="ok">✅ Verificado</td><td>Desglose interno SG&amp;A~$200M / R&amp;D~$180M / Startup~$143M estimado.</td></tr>
+      <tr><td>Operating Income</td><td><strong>$1.617B</strong></td><td>Q4 2025 Earnings Call (literal: "$1.6 billion")</td><td class="ok">✅ Verificado</td><td>31% margen operativo. Sin §45X sería ~$17M (0.3%).</td></tr>
+      <tr><td>§45X Tax Credits</td><td><strong>$1.600B</strong></td><td>Q4 2025 Earnings / Mercom India / Q4 call (literal $1.6B recog.)</td><td class="ok">✅ Verificado</td><td>Reconocidos como reducción a COGS. Monetizados $1.4B en cash FY2025.</td></tr>
+      <tr><td>EBITDA</td><td><strong>$2.070B</strong></td><td>Mercom India Q4 2025 report</td><td class="ok">✅ Verificado</td><td>39.7% EBITDA margin. D&amp;A estimado ~$450M.</td></tr>
+      <tr><td>Impuestos</td><td><strong>~$87M</strong></td><td>Calculado: NI $1.530B vs OpInc $1.617B</td><td class="est">⚡ Estimado</td><td>Tax rate efectiva ~5.4% por monetización de créditos IRA.</td></tr>
+      <tr><td>Net Income</td><td><strong>$1.530B</strong></td><td>SEC 10-K FY2025 / Q4 Press Release (EPS $14.21 × 107.7M)</td><td class="ok">✅ Verificado</td><td>+18.3% YoY. EPS TTM (con Q1-2026): $15.48.</td></tr>
+      <tr><td>CapEx</td><td><strong>$870M</strong></td><td>Q4 2025 Earnings Call (literal "$870M")</td><td class="ok">✅ Verificado</td><td>Principalmente planta Louisiana ($1.1B total). SC facility: en construcción.</td></tr>
+      <tr><td>CFO (aprox.)</td><td><strong>~$2.07B</strong></td><td>FCF + CapEx = $1.20B + $0.87B</td><td class="est">⚡ Estimado</td><td>Incluye $1.4B cash de venta §45X credits + operating cash flows.</td></tr>
+      <tr><td>FCF</td><td><strong>$1.200B</strong></td><td>StockTitan / StockAnalysis (FCF +485% YoY confirmado)</td><td class="ok">✅ Verificado</td><td>FCF yield: 5.3% al precio $211.39. FCF/NI: 78%.</td></tr>
+      <tr><td>Cash Bruto</td><td><strong>$2.900B</strong></td><td>Q4 2025 Press Release BusinessWire (literal "$2.9 billion")</td><td class="ok">✅ Verificado</td><td>Incluye cash, restricted cash, marketable securities.</td></tr>
+      <tr><td>Cash Neto</td><td><strong>$2.400B</strong></td><td>Q4 2025 Press Release (literal "net cash $2.4 billion")</td><td class="ok">✅ Verificado</td><td>Cash bruto $2.9B menos deuda $0.5B.</td></tr>
+      <tr><td>Deuda LT</td><td><strong>$282.6M</strong></td><td>StockAnalysis Statistics</td><td class="ok">✅ Verificado</td><td>Principalmente préstamo DFC India. D/E = 0.07.</td></tr>
+      <tr><td>Dividendos</td><td><strong>$0</strong></td><td>SEC 10-K / histórico company</td><td class="ok">✅ Verificado</td><td>Nunca ha pagado dividendo.</td></tr>
+      <tr><td>Recompras</td><td><strong>$0</strong></td><td>Shares ~107M estables FY2023-FY2025</td><td class="ok">✅ Verificado</td><td>Sin programa de buyback. Capital reinvertido en plantas.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  @patonet · Método Feroldi · $FSLR · FY2025 · 04-05-2026 · No constituye asesoramiento financiero.
+  Datos verificados contra SEC 10-K (CIK 1274494) · Q4 2025 Earnings Release · StockAnalysis · Macrotrends.
+</footer>
+
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  document.querySelectorAll('.nd').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var t=el.getAttribute('data-tip');if(!t)return;
+      tip.innerHTML='<strong style="color:#00d4ff;display:block;margin-bottom:.3rem">'+
+        el.querySelector('text')?.textContent?.trim()+
+        '</strong>'+t.replace(/·/g,'<span style="color:#475569"> · </span>');
+      tip.style.display='block';
+    });
+    el.addEventListener('mousemove',function(e){
+      var x=Math.min(e.clientX+14,window.innerWidth-290);
+      var y=Math.min(e.clientY+12,window.innerHeight-160);
+      tip.style.left=x+'px';tip.style.top=y+'px';
+    });
+    el.addEventListener('mouseleave',function(){tip.style.display='none';});
+  });
+})();
+</script>
+</body>
+</html>
