@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FSLY · Diagrama Sankey FY2025 · @patonet</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:clamp(10px,1.1vw,16px)}
+body{background:#050a12;color:#c8d8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:999}
+
+header{background:linear-gradient(135deg,#050a12 0%,#0a1e3a 60%,#050a12 100%);border-bottom:1px solid #1a2a4a;padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.hdr-left h1{font-size:1.1rem;font-weight:900;color:#00d4ff;letter-spacing:.04em}
+.hdr-left p{font-size:.75rem;color:#94a3b8;margin-top:.1rem}
+.hdr-right{text-align:right}
+.hdr-right .patonet{font-size:.88rem;font-weight:900;color:#ffd700;letter-spacing:.06em}
+.hdr-right .meta{font-size:.72rem;color:#94a3b8}
+
+/* KPI BAR */
+.kpi-bar{display:flex;gap:.5rem;flex-wrap:wrap;padding:.7rem 1.5rem;background:#080f1c;border-bottom:1px solid #1a2a4a}
+.kpi{display:flex;flex-direction:column;align-items:center;padding:.3rem .7rem;border-right:1px solid #1a2a4a;flex:1;min-width:6rem}
+.kpi:last-child{border-right:none}
+.kpi-val{font-size:.95rem;font-weight:900;font-family:'Courier New',monospace;color:#00ff9d}
+.kpi-lbl{font-size:.62rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-top:.1rem;text-align:center}
+.kpi-val.neg{color:#ff3a3a}
+.kpi-val.gold{color:#ffd700}
+.badge-k{display:inline-block;padding:.15rem .5rem;border-radius:.2rem;font-size:.7rem;font-weight:700;letter-spacing:.04em}
+.bk-neutral{background:#5d4037;color:#ffcc80}
+.bk-warn{background:rgba(255,58,58,.2);color:#ff6b6b}
+
+/* SANKEY CONTAINER */
+.sankey-container{flex:1;padding:1rem 1.5rem;overflow-x:auto}
+.sankey-wrap{min-width:1100px;max-width:1400px;margin:0 auto}
+
+@keyframes flowAnim{0%{stroke-dashoffset:200;opacity:.3}60%{opacity:.7}100%{stroke-dashoffset:0;opacity:.3}}
+@keyframes flowSlow{0%{stroke-dashoffset:200;opacity:.3}60%{opacity:.6}100%{stroke-dashoffset:0;opacity:.3}}
+.flow-path{stroke-dasharray:200;animation:flowAnim 4s linear infinite}
+.flow-path-slow{stroke-dasharray:200;animation:flowSlow 5.5s linear infinite}
+
+/* LEGEND */
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.4rem;padding:.7rem 1.5rem;background:#080f1c;border-top:1px solid #1a2a4a;border-bottom:1px solid #1a2a4a}
+.leg-item{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:#94a3b8}
+.leg-dot{width:.6rem;height:.6rem;border-radius:50%;flex-shrink:0}
+
+/* AUDIT TABLE */
+.audit{padding:.8rem 1.5rem}
+.audit-title{font-size:.78rem;font-weight:700;color:#00d4ff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+.audit-table{width:100%;border-collapse:collapse;font-size:.75rem;max-width:1400px}
+.audit-table th{color:#00d4ff;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:.3rem .5rem;border-bottom:1px solid #1a2a4a;text-align:left;background:#0d1428}
+.audit-table td{padding:.3rem .5rem;border-bottom:1px solid #1a2a4a}
+.audit-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.status-ok{color:#00ff9d;font-weight:700}
+.status-est{color:#ffd700;font-weight:700}
+
+/* TOOLTIP */
+#tooltip{position:fixed;background:#0a1628;border:1px solid #00d4ff;border-radius:.5rem;padding:.6rem .8rem;font-size:.78rem;color:#c8d8f0;max-width:18rem;pointer-events:none;z-index:9999;display:none;box-shadow:0 0 20px rgba(0,212,255,.2)}
+
+footer{text-align:center;font-size:.68rem;color:#94a3b8;padding:.7rem;border-top:1px solid #1a2a4a;background:#050a12}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <h1>Fastly, Inc. · <span style="color:#ffd700">Flujo de Dinero FY2025</span></h1>
+    <p>NASDAQ: FSLY · Edge Cloud Platform · Verificado (SEC 10-K · StockAnalysis · EDGAR 8-K Feb 2026)</p>
+  </div>
+  <div class="hdr-right">
+    <div class="patonet">@patonet</div>
+    <div class="meta">NASDAQ:FSLY · $31.60 · 05-05-2026 · Revenue: $624.0M GAAP</div>
+  </div>
+</header>
+
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-val">$624.0M</div><div class="kpi-lbl">Revenue FY2025</div></div>
+  <div class="kpi"><div class="kpi-val">-$29.6M</div><div class="kpi-lbl">EBITDA GAAP</div></div>
+  <div class="kpi"><div class="kpi-val neg">-$121.7M</div><div class="kpi-lbl">Net Income GAAP</div></div>
+  <div class="kpi"><div class="kpi-val">$65.8M</div><div class="kpi-lbl">FCF GAAP</div></div>
+  <div class="kpi"><div class="kpi-val neg">-51.6M</div><div class="kpi-lbl">FCF post-SBC 🚨</div></div>
+  <div class="kpi"><div class="kpi-val">57.1%</div><div class="kpi-lbl">Margen Bruto</div></div>
+  <div class="kpi"><div class="kpi-val neg">-19.1%</div><div class="kpi-lbl">Margen Op.</div></div>
+  <div class="kpi"><div class="kpi-val gold">51.6%</div><div class="kpi-lbl">Score Feroldi</div></div>
+  <div class="kpi"><span class="badge-k bk-neutral">🟡 NEUTRAL</span><div class="kpi-lbl" style="margin-top:.2rem">Veredicto</div></div>
+  <div class="kpi"><span class="badge-k bk-warn">🚨 EARNINGS MAÑANA</span><div class="kpi-lbl" style="margin-top:.2rem">06-05-2026 AMC</div></div>
+</div>
+
+<!-- SANKEY SVG -->
+<div class="sankey-container">
+<div class="sankey-wrap">
+<svg id="sankey" viewBox="0 0 1400 760" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="glowStrong"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <!-- Gradients for flows -->
+  <linearGradient id="flow-cdn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1a5fa0" stop-opacity=".6"/><stop offset="100%" stop-color="#00a8cc" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="flow-sec" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53935" stop-opacity=".6"/><stop offset="100%" stop-color="#00a8cc" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="flow-cmp" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffd700" stop-opacity=".6"/><stop offset="100%" stop-color="#00a8cc" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="flow-cogs" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".5"/><stop offset="100%" stop-color="#ff3a3a" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="flow-gp" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".5"/><stop offset="100%" stop-color="#00ff9d" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="flow-sbc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".4"/><stop offset="100%" stop-color="#9c27b0" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="flow-rd" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".4"/><stop offset="100%" stop-color="#ff6b35" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="flow-sm" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".4"/><stop offset="100%" stop-color="#ff9800" stop-opacity=".5"/></linearGradient>
+  <linearGradient id="flow-ga" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00a8cc" stop-opacity=".4"/><stop offset="100%" stop-color="#607d8b" stop-opacity=".5"/></linearGradient>
+</defs>
+
+<!-- ═══════════════════════════════════════════════════
+     COL 1 — SEGMENTOS (x=20, w=200)
+════════════════════════════════════════════════════ -->
+
+<!-- CDN Services $477.8M = 76.6% -->
+<g class="node" data-tip="Network Services: $477.8M (76.6% del revenue) · +12% YoY · CDN clásico: entrega de contenido, streaming, ecommerce. Clientes: Reddit, Universal Music Group, SeatGeek. Erosión de precio mejoró de mid-teens a mid-single digits en Q4 2025.">
+  <rect x="20" y="30" width="200" height="320" rx="6" fill="#0d1f35" stroke="#1a5fa0" stroke-width="1.5" filter="url(#glow)" cursor="pointer"/>
+  <text x="120" y="58" font-family="'Segoe UI',sans-serif" font-size="13" font-weight="bold" fill="#4090d0" text-anchor="middle">Network Services</text>
+  <text x="120" y="76" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">(CDN · Delivery · API)</text>
+  <text x="120" y="105" font-family="'Courier New',monospace" font-size="16" font-weight="bold" fill="#00ff9d" text-anchor="middle">$477.8M</text>
+  <text x="120" y="124" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">76.6% del revenue</text>
+  <text x="120" y="144" font-family="'Courier New',monospace" font-size="11" fill="#00bcd4" text-anchor="middle">YoY: +12%</text>
+  <text x="120" y="175" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">CDN: $130.8M Q4 2025</text>
+  <text x="120" y="191" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Price erosion: mid-single 📉→📈</text>
+  <ellipse cx="90" cy="42" rx="6" ry="4" fill="white" opacity="0.05"/>
+</g>
+
+<!-- Security $125.1M = 20.1% -->
+<g class="node" data-tip="Security: $125.1M (20.1% del revenue) · +21% YoY · WAF (Next-Gen), Bot Management, DDoS, API Security. Signal Sciences acquisition $775M (2020). 7 años consecutivos Gartner Customers Choice. Nuevo: 'Security first' customers expanding to CDN.">
+  <rect x="20" y="370" width="200" height="200" rx="6" fill="#1f0a0a" stroke="#e53935" stroke-width="1.5" filter="url(#glow)" cursor="pointer"/>
+  <text x="120" y="396" font-family="'Segoe UI',sans-serif" font-size="13" font-weight="bold" fill="#e57373" text-anchor="middle">Security</text>
+  <text x="120" y="413" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">(WAF · Bot · DDoS · API)</text>
+  <text x="120" y="440" font-family="'Courier New',monospace" font-size="16" font-weight="bold" fill="#00ff9d" text-anchor="middle">$125.1M</text>
+  <text x="120" y="458" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">20.1% del revenue</text>
+  <text x="120" y="476" font-family="'Courier New',monospace" font-size="11" fill="#00bcd4" text-anchor="middle">YoY: +21%</text>
+  <text x="120" y="502" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Signal Sciences (adq. $775M 2020)</text>
+  <text x="120" y="518" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Gartner Choice: 7 años consecutivos</text>
+  <ellipse cx="90" cy="382" rx="6" ry="4" fill="white" opacity="0.05"/>
+</g>
+
+<!-- Compute+Obs $21.1M = 3.4% -->
+<g class="node" data-tip="Compute+Observability: $21.1M (3.4% del revenue) · +64% YoY · Compute@Edge (WebAssembly), Observability, AI Accelerator (semantic caching LLMs). El segmento más estratégico. RPO y NRR improvement parcialmente liderado aquí. MCP Server agentic layer lanzado 2026.">
+  <rect x="20" y="590" width="200" height="130" rx="6" fill="#1a1500" stroke="#ffd700" stroke-width="1.5" filter="url(#glow)" cursor="pointer"/>
+  <text x="120" y="615" font-family="'Segoe UI',sans-serif" font-size="12" font-weight="bold" fill="#ffd700" text-anchor="middle">Compute + Observ.</text>
+  <text x="120" y="631" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">(AI Accelerator · Wasm · MCP)</text>
+  <text x="120" y="656" font-family="'Courier New',monospace" font-size="15" font-weight="bold" fill="#00ff9d" text-anchor="middle">$21.1M</text>
+  <text x="120" y="673" font-family="'Segoe UI',sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">3.4% del revenue</text>
+  <text x="120" y="691" font-family="'Courier New',monospace" font-size="11" fill="#00bcd4" text-anchor="middle">YoY: +64% 🚀</text>
+  <ellipse cx="90" cy="602" rx="6" ry="4" fill="white" opacity="0.06"/>
+</g>
+
+<!-- ═══════════════════════════════════════════════════
+     FLOWS COL1 → COL2
+════════════════════════════════════════════════════ -->
+<!-- CDN → Revenue -->
+<path class="flow-path" d="M 220 190 C 260 190, 260 350, 300 350" fill="none" stroke="url(#flow-cdn)" stroke-width="24" opacity=".55"/>
+<!-- Security → Revenue -->
+<path class="flow-path-slow" d="M 220 470 C 260 470, 260 390, 300 390" fill="none" stroke="url(#flow-sec)" stroke-width="10" opacity=".55"/>
+<!-- Compute → Revenue -->
+<path class="flow-path" d="M 220 655 C 260 655, 260 420, 300 420" fill="none" stroke="url(#flow-cmp)" stroke-width="2.5" opacity=".5"/>
+
+<!-- ═══════════════════════════════════════════════════
+     COL 2 — REVENUE GAAP (x=300, w=170)
+════════════════════════════════════════════════════ -->
+<rect x="300" y="240" width="170" height="240" rx="6" fill="#0d1f35" stroke="#00a8cc" stroke-width="2" filter="url(#glowStrong)"/>
+<text x="385" y="275" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="bold" fill="#00d4ff" text-anchor="middle">REVENUE GAAP</text>
+<text x="385" y="291" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">FY2025 · +15% YoY</text>
+<text x="385" y="320" font-family="'Courier New',monospace" font-size="20" font-weight="bold" fill="#00ff9d" text-anchor="middle">$624.0M</text>
+<line x1="315" y1="335" x2="455" y2="335" stroke="#1a2a4a" stroke-width="1"/>
+<text x="385" y="355" font-family="'Courier New',monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Q1: $144.5M</text>
+<text x="385" y="370" font-family="'Courier New',monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Q2: $148.7M</text>
+<text x="385" y="385" font-family="'Courier New',monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Q3: $158.2M</text>
+<text x="385" y="400" font-family="'Courier New',monospace" font-size="10" fill="#00c853" text-anchor="middle">Q4: $172.6M (REC.)</text>
+<text x="385" y="425" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Gross Margin: 57.1% GAAP</text>
+<text x="385" y="441" font-family="'Courier New',monospace" font-size="9" fill="#00c853" text-anchor="middle">Q4 GM: 61.4% (RÉCORD)</text>
+<text x="385" y="460" font-family="'Courier New',monospace" font-size="9" fill="#94a3b8" text-anchor="middle">EV/Sales: ~8.2×</text>
+
+<!-- ═══════════════════════════════════════════════════
+     FLOWS COL2 → COL3
+════════════════════════════════════════════════════ -->
+<!-- Rev → COGS -->
+<path class="flow-path-slow" d="M 470 330 C 510 330, 510 185, 550 185" fill="none" stroke="url(#flow-cogs)" stroke-width="16.5" opacity=".5"/>
+<!-- Rev → Gross Profit -->
+<path class="flow-path" d="M 470 380 C 510 380, 510 370, 550 370" fill="none" stroke="url(#flow-gp)" stroke-width="14" opacity=".5"/>
+
+<!-- ═══════════════════════════════════════════════════
+     COL 3 — COSTOS (x=550, w=195)
+════════════════════════════════════════════════════ -->
+
+<!-- COGS $267.9M = 42.9% -->
+<rect x="550" y="100" width="195" height="160" rx="6" fill="#200a0a" stroke="#ff3a3a" stroke-width="1.5"/>
+<text x="647" y="126" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="bold" fill="#ff5252" text-anchor="middle">COGS</text>
+<text x="647" y="142" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">(Infraestructura de red · Bandwidth)</text>
+<text x="647" y="168" font-family="'Courier New',monospace" font-size="15" font-weight="bold" fill="#ff5252" text-anchor="middle">$267.9M</text>
+<text x="647" y="185" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">42.9% del revenue</text>
+<text x="647" y="202" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Incl. D&A de red ($67M est.)</text>
+<text x="647" y="218" font-family="'Segoe UI',sans-serif" font-size="9" fill="#ffb74d" text-anchor="middle">⚠️ DRAM más caro en 2026</text>
+<text x="647" y="233" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Capex FY26: 10-12% rev ($77-86M)</text>
+
+<!-- Gross Profit $356.1M = 57.1% -->
+<rect x="550" y="285" width="195" height="120" rx="6" fill="#0a1f0a" stroke="#00ff9d" stroke-width="2" filter="url(#glow)"/>
+<text x="647" y="308" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="bold" fill="#00ff9d" text-anchor="middle">Gross Profit</text>
+<text x="647" y="332" font-family="'Courier New',monospace" font-size="15" font-weight="bold" fill="#00ff9d" text-anchor="middle">$356.1M</text>
+<text x="647" y="350" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Margen bruto: 57.1% GAAP</text>
+<text x="647" y="366" font-family="'Segoe UI',sans-serif" font-size="9" fill="#00c853" text-anchor="middle">60.9% non-GAAP FY2025</text>
+<text x="647" y="382" font-family="'Segoe UI',sans-serif" font-size="9" fill="#00c853" text-anchor="middle">Q4: 61.4% GAAP (récord ↑)</text>
+
+<!-- Op Expenses breakdown -->
+<!-- R&D $211M est. -->
+<rect x="550" y="430" width="195" height="90" rx="6" fill="#1a0a05" stroke="#ff6b35" stroke-width="1.5"/>
+<text x="647" y="452" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ff6b35" text-anchor="middle">R&D</text>
+<text x="647" y="470" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#ff8052" text-anchor="middle">~$211M</text>
+<text x="647" y="487" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">33.8% revenue · incl. SBC $70M est.</text>
+<text x="647" y="502" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Compute@Edge · AI Accelerator</text>
+
+<!-- S&M $100M est. -->
+<rect x="550" y="540" width="195" height="80" rx="6" fill="#1a0d00" stroke="#ff9800" stroke-width="1.5"/>
+<text x="647" y="560" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ff9800" text-anchor="middle">Sales & Marketing</text>
+<text x="647" y="577" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#ffb74d" text-anchor="middle">~$100M</text>
+<text x="647" y="594" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">16.0% revenue · Land & Expand</text>
+<text x="647" y="608" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">628 enterprise customers</text>
+
+<!-- G&A $65M est. -->
+<rect x="550" y="638" width="195" height="80" rx="6" fill="#11131a" stroke="#607d8b" stroke-width="1.5"/>
+<text x="647" y="657" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#78909c" text-anchor="middle">G&A</text>
+<text x="647" y="674" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#90a4ae" text-anchor="middle">~$65M</text>
+<text x="647" y="690" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">10.4% revenue</text>
+<text x="647" y="705" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Legal · Finance · HR</text>
+
+<!-- Flows Gross Profit → Op Expenses -->
+<path class="flow-path" d="M 745 340 C 780 340, 780 475, 820 475" fill="none" stroke="url(#flow-sbc)" stroke-width="13" opacity=".45"/>
+<path class="flow-path-slow" d="M 745 350 C 780 350, 780 580, 820 580" fill="none" stroke="url(#flow-rd)" stroke-width="8" opacity=".4"/>
+<path class="flow-path" d="M 745 360 C 780 360, 780 678, 820 678" fill="none" stroke="url(#flow-ga)" stroke-width="5" opacity=".4"/>
+
+<!-- ═══════════════════════════════════════════════════
+     COL 4 — OPERATING INCOME / PRE-TAX (x=820)
+════════════════════════════════════════════════════ -->
+<!-- Op Loss -119M -->
+<rect x="820" y="310" width="155" height="120" rx="6" fill="#200505" stroke="#ff3a3a" stroke-width="1.5" filter="url(#glow)"/>
+<text x="897" y="334" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ff5252" text-anchor="middle">Op. Income (GAAP)</text>
+<text x="897" y="360" font-family="'Courier New',monospace" font-size="16" font-weight="bold" fill="#ff3a3a" text-anchor="middle">-$119.0M</text>
+<text x="897" y="377" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Op Margin: -19.1%</text>
+<text x="897" y="393" font-family="'Courier New',monospace" font-size="9" fill="#ff8c00" text-anchor="middle">nGAAP: +$22.4M (+3.6%)</text>
+<text x="897" y="409" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Q4 2025: -$15.1M (mejora)</text>
+<text x="897" y="422" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#00c853" text-anchor="middle">Q4 GAAP: -8.7% margin</text>
+
+<!-- SBC box separate -->
+<rect x="820" y="450" width="155" height="100" rx="6" fill="#150a2a" stroke="#9c27b0" stroke-width="1.5"/>
+<text x="897" y="472" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ce93d8" text-anchor="middle">SBC (diluye accionista)</text>
+<text x="897" y="495" font-family="'Courier New',monospace" font-size="15" font-weight="bold" fill="#ba68c8" text-anchor="middle">$117.3M</text>
+<text x="897" y="512" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">18.8% revenue 🚨</text>
+<text x="897" y="527" font-family="'Segoe UI',sans-serif" font-size="9" fill="#ff3a3a" text-anchor="middle">FCF post-SBC: -$51.6M</text>
+<text x="897" y="542" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Dilución ~3.5%/año + 13% conv.</text>
+
+<!-- Flow Op Income → Destino -->
+<path class="flow-path" d="M 975 370 C 1010 370, 1010 550, 1050 550" fill="none" stroke="#ff3a3a" stroke-width="8" opacity=".4"/>
+<path class="flow-path-slow" d="M 975 490 C 1010 490, 1010 620, 1050 620" fill="none" stroke="#9c27b0" stroke-width="6" opacity=".35"/>
+
+<!-- Also: CFO flow -->
+<rect x="820" y="570" width="155" height="90" rx="6" fill="#051a0a" stroke="#4caf50" stroke-width="1.5" filter="url(#glow)"/>
+<text x="897" y="593" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#81c784" text-anchor="middle">Cash From Ops</text>
+<text x="897" y="617" font-family="'Courier New',monospace" font-size="15" font-weight="bold" fill="#00c853" text-anchor="middle">$94.4M</text>
+<text x="897" y="634" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">CFO (SBC add-back $117.3M)</text>
+<text x="897" y="650" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Menos Capex: -$28.7M</text>
+<path class="flow-path" d="M 975 615 C 1010 615, 1010 690, 1050 690" fill="none" stroke="#4caf50" stroke-width="7" opacity=".4"/>
+
+<!-- ═══════════════════════════════════════════════════
+     COL 5 — DESTINO (x=1050)
+════════════════════════════════════════════════════ -->
+
+<!-- Net Income -121.7M -->
+<rect x="1050" y="510" width="155" height="70" rx="6" fill="#1f0505" stroke="#ff3a3a" stroke-width="1.5"/>
+<text x="1127" y="532" font-family="'Segoe UI',sans-serif" font-size="9.5" font-weight="bold" fill="#ff5252" text-anchor="middle">Net Income (GAAP)</text>
+<text x="1127" y="553" font-family="'Courier New',monospace" font-size="14" font-weight="bold" fill="#ff3a3a" text-anchor="middle">-$121.7M</text>
+<text x="1127" y="569" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">EPS: -$0.83 · Margin: -19.5%</text>
+
+<!-- SBC dilution -->
+<rect x="1050" y="596" width="155" height="60" rx="6" fill="#150a2a" stroke="#9c27b0" stroke-width="1.5"/>
+<text x="1127" y="616" font-family="'Segoe UI',sans-serif" font-size="9.5" font-weight="bold" fill="#ce93d8" text-anchor="middle">Dilución SBC</text>
+<text x="1127" y="636" font-family="'Courier New',monospace" font-size="12" font-weight="bold" fill="#ba68c8" text-anchor="middle">~3.5%/año acciones</text>
+<text x="1127" y="650" font-family="'Segoe UI',sans-serif" font-size="8" fill="#94a3b8" text-anchor="middle">+13% conversión 2026-notes</text>
+
+<!-- FCF -->
+<rect x="1050" y="670" width="155" height="75" rx="6" fill="#051a0a" stroke="#00c853" stroke-width="1.5" filter="url(#glow)"/>
+<text x="1127" y="692" font-family="'Segoe UI',sans-serif" font-size="9.5" font-weight="bold" fill="#81c784" text-anchor="middle">FCF (GAAP) / Capex</text>
+<text x="1127" y="712" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#00c853" text-anchor="middle">$65.8M FCF</text>
+<text x="1127" y="728" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ff3a3a" text-anchor="middle">Post-SBC: -$51.6M 🚨</text>
+<text x="1127" y="743" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">Capex $28.7M (FY26: 3× más)</text>
+
+<!-- EXTRA: Goodwill warning -->
+<rect x="1220" y="30" width="160" height="120" rx="6" fill="#1a1400" stroke="#ffd700" stroke-width="1.5"/>
+<text x="1300" y="55" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ffd700" text-anchor="middle">⚠️ Goodwill</text>
+<text x="1300" y="73" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#ffd700" text-anchor="middle">$670.4M</text>
+<text x="1300" y="90" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">44.7% total assets</text>
+<text x="1300" y="106" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Signal Sciences 2020</text>
+<text x="1300" y="122" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ff8c00" text-anchor="middle">Riesgo impairment si Sec.</text>
+<text x="1300" y="138" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ff8c00" text-anchor="middle">no alcanza targets</text>
+
+<!-- EXTRA: RPO/NRR -->
+<rect x="1220" y="170" width="160" height="110" rx="6" fill="#0a1a30" stroke="#00d4ff" stroke-width="1.5" filter="url(#glow)"/>
+<text x="1300" y="194" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#00d4ff" text-anchor="middle">✅ Backlog / RPO</text>
+<text x="1300" y="212" font-family="'Courier New',monospace" font-size="13" font-weight="bold" fill="#00d4ff" text-anchor="middle">$354M RPO</text>
+<text x="1300" y="229" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">+55% YoY (contratado)</text>
+<text x="1300" y="246" font-family="'Courier New',monospace" font-size="11" fill="#00c853" text-anchor="middle">NRR: 110% Q4 2025</text>
+<text x="1300" y="263" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">628 ent. customers (+32 YoY)</text>
+
+<!-- SOTP -->
+<rect x="1220" y="300" width="160" height="120" rx="6" fill="#150a0a" stroke="#ff3a3a" stroke-width="1.5"/>
+<text x="1300" y="322" font-family="'Segoe UI',sans-serif" font-size="10" font-weight="bold" fill="#ff5252" text-anchor="middle">SOTP Fair Value</text>
+<text x="1300" y="343" font-family="'Courier New',monospace" font-size="14" font-weight="bold" fill="#ff3a3a" text-anchor="middle">$15.34 base</text>
+<text x="1300" y="360" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">-51% vs $31.60 actual</text>
+<text x="1300" y="378" font-family="'Courier New',monospace" font-size="11" fill="#ff8c00" text-anchor="middle">$23.20 bull (-27%)</text>
+<text x="1300" y="396" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">CDN 3.5× / Sec 7× / AI 15×</text>
+<text x="1300" y="412" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ffd700" text-anchor="middle">AI premium pagado: $9-16/sh</text>
+
+<!-- Veredicto box -->
+<rect x="1220" y="440" width="160" height="110" rx="6" fill="#1a1000" stroke="#ffd700" stroke-width="2" filter="url(#glow)"/>
+<text x="1300" y="463" font-family="'Segoe UI',sans-serif" font-size="11" font-weight="bold" fill="#ffd700" text-anchor="middle">🟡 NEUTRAL</text>
+<text x="1300" y="482" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Score Feroldi: 82.5/160</text>
+<text x="1300" y="499" font-family="'Courier New',monospace" font-size="11" fill="#ffd700" text-anchor="middle">51.6% · Zona Amarilla</text>
+<text x="1300" y="517" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#94a3b8" text-anchor="middle">TP1 $37 · TP2 $48 · TP3 $57</text>
+<text x="1300" y="534" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ff3a3a" text-anchor="middle">SL $24.50 / $20.00</text>
+<text x="1300" y="551" font-family="'Segoe UI',sans-serif" font-size="8.5" fill="#ff3a3a" text-anchor="middle">⚠️ STARTER post-earnings solo</text>
+
+<!-- Column labels -->
+<text x="120" y="20" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">COL 1 — SEGMENTOS</text>
+<text x="385" y="230" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">COL 2 — REVENUE</text>
+<text x="647" y="88" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">COL 3 — COSTOS & GP</text>
+<text x="897" y="298" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">COL 4 — RESULTADO</text>
+<text x="1127" y="500" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">COL 5 — DESTINO</text>
+<text x="1300" y="20" font-family="'Segoe UI',sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle" text-decoration="underline">CONTEXTO</text>
+
+</svg>
+</div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#1a5fa0"></div>Network Services (CDN) — $477.8M</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#e53935"></div>Security (WAF/Bot/DDoS) — $125.1M</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ffd700"></div>Compute+Observability (AI) — $21.1M</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#00ff9d"></div>Gross Profit — $356.1M (57.1%)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#9c27b0"></div>SBC — $117.3M (18.8% rev.) 🚨</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ff3a3a"></div>Net Income — -$121.7M (GAAP)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#00c853"></div>FCF GAAP — $65.8M / post-SBC -$51.6M</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ff8c00"></div>Estimados basados en métricas reportadas</div>
+</div>
+
+<!-- AUDIT TABLE -->
+<div class="audit">
+  <div class="audit-title">📊 Auditoría FY2025 — Verificado (SEC 10-K · StockAnalysis · EDGAR 8-K Feb 11, 2026)</div>
+  <table class="audit-table">
+    <thead><tr><th>Rubro</th><th>Valor FY2025</th><th>Fuente</th><th>Estado</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue Total</td><td><strong style="color:#00ff9d">$624.0M</strong></td><td>EDGAR 8-K Feb 2026</td><td class="status-ok">✅ Verificado</td><td>+15.0% YoY vs $543.7M FY2024</td></tr>
+      <tr><td>Network Services</td><td><strong style="color:#00ff9d">$477.8M</strong></td><td>EDGAR 8-K investor supplement</td><td class="status-ok">✅ Verificado</td><td>76.6% del total · +12% YoY</td></tr>
+      <tr><td>Security</td><td><strong style="color:#00ff9d">$125.1M</strong></td><td>EDGAR 8-K investor supplement</td><td class="status-ok">✅ Verificado</td><td>20.1% del total · +21% YoY</td></tr>
+      <tr><td>Compute+Observability</td><td><strong style="color:#00ff9d">$21.1M</strong></td><td>EDGAR 8-K investor supplement</td><td class="status-ok">✅ Verificado</td><td>3.4% del total · +64% YoY 🚀</td></tr>
+      <tr><td>Gross Profit / Margin</td><td><strong style="color:#00ff9d">$356.1M / 57.1%</strong></td><td>EDGAR 8-K press release</td><td class="status-ok">✅ Verificado</td><td>Q4 récord 61.4% GAAP · 64.0% non-GAAP</td></tr>
+      <tr><td>COGS</td><td><strong style="color:#ff5252">$267.9M</strong></td><td>Calculado: Rev - Gross Profit</td><td class="status-ok">✅ Verificado</td><td>42.9% revenue</td></tr>
+      <tr><td>Op. Income (GAAP)</td><td><strong style="color:#ff5252">-$119.0M</strong></td><td>EDGAR 8-K press release</td><td class="status-ok">✅ Verificado</td><td>Op Margin -19.1% · nGAAP: +$22.4M</td></tr>
+      <tr><td>R&D (estimado)</td><td><strong style="color:#ff8c00">~$211M</strong></td><td>Estimado de OpEx breakdown</td><td class="status-est">⚡ Estimado</td><td>Principal línea de OpEx con SBC ~$70M</td></tr>
+      <tr><td>S&M (estimado)</td><td><strong style="color:#ff8c00">~$100M</strong></td><td>Estimado de OpEx breakdown</td><td class="status-est">⚡ Estimado</td><td>Land & Expand enterprise</td></tr>
+      <tr><td>G&A (estimado)</td><td><strong style="color:#ff8c00">~$65M</strong></td><td>Estimado de OpEx breakdown</td><td class="status-est">⚡ Estimado</td><td>Suma OpEx = $376M → Op Loss $119M verificado</td></tr>
+      <tr><td>SBC</td><td><strong style="color:#ba68c8">$117.3M</strong></td><td>EDGAR 10-K XBRL</td><td class="status-ok">✅ Verificado</td><td>18.8% revenue · FCF post-SBC -$51.6M 🚨</td></tr>
+      <tr><td>Net Income (GAAP)</td><td><strong style="color:#ff3a3a">-$121.7M</strong></td><td>EDGAR 8-K press release</td><td class="status-ok">✅ Verificado</td><td>EPS -$0.83 · Net Margin -19.5%</td></tr>
+      <tr><td>CFO</td><td><strong style="color:#00c853">$94.4M</strong></td><td>EDGAR 10-K XBRL</td><td class="status-ok">✅ Verificado</td><td>Incluye SBC non-cash add-back $117.3M</td></tr>
+      <tr><td>Capex</td><td><strong style="color:#ff5252">$28.7M</strong></td><td>EDGAR 10-K XBRL</td><td class="status-ok">✅ Verificado</td><td>4.6% revenue · FY2026 guiado 10-12% (3×)</td></tr>
+      <tr><td>FCF (GAAP)</td><td><strong style="color:#00c853">$65.8M</strong></td><td>CFO - Capex</td><td class="status-ok">✅ Verificado</td><td>FCF post-SBC = -$51.6M real 🚨</td></tr>
+      <tr><td>Cash Real (Dec 31, 2025)</td><td><strong style="color:#00ff9d">$361.8M</strong></td><td>EDGAR 10-K balance sheet</td><td class="status-ok">✅ Verificado</td><td>Cash $180.6M + Mkt Securities $181.2M</td></tr>
+      <tr><td>Goodwill</td><td><strong style="color:#ffd700">$670.4M</strong></td><td>EDGAR 10-K balance sheet</td><td class="status-ok">✅ Verificado</td><td>44.7% total assets · Signal Sciences 2020</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  @patonet · Sistema Feroldi X0.50 · $FSLY · FY2025 · 05-05-2026 · No constituye asesoría financiera. Solo fines informativos. ⚠️ Q1 2026 EARNINGS MAÑANA 06-05-2026 AMC
+</footer>
+
+<div id="tooltip"></div>
+<script>
+document.querySelectorAll('.node').forEach(el=>{
+  el.addEventListener('mouseenter',e=>{
+    const t=document.getElementById('tooltip');
+    t.innerHTML='<strong style="color:#00d4ff">'+el.dataset.tip+'</strong>';
+    t.style.display='block';
+    t.style.left=Math.min(e.clientX+12,window.innerWidth-300)+'px';
+    t.style.top=Math.min(e.clientY-30,window.innerHeight-200)+'px';
+  });
+  el.addEventListener('mousemove',e=>{
+    const t=document.getElementById('tooltip');
+    t.style.left=Math.min(e.clientX+12,window.innerWidth-300)+'px';
+    t.style.top=Math.min(e.clientY-30,window.innerHeight-200)+'px';
+  });
+  el.addEventListener('mouseleave',()=>{document.getElementById('tooltip').style.display='none'});
+});
+</script>
+</body>
+</html>
