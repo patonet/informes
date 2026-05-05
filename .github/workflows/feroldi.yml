@@ -1,0 +1,87 @@
+# .github/workflows/feroldi.yml
+# FEROLDI RECOLECTAR — GitHub Actions
+# Sistema Feroldi v X0.50 · @patonet
+#
+# SETUP (una sola vez):
+#   GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+#   Name: GH_TOKEN  |  Value: tu_token_github
+#
+# USO desde cualquier dispositivo (Mac, iPhone, etc.):
+#   github.com/patonet/informes → Actions → "Feroldi Recolectar" → Run workflow
+#   Ingresar: ticker (ej: FSLR) y precio (ej: 211.39)
+#
+# RESULTADO:
+#   El JSON se guarda en: datos/datos_[TICKER]_[FECHA].json
+#   Se puede leer desde: https://patonet.github.io/informes/datos/datos_[TICKER]_[FECHA].json
+#   Copiar y pegar ese JSON en Claude/ChatGPT/Gemini para el análisis
+
+name: Feroldi Recolectar
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: 'Ticker (ej: FSLR, SPOT, AAPL)'
+        required: true
+        type: string
+      precio:
+        description: 'Precio actual en USD (ej: 211.39)'
+        required: true
+        type: string
+
+jobs:
+  recolectar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: |
+          pip install aiohttp requests beautifulsoup4 --quiet
+
+      - name: Copiar script al workspace
+        run: |
+          # El script vive en la raíz del repo
+          ls -la feroldi_recolectar.py || echo "Script no encontrado en raíz"
+
+      - name: Ejecutar recolección de datos
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          python3 feroldi_recolectar.py "${{ github.event.inputs.ticker }}" "${{ github.event.inputs.precio }}"
+
+      - name: Mover JSON a carpeta datos/
+        run: |
+          mkdir -p datos
+          mv datos_*.json datos/ 2>/dev/null || true
+          ls -la datos/
+
+      - name: Commit JSON al repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name "feroldi-bot"
+          git config user.email "feroldi@patonet.github.io"
+          git add datos/
+          git diff --staged --quiet || git commit -m "data: recolección ${{ github.event.inputs.ticker }} ${{ github.event.inputs.precio }}"
+          git push https://x-access-token:${GH_TOKEN}@github.com/patonet/informes.git
+
+      - name: Mostrar link del JSON
+        run: |
+          TICKER="${{ github.event.inputs.ticker }}"
+          DATE=$(date +"%d-%m-%Y")
+          FILENAME="datos_${TICKER^^}_$(date +%d%m%Y).json"
+          echo ""
+          echo "✅ JSON disponible en:"
+          echo "https://patonet.github.io/informes/datos/${FILENAME}"
+          echo ""
+          echo "👉 Abre ese link, copia el contenido y pégalo en Claude/ChatGPT/Gemini"
