@@ -1,232 +1,123 @@
-SISTEMA FEROLDI — CHANGELOG DE VERSIONES
-@patonet | Repositorio: patonet/informes
-=========================================
+CHANGELOG — SISTEMA FEROLDI
+@patonet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-VERSIÓN X0.41 — 02 May 2026
-Correcciones críticas y cambios de arquitectura
-------------------------------------------------
-CORREGIDO:
-  - URLs de fetch en prompt_light apuntaban a "prompt_generador_infografia_X0.41.txt" (inexistente)
-  - URLs de fetch en prompt_heavy apuntaban a nombre incorrecto
-  - Primera línea de los generadores no coincidía con la esperada en los prompts de análisis
-  - bash curl eliminado como fallback (no disponible en todos los entornos, ej: Comet/Perplexity)
+VERSION X0.50 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARQUITECTURA NUEVA:
 
-NUEVO:
-  - Regla universal PARAR: si fetch falla → detener y mostrar link directo al usuario para copiar/pegar
-  - Link directo clicable en cada instrucción de fetch (abre nueva ventana del navegador)
-  - Headers de verificación de versión en cada fetch (primera línea esperada)
-  - EDGAR XBRL API integrada en nucleo como fuente primaria de datos financieros
-    → Endpoint: https://data.sec.gov/api/xbrl/companyfacts/CIK[10 dígitos].json
-    → Queries específicas por concepto contable (no lectura del 10-K completo)
-    → Tags clave: Revenues, NetIncomeLoss, NetCashProvidedByUsedInOperatingActivities,
-      PaymentsToAcquirePropertyPlantAndEquipment, LongTermDebt, ShareBasedCompensation
-  - Nota de autorización del operador en nucleo (elimina preguntas de verificación del token)
-  - GitHub se mantiene solo como respaldo — no como fuente primaria de descarga de prompts
+[NUEVO] feroldi_recolectar.py
+  - Recolección de datos 100% en Python async (asyncio + aiohttp)
+  - Jerarquía TIER 1→4 anti-N/D con 2 rondas paralelas:
+      Ronda 1: TIER 1 (EDGAR XBRL) + TIER 2 (StockAnalysis) + TIER 3 (TradingView) en paralelo
+      Ronda 2: TIER 4 (Yahoo Finance / Macrotrends) solo para N/D de Ronda 1
+  - Genera datos_[TICKER]_[FECHA].json con estructura unificada
+  - Campo nd_resumen.campos_nd para que Claude sepa qué buscar en Ronda 3
+  - Compatible con Mac (Terminal) y GitHub Actions (iPhone/cualquier dispositivo)
 
-SUPRIMIDO:
-  - Instrucción "bash curl" como fallback de fetch (no universal)
-  - Generación autónoma cuando fetch falla (causaba alucinaciones de informes)
-  - GitHub como fuente de descarga en tiempo real de prompts
+[NUEVO] feroldi_push.py
+  - Sube archivos generados por Claude a GitHub via API
+  - Auto-detección de tipo por nombre de archivo (5 patrones)
+  - Actualización automática del dashboard index.html
+  - Token via variable de entorno $GH_TOKEN (NUNCA hardcodeado)
+  - Sin dependencias raras: solo requests (pip3 install requests)
 
-ARCHIVOS (6):
-  prompt_nucleo_X0.41.txt
-  prompt_light_X0.41.txt
-  prompt_heavy_X0.41.txt
-  prompt_generador_sankey_X0.41.txt
-  prompt_generador_light_X0.41.txt
-  prompt_generador_heavy_X0.41.txt
+[NUEVO] .github/workflows/feroldi.yml
+  - GitHub Actions: ejecuta feroldi_recolectar.py desde cualquier dispositivo
+  - workflow_dispatch con inputs: ticker + precio
+  - Guarda JSON en datos/ y hace commit al repo
+  - Accesible desde iPhone via github.com → Actions → Run workflow
+  - Token configurado como GitHub Secret (Settings → Secrets → GH_TOKEN)
 
-=========================================
-VERSIÓN X0.4 — 01 May 2026
-Arquitectura de 6 archivos + dashboard actualizado
----------------------------------------------------
-NUEVO:
-  - 6to archivo: prompt_generador_sankey separado (liviano, solo para SANKEY directo)
-  - EDGAR XBRL API probada exitosamente en $OWL (Blue Owl Capital)
-  - Token GitHub en nucleo con instrucción de sustitución del placeholder GH_TOKEN_PATONET
-  - Dashboard index.html actualizado: botones Heavy/Light/Sankey por separado
-  - Campos nuevos en REPORTS: urlLight, pdfLightUrl, sankeyUrl
-  - Backup index_v1_backup.html guardado antes de actualizar
-  - TradingView Scanner API: columnas correctas price_52_week_high/low verificadas
-  - Nota de autorización del operador (parcial)
-  - Competidores: fuente específica StockAnalysis + TradingView API
+CAMBIOS EN PROMPTS:
 
-CORREGIDO:
-  - Token GitHub bloqueado por GitHub secret scanning → placeholder GH_TOKEN_PATONET en repo
-  - Columnas TradingView incorrectas (52WeekHigh no existe → price_52_week_high)
-  - Nucleo anterior pedía datos del Heavy (earnings call, SOTP) → separados correctamente
-  - Heavy sin recolección propia → añadidos pasos H1/H2/H3
+[ELIMINADO — TODOS los archivos]
+  - GH_TOKEN_PATONET eliminado de todos los prompts
+  - Sección "AUTORIZACIÓN DEL OPERADOR" eliminada
+  - Instrucciones de push GitHub eliminadas de prompts
+  - Regla "GITHUB: GET SHA antes de PUT" eliminada de REGLAS UNIVERSALES
+  Reemplazado por: "Upload: feroldi_push.py maneja el upload"
 
-ARCHIVOS (6):
-  prompt_nucleo_X0.4.txt
-  prompt_light_X0.4.txt
-  prompt_heavy_X0.4.txt
-  prompt_generador_sankey_X0.4.txt
-  prompt_generador_light_X0.4.txt
-  prompt_generador_heavy_X0.4.txt
+[CORREGIDO — prompt_nucleo_X0.50.txt]
+  - Restructurado para recibir JSON de feroldi_recolectar.py
+  - B0 pre-filtro sigue siendo búsqueda web de Claude (Python no puede hacer evaluación cualitativa)
+  - Resolución N/D residuales (Ronda 3): Claude busca solo los campos_nd del JSON
+  - Verificación P/E Fwd × EPS Fwd ≈ Precio ±10% mantenida
+  - Campos Key Stats ampliados al nivel del maestro (Cash Real, Revenue Guide, etc.)
+  - ÚLTIMO EMPUJÓN añadido para N/D de competidores
+  - Recolección TIER 1-4 eliminada (Python lo hace)
+  - SANKEY disponible directamente desde el cuadro de cierre (no necesita esperar Light/Heavy)
 
-=========================================
-VERSIÓN X0.3 — 30 Apr 2026
-Rediseño completo de arquitectura
-----------------------------------
-NUEVO:
-  - Arquitectura de 5 archivos separados (nucleo/light/heavy/gen-light/gen-heavy)
-  - Comando SANKEY reemplaza INGRESOS (resuelve ambigüedad semántica)
-  - Recolección de datos separada del análisis en nucleo
-  - Cuadro de cierre único como output del nucleo
-  - TradingView Scanner API para 52W range y performance
-  - Competidores via StockAnalysis.com con campos específicos
-  - Reglas EDGAR: FCF estandarizado (CFO − Capex exacto del Cash Flow Statement)
-  - Market Cap con todas las clases de acciones
-  - Deuda Total incluyendo convertibles
-  - Verificación consistencia P/E Forward × EPS ≈ Precio (±10%)
-  - Commodity check condicional (>10% de costos)
-  - Eventos recientes: verificación últimos 15 días
-  - Generadores con specs exactas extraídas de GE infografía y UHS Sankey
+[CORREGIDO — prompt_generador_sankey_X0.50.txt y Sección F del maestro]
+  - viewBox ampliado de 1060×620 a 1400×720
+  - Anchos mínimos por columna: COL1=200px · COL2=170px · COL3=195px · COL4=150px · COL5=120px
+  - Fuentes mínimas: título segmento=13px · subtítulos=10px · valor$=15px · porcentajes=10px
+  - Altura mínima de nodo: 50px (corrige el bug de nodos de 7px donde el texto era ilegible)
+  - Espacio mínimo entre columnas: 40px para los paths bezier
 
-CORREGIDO:
-  - Sankey generaba árbol de KPIs y diagrama "ComoGanaDinero" → eliminados definitivamente
-  - Infografía dependía de fetch de CRDO (URL 404) → reemplazada por UHS como referencia
-  - HTML embebido de 85KB en generador → revertido a especificaciones de diseño
-  - Mezcla de instrucciones Heavy en el Light → separados correctamente
-  - MA50/MA200 eliminadas de Key Stats (no son análisis fundamental)
+[CORREGIDO — prompt_generador_light_X0.50.txt y prompt_generador_heavy_X0.50.txt]
+  - Bug X0.43: "SANKEY → ejecutar Sección F" → no existía Sección F en archivos modulares
+  - Corregido a: web_fetch de prompt_generador_sankey_X0.50.txt con PARAR si falla
+  - Token eliminado de líneas 8 y línea final
 
-SUPRIMIDO:
-  - Diagrama ComoGanaDinero
-  - Diagrama árbol KPIs
-  - Tabla de auditoría en Sankey (redundante)
-  - Injertos Buffett del Feroldi (Owner Earnings, Institutional Imperative, ROTC)
+[SINCRONIZADO — modulares con maestro]
+  - CASH REAL: CashAndCashEquivalents + ShortTermInvestments añadido en nucleo PASO 2c
+  - ÚLTIMO EMPUJÓN: añadido en nucleo para N/D de competidores
+  - Key Stats campos: nucleo modular ahora tiene todos los campos del maestro
+  - PASO 3 Key Stats: lista completa alineada con maestro
 
-=========================================
-VERSIÓN X0.2 — 29 Apr 2026
-Mejoras de rigor de datos
---------------------------
-NUEVO:
-  - Jerarquía de fuentes TIER 1-4 (EDGAR primaria, no negociable)
-  - Definiciones estandarizadas: FCF, Market Cap, Deuda Total
-  - Commodity check (>10% costos)
-  - Frescura de datos: "2026" en todas las queries
-  - Temporalidad: fecha del filing por métrica
-  - Consistencia P/E Forward
-  - Deuda incremental (últimos 60 días)
-  - Verificación aritmética obligatoria del score Feroldi (suma P1..P16)
-  - Calibraciones orientativas Moat y Management
-  - Eventos recientes: últimos 15 días
+[MANTENIDO]
+  - Feroldi 16 puntos: sin compresión, sin omisiones, idéntico a X0.43
+  - H1/H2/H3 en Heavy: siguen siendo búsquedas web de Claude (transcript, analistas, SOTP)
+  - B0 pre-filtro: sigue en el nucleo (evaluación cualitativa que Python no puede hacer)
+  - Todos los generadores de infografía (HTML, CSS, Chart.js, Spider, Velocímetros, PDF)
+  - COMP_DATA popup en generador Heavy
+  - Semáforos (IA, B0, mini-semáforos)
+  - REGLA FETCH UNIVERSAL en todos los archivos
 
-SUPRIMIDO:
-  - Hard constraints de scoring (demasiado rígidos, distorsionaban el análisis)
+SETUP ÚNICO REQUERIDO (una sola vez):
+  1. GitHub: Settings → Secrets and variables → Actions → New secret
+     Name: GH_TOKEN · Value: tu_token_github
+  2. Mac Terminal: echo 'export GH_TOKEN="tu_token"' >> ~/.zshrc && source ~/.zshrc
+  3. pip3 install aiohttp requests beautifulsoup4
+  4. Subir feroldi_recolectar.py y .github/workflows/feroldi.yml al repo
 
-=========================================
-VERSIÓN X0.1 — 28 Apr 2026
-Primera arquitectura modular
------------------------------
-NUEVO:
-  - Separación nucleo/light/heavy/generador
-  - Bloque G Feroldi con preguntas explícitas por punto + respuesta obligatoria
-  - Bloque X auto-crítica (X1 contraargumento, X2 omitidos, X3 no convencional)
-  - Score Feroldi: umbrales revisados (>60% verde, 50-60% naranja, <50% rojo)
-  - Key Stats tabla completa coloreada (para auditoría por otras IAs)
-  - PEG Ratio obligatorio
-  - MA50/MA200 eliminadas
-  - 6 opciones de veredicto (añadida COMPRA ESPECULATIVA)
+FLUJO DE USO X0.50:
+  DESDE MAC:
+    1. python3 feroldi_recolectar.py TICKER PRECIO
+    2. Pegar JSON en Claude (o cualquier LLM)
+    3. Claude corre B0 + N/D + análisis Light/Heavy
+    4. Claude genera infografia_*.html localmente
+    5. python3 feroldi_push.py → sube al repo
 
-=========================================
-VERSIONES HISTÓRICAS (antes de arquitectura modular)
------------------------------------------------------
-v8.0 — Última versión monolítica funcional. Infografías GE, MELI, UHS generadas correctamente.
-       Generador v8 era el que funcionaba bien con Sankey y infografías.
-v6.0 — Primer Sankey oscuro estilo GE. Comando INGRESOS. Verificación triple.
-v5.0 — Barra de performance TradingView. Mini-semáforos B0. Sankey con referencia GE.
-v3.0 — Primer Sankey propio sin referencia externa. 5 columnas. Verificación triple.
-v1.0 — Primera versión con código SVG exacto del semáforo, gauge y popups.
-       Base de las infografías que funcionaron bien.
+  DESDE IPHONE (o cualquier dispositivo):
+    1. github.com/patonet/informes → Actions → "Feroldi Recolectar" → Run workflow
+    2. Ingresar ticker + precio → ejecutar
+    3. Copiar JSON desde patonet.github.io/informes/datos/datos_TICKER_FECHA.json
+    4. Pegar en Claude app (iPhone)
+    5. Para el push: volver a Mac con feroldi_push.py
 
-=========================================
-NOTAS DE ARQUITECTURA
----------------------
-- GitHub Pages sirve los prompts en https://patonet.github.io/informes/prompts/
-- El fetch desde algunos entornos (Comet/Perplexity sandbox) falla aleatoriamente
-- Token GitHub: no embeber en archivos del repo (GitHub secret scanning lo bloquea)
-  El token va SOLO en el nucleo que el usuario pega manualmente
-- TradingView Scanner API: columnas correctas son price_52_week_high / price_52_week_low
-  El endpoint requiere Origin: https://www.tradingview.com en headers
-- EDGAR XBRL API: CIK debe tener 10 dígitos con ceros a la izquierda
-  Endpoint: https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json
-  User-Agent obligatorio: patonet@example.com
-=========================================
+ARCHIVOS X0.50 (11 total):
+  Python:   feroldi_recolectar.py · feroldi_push.py
+  Actions:  .github/workflows/feroldi.yml
+  Prompts:  prompt_nucleo_X0.50.txt · prompt_light_X0.50.txt · prompt_heavy_X0.50.txt
+            prompt_generador_sankey_X0.50.txt · prompt_generador_light_X0.50.txt
+            prompt_generador_heavy_X0.50.txt · prompt_maestro_X0.50.txt
+  Docs:     CHANGELOG.txt
 
-=========================================
-VERSIÓN X0.41 — ADICIÓN PROMPT MAESTRO — 02 May 2026
------------------------------------------------------
-NUEVO:
-  - prompt_maestro_X0.41.txt — 7mo archivo del sistema
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-RAZÓN DE CREACIÓN:
-  Descubrimiento durante sesión de optimización: el input del System Prompt
-  en Claude Projects está cacheado y NO cuenta contra los límites de uso
-  cuando se reutiliza en conversaciones posteriores. Esto hace que tener
-  un prompt grande en el Project tenga el mismo costo de input que uno pequeño,
-  eliminando la ventaja de fragmentarlo en archivos separados.
-
-  El prompt maestro unifica las 6 secciones (Recolección + Light + Heavy +
-  Generador Light + Generador Heavy + Generador Sankey) en un solo archivo
-  diseñado específicamente para vivir en el System Prompt de un Claude Project.
-  El modelo lee todo pero ejecuta únicamente la sección que el usuario solicita.
-
-MODULARIDAD PRESERVADA:
-  Los 6 archivos modulares se mantienen para uso en otros LLMs (Perplexity,
-  Gemini, GPT) que tienen limitaciones de API o ventana de contexto reducida.
-  El maestro es adicional, no reemplaza los modulares.
-
-ARCHIVO:
-  prompt_maestro_X0.41.txt — 440 líneas · ~25KB
-  Contiene: Sección A (Recolección) · B (Light) · C (Heavy) ·
-            D (Gen Light) · E (Gen Heavy) · F (Gen Sankey)
-=========================================
-
-=========================================
-VERSION X0.42 -- 03 May 2026
-Correccion maestro post primera corrida real ($SPOT)
-----------------------------------------------------
-CORREGIDO:
-  - Feroldi en HEAVY: responder TODAS las sub-preguntas igual que Light.
-    PROHIBIDO resumir. Mismo formato punto por punto.
-  - CEO quote: SIEMPRE traducir al espanol. Nunca en ingles.
-  - N/D: ultimo empujon adicional antes del cuadro de cierre.
-  - Recoleccion adicional Heavy H1/H2/H3: intento adicional si incompletos.
-  - Cash real = CashAndCashEquivalents + ShortTermInvestments (no solo Cash).
-  - GitHub PUT: GET SHA antes de PUT para sobrescritura correcta.
-  - SANKEY sin analisis previo: verdict=neutral, upside=N/D.
-  - EPS_TTM null en TradingView: fallback a StockAnalysis financials.
-  - REPO explicito en prompt: patonet/informes.
-  - Key Stats: max 5-6 metricas por subgrupo.
-  - Infografia: gauges en 5 categorias agrupadas (igual que spider).
-  - Infografia Heavy: 6 zonas con diseno correcto (logo, popup, analistas, competidores).
-
-ARCHIVOS: prompt_maestro_X0.42.txt (592 lineas, 34KB)
-=========================================
-
-=========================================
-VERSION X0.43 -- 03 May 2026
-Maestro corregido post-auditoria $SPOT
----------------------------------------
-CORREGIDO:
-  - Orden secciones: A-B-C-D-E-F correcto (X0.42 tenia F antes que E)
-  - Seccion E (Heavy) completa con Zonas 4/5/6 y PDF (estaban truncadas)
-  - Spider chart añadido en Light (Zona 4) y Heavy (Zona 5)
-  - Velocimetros individuales en 5 categorias: Crecimiento/Rentabilidad/
-    Solidez/Estrategia/Retorno — igual en Light y Heavy
-  - Key Stats exactas: VALORACION/RENTABILIDAD/CRECIMIENTO/BALANCE&RIESGO
-    con los campos exactos segun imagen de referencia ($GE)
-  - Score Feroldi: % en grande, score/160 en pequeno debajo
-  - Semaforo IA en esquina superior derecha con popup justificacion
-  - COMP_DATA con popup narrativo comparativo vs $TICKER (solo Heavy)
-  - 52W range SVG prominente en tabla competidores
-  - Doble eje Y en chart Col1 (yVal derecho + yMg izquierdo)
-  - Zona 4 Heavy: chart precio historico 1 anio + price targets analistas
-  - COMP_DATA: modelo construye analisis comparativo desde datos Paso 7
-  - Logo Clearbit con doble fallback en infografia Light y Heavy
-  - PDF completo especificado en Seccion E
-
-TAMANIO: 661 lineas · 40KB
-=========================================
+VERSION X0.43 — Abril 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[AÑADIDO] Sankey como opción autónoma desde el nucleo
+[AÑADIDO] Spider chart en infografía Light y Heavy
+[AÑADIDO] Velocímetros individuales por punto Feroldi (16 gauges SVG)
+[AÑADIDO] COMP_DATA popup en tabla competidores Heavy
+[AÑADIDO] Semáforo IA con popup justificación en Zona 1
+[AÑADIDO] Mini-semáforos B0 con popups
+[MEJORADO] Performance bar 8 periodos (IPO incluido)
+[MEJORADO] EDGAR XBRL como TIER 1 primario
+[MEJORADO] TradingView Scanner API para performance y competidores
+[CORREGIDO] Market Cap = Precio × todas las clases de acciones
+[CORREGIDO] FCF = CFO − Capex (tag exacto EDGAR)
+[CORREGIDO] Cash Real = Cash + ShortTermInvestments (no solo Cash)
