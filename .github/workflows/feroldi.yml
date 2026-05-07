@@ -1,6 +1,6 @@
 # .github/workflows/feroldi.yml
 # FEROLDI RECOLECTAR — GitHub Actions
-# Sistema Feroldi v X0.50 · @patonet
+# Sistema Feroldi v X0.56 · @patonet
 #
 # SETUP (una sola vez):
 #   GitHub repo → Settings → Secrets and variables → Actions → New repository secret
@@ -56,6 +56,7 @@ jobs:
       - name: Ejecutar recolección de datos
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AV_API_KEY: ${{ secrets.AV_API_KEY }}
         run: |
           python3 feroldi_recolectar.py "${{ github.event.inputs.ticker }}" "${{ github.event.inputs.precio }}"
 
