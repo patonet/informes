@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FEROLDI PUSH — v X0.50.1
+FEROLDI PUSH — v X0.56
 Sistema Feroldi · @patonet
 ======================================
 Busca automáticamente en ~/Downloads/:
@@ -39,20 +39,24 @@ DASHBOARD = "index.html"
 
 # Patrones nombre → (carpeta GitHub, tipo, clave)
 PATRONES = [
-    (r"^infografia_light_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",  "equities/",           "Infografía Light", "infografia_light"),
-    (r"^infografia_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",        "equities/",           "Infografía Heavy", "infografia_heavy"),
-    (r"^InformePDF_lite_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",    "pdfs/equities/",      "PDF Lite",         "pdf_lite"),
-    (r"^InformePDF_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",         "pdfs/equities/",      "PDF Heavy",        "pdf_heavy"),
-    (r"^Diagrama_Sankey_([A-Z]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",   "diagramas/equities/", "Sankey",           "sankey"),
+    (r"^infografia_light_([A-Z0-9.]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",  "equities/",           "Infografía Light", "infografia_light"),
+    (r"^infografia_([A-Z0-9.]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",        "equities/",           "Infografía Heavy", "infografia_heavy"),
+    (r"^InformePDF_lite_([A-Z0-9.]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",    "pdfs/equities/",      "PDF Lite",         "pdf_lite"),
+    (r"^InformePDF_([A-Z0-9.]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.pdf$",         "pdfs/equities/",      "PDF Heavy",        "pdf_heavy"),
+    (r"^Diagrama_Sankey_([A-Z0-9.]+)_([\d.]+)_(\d{2}-\d{2}-\d{4}).*\.html$",   "diagramas/equities/", "Sankey",           "sankey"),
 ]
 
 # ─── HELPERS ───────────────────────────────────────────────────────────────────
 def detectar(nombre):
-    """Retorna (ruta_repo, tipo, clave, ticker, precio, fecha) o None."""
+    """Retorna (ruta_repo, tipo, clave, ticker, precio, fecha) o None.
+    BUG-1 FIX: re.IGNORECASE → detecta Infografia_ e infografia_ por igual.
+    BUG-2 FIX: ticker en uppercase siempre.
+    """
     for patron, carpeta, tipo, clave in PATRONES:
-        m = re.match(patron, nombre)
+        m = re.match(patron, nombre, re.IGNORECASE)
         if m:
-            ticker, precio, fecha = m.group(1), m.group(2), m.group(3)
+            ticker = m.group(1).upper()
+            precio, fecha = m.group(2), m.group(3)
             return carpeta + nombre, tipo, clave, ticker, precio, fecha
     return None
 
@@ -69,7 +73,7 @@ def subir_bytes(contenido_bytes, ruta_repo, tipo, nombre):
 
     contenido_b64 = base64.b64encode(contenido_bytes).decode()
     payload = {
-        "message": f"feat: {tipo} via feroldi_push v X0.50.1",
+        "message": f"feat: {tipo} via feroldi_push v X0.56",
         "content": contenido_b64
     }
     r = requests.put(f"{API}/repos/{REPO}/contents/{ruta_repo}", headers=HDRS, json=payload)
@@ -173,7 +177,7 @@ def recolectar():
 # ─── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
     print(f"\n{'='*55}")
-    print(f"  FEROLDI PUSH — v X0.50.1 · @patonet")
+    print(f"  FEROLDI PUSH — v X0.56 · @patonet")
     print(f"{'='*55}\n")
 
     if not TOKEN:
@@ -241,10 +245,14 @@ def main():
         print(f"\n  📊 Actualizando dashboard — {ticker}...")
         actualizar_dashboard(ticker, fechas_por_ticker[ticker], urls)
 
-    # Resumen
-    nuevos = sum(1 for _, f in procesados if not (isinstance(f, Path) and f.suffix == ".zip"))
+    # BUG-3 FIX: contador claro
+    n_nuevos = sum(1 for n, _ in procesados
+                   if any(urls_por_ticker.get(detectar(n)[3], {}).values()
+                          if detectar(n) else []))
+    n_skip   = sum(1 for n, _ in procesados
+                   if detectar(n) and not urls_por_ticker.get(detectar(n)[3]))
     print(f"\n{'='*55}")
-    print(f"  📊 {len(candidatos)} detectado(s) · {len(urls_por_ticker)} ticker(s) procesado(s)")
+    print(f"  📁 {len(candidatos)} detectado(s) · ✅ {len(urls_por_ticker)} ticker(s)")
     print(f"  💾 Copias locales: ~/feroldi_informes/")
     if urls_por_ticker:
         print(f"  🔗 Dashboard: https://patonet.github.io/informes/")
