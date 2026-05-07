@@ -2,6 +2,179 @@ CHANGELOG — SISTEMA FEROLDI
 @patonet
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+VERSION X0.56 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMBIO ARQUITECTURAL MAYOR: REEMPLAZO DE SCRAPERS POR ALPHA VANTAGE API
+
+MOTIVACIÓN:
+  FMP free tier cubre solo S&P 100 (confirmado con pruebas reales).
+  StockAnalysis y TradingView son scrapers inestables sujetos a ban.
+  Alpha Vantage: NASDAQ-licensed, free tier para TODOS los tickers,
+  fundamentals + ratios + analyst data en endpoints oficiales REST.
+  Pruebas reales con FSLY confirmaron cobertura de small/mid caps.
+
+[ELIMINADO] TIER 2 — StockAnalysis.com scraper
+  Reemplazado por Alpha Vantage OVERVIEW + EARNINGS endpoints.
+  Motivo: scraping frágil, estructura HTML cambia sin aviso, riesgo ban.
+
+[ELIMINADO] TIER 4 — Yahoo Finance / Macrotrends fallback
+  Reemplazado por Alpha Vantage. Motivo: APIs no oficiales, inestables.
+
+[NUEVO] TIER 2 — Alpha Vantage API (oficial, NASDAQ-licensed)
+  Endpoints usados (2 calls por ticker):
+    OVERVIEW  → ratios, márgenes, PE/PEG/beta, 52W, analistas
+    EARNINGS  → EPS histórico anual + quarterly + surprises
+  AV_KEY via variable de entorno: export AV_API_KEY="tu_key"
+  Rate limit: sleep(13) entre calls (5 calls/min free tier)
+  Free tier: 25 calls/día → ~12 tickers/día con 2 calls cada uno
+  Cobertura free: 100K+ tickers vs S&P 100 de FMP
+
+[MODIFICADO] TIER 3 — TradingView
+  Ahora solo para datos de performance (5D/1M/3M/YTD/1Y/5Y)
+  y precios de competidores.
+  Los demás datos (ratios, 52W, PE) ahora vienen de Alpha Vantage.
+
+[MANTENIDO] TIER 1 — EDGAR XBRL (sin cambios funcionales)
+  Sigue siendo la fuente primaria para estados financieros.
+  BUG-7 fix de X0.55 activo: extract() captura FY más reciente.
+
+NUEVOS CAMPOS EN EL JSON (antes N/D, ahora resueltos por Alpha Vantage):
+  market.analyst_target_price  → precio objetivo consenso analistas
+  market.analyst_buy/hold/sell → distribución de ratings
+  market.analyst_strong_buy/sell
+  ratios.margen_bruto          → calculado de GrossProfitTTM/RevenueTTM
+  ratios.margen_op             → OperatingMarginTTM
+  ratios.margen_neto           → ProfitMargin (era N/D con StockAnalysis)
+  ratios.roe                   → ReturnOnEquityTTM
+  ratios.roa                   → ReturnOnAssetsTTM
+  ratios.ev_revenue            → EVToRevenue (nuevo)
+  ratios.p_sales               → PriceToSalesRatioTTM (nuevo)
+  ratios.percent_insiders      → % acciones insiders (nuevo)
+  earnings.annual_eps[]        → EPS histórico 5 años
+  earnings.quarterly_eps[]     → últimos 4 trimestres con surprise %
+
+NUEVA SECCIÓN EN EL JSON: earnings{}
+  annual_eps: lista de {fy, eps} últimos 5 años
+  quarterly_eps: lista {fecha, reported, estimated, surprise_pct, report_date}
+  Útil para Feroldi punto 3 (Historical Growth) y punto 13 (Outlook)
+
+FUENTES ACTUALIZADAS:
+  X0.55: ["EDGAR XBRL", "StockAnalysis", "TradingView", "Yahoo Finance"]
+  X0.56: ["EDGAR XBRL", "Alpha Vantage", "TradingView"]
+
+ARCHIVO DE CONFIGURACIÓN:
+  Agregar al .zshrc: export AV_API_KEY="tu_key_alphavantage"
+  GitHub Actions secret: AV_API_KEY (igual que GH_TOKEN)
+
+ARCHIVOS X0.56 (mismos 14 que X0.55, versión bump):
+  Python:   feroldi_recolectar_X0.56.py (cambios mayores)
+            feroldi_push_X0.56.py · feroldi_sankey_X0.56.py
+            feroldi_merge_X0.56.py · feroldi_setup_X0.56.py
+  Actions:  feroldi_X0.56.yml (agrega AV_API_KEY secret)
+  Prompts:  prompt_nucleo_X0.56.txt · prompt_light_X0.56.txt
+            prompt_heavy_X0.56.txt · prompt_maestro_X0.56.txt
+  Archivados: prompt_generador_light/heavy/sankey_X0.56.txt
+  Docs:     CHANGELOG.txt
+
+VERSION X0.55 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARQUITECTURA:
+
+[ARQU] SEPARACIÓN CLAUDE / KIKA:
+  Claude: SOLO análisis Feroldi (núcleo + light + heavy) + emite ENRIQUECIDO_JSON
+  Kika:   TODO lo demás con Python (recolectar · merge · sankey · infografía · pdf · push)
+  Consecuencia: prompts generadores (light/heavy/sankey) quedan ARCHIVADOS
+
+ARCHIVOS NUEVOS:
+
+[NUEVO] feroldi_sankey.py  (Kika lo corre, no Claude)
+  Genera Diagrama_Sankey_[TICKER]_[PRECIO]_[FECHA].html desde JSON
+  Modo básico si JSON no tiene "enriquecido" · Modo enriquecido si lo tiene
+  F1: SVG aspect-ratio CSS + display:block (Firefox fix — height=auto roto)
+  F2: stroke-dasharray:1000 → animaciones siempre visibles (antes 200, paths cortos desaparecían)
+  F3: will-change:transform + contain:layout → Firefox no pausa animaciones en scroll
+  F4: Font stack macOS-first: -apple-system,BlinkMacSystemFont,'Segoe UI'
+  F5: Normalización post-mínimo COL1 → sin overflow de segmentos
+  F5b: Normalización post-mínimo COL3 → sin overflow con 6+ items enriquecidos
+  F6: Font scaling proporcional a altura del nodo (sqrt scaling, min/max caps)
+
+[NUEVO] feroldi_merge.py  (Kika lo corre tras el análisis Claude)
+  Mergea datos_TICKER_FECHA.json + ENRIQUECIDO_JSON emitido por Claude
+  → datos_TICKER_FECHA_full.json (input para feroldi_sankey.py modo enriquecido)
+  Acepta: JSON limpio o texto libre con bloque ENRIQUECIDO_JSON: {...}
+
+BUGS CORREGIDOS:
+
+[BUG-7] feroldi_recolectar.py — extract() capturaba FY histórico en vez del más reciente
+  Fix: forms_ok = {"10-K", "10-K/A"} incluye amended filings
+       Excluye entries con end="" vacío
+       Desempate por 'filed' date cuando mismo 'end' → siempre captura FY más reciente
+
+[BUG-8] prompt_heavy + prompt_maestro — Bloque G se saltaba las 3 sub-preguntas
+  Root cause: Heavy solo decía "igual que Light" sin escribir las preguntas
+  Fix: Bloque G en Heavy y Maestro ahora incluye las 16×3 sub-preguntas
+       EXPLÍCITAMENTE (texto copiado del Light, no referenciado)
+       Heavy y Light tienen Bloque G idéntico en formato
+
+[BUG-1] feroldi_push.py — no detectaba archivos con mayúsculas (Infografia_ vs infografia_)
+  Fix: re.IGNORECASE en detectar() → case-insensitive en todos los patrones
+
+[BUG-2] feroldi_push.py — tickers con puntos (BRK.B) o números no matcheaban
+  Fix: patrón [A-Z]+ → [A-Z0-9.]+ en todos los PATRONES
+
+[BUG-3] feroldi_push.py — contador mostraba "1 ticker procesado" aunque subiera 2+ archivos
+  Fix: contador separado subidos/skip/total por ticker
+
+PROMPTS ACTUALIZADOS:
+
+[NUEVO] ENRIQUECIDO_JSON en cierre Light (parcial):
+  feroldi_score: score/160 · zona · rating · tp1/tp2/tp3 · sl/sl_duro · posicion
+  escenarios: bear/base/bull con precio y lógica
+  sbc_dilucion: pct_anual · fcf_post_sbc (si disponibles)
+  goodwill_extra: adquisición y riesgo (si disponibles)
+
+[NUEVO] ENRIQUECIDO_JSON en cierre Heavy (completo):
+  Todo lo del Light + quarterly · segmentos_extra · opex_breakdown ·
+  ngaap · sbc_dilucion · backlog · sotp · goodwill_extra
+
+[MOD] prompt_nucleo: SANKEY eliminado del menú Claude
+  → nota: "Kika ejecuta feroldi_sankey.py datos_*.json"
+
+[MOD] prompt_light + prompt_heavy + prompt_maestro:
+  Eliminado "INFOGRAFIA · PDF · SANKEY · TODO" del cierre
+  Eliminadas referencias a cargar generadores
+  Agregado ENRIQUECIDO_JSON como output final obligatorio
+
+[MOD] prompt_maestro:
+  Eliminada SECCIÓN D (generador light HTML/PDF)
+  Eliminada SECCIÓN E (generador heavy HTML/PDF)
+  Eliminada SECCIÓN F (generador sankey)
+  Maestro queda: SECCIÓN A (núcleo) + SECCIÓN B (light) + SECCIÓN C (heavy)
+
+ARCHIVADOS (conservados en repo con header [ARCHIVADO-X0.55]):
+
+[ARCH] prompt_generador_light_X0.55.txt   → Claude no genera HTML
+[ARCH] prompt_generador_heavy_X0.55.txt   → Claude no genera HTML
+[ARCH] prompt_generador_sankey_X0.55.txt  → reemplazado por feroldi_sankey.py
+
+CONVENCIÓN DE NOMBRES X0.55:
+  Python scripts → versión INTERNA en header + copia nombrada _X0.55.py para historial
+                   GitHub/Kika recibe nombre limpio (sin versión) via feroldi_setup_X0.55.py
+  Prompts       → versión EN el nombre del archivo (se referencian por URL)
+  feroldi_setup_X0.55.py mapea: local _X0.55.py → GitHub sin versión
+
+ARCHIVOS X0.55 (14 total):
+  Python:   feroldi_recolectar_X0.55.py · feroldi_push_X0.55.py
+            feroldi_sankey_X0.55.py · feroldi_merge_X0.55.py
+            feroldi_setup_X0.55.py
+  Actions:  feroldi_X0.55.yml
+  Prompts:  prompt_nucleo_X0.55.txt · prompt_light_X0.55.txt
+            prompt_heavy_X0.55.txt · prompt_maestro_X0.55.txt
+  Archivados: prompt_generador_light_X0.55.txt
+              prompt_generador_heavy_X0.55.txt
+              prompt_generador_sankey_X0.55.txt
+  Docs:     CHANGELOG.txt
+
 VERSION X0.50 — Mayo 2026
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ARQUITECTURA NUEVA:
