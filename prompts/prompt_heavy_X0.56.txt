@@ -1,0 +1,252 @@
+[X0.56-HEAVY]
+ANÁLISIS HEAVY — PROFUNDIDAD MÁXIMA
+v X0.56 — @patonet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRINCIPIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Todos los datos del cuadro de cierre del Nucleo están en contexto.
+El Heavy expande con datos adicionales via búsqueda web (H1/H2/H3).
+Si se completó un Light previamente: copiar Feroldi íntegro y
+añadir [Actualizado Heavy: ...] donde earnings call o SOTP aporten algo nuevo.
+Si no hubo Light: ejecutar Feroldi completo aquí (mismo formato que Light).
+Outputs de progreso concisos. Bloques de análisis: COMPLETOS sin resumir.
+Kika genera todos los archivos (HTML/PDF/Sankey) con Python. Claude solo hace el análisis.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECOLECCIÓN ADICIONAL HEAVY
+(búsquedas web Claude — output mínimo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+H1 — EARNINGS CALL TRANSCRIPT
+Buscar: "[TICKER] earnings call transcript Q[N] [AÑO]" en Seeking Alpha, The Motley Fool.
+Extraer: tono CEO, guidance exacta citada, preguntas duras de analistas, red flags, catalizadores.
+Si incompleto → reintentar con otro resultado de búsqueda.
+Output: "✓ Earnings call [Q?][AÑO] cargado"
+
+H2 — ANALISTAS INDIVIDUALES
+Buscar: "[TICKER] analyst price target 2026" y "[TICKER] wall street consensus rating 2026".
+Extraer: hasta 8 analistas con banco, calificación (Buy/Hold/Sell) y price target en $.
+Si incompleto → reintentar.
+Output: "✓ [N] analistas verificados — consenso $[PT]"
+
+H3 — DATOS SOTP (si ≥2 segmentos >10% del revenue)
+Para cada segmento: buscar pure-play comparable "[sector] pure play company EV/EBITDA multiple 2026".
+Obtener múltiplo y aplicar al EBITDA del segmento.
+Output: "✓ SOTP — [N] segmentos con múltiplos" o "✓ Sin SOTP (empresa 1 segmento)"
+
+Si H1/H2/H3 incompletos → un intento adicional antes de continuar.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE A — RESUMEN EJECUTIVO (150-200 palabras)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cómo gana dinero, calidad económica, ventajas competitivas, riesgos principales.
+Frase definitoria en cursiva al cierre.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE B — CONTEXTO PRECIO Y NOTICIAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Comportamiento día/semana/mes/3m. Transcript del earnings call (H1):
+tono CEO, guidance exacta, preguntas críticas, riesgos, catalizadores.
+Commodity check si aplica. Movimientos explosivos → integrar en Feroldi. 5+ líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE C — OUT OF THE BOX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Riesgos no obvios · Oportunidades ocultas · Lo que el mercado ignora (mínimo 2).
+Al menos 1 idea no convencional que desafíe el consenso. Sin límite de extensión.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE D — ¿LA IA ES AMIGA O ENEMIGA?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Título: "¿La IA, amiga o enemiga de $TICKER?"
+A) Eficiencia IA y Workforce — impacto en headcount y costos
+B) 11 Amenazas (B.1–B.11) — específicas al modelo de negocio
+C) 9 Oportunidades (C.1–C.9) — concretas, cuantificadas si posible
+D) Timeline de Impacto — 1a / 3a / 5a+
+E) Variant Perception — qué ve el mercado vs qué es real
+F) Semáforo VERDE/NARANJA/ROJO con justificación 3+ líneas
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE E — EL CEO DEFENDIENDO A $TICKER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fuente: transcript earnings call (H1).
+Tono CEO · Guidance vs consenso · Narrativa estratégica · 3 preguntas duras ·
+Red flags/bull signals · Cita clave SIEMPRE TRADUCIDA AL ESPAÑOL (obligatorio, nunca en inglés).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE F — SOTP + ESCENARIOS BEAR/BASE/BULL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÚNICO bloque de escenarios. No repetir en ningún otro bloque.
+SOTP (si datos H3 disponibles y ≥2 segmentos >10%):
+  Por segmento: revenue/EBITDA · múltiplo vs pure-play · valor implícito.
+  Suma + ajustes (deuda neta, holding discount) = valor por acción.
+Escenarios:
+  Bear: -20% múltiplos, riesgos materializados.
+  Base: múltiplos actuales del análisis.
+  Bull: +20%, opcionalidad realizada.
+Rango de precio implicado por escenario.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE G — FEROLDI 16 PUNTOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUG-8 FIX X0.56: Sub-preguntas explícitas. PROHIBIDO resumir o saltar preguntas.
+Si hubo Light → copiar íntegro + añadir [Actualizado Heavy: ...] donde H1/H2/H3 aporten datos nuevos.
+Si no hubo Light → ejecutar completo con el formato a continuación.
+Verificación aritmética y score total OBLIGATORIOS.
+Umbrales: 🟢 >60% · 🟡 50-60% · 🔴 <50%.
+
+SCORING: 0-10 por punto. Máximo 160.
+Por punto: 🟢 8-10 · 🟡 6-7.9 · 🔴 <6.
+
+CALIBRACIÓN MOAT: 10=3+ competidores fallaron documentadamente · 8=switching costs altos ·
+  6=ventaja activa con competencia · ≤5=sin moat demostrado.
+CALIBRACIÓN MGMT: 10=track >20a excepcional · 8=founder >10% ownership · ≤6=errores documentados.
+
+FORMATO OBLIGATORIO — NO RESUMIR, NO OMITIR:
+(1) Sub-pregunta en negrita. (2) Respuesta con datos verificados + fuente. (3) Score [emoji] X.X/10.
+
+1. INDUSTRY
+→ **¿Es el sector atractivo estructuralmente?** TAM, tendencias seculares, barreras de entrada, ciclo.
+→ **¿El mercado está creciendo?** CAGR histórico y proyectado con cifras.
+→ **¿Es altamente competitivo?** Actores, concentración, poder de negociación.
+Score [🟢/🟡/🔴] X.X/10
+
+2. BUSINESS MODEL
+→ **¿Cómo gana dinero exactamente?** Segmentos con % del total (EDGAR).
+→ **¿El negocio es comprensible?** SÍ/NO + Círculo de Competencia.
+→ **¿Tiene ingresos recurrentes?** % recurrente vs transaccional.
+Score [🟢/🟡/🔴] X.X/10
+
+3. HISTORICAL GROWTH
+→ **¿Ritmo de crecimiento del revenue?** 3Y CAGR y 5Y CAGR exactos.
+→ **¿Ritmo de crecimiento de ganancias?** EPS CAGR y NI CAGR en 3 y 5 años.
+→ **¿Fuente del crecimiento?** Orgánico vs inorgánico con evidencia.
+Score [🟢/🟡/🔴] X.X/10
+
+4. HISTORICAL VALUE CREATION
+→ **¿Ha creado valor?** Total return 3Y, 5Y, 10Y vs S&P 500.
+→ **¿Retornos desde IPO?** Fecha, precio IPO, CAGR total.
+→ **¿Retorna capital?** Buybacks + dividendos últimos 3 años como % del market cap.
+Score [🟢/🟡/🔴] X.X/10
+
+5. MOAT
+→ **¿Qué diferencia a la empresa?** Ventajas concretas y cuantificables.
+→ **¿Fuente del moat?** Switching costs / red / intangibles / costo / escala.
+→ **¿Pricing power?** Incrementos de precio históricos e impacto en márgenes.
+Score [🟢/🟡/🔴] X.X/10
+
+6. CAPITAL INTENSITY
+→ **¿Cuánto capital necesita?** Capex/Revenue % y Capex/EBITDA % (Capex = EDGAR exacto).
+→ **¿Mantenimiento o crecimiento?** Desglose si disponible en notas 10-K.
+→ **¿FCF Conversion?** FCF/Net Income vs sector.
+Score [🟢/🟡/🔴] X.X/10
+
+7. PROFITABILITY
+→ **¿Produce ganancias?** Net Income, tendencia YoY, consistencia 5 años.
+→ **¿Produce FCF?** FCF (= CFO − Capex EDGAR), FCF yield, FCF/NI.
+→ **¿Márgenes altos y estables?** Bruto/operativo/neto; tendencia 3 años; vs peers.
+Score [🟢/🟡/🔴] X.X/10
+
+8. BALANCE SHEET
+→ **¿Balance sólido?** Deuda Neta/EBITDA, cobertura intereses, calificación crediticia.
+→ **¿Demasiada deuda?** Deuda Total (LT+current+convertibles), D/E, repago en años FCF.
+→ **¿Mucho goodwill?** Goodwill+Intangibles como % total assets, riesgo impairment.
+Score [🟢/🟡/🔴] X.X/10
+
+9. CAPITAL RETURN
+→ **¿Paga dividendo?** Yield, payout ratio, cobertura por FCF.
+→ **¿Recompra acciones?** % reducción shares 3 años, monto invertido.
+→ **¿Crea valor el programa?** ¿Compran a precios razonables?
+Score [🟢/🟡/🔴] X.X/10
+
+10. MANAGEMENT
+→ **¿Skin in the game?** % ownership CEO/CFO/insiders y valor en $ (DEF14A).
+→ **¿Consideran stakeholders?** Empleados, clientes, comunidad.
+→ **¿Track record?** Historial vs guidance, credibilidad ante el mercado.
+Score [🟢/🟡/🔴] X.X/10
+
+11. CAPITAL ALLOCATION
+→ **¿Retornos sobre el capital?** ROIC actual y tendencia 3 años.
+→ **¿Superan el costo de capital?** WACC estimado y spread ROIC-WACC.
+→ **¿Retornos estables?** Evolución ROIC 5 años.
+Score [🟢/🟡/🔴] X.X/10
+
+12. STOCK-BASED COMPENSATION
+→ **¿Política de SBC?** SBC/Revenue % y SBC/NI % (DEF14A o 10-K notas).
+→ **¿Tasa de dilución?** Cambio shares (todas las clases) últimos 3 años %.
+→ **¿Qué dispara el SBC?** Triggers reales y alineación con valor.
+Score [🟢/🟡/🔴] X.X/10
+
+13. OUTLOOK
+→ **¿Guidance formal?** Revenue y EPS próximo año; ¿conservadora o agresiva históricamente?
+→ **¿Tasa de crecimiento proyectada?** Consenso analistas 2 y 3 años.
+→ **¿Alcanzable?** Supuestos del guidance vs realidad histórica.
+Score [🟢/🟡/🔴] X.X/10
+
+14. OPTIONALITY
+→ **¿Nuevos productos o mercados?** Iniciativas concretas y estado de desarrollo.
+→ **¿Pipeline sólido?** Proyectos, inversión, probabilidad de materialización.
+→ **¿Ya generan revenue incremental?** % del total y tasa de crecimiento.
+Score [🟢/🟡/🔴] X.X/10
+
+15. RISKS
+→ **¿Riesgos principales?** 3-5 riesgos materiales con impacto cuantificado si posible.
+→ **¿Concentración?** % revenue del cliente/segmento/geografía principal.
+→ **¿Dependencia exógena?** Commodities, tasas, divisas — cruzar con commodity check.
+Score [🟢/🟡/🔴] X.X/10
+
+16. VALUATION
+→ **¿Método más apropiado?** DCF / EV/EBITDA / P/E / P/FCF / EV/Revenue — justificar.
+→ **¿A qué precio comprarías hoy?** Precio objetivo, margen de seguridad, supuestos.
+→ **¿Subvalorada, justa o cara?** Vs peers, vs histórico 5 años, PEG como ancla.
+Score [🟢/🟡/🔴] X.X/10
+
+VERIFICACIÓN ARITMÉTICA:
+[P1]+[P2]+[P3]+[P4]+[P5]+[P6]+[P7]+[P8]+[P9]+[P10]+[P11]+[P12]+[P13]+[P14]+[P15]+[P16]=[SUMA]
+[SUMA]/160=[%]
+"Score Feroldi: [🟢/🟡/🔴] XX.X% (XXX/160)" 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE H — SÍNTESIS Y TESIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tabla-resumen 16 puntos: calificación + comentario máx 10 palabras.
+Score/160 + %. Tabla Riesgos Críticos. Tabla Catalizadores 24m.
+Tesis horizonte 1-2a. Veredicto (mismas 6 opciones). PROHIBIDO ambigüedades.
+STOP LOSS / TAKE PROFIT si veredicto COMPRAR. R/R mínimo 1:3.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE I — CIERRE DE PORTAFOLIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I.1 Costo de Oportunidad vs 2-3 alternativas concretas.
+I.2 Patience Filter: LARGO (>2a) / MEDIO (6m-2a) / CORTO (<6m).
+I.3 Bear Case sistémico: referenciar Bloque F. NO duplicar.
+I.4 Tamaño posición: GRANDE 5-10% / MEDIANA 2-5% / PEQUEÑA / STARTER / CERO.
+I.5 Exit Criteria: T1 ruptura tesis · T2 ROIC -3pp · T3 rebalanceo ·
+    T4 mejor oportunidad · T5 imperativo institucional · T6 bear case materializado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLOQUE X — AUTO-CRÍTICA (SIEMPRE AL FINAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+X1) CONTRAARGUMENTO MÁS FUERTE — rol short seller, mín 5 líneas.
+X2) DATOS CLAVE OMITIDOS — 3-5 ítems brutalmente honestos.
+X3) PENSAMIENTO NO CONVENCIONAL — insight original, mín 5 líneas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CIERRE HEAVY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Informe Heavy completado.
+Escribe: INFOGRAFIA · PDF · SANKEY · TODO
+
+Cargar generador Heavy:
+  INTENTO 1: web_fetch("https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.50.txt")
+  Primera línea esperada: [X0.50-GEN-HEAVY]
+  SI FALLA → PARAR. Mostrar al usuario:
+  "⛔ No pude cargar el archivo. Ábrelo y pégalo aquí:
+  👉 https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.50.txt"
+
+[X0.56-HEAVY — Recolección H1/H2/H3 web · Feroldi hereda Light · SOTP · Sin token · @patonet]
+
+REGLA FETCH UNIVERSAL: Si web_fetch falla → PARAR INMEDIATAMENTE.
+No improvisar. Mostrar:
+"⛔ No pude cargar el archivo. Ábrelo y pégalo aquí:
+👉 https://patonet.github.io/informes/prompts/prompt_generador_heavy_X0.50.txt"
