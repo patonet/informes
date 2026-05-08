@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FEROLDI BATCH RECOLECTAR — v X0.64
+FEROLDI BATCH RECOLECTAR — v X0.65
 Sistema Feroldi · @patonet
 ======================================
 Recolecta 50 tickers SIN Alpha Vantage.
@@ -34,13 +34,14 @@ INSTALAR (una sola vez):
 import json
 import sys
 import os
+import signal
 import time
 import math
 import argparse
 import traceback
 from datetime import datetime
 
-VERSION   = "X0.64"
+VERSION   = "X0.65"
 TODAY     = datetime.now().strftime("%d-%m-%Y")
 SLEEP_SEC = 1   # segundos entre tickers (reducido para evitar timeout en Kika)
 
@@ -567,11 +568,25 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     def _save_partial():
-        """Guarda el estado actual (parcial o final) al disco."""
+        """Guarda el estado actual (parcial o final) al disco — atómico."""
         tmp = fname + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(batch, f, ensure_ascii=False, indent=2, default=str)
-        os.replace(tmp, fname)   # atómico en todos los SO
+        os.replace(tmp, fname)
+
+    # Handler SIGTERM: termina el write en curso y sale limpiamente
+    def _sigterm_handler(signum, frame):
+        print(f"\n⚠️  SIGTERM recibido — guardando progreso y saliendo...", flush=True)
+        try:
+            batch["meta"]["sigterm"] = True
+            _save_partial()
+            print(f"  ✅ JSON guardado: {fname}", flush=True)
+        except Exception as e:
+            print(f"  ❌ No se pudo guardar: {e}", flush=True)
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, _sigterm_handler)
+    signal.signal(signal.SIGINT,  _sigterm_handler)   # Ctrl+C también
 
     for i, ticker in enumerate(tickers, 1):
         print(f"[{i:02d}/{len(tickers)}] {ticker}:", end="  ", flush=True)
