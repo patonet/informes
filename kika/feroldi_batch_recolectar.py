@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FEROLDI BATCH RECOLECTAR — v X0.63
+FEROLDI BATCH RECOLECTAR — v X0.64
 Sistema Feroldi · @patonet
 ======================================
 Recolecta 50 tickers SIN Alpha Vantage.
@@ -40,9 +40,9 @@ import argparse
 import traceback
 from datetime import datetime
 
-VERSION   = "X0.63"
+VERSION   = "X0.64"
 TODAY     = datetime.now().strftime("%d-%m-%Y")
-SLEEP_SEC = 3   # segundos entre tickers
+SLEEP_SEC = 1   # segundos entre tickers (reducido para evitar timeout en Kika)
 
 # SEC requiere User-Agent identificado para todas las requests a EDGAR
 try:
@@ -560,6 +560,19 @@ def main():
         "resumen": {},
     }
 
+    # Archivo de guardado progresivo — sobrevive SIGTERM
+    suffix = "_DRYRUN" if args.dry_run else ""
+    fname  = os.path.join(OUTPUT_DIR,
+                          f"batch_datos{suffix}_{TODAY.replace('-','')}.json")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    def _save_partial():
+        """Guarda el estado actual (parcial o final) al disco."""
+        tmp = fname + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(batch, f, ensure_ascii=False, indent=2, default=str)
+        os.replace(tmp, fname)   # atómico en todos los SO
+
     for i, ticker in enumerate(tickers, 1):
         print(f"[{i:02d}/{len(tickers)}] {ticker}:", end="  ", flush=True)
         try:
@@ -579,6 +592,10 @@ def main():
             }
             batch["meta"]["tickers_error"] += 1
             print(f"  ❌ Error inesperado: {e}")
+
+        # Guardar progreso después de cada ticker — SIGTERM no pierde datos
+        batch["meta"]["tickers_procesados"] = i
+        _save_partial()
 
         if i < len(tickers):
             time.sleep(args.sleep)
@@ -616,13 +633,8 @@ def main():
                                     if r.get("status") == "error"],
     }
 
-    # ── GUARDAR JSON ──────────────────────────────────────────────────────────
-    suffix = "_DRYRUN" if args.dry_run else ""
-    fname  = os.path.join(OUTPUT_DIR,
-                          f"batch_datos{suffix}_{TODAY.replace('-','')}.json")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with open(fname, "w", encoding="utf-8") as f:
-        json.dump(batch, f, ensure_ascii=False, indent=2, default=str)
+    # ── GUARDAR JSON FINAL ────────────────────────────────────────────────────
+    _save_partial()   # ya tiene resumen completo
 
     # ── REPORTE FINAL ─────────────────────────────────────────────────────────
     m = batch["meta"]
