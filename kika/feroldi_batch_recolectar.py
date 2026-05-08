@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FEROLDI BATCH RECOLECTAR — v X0.62
+FEROLDI BATCH RECOLECTAR — v X0.63
 Sistema Feroldi · @patonet
 ======================================
 Recolecta 50 tickers SIN Alpha Vantage.
@@ -40,7 +40,7 @@ import argparse
 import traceback
 from datetime import datetime
 
-VERSION   = "X0.62"
+VERSION   = "X0.63"
 TODAY     = datetime.now().strftime("%d-%m-%Y")
 SLEEP_SEC = 3   # segundos entre tickers
 
@@ -108,7 +108,7 @@ TICKERS_R2000 = [
     "MRVI",  # Maravai LifeSciences, revenue colapsó post-COVID
     "RKT",   # Mortgage company, estructura financiera
     "CLOV",  # Health insurer pequeño, pérdidas
-    "JAMF",  # Apple MDM SaaS, pérdidas pero revenue estable
+    "ASAN",  # Asana — SaaS, pérdidas, buena cobertura de datos
     "ACVA",  # Auto auctions platform
     "BOOT",  # Retail especializado, rentable
     "LCII",  # Manufactura RVs — cíclico
@@ -159,10 +159,54 @@ def pick(*vals):
 
 
 # ── TIER 2: EDGAR ─────────────────────────────────────────────────────────────
+def _extract_stmt(stmt, concept_map, result):
+    """
+    Extrae valores de un Statement edgartools usando to_dataframe() — API actual.
+    Filtra filas sin dimensiones para obtener valores consolidados.
+    Soporta columnas con y sin sufijo '(FY)'.
+    """
+    try:
+        df = stmt.to_dataframe()
+        if df is None or df.empty:
+            return
+        # Columnas de fecha: '2025-06-30' o '2025-06-30 (FY)'
+        date_cols = [c for c in df.columns
+                     if len(str(c)) >= 10 and str(c)[4] == '-' and str(c)[7] == '-']
+        if not date_cols:
+            return
+        latest_col = sorted(date_cols)[-1]
+
+        # Filtrar filas consolidadas: dimension==False (bool) = valor total sin desglose
+        if "dimension" in df.columns:
+            df = df[df["dimension"] == False]  # noqa: E712  (False es bool, no comparación)
+        # Excluir filas abstractas (headers/subtotales sin valor propio)
+        if "abstract" in df.columns:
+            df = df[df["abstract"] == False]  # noqa: E712
+
+        for concept_key, field in concept_map.items():
+            if result.get(field):
+                continue
+            # Claves con '$' al final → regex de sufijo exacto (evita falsos positivos)
+            use_regex = concept_key.endswith("$")
+            mask = df["concept"].str.contains(concept_key, na=False, regex=use_regex)
+            rows = df[mask]
+            if rows.empty:
+                continue
+            # Iterar filas hasta encontrar un valor no-NaN (ignora headers subtotales)
+            for _, row in rows.iterrows():
+                v = _float(row[latest_col])
+                if v is not None:
+                    result[field] = v
+                    break
+    except Exception:
+        pass
+
+
 def get_edgar(ticker):
     """
     Extrae datos financieros de EDGAR.
     Intenta 10-K primero, luego 20-F, luego 40-F.
+    Usa to_dataframe() — API actual de edgartools.
     Nunca lanza excepción — errores quedan en result["edgar_error"].
     """
     result = {"filing_type": None, "fy_year": None}
@@ -193,86 +237,44 @@ def get_edgar(ticker):
         except Exception:
             pass
 
-        # --- obj() primero (edgartools >= 0.28) ---
+        # --- obj() + to_dataframe() ---
         try:
             tenk = filing.obj()
             if tenk:
-                for stmt, mapping in [
-                    ("income_statement", {
-                        "Revenues":                                             "revenue",
-                        "RevenueFromContractWithCustomerExcludingAssessedTax": "revenue",
-                        "SalesRevenueNet":                                      "revenue",
-                        "NetIncomeLoss":                                        "net_income",
-                        "NetIncome":                                            "net_income",
-                        "OperatingIncomeLoss":                                  "operating_income",
-                        "ShareBasedCompensation":                               "sbc",
-                    }),
-                    ("balance_sheet", {
-                        "CashAndCashEquivalentsAtCarryingValue": "cash_real",
-                        "LongTermDebt":                          "deuda_total",
-                        "Assets":                                "total_assets",
-                        "Goodwill":                              "goodwill",
-                        "CommonStockSharesOutstanding":          "shares",
-                    }),
-                    ("cash_flow_statement", {
-                        "NetCashProvidedByUsedInOperatingActivities":  "cfo",
-                        "PaymentsToAcquirePropertyPlantAndEquipment":  "capex",
-                        "PaymentsOfDividends":                         "dividendos",
-                        "PaymentsOfDividendsCommonStock":              "dividendos",
-                    }),
-                ]:
-                    try:
-                        s  = getattr(tenk, stmt, None)
-                        if s is None:
-                            continue
-                        df = s.data if hasattr(s, "data") else None
-                        if df is None or len(df) == 0:
-                            continue
-                        row = df.iloc[0]
-                        for concept, field in mapping.items():
-                            if not result.get(field):
-                                v = _float(row.get(concept))
-                                if v is not None:
-                                    result[field] = v
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+                _extract_stmt(tenk.income_statement, {
+                    # Revenue — orden importa: más específico primero
+                    "RevenueFromContractWithCustomerExcludingAssessedTax$": "revenue",
+                    "_Revenues$":          "revenue",   # XOM, energía
+                    "SalesRevenueNet$":    "revenue",
+                    # Net income — anclado para NO capturar NoncontrollingInterest
+                    "_NetIncomeLoss$":     "net_income",
+                    "_NetIncome$":         "net_income",
+                    # Operating income
+                    "OperatingIncomeLoss$": "operating_income",
+                    # SBC
+                    "ShareBasedCompensation$": "sbc",
+                }, result)
 
-        # --- XBRL facts fallback ---
-        try:
-            xbrl  = filing.xbrl()
-            facts = xbrl.facts if hasattr(xbrl, "facts") else None
-            if facts is not None:
-                for concept, field in [
-                    ("Revenues",                                             "revenue"),
-                    ("RevenueFromContractWithCustomerExcludingAssessedTax", "revenue"),
-                    ("SalesRevenueNet",                                      "revenue"),
-                    ("NetIncomeLoss",                                        "net_income"),
-                    ("OperatingIncomeLoss",                                  "operating_income"),
-                    ("NetCashProvidedByUsedInOperatingActivities",          "cfo"),
-                    ("PaymentsToAcquirePropertyPlantAndEquipment",          "capex"),
-                    ("ShareBasedCompensation",                               "sbc"),
-                    ("PaymentsOfDividends",                                  "dividendos"),
-                    ("CashAndCashEquivalentsAtCarryingValue",               "cash_real"),
-                    ("LongTermDebt",                                         "deuda_total"),
-                    ("Assets",                                               "total_assets"),
-                    ("Goodwill",                                             "goodwill"),
-                    ("CommonStockSharesOutstanding",                         "shares"),
-                ]:
-                    if result.get(field):
-                        continue
-                    try:
-                        df = facts.filter(concept=concept)
-                        if df is not None and len(df) > 0:
-                            row = df.sort_values("end", ascending=False).iloc[0]
-                            v   = _float(row.get("value"))
-                            if v is not None and abs(v) > 0:
-                                result[field] = v
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+                _extract_stmt(tenk.balance_sheet, {
+                    "CashAndCashEquivalentsAtCarryingValue$": "cash_real",
+                    # Deuda: LongTermDebt exacto → Noncurrent → Current como fallback
+                    "LongTermDebt$":                  "deuda_total",
+                    "LongTermDebtNoncurrent$":        "deuda_total",
+                    "LongTermDebtCurrent$":           "deuda_total",
+                    "_Assets$":                       "total_assets",   # anclado: no AssetsCurrent
+                    "Goodwill$":                      "goodwill",
+                    "CommonStockSharesOutstanding$":  "shares",
+                }, result)
+
+                _extract_stmt(tenk.cash_flow_statement, {
+                    # CFO anclado — no capturar Continuing/Discontinued variants
+                    "_NetCashProvidedByUsedInOperatingActivities$": "cfo",
+                    "PaymentsToAcquirePropertyPlantAndEquipment$":  "capex",
+                    "PaymentsOfDividendsCommonStock$": "dividendos",
+                    "PaymentsOfDividends$":            "dividendos",
+                }, result)
+        except Exception as e:
+            result["edgar_obj_error"] = str(e)
 
         # FCF derivado
         if not result.get("fcf") and result.get("cfo") and result.get("capex"):
