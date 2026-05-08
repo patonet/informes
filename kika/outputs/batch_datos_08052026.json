@@ -1,0 +1,2959 @@
+{
+  "meta": {
+    "batch_version": "X0.62",
+    "fecha": "08-05-2026",
+    "tickers_total": 50,
+    "tickers_ok": 0,
+    "tickers_partial": 50,
+    "tickers_error": 0,
+    "dry_run": false,
+    "fuentes": [
+      "EDGAR (edgartools)",
+      "yfinance"
+    ]
+  },
+  "tickers": {
+    "JPM": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "JPMorgan Chase & Co.",
+      "sector": "Financial Services",
+      "industry": "Banks - Diversified",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 173559005184.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1321104965632.0,
+        "cash_real": 1582246002688.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2679511418.0
+      },
+      "market": {
+        "precio_actual": 302.4,
+        "market_cap": 810284220416.0,
+        "w52_high": 337.25,
+        "w52_low": 252.34,
+        "analyst_target": 342.31818,
+        "analyst_consenso": "buy",
+        "pe_ttm": 14.475826
+      },
+      "ratios": {
+        "beta": 1.023,
+        "pe_forward": 12.848959,
+        "margen_bruto": 0.0,
+        "margen_op": 0.43741,
+        "margen_neto": 0.33936
+      }
+    },
+    "WMT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Walmart Inc.",
+      "sector": "Consumer Defensive",
+      "industry": "Discount Stores",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 713163014144.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 68425998336.0,
+        "cash_real": 10727000064.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 7970990515.0
+      },
+      "market": {
+        "precio_actual": 131.3285,
+        "market_cap": 1046818258944.0,
+        "w52_high": 134.69,
+        "w52_low": 91.89,
+        "analyst_target": 136.68294,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 48.10568
+      },
+      "ratios": {
+        "beta": 0.652,
+        "pe_forward": 39.966923,
+        "margen_bruto": 0.24927,
+        "margen_op": 0.04567,
+        "margen_neto": 0.0307
+      }
+    },
+    "COST": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Costco Wholesale Corporation",
+      "sector": "Consumer Defensive",
+      "industry": "Discount Stores",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 286265016320.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 10227999744.0,
+        "cash_real": 11125999616.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 443652540.0
+      },
+      "market": {
+        "precio_actual": 1011.79,
+        "market_cap": 448883195904.0,
+        "w52_high": 1067.08,
+        "w52_low": 844.06,
+        "analyst_target": 1072.1562,
+        "analyst_consenso": "buy",
+        "pe_ttm": 52.615185
+      },
+      "ratios": {
+        "beta": 0.908,
+        "pe_forward": 44.984997,
+        "margen_bruto": 0.12926,
+        "margen_op": 0.036730003,
+        "margen_neto": 0.029860001
+      }
+    },
+    "XOM": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Exxon Mobil Corporation",
+      "sector": "Energy",
+      "industry": "Oil & Gas Integrated",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 326008012800.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 47660998656.0,
+        "cash_real": 8434999808.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 4144947162.0
+      },
+      "market": {
+        "precio_actual": 144.775,
+        "market_cap": 600084709376.0,
+        "w52_high": 176.41,
+        "w52_low": 101.19,
+        "analyst_target": 166.27274,
+        "analyst_consenso": "buy",
+        "pe_ttm": 24.372894
+      },
+      "ratios": {
+        "beta": 0.183,
+        "pe_forward": 14.206009,
+        "margen_bruto": 0.29768,
+        "margen_op": 0.06355,
+        "margen_neto": 0.077649996
+      }
+    },
+    "PLD": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Prologis, Inc.",
+      "sector": "Real Estate",
+      "industry": "REIT - Industrial",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 9376112640.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 35310190592.0,
+        "cash_real": 871209984.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 932338000.0
+      },
+      "market": {
+        "precio_actual": 143.17,
+        "market_cap": 133482823680.0,
+        "w52_high": 145.44,
+        "w52_low": 103.02,
+        "analyst_target": 149.4,
+        "analyst_consenso": "buy",
+        "pe_ttm": 35.972363
+      },
+      "ratios": {
+        "beta": 1.35,
+        "pe_forward": 42.135094,
+        "margen_bruto": 0.756,
+        "margen_op": 0.38491002,
+        "margen_neto": 0.39646
+      }
+    },
+    "BA": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "The Boeing Company",
+      "sector": "Industrials",
+      "industry": "Aerospace & Defense",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 92184002560.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 49614000128.0,
+        "cash_real": 20177999872.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 788302331.0
+      },
+      "market": {
+        "precio_actual": 236.455,
+        "market_cap": 186398031872.0,
+        "w52_high": 254.35,
+        "w52_low": 176.77,
+        "analyst_target": 269.52,
+        "analyst_consenso": "buy",
+        "pe_ttm": 93.09252
+      },
+      "ratios": {
+        "beta": 1.207,
+        "pe_forward": 55.133648,
+        "margen_bruto": 0.048249997,
+        "margen_op": 0.01715,
+        "margen_neto": 0.024600001
+      }
+    },
+    "LLY": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Eli Lilly and Company",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - General",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 72248999936.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 43370000384.0,
+        "cash_real": 5281999872.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 891741406.0
+      },
+      "market": {
+        "precio_actual": 948.6675,
+        "market_cap": 845966016512.0,
+        "w52_high": 1133.95,
+        "w52_low": 623.78,
+        "analyst_target": 1207.3448,
+        "analyst_consenso": "buy",
+        "pe_ttm": 33.664566
+      },
+      "ratios": {
+        "beta": 0.481,
+        "pe_forward": 21.541458,
+        "margen_bruto": 0.82832,
+        "margen_op": 0.49386,
+        "margen_neto": 0.34986
+      }
+    },
+    "NEE": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "NextEra Energy, Inc.",
+      "sector": "Utilities",
+      "industry": "Utilities - Regulated Electric",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 27865999360.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 104403001344.0,
+        "cash_real": 1998000000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2085341456.0
+      },
+      "market": {
+        "precio_actual": 93.5551,
+        "market_cap": 195094331392.0,
+        "w52_high": 98.75,
+        "w52_low": 63.88,
+        "analyst_target": 98.93,
+        "analyst_consenso": "buy",
+        "pe_ttm": 23.74495
+      },
+      "ratios": {
+        "beta": 0.721,
+        "pe_forward": 21.312656,
+        "margen_bruto": 0.61401004,
+        "margen_op": 0.30175,
+        "margen_neto": 0.29369
+      }
+    },
+    "UNH": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "UnitedHealth Group Incorporated",
+      "sector": "Healthcare",
+      "industry": "Healthcare Plans",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 449713012736.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 77917003776.0,
+        "cash_real": 31228999680.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 908144404.0
+      },
+      "market": {
+        "precio_actual": 374.59,
+        "market_cap": 340181811200.0,
+        "w52_high": 387.21,
+        "w52_low": 234.6,
+        "analyst_target": 387.26923,
+        "analyst_consenso": "buy",
+        "pe_ttm": 28.228333
+      },
+      "ratios": {
+        "beta": 0.646,
+        "pe_forward": 18.049337,
+        "margen_bruto": 0.18801,
+        "margen_op": 0.080469996,
+        "margen_neto": 0.02678
+      }
+    },
+    "BLK": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "BlackRock, Inc.",
+      "sector": "Financial Services",
+      "industry": "Asset Management",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 25638000640.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 14995999744.0,
+        "cash_real": 14257000448.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 155233989.0
+      },
+      "market": {
+        "precio_actual": 1080.7,
+        "market_cap": 167761362944.0,
+        "w52_high": 1219.94,
+        "w52_low": 917.39,
+        "analyst_target": 1254.125,
+        "analyst_consenso": "buy",
+        "pe_ttm": 27.207954
+      },
+      "ratios": {
+        "beta": 1.456,
+        "pe_forward": 17.816246,
+        "margen_bruto": 0.46890998,
+        "margen_op": 0.35638002,
+        "margen_neto": 0.24396999
+      }
+    },
+    "MSFT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Microsoft Corporation",
+      "sector": "Technology",
+      "industry": "Software - Infrastructure",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 318272995328.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 125431996416.0,
+        "cash_real": 78227996672.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 7428434704.0
+      },
+      "market": {
+        "precio_actual": 416.005,
+        "market_cap": 3090266193920.0,
+        "w52_high": 555.45,
+        "w52_low": 356.28,
+        "analyst_target": 562.07465,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 24.776949
+      },
+      "ratios": {
+        "beta": 1.093,
+        "pe_forward": 21.493923,
+        "margen_bruto": 0.68309,
+        "margen_op": 0.46326,
+        "margen_neto": 0.39341998
+      }
+    },
+    "NVDA": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "NVIDIA Corporation",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 215938007040.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 11411999744.0,
+        "cash_real": 62556000256.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 24300000000.0
+      },
+      "market": {
+        "precio_actual": 216.1,
+        "market_cap": 5252310892544.0,
+        "w52_high": 217.8,
+        "w52_low": 115.21,
+        "analyst_target": 269.16544,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 44.012222
+      },
+      "ratios": {
+        "beta": 2.244,
+        "pe_forward": 19.147753,
+        "margen_bruto": 0.71068,
+        "margen_op": 0.65024,
+        "margen_neto": 0.55603004
+      }
+    },
+    "META": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Meta Platforms, Inc.",
+      "sector": "Communication Services",
+      "industry": "Internet Content & Information",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 214962995200.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 86769000448.0,
+        "cash_real": 81180000256.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2196045588.0
+      },
+      "market": {
+        "precio_actual": 606.52,
+        "market_cap": 1539604611072.0,
+        "w52_high": 796.25,
+        "w52_low": 520.26,
+        "analyst_target": 826.69104,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 22.047256
+      },
+      "ratios": {
+        "beta": 1.243,
+        "pe_forward": 16.761198,
+        "margen_bruto": 0.81941,
+        "margen_op": 0.40617,
+        "margen_neto": 0.32837
+      }
+    },
+    "TSLA": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Tesla, Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 97878999040.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 15889999872.0,
+        "cash_real": 44743000064.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 3755723871.0
+      },
+      "market": {
+        "precio_actual": 428.25,
+        "market_cap": 1608200486912.0,
+        "w52_high": 498.83,
+        "w52_low": 273.21,
+        "analyst_target": 412.25366,
+        "analyst_consenso": "buy",
+        "pe_ttm": 400.1868
+      },
+      "ratios": {
+        "beta": 1.793,
+        "pe_forward": 168.89116,
+        "margen_bruto": 0.19065,
+        "margen_op": 0.04203,
+        "margen_neto": 0.03946
+      }
+    },
+    "NFLX": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Netflix, Inc.",
+      "sector": "Communication Services",
+      "industry": "Entertainment",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 46889992192.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 16742200320.0,
+        "cash_real": 12288449536.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 4210798528.0
+      },
+      "market": {
+        "precio_actual": 87.515,
+        "market_cap": 368508043264.0,
+        "w52_high": 134.115,
+        "w52_low": 75.01,
+        "analyst_target": 114.555,
+        "analyst_consenso": "buy",
+        "pe_ttm": 28.230646
+      },
+      "ratios": {
+        "beta": 1.548,
+        "pe_forward": 22.78283,
+        "margen_bruto": 0.49029,
+        "margen_op": 0.32303002,
+        "margen_neto": 0.28521
+      }
+    },
+    "INTC": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Intel Corporation",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 53762998272.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 45030998016.0,
+        "cash_real": 32789000192.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 5026000000.0
+      },
+      "market": {
+        "precio_actual": 118.09,
+        "market_cap": 593520295936.0,
+        "w52_high": 118.13,
+        "w52_low": 18.97,
+        "analyst_target": 80.93333,
+        "analyst_consenso": "hold",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.19,
+        "pe_forward": 77.144684,
+        "margen_bruto": 0.372,
+        "margen_op": 0.06879,
+        "margen_neto": -0.05904
+      }
+    },
+    "MRNA": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Moderna, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 2224999936.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1298000000.0,
+        "cash_real": 5205000192.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 396786259.0
+      },
+      "market": {
+        "precio_actual": 54.46,
+        "market_cap": 21612949504.0,
+        "w52_high": 59.55,
+        "w52_low": 22.28,
+        "analyst_target": 43.36842,
+        "analyst_consenso": "hold",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 1.056,
+        "pe_forward": -13.107329,
+        "margen_bruto": -0.69888,
+        "margen_op": -1.3110499,
+        "margen_neto": -1.4355099
+      }
+    },
+    "ADBE": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Adobe Inc.",
+      "sector": "Technology",
+      "industry": "Software - Application",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 24452999168.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 6670000128.0,
+        "cash_real": 6898999808.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 404200000.0
+      },
+      "market": {
+        "precio_actual": 250.445,
+        "market_cap": 101252096000.0,
+        "w52_high": 422.95,
+        "w52_low": 224.13,
+        "analyst_target": 327.955,
+        "analyst_consenso": "buy",
+        "pe_ttm": 14.597902
+      },
+      "ratios": {
+        "beta": 1.417,
+        "pe_forward": 9.493559,
+        "margen_bruto": 0.89396006,
+        "margen_op": 0.38762,
+        "margen_neto": 0.29477
+      }
+    },
+    "PYPL": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "PayPal Holdings, Inc.",
+      "sector": "Financial Services",
+      "industry": "Credit Services",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 33734000640.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 11669999616.0,
+        "cash_real": 9342000128.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 882105493.0
+      },
+      "market": {
+        "precio_actual": 45.79,
+        "market_cap": 40391610368.0,
+        "w52_high": 79.5,
+        "w52_low": 38.46,
+        "analyst_target": 52.93794,
+        "analyst_consenso": "hold",
+        "pe_ttm": 8.590995
+      },
+      "ratios": {
+        "beta": 1.395,
+        "pe_forward": 7.8896585,
+        "margen_bruto": 0.40929002,
+        "margen_op": 0.17969999,
+        "margen_neto": 0.14997
+      }
+    },
+    "CSCO": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Cisco Systems, Inc.",
+      "sector": "Technology",
+      "industry": "Communication Equipment",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 59053998080.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 31740000256.0,
+        "cash_real": 15777000448.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 3949893042.0
+      },
+      "market": {
+        "precio_actual": 95.82,
+        "market_cap": 378478755840.0,
+        "w52_high": 96.0599,
+        "w52_low": 59.44,
+        "analyst_target": 89.54455,
+        "analyst_consenso": "buy",
+        "pe_ttm": 34.467625
+      },
+      "ratios": {
+        "beta": 0.912,
+        "pe_forward": 21.23802,
+        "margen_bruto": 0.64814,
+        "margen_op": 0.24868,
+        "margen_neto": 0.18756
+      }
+    },
+    "ASML": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "ASML Holding N.V.",
+      "sector": "Technology",
+      "industry": "Semiconductor Equipment & Materials",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 33692700672.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 2705600000.0,
+        "cash_real": 8376300032.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 385417665.0
+      },
+      "market": {
+        "precio_actual": 1547.8905,
+        "market_cap": 596584366080.0,
+        "w52_high": 1566.155,
+        "w52_low": 683.48,
+        "analyst_target": 1678.0903,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 51.034966
+      },
+      "ratios": {
+        "beta": 1.373,
+        "pe_forward": 32.325695,
+        "margen_bruto": 0.52603,
+        "margen_op": 0.36020002,
+        "margen_neto": 0.29713
+      }
+    },
+    "TSM": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "Taiwan Semiconductor Manufacturing Company Limited",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 4103903379456.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1016267997184.0,
+        "cash_real": 3383600873472.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 5186400000.0
+      },
+      "market": {
+        "precio_actual": 413.325,
+        "market_cap": 2143668928512.0,
+        "w52_high": 420.0,
+        "w52_low": 176.47,
+        "analyst_target": 463.4514,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 35.50902
+      },
+      "ratios": {
+        "beta": 1.264,
+        "pe_forward": 21.424486,
+        "margen_bruto": 0.61873,
+        "margen_op": 0.58105,
+        "margen_neto": 0.46505
+      }
+    },
+    "BABA": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2025",
+      "company_name": "Alibaba Group Holding Limited",
+      "sector": "Consumer Cyclical",
+      "industry": "Internet Retail",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 1016743985152.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 286528995328.0,
+        "cash_real": 338109988864.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2399050495.0
+      },
+      "market": {
+        "precio_actual": 140.595,
+        "market_cap": 337294491648.0,
+        "w52_high": 192.67,
+        "w52_low": 103.71,
+        "analyst_target": 189.56624,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 24.796297
+      },
+      "ratios": {
+        "beta": 0.494,
+        "pe_forward": 19.106874,
+        "margen_bruto": 0.40755,
+        "margen_op": 0.07078,
+        "margen_neto": 0.08912
+      }
+    },
+    "NVO": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "Novo Nordisk A/S",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - General",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 327799996416.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 146381996032.0,
+        "cash_real": 21625999360.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 3357979022.0
+      },
+      "market": {
+        "precio_actual": 45.5,
+        "market_cap": 201694724096.0,
+        "w52_high": 81.44,
+        "w52_low": 35.12,
+        "analyst_target": 47.361965,
+        "analyst_consenso": "buy",
+        "pe_ttm": 10.581395
+      },
+      "ratios": {
+        "beta": 0.348,
+        "pe_forward": 13.4129095,
+        "margen_bruto": 0.83195996,
+        "margen_op": 0.61574,
+        "margen_neto": 0.37205002
+      }
+    },
+    "SAP": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "SAP SE",
+      "sector": "Technology",
+      "industry": "Software - Application",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 37341999104.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 7862000128.0,
+        "cash_real": 10044999680.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 1167559048.0
+      },
+      "market": {
+        "precio_actual": 172.1,
+        "market_cap": 202894262272.0,
+        "w52_high": 313.28,
+        "w52_low": 160.66,
+        "analyst_target": 258.16666,
+        "analyst_consenso": "buy",
+        "pe_ttm": 23.575342
+      },
+      "ratios": {
+        "beta": 0.709,
+        "pe_forward": 18.332264,
+        "margen_bruto": 0.73719,
+        "margen_op": 0.30025998,
+        "margen_neto": 0.19584
+      }
+    },
+    "SHEL": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "Shell plc",
+      "sector": "Energy",
+      "industry": "Oil & Gas Integrated",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 263458996224.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 75645001728.0,
+        "cash_real": 23117000704.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2788109678.0
+      },
+      "market": {
+        "precio_actual": 84.31,
+        "market_cap": 235065507840.0,
+        "w52_high": 94.9,
+        "w52_low": 65.38,
+        "analyst_target": 98.90714,
+        "analyst_consenso": "buy",
+        "pe_ttm": 13.132399
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": 8.959874,
+        "margen_bruto": 0.25747,
+        "margen_op": 0.12126,
+        "margen_neto": 0.06525
+      }
+    },
+    "AZN": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "AstraZeneca PLC",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - General",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 60438999040.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 34029000704.0,
+        "cash_real": 7674999808.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 1550283527.0
+      },
+      "market": {
+        "precio_actual": 181.87,
+        "market_cap": 281950060544.0,
+        "w52_high": 212.71,
+        "w52_low": 132.32,
+        "analyst_target": 223.79,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 27.39006
+      },
+      "ratios": {
+        "beta": 0.223,
+        "pe_forward": 20.87051,
+        "margen_bruto": 0.81504995,
+        "margen_op": 0.28166,
+        "margen_neto": 0.17188999
+      }
+    },
+    "RY": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_40F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "40-F",
+      "fy_year": "2025",
+      "company_name": "Royal Bank of Canada",
+      "sector": "Financial Services",
+      "industry": "Banks - Diversified",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 63424000000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 470622011392.0,
+        "cash_real": 776768978944.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 1390516501.0
+      },
+      "market": {
+        "precio_actual": 181.19,
+        "market_cap": 251947679744.0,
+        "w52_high": 182.73,
+        "w52_low": 119.77,
+        "analyst_target": 174.67616,
+        "analyst_consenso": "buy",
+        "pe_ttm": 16.933645
+      },
+      "ratios": {
+        "beta": 0.937,
+        "pe_forward": 14.208377,
+        "margen_bruto": 0.0,
+        "margen_op": 0.46194,
+        "margen_neto": 0.33137
+      }
+    },
+    "SNY": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "Sanofi",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - General",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 47353999360.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 20021000192.0,
+        "cash_real": 5544000000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2395850256.0
+      },
+      "market": {
+        "precio_actual": 43.0146,
+        "market_cap": 103056539648.0,
+        "w52_high": 53.36,
+        "w52_low": 42.785,
+        "analyst_target": 55.9,
+        "analyst_consenso": "buy",
+        "pe_ttm": 18.540775
+      },
+      "ratios": {
+        "beta": 0.283,
+        "pe_forward": 8.293314,
+        "margen_bruto": 0.72357005,
+        "margen_op": 0.20002002,
+        "margen_neto": 0.15954
+      }
+    },
+    "UL": {
+      "status": "partial",
+      "warnings": [
+        "FOREIGN_FILER_20F",
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "20-F",
+      "fy_year": "2026",
+      "company_name": "Unilever PLC",
+      "sector": "Consumer Defensive",
+      "industry": "Household & Personal Products",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 50503000064.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 28277999616.0,
+        "cash_real": 5011999744.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2180843921.0
+      },
+      "market": {
+        "precio_actual": 58.425,
+        "market_cap": 127415812096.0,
+        "w52_high": 74.98,
+        "w52_low": 54.95,
+        "analyst_target": 69.31403,
+        "analyst_consenso": "buy",
+        "pe_ttm": 19.21875
+      },
+      "ratios": {
+        "beta": 0.452,
+        "pe_forward": 14.826043,
+        "margen_bruto": 0.46945998,
+        "margen_op": 0.20052,
+        "margen_neto": 0.18749
+      }
+    },
+    "ARWR": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Arrowhead Pharmaceuticals, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 1090980992.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 698163008.0,
+        "cash_real": 914710016.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 140032190.0
+      },
+      "market": {
+        "precio_actual": 73.695,
+        "market_cap": 10319672320.0,
+        "w52_high": 79.48,
+        "w52_low": 12.885,
+        "analyst_target": 86.66667,
+        "analyst_consenso": "buy",
+        "pe_ttm": 46.059376
+      },
+      "ratios": {
+        "beta": 1.289,
+        "pe_forward": -16.72898,
+        "margen_bruto": 1.0,
+        "margen_op": 0.15456,
+        "margen_neto": 0.18540001
+      }
+    },
+    "RXRX": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Recursion Pharmaceuticals, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 66408000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 72375000.0,
+        "cash_real": 654473024.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 524677865.0
+      },
+      "market": {
+        "precio_actual": 3.23,
+        "market_cap": 1714361984.0,
+        "w52_high": 7.18,
+        "w52_low": 2.8,
+        "analyst_target": 6.57143,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": -3.6704545,
+        "margen_bruto": 0.0,
+        "margen_op": -19.85553,
+        "margen_neto": 0.0
+      }
+    },
+    "JOBY": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Joby Aviation, Inc.",
+      "sector": "Industrials",
+      "industry": "Airports & Air Services",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 77671000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 735553024.0,
+        "cash_real": 2466189056.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 983642852.0
+      },
+      "market": {
+        "precio_actual": 10.245,
+        "market_cap": 10077421568.0,
+        "w52_high": 20.95,
+        "w52_low": 6.42,
+        "analyst_target": 11.12,
+        "analyst_consenso": "hold",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.61,
+        "pe_forward": -17.512821,
+        "margen_bruto": 0.38032,
+        "margen_op": -9.63375,
+        "margen_neto": 0.0
+      }
+    },
+    "ENVX": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Enovix Corporation",
+      "sector": "Industrials",
+      "industry": "Electrical Equipment & Parts",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 31821000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 544286016.0,
+        "cash_real": 512040000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 217853201.0
+      },
+      "market": {
+        "precio_actual": 6.37,
+        "market_cap": 1387724800.0,
+        "w52_high": 16.49,
+        "w52_low": 4.615,
+        "analyst_target": 14.55,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.231,
+        "pe_forward": -12.487013,
+        "margen_bruto": 0.19184999,
+        "margen_op": -3.90484,
+        "margen_neto": 0.0
+      }
+    },
+    "HIMS": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Hims & Hers Health, Inc.",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - Specialty & Generic",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 2347636992.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1120589952.0,
+        "cash_real": 577491968.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 222693408.0
+      },
+      "market": {
+        "precio_actual": 26.28,
+        "market_cap": 6072546816.0,
+        "w52_high": 70.43,
+        "w52_low": 13.74,
+        "analyst_target": 26.03571,
+        "analyst_consenso": "hold",
+        "pe_ttm": 51.529415
+      },
+      "ratios": {
+        "beta": 2.423,
+        "pe_forward": 19.052866,
+        "margen_bruto": 0.73835,
+        "margen_op": 0.02724,
+        "margen_neto": 0.05468
+      }
+    },
+    "MRVI": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Maravai LifeSciences Holdings, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 185743008.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 364708000.0,
+        "cash_real": 216890000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 147496090.0
+      },
+      "market": {
+        "precio_actual": 4.665,
+        "market_cap": 1720751744.0,
+        "w52_high": 4.83,
+        "w52_low": 1.95,
+        "analyst_target": 4.6,
+        "analyst_consenso": "none",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 0.619,
+        "pe_forward": -30.74135,
+        "margen_bruto": 0.19215,
+        "margen_op": -0.39363,
+        "margen_neto": -0.70405
+      }
+    },
+    "RKT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Rocket Companies, Inc.",
+      "sector": "Financial Services",
+      "industry": "Mortgage Finance",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 7071000064.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 33817999360.0,
+        "cash_real": 2990000128.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 980176166.0
+      },
+      "market": {
+        "precio_actual": 15.35,
+        "market_cap": 43426004992.0,
+        "w52_high": 24.36,
+        "w52_low": 11.08,
+        "analyst_target": 20.72857,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.247,
+        "pe_forward": 14.1545105,
+        "margen_bruto": 1.0,
+        "margen_op": 0.17861,
+        "margen_neto": -0.00962
+      }
+    },
+    "CLOV": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Clover Health Investments, Corp.",
+      "sector": "Healthcare",
+      "industry": "Healthcare Plans",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 2210365952.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 0.0,
+        "cash_real": 203543008.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 430018255.0
+      },
+      "market": {
+        "precio_actual": 2.805,
+        "market_cap": 1474684160.0,
+        "w52_high": 3.92,
+        "w52_low": 1.58,
+        "analyst_target": 2.81667,
+        "analyst_consenso": "none",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.447,
+        "pe_forward": 31.166666,
+        "margen_bruto": 0.18357,
+        "margen_op": 0.03648,
+        "margen_neto": -0.02576
+      }
+    },
+    "JAMF": {
+      "status": "partial",
+      "warnings": [
+        "NO_REVENUE",
+        "EDGAR_NO_FINANCIALS",
+        "YF_NO_MARGINS",
+        "NULL_CRITICAL_5OF5"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Jamf Holding Corp.",
+      "sector": null,
+      "industry": null,
+      "coverage_pct": 0,
+      "null_fields": [
+        "revenue",
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "deuda_total",
+        "cash_real",
+        "goodwill",
+        "total_assets",
+        "shares",
+        "market_cap",
+        "precio_actual",
+        "margen_bruto",
+        "margen_op",
+        "margen_neto"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": null,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": null,
+        "cash_real": null,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": null
+      },
+      "market": {
+        "precio_actual": null,
+        "market_cap": null,
+        "w52_high": null,
+        "w52_low": null,
+        "analyst_target": null,
+        "analyst_consenso": null,
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": null,
+        "margen_bruto": null,
+        "margen_op": null,
+        "margen_neto": null
+      }
+    },
+    "ACVA": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "ACV Auctions Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto & Truck Dealerships",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 781100992.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 200000000.0,
+        "cash_real": 340969984.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 174584894.0
+      },
+      "market": {
+        "precio_actual": 6.565,
+        "market_cap": 1146149888.0,
+        "w52_high": 17.54,
+        "w52_low": 4.065,
+        "analyst_target": 8.87308,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": 19.251635,
+        "margen_bruto": 0.27105,
+        "margen_op": -0.045229997,
+        "margen_neto": -0.07965
+      }
+    },
+    "BOOT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Boot Barn Holdings, Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Apparel Retail",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 2168855040.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 704065984.0,
+        "cash_real": 200071008.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 30420431.0
+      },
+      "market": {
+        "precio_actual": 164.75,
+        "market_cap": 5011766272.0,
+        "w52_high": 210.25,
+        "w52_low": 116.79,
+        "analyst_target": 235.57143,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 23.07423
+      },
+      "ratios": {
+        "beta": 1.729,
+        "pe_forward": 19.415863,
+        "margen_bruto": 0.38323003,
+        "margen_op": 0.16266,
+        "margen_neto": 0.10097
+      }
+    },
+    "LCII": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "LCI Industries",
+      "sector": "Consumer Cyclical",
+      "industry": "Recreational Vehicles",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 4166944000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1235346048.0,
+        "cash_real": 142236992.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 24285202.0
+      },
+      "market": {
+        "precio_actual": 118.05,
+        "market_cap": 2866868224.0,
+        "w52_high": 159.66,
+        "w52_low": 84.25,
+        "analyst_target": 146.0,
+        "analyst_consenso": "buy",
+        "pe_ttm": 14.466912
+      },
+      "ratios": {
+        "beta": 1.217,
+        "pe_forward": 11.893667,
+        "margen_bruto": 0.24051,
+        "margen_op": 0.08726,
+        "margen_neto": 0.04842
+      }
+    },
+    "PRCT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "PROCEPT BioRobotics Corporation",
+      "sector": "Healthcare",
+      "industry": "Medical Devices",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 322024000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 77996000.0,
+        "cash_real": 245640992.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 56918844.0
+      },
+      "market": {
+        "precio_actual": 25.45,
+        "market_cap": 1448584576.0,
+        "w52_high": 66.85,
+        "w52_low": 19.35,
+        "analyst_target": 30.44444,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 0.826,
+        "pe_forward": -28.847681,
+        "margen_bruto": 0.63974,
+        "margen_op": -0.39222,
+        "margen_neto": -0.31822002
+      }
+    },
+    "SFIX": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Stitch Fix, Inc.",
+      "sector": "Consumer Cyclical",
+      "industry": "Apparel Retail",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 1319666944.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 80602000.0,
+        "cash_real": 227707008.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 121382902.0
+      },
+      "market": {
+        "precio_actual": 3.585,
+        "market_cap": 489433280.0,
+        "w52_high": 5.94,
+        "w52_low": 2.95,
+        "analyst_target": 4.5,
+        "analyst_consenso": "none",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 2.333,
+        "pe_forward": -83.41089,
+        "margen_bruto": 0.43764,
+        "margen_op": -0.013890001,
+        "margen_neto": -0.018919999
+      }
+    },
+    "APLS": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Apellis Pharmaceuticals, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 1105280000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 475756000.0,
+        "cash_real": 405207008.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 128021277.0
+      },
+      "market": {
+        "precio_actual": 41.035,
+        "market_cap": 5253352960.0,
+        "w52_high": 41.14,
+        "w52_low": 16.1,
+        "analyst_target": 40.93333,
+        "analyst_consenso": "hold",
+        "pe_ttm": 38.350464
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": -168.00409,
+        "margen_bruto": 0.63423,
+        "margen_op": 0.09865,
+        "margen_neto": 0.120570004
+      }
+    },
+    "TASK": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "TaskUs, Inc.",
+      "sector": "Technology",
+      "industry": "Information Technology Services",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 1212020992.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 547964992.0,
+        "cash_real": 152264992.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 36514165.0
+      },
+      "market": {
+        "precio_actual": 6.3534,
+        "market_cap": 581633792.0,
+        "w52_high": 18.39,
+        "w52_low": 5.89,
+        "analyst_target": 12.0,
+        "analyst_consenso": "none",
+        "pe_ttm": 5.622478
+      },
+      "ratios": {
+        "beta": null,
+        "pe_forward": 4.198763,
+        "margen_bruto": 0.39138,
+        "margen_op": 0.11153,
+        "margen_neto": 0.08701
+      }
+    },
+    "SMPL": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "The Simply Good Foods Company",
+      "sector": "Consumer Defensive",
+      "industry": "Packaged Foods",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 1416208000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 449846016.0,
+        "cash_real": 107444000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 90489024.0
+      },
+      "market": {
+        "precio_actual": 12.465,
+        "market_cap": 1153950592.0,
+        "w52_high": 36.92,
+        "w52_low": 10.21,
+        "analyst_target": 18.1,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 0.209,
+        "pe_forward": 7.1816235,
+        "margen_bruto": 0.33856,
+        "margen_op": 0.13775,
+        "margen_neto": -0.07462
+      }
+    },
+    "CERT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Certara, Inc.",
+      "sector": "Healthcare",
+      "industry": "Health Information Services",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 418838016.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 307774016.0,
+        "cash_real": 189392000.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 153325078.0
+      },
+      "market": {
+        "precio_actual": 6.265,
+        "market_cap": 960581568.0,
+        "w52_high": 13.88,
+        "w52_low": 5.19,
+        "analyst_target": 8.71364,
+        "analyst_consenso": "none",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 1.535,
+        "pe_forward": 12.757075,
+        "margen_bruto": 0.6153,
+        "margen_op": 0.02076,
+        "margen_neto": -0.0038100001
+      }
+    },
+    "AGIO": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Agios Pharmaceuticals, Inc.",
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 66048000.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 35745000.0,
+        "cash_real": 737038016.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 59471609.0
+      },
+      "market": {
+        "precio_actual": 27.745,
+        "market_cap": 1650039808.0,
+        "w52_high": 46.0,
+        "w52_low": 22.24,
+        "analyst_target": 41.125,
+        "analyst_consenso": "buy",
+        "pe_ttm": null
+      },
+      "ratios": {
+        "beta": 0.576,
+        "pe_forward": -6.028246,
+        "margen_bruto": 0.0,
+        "margen_op": -5.30343,
+        "margen_neto": 0.0
+      }
+    },
+    "TFIN": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Triumph Financial, Inc.",
+      "sector": "Financial Services",
+      "industry": "Banks - Regional",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 442016992.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 167935008.0,
+        "cash_real": 581939008.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 23806253.0
+      },
+      "market": {
+        "precio_actual": 66.76,
+        "market_cap": 1589305472.0,
+        "w52_high": 77.84,
+        "w52_low": 46.43,
+        "analyst_target": 68.8,
+        "analyst_consenso": "hold",
+        "pe_ttm": 56.100838
+      },
+      "ratios": {
+        "beta": 1.396,
+        "pe_forward": 25.456627,
+        "margen_bruto": 0.0,
+        "margen_op": 0.14116,
+        "margen_neto": 0.07171
+      }
+    }
+  },
+  "resumen": {
+    "warnings_por_tipo": {
+      "EDGAR_NO_FINANCIALS": {
+        "count": 50,
+        "tickers": [
+          "JPM",
+          "WMT",
+          "COST",
+          "XOM",
+          "PLD",
+          "BA",
+          "LLY",
+          "NEE",
+          "UNH",
+          "BLK",
+          "MSFT",
+          "NVDA",
+          "META",
+          "TSLA",
+          "NFLX",
+          "INTC",
+          "MRNA",
+          "ADBE",
+          "PYPL",
+          "CSCO",
+          "ASML",
+          "TSM",
+          "BABA",
+          "NVO",
+          "SAP",
+          "SHEL",
+          "AZN",
+          "RY",
+          "SNY",
+          "UL",
+          "ARWR",
+          "RXRX",
+          "JOBY",
+          "ENVX",
+          "HIMS",
+          "MRVI",
+          "RKT",
+          "CLOV",
+          "JAMF",
+          "ACVA",
+          "BOOT",
+          "LCII",
+          "PRCT",
+          "SFIX",
+          "APLS",
+          "TASK",
+          "SMPL",
+          "CERT",
+          "AGIO",
+          "TFIN"
+        ]
+      },
+      "FOREIGN_FILER_20F": {
+        "count": 9,
+        "tickers": [
+          "ASML",
+          "TSM",
+          "BABA",
+          "NVO",
+          "SAP",
+          "SHEL",
+          "AZN",
+          "SNY",
+          "UL"
+        ]
+      },
+      "FOREIGN_FILER_40F": {
+        "count": 1,
+        "tickers": [
+          "RY"
+        ]
+      },
+      "NO_REVENUE": {
+        "count": 1,
+        "tickers": [
+          "JAMF"
+        ]
+      },
+      "YF_NO_MARGINS": {
+        "count": 1,
+        "tickers": [
+          "JAMF"
+        ]
+      },
+      "NULL_CRITICAL_5OF5": {
+        "count": 1,
+        "tickers": [
+          "JAMF"
+        ]
+      }
+    },
+    "filing_types": {
+      "10-K": {
+        "count": 40,
+        "tickers": [
+          "JPM",
+          "WMT",
+          "COST",
+          "XOM",
+          "PLD",
+          "BA",
+          "LLY",
+          "NEE",
+          "UNH",
+          "BLK",
+          "MSFT",
+          "NVDA",
+          "META",
+          "TSLA",
+          "NFLX",
+          "INTC",
+          "MRNA",
+          "ADBE",
+          "PYPL",
+          "CSCO",
+          "ARWR",
+          "RXRX",
+          "JOBY",
+          "ENVX",
+          "HIMS",
+          "MRVI",
+          "RKT",
+          "CLOV",
+          "JAMF",
+          "ACVA",
+          "BOOT",
+          "LCII",
+          "PRCT",
+          "SFIX",
+          "APLS",
+          "TASK",
+          "SMPL",
+          "CERT",
+          "AGIO",
+          "TFIN"
+        ]
+      },
+      "20-F": {
+        "count": 9,
+        "tickers": [
+          "ASML",
+          "TSM",
+          "BABA",
+          "NVO",
+          "SAP",
+          "SHEL",
+          "AZN",
+          "SNY",
+          "UL"
+        ]
+      },
+      "40-F": {
+        "count": 1,
+        "tickers": [
+          "RY"
+        ]
+      }
+    },
+    "cobertura_promedio_pct": 49,
+    "tickers_cobertura_baja": [
+      "JAMF"
+    ],
+    "tickers_sin_warnings": [],
+    "tickers_total_failure": []
+  }
+}
