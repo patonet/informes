@@ -1,0 +1,67 @@
+name: Feroldi Batch Recolectar
+
+# Kika ejecuta esto. El código es responsabilidad de @patonet.
+# Disparo manual desde GitHub Actions → Actions → Feroldi Batch Recolectar → Run workflow
+
+permissions:
+  contents: write   # necesario para que Kika pueda hacer git push
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (solo 5 tickers, ~15 seg)'
+        required: false
+        default: 'false'
+        type: boolean
+      sleep:
+        description: 'Segundos entre tickers (default 3)'
+        required: false
+        default: '3'
+        type: string
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30      # 50 tickers × 3s + overhead ≪ 30 min
+
+    env:
+      FEROLDI_OUTPUT_DIR: ${{ github.workspace }}/batch_outputs
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install edgartools yfinance
+
+      - name: Run batch collector
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
+          FLAGS="$FLAGS --sleep ${{ inputs.sleep }}"
+          mkdir -p batch_outputs
+          python feroldi_batch_recolectar.py $FLAGS
+
+      - name: Upload batch JSON como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-datos-run${{ github.run_number }}
+          path: batch_outputs/batch_datos*.json
+          retention-days: 90
+
+      - name: Commit resultado al repo
+        # Solo si NO es dry-run — no queremos basura de pruebas en el repo
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "Kika"
+          git config user.email "kika@feroldi.bot"
+          git add batch_outputs/
+          git diff --staged --quiet && echo "Sin cambios" || \
+            git commit -m "batch: run #${{ github.run_number }} — ${{ github.run_id }}"
+          git push
