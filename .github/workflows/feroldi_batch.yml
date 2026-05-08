@@ -10,10 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run (solo 5 tickers, ~15 seg)'
+        description: 'Dry run? escribir exactamente: true  o  false'
         required: false
         default: 'false'
-        type: boolean
+        type: choice
+        options:
+          - 'false'
+          - 'true'
       sleep:
         description: 'Segundos entre tickers (default 3)'
         required: false
