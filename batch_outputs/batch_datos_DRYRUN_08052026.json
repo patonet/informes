@@ -1,0 +1,322 @@
+{
+  "meta": {
+    "batch_version": "X0.62",
+    "fecha": "08-05-2026",
+    "tickers_total": 5,
+    "tickers_ok": 0,
+    "tickers_partial": 5,
+    "tickers_error": 0,
+    "dry_run": true,
+    "fuentes": [
+      "EDGAR (edgartools)",
+      "yfinance"
+    ]
+  },
+  "tickers": {
+    "JPM": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "JPMorgan Chase & Co.",
+      "sector": "Financial Services",
+      "industry": "Banks - Diversified",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 173559005184.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 1321104965632.0,
+        "cash_real": 1582246002688.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 2679511418.0
+      },
+      "market": {
+        "precio_actual": 302.39,
+        "market_cap": 810351198208.0,
+        "w52_high": 337.25,
+        "w52_low": 252.34,
+        "analyst_target": 342.31818,
+        "analyst_consenso": "buy",
+        "pe_ttm": 14.477022
+      },
+      "ratios": {
+        "beta": 1.023,
+        "pe_forward": 12.85002,
+        "margen_bruto": 0.0,
+        "margen_op": 0.43741,
+        "margen_neto": 0.33936
+      }
+    },
+    "WMT": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Walmart Inc.",
+      "sector": "Consumer Defensive",
+      "industry": "Discount Stores",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 713163014144.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 68425998336.0,
+        "cash_real": 10727000064.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 7970990515.0
+      },
+      "market": {
+        "precio_actual": 131.295,
+        "market_cap": 1046591111168.0,
+        "w52_high": 134.69,
+        "w52_low": 91.89,
+        "analyst_target": 136.68294,
+        "analyst_consenso": "strong_buy",
+        "pe_ttm": 48.095238
+      },
+      "ratios": {
+        "beta": 0.652,
+        "pe_forward": 39.95825,
+        "margen_bruto": 0.24927,
+        "margen_op": 0.04567,
+        "margen_neto": 0.0307
+      }
+    },
+    "COST": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2025",
+      "company_name": "Costco Wholesale Corporation",
+      "sector": "Consumer Defensive",
+      "industry": "Discount Stores",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2025",
+        "revenue": 286265016320.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 10227999744.0,
+        "cash_real": 11125999616.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 443652540.0
+      },
+      "market": {
+        "precio_actual": 1012.055,
+        "market_cap": 449000767488.0,
+        "w52_high": 1067.08,
+        "w52_low": 844.06,
+        "analyst_target": 1072.1562,
+        "analyst_consenso": "buy",
+        "pe_ttm": 52.628967
+      },
+      "ratios": {
+        "beta": 0.908,
+        "pe_forward": 44.99678,
+        "margen_bruto": 0.12926,
+        "margen_op": 0.036730003,
+        "margen_neto": 0.029860001
+      }
+    },
+    "XOM": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Exxon Mobil Corporation",
+      "sector": "Energy",
+      "industry": "Oil & Gas Integrated",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 326008012800.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 47660998656.0,
+        "cash_real": 8434999808.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 4144947162.0
+      },
+      "market": {
+        "precio_actual": 144.95,
+        "market_cap": 600727158784.0,
+        "w52_high": 176.41,
+        "w52_low": 101.19,
+        "analyst_target": 166.27274,
+        "analyst_consenso": "buy",
+        "pe_ttm": 24.398989
+      },
+      "ratios": {
+        "beta": 0.183,
+        "pe_forward": 14.221218,
+        "margen_bruto": 0.29768,
+        "margen_op": 0.06355,
+        "margen_neto": 0.077649996
+      }
+    },
+    "PLD": {
+      "status": "partial",
+      "warnings": [
+        "EDGAR_NO_FINANCIALS"
+      ],
+      "filing_type": "10-K",
+      "fy_year": "2026",
+      "company_name": "Prologis, Inc.",
+      "sector": "Real Estate",
+      "industry": "REIT - Industrial",
+      "coverage_pct": 50,
+      "null_fields": [
+        "net_income",
+        "operating_income",
+        "cfo",
+        "capex",
+        "fcf",
+        "sbc",
+        "dividendos",
+        "goodwill",
+        "total_assets"
+      ],
+      "edgar": {
+        "fy_year": "2026",
+        "revenue": 9376112640.0,
+        "net_income": null,
+        "operating_income": null,
+        "cfo": null,
+        "capex": null,
+        "fcf": null,
+        "sbc": null,
+        "dividendos": null,
+        "deuda_total": 35310190592.0,
+        "cash_real": 871209984.0,
+        "total_assets": null,
+        "goodwill": null,
+        "shares": 932338000.0
+      },
+      "market": {
+        "precio_actual": 143.53,
+        "market_cap": 133818466304.0,
+        "w52_high": 145.44,
+        "w52_low": 103.02,
+        "analyst_target": 149.4,
+        "analyst_consenso": "buy",
+        "pe_ttm": 36.062813
+      },
+      "ratios": {
+        "beta": 1.35,
+        "pe_forward": 42.241043,
+        "margen_bruto": 0.756,
+        "margen_op": 0.38491002,
+        "margen_neto": 0.39646
+      }
+    }
+  },
+  "resumen": {
+    "warnings_por_tipo": {
+      "EDGAR_NO_FINANCIALS": {
+        "count": 5,
+        "tickers": [
+          "JPM",
+          "WMT",
+          "COST",
+          "XOM",
+          "PLD"
+        ]
+      }
+    },
+    "filing_types": {
+      "10-K": {
+        "count": 5,
+        "tickers": [
+          "JPM",
+          "WMT",
+          "COST",
+          "XOM",
+          "PLD"
+        ]
+      }
+    },
+    "cobertura_promedio_pct": 50,
+    "tickers_cobertura_baja": [],
+    "tickers_sin_warnings": [],
+    "tickers_total_failure": []
+  }
+}
