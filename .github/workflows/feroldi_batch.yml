@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 30      # 50 tickers × 3s + overhead ≪ 30 min
 
     env:
-      FEROLDI_OUTPUT_DIR: ${{ github.workspace }}/batch_outputs
+      FEROLDI_OUTPUT_DIR: ${{ github.workspace }}/kika/outputs
 
     steps:
       - name: Checkout repo
@@ -45,23 +45,22 @@ jobs:
           FLAGS=""
           if [ "${{ inputs.dry_run }}" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
           FLAGS="$FLAGS --sleep ${{ inputs.sleep }}"
-          mkdir -p batch_outputs
-          python feroldi_batch_recolectar.py $FLAGS
+          mkdir -p kika/outputs
+          python kika/feroldi_batch_recolectar.py $FLAGS
 
       - name: Upload batch JSON como artefacto
         uses: actions/upload-artifact@v4
         with:
           name: batch-datos-run${{ github.run_number }}
-          path: batch_outputs/batch_datos*.json
+          path: kika/outputs/batch_datos*.json
           retention-days: 90
 
       - name: Commit resultado al repo
-        # Solo si NO es dry-run — no queremos basura de pruebas en el repo
         if: ${{ inputs.dry_run != 'true' }}
         run: |
           git config user.name  "Kika"
           git config user.email "kika@feroldi.bot"
-          git add batch_outputs/
+          git add kika/outputs/
           git diff --staged --quiet && echo "Sin cambios" || \
-            git commit -m "batch: run #${{ github.run_number }} — ${{ github.run_id }}"
+            git commit -m "kika: batch run #${{ github.run_number }}"
           git push
