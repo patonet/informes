@@ -1,0 +1,2068 @@
+CHANGELOG — SISTEMA FEROLDI
+@patonet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+REGLA DE VERSIONING (establecida 08-05-2026, reforzada 08-05-2026):
+  · X0.XX es una versión del SISTEMA COMPLETO, no por archivo.
+  · VERSION en cada archivo = release donde ese archivo fue tocado por última vez.
+  · Cada archivo lleva dos líneas en docstring:
+      Sistema: X0.XX  ← release actual del sistema (igual en todos)
+      Archivo: X0.YY  ← última vez que este archivo fue modificado
+  · captura_externa.py usa esquema propio v2.X (standalone) pero sus
+    cambios se documentan aquí bajo el release del sistema que los acompañó.
+  · Docstring y VERSION en código deben coincidir siempre.
+  · CHANGELOG se actualiza ANTES de copiar archivos a producción.
+
+REGLA DE BUMP (reforzada 08-05-2026 — para evitar micro-bumps):
+  · MÁXIMO 1 bump por sesión de trabajo, sin importar cuántos fixes se hagan.
+  · Durante la sesión: acumular todos los cambios, corregir todos los bugs.
+  · El bump y el CHANGELOG van AL FINAL, cuando todo está validado.
+  · Si un fix genera otro bug mid-sesión: corregir SIN bumpar, mismo número.
+  · Ejemplo correcto: X0.68 → X0.72 en una sola entrada del CHANGELOG
+    con todos los cambios listados. NO cuatro entradas X0.69/70/71/72.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X1.11 — feroldi_recolectar.py: validación de tipo de activo al inicio del pipeline — 11-05-2026
+  Nueva función _validate_ticker_type() que corre antes de los 3 tiers.
+  Para inmediatamente con sys.exit(1) si el ticker es: ETF, MUTUALFUND, CRYPTOCURRENCY,
+  CURRENCY, INDEX, FUTURE, OPTION, o si yfinance no devuelve datos (ticker inexistente/inválido).
+  Mensaje de error a stderr (capturado por batch_corrida como r.stderr → propagado al router).
+  Siempre corre aunque se pase --no-yfinance (es pre-flight, no parte del tier 4).
+  Si yfinance no está instalado o hay fallo de red: el pipeline continúa con advertencia.
+  ✅ VALIDADO EN PRODUCCIÓN (11-05-2026):
+     · SPY (ETF) → exit 1, mensaje correcto
+     · BTC-USD (CRYPTOCURRENCY) → exit 1, mensaje correcto
+     · XXXXZZZZ (inexistente) → exit 1, mensaje correcto
+     · AAPL (EQUITY válido) → pasa, pipeline continúa normalmente
+
+VERSION X1.10 — prompt_heavy_X0.43: BLOQUE G con formato Feroldi completo autocontenido — 11-05-2026
+  prompt_heavy_X0.43.txt en GitHub: BLOQUE G ya no delega en "mismo formato del Light" implícito.
+  Ahora contiene el SCORING, CALIBRACIÓN, FORMATO POR PUNTO, REGLA CRÍTICA de las 3 sub-preguntas
+  y los 16 puntos con sus sub-preguntas explícitas. Aplica tanto si hubo Light (copiar+actualizar)
+  como si no (ejecutar format completo inline). Se guardó respaldo previo en prompt_heavy_X0.43_backup_20260511.txt.
+
+VERSION X1.08 — REVERTIDO (ver nota) — 11-05-2026
+  NOTA: El fallback DeepSeek→Gemini fue implementado y revertido en la misma sesión.
+  Razón del revert: decisión de diseño — el sistema solo usa DeepSeek para generar
+  informes. Gemini produce output de calidad inferior para este caso de uso. Ante
+  caídas de DeepSeek, el comportamiento correcto es timeout/error, no fallback silencioso
+  a un modelo de menor calidad. El usuario prefiere esperar a que DeepSeek se recupere.
+  Los cambios en feroldi_pensante.py (gateway_url param + PROVIDERS loop) fueron
+  revertidos completamente.
+
+VERSION X1.08-DRAFT — Fallback automático DeepSeek → Gemini 2.5 Flash — 11-05-2026
+  feroldi_pensante.py: si DeepSeek falla después de todos los reintentos, el sistema
+  intenta automáticamente con Gemini 2.5 Flash (GEMINI_API_KEY/GEMINI_API_KEY_1 de env).
+  call_pensante() recibe gateway_url como parámetro. main() intenta cada proveedor en
+  secuencia: DeepSeek primero, luego Gemini si el primero agota sus reintentos.
+  El nombre del modelo en el archivo de salida refleja el proveedor que generó el informe
+  (informe_BW_..._light_gemini-2.5-flash.md si DeepSeek falló).
+
+VERSION X1.09 — REVERT ANULADO: Pages URL confirmada correcta — 11-05-2026
+  El revert de X1.04 fue incorrecto. El 404 que reportó el usuario era propagación de
+  GitHub Pages (2-3 min), no un error permanente. Confirmado: la URL Pages funciona y
+  muestra el informe correctamente. Se revirtió el revert — feroldi_pensante.py vuelve
+  a usar Pages URL (patonet.github.io) para informes .md, igual que X1.04 estableció.
+
+VERSION X1.09-DRAFT — REVERT X1.04: informe .md vuelve a URL blob de GitHub — 11-05-2026
+  feroldi_pensante.py: revertido a `github.com/patonet/informes/blob/main/equities/...`
+  para los informes .md. La conversión a Pages URL (X1.04) fue un error: Pages sirve
+  .md como texto plano sin formatear — el browser muestra markdown crudo. La URL blob
+  de GitHub renderiza el markdown correctamente con la interfaz de GitHub. La conversión
+  blob→Pages es correcta SOLO para HTML (Sankey), no para .md.
+
+VERSION X1.07 — Timeout del subprocess pensante extendido a 1800s — 11-05-2026
+  feroldi_telegram_router.py run_pipeline(): timeout de subprocess.run aumentado de 600s
+  a 1800s. Razón: con el retry de X1.06 (3 reintentos + backoffs 10+30+60s) el pensante
+  puede tardar hasta ~30 min en condiciones adversas de red. El timeout anterior de 10 min
+  mataba el proceso justo cuando los reintentos estaban trabajando — confirmado en log
+  (16:01:52 → 16:11:53 timeout con DeepSeek dando RemoteDisconnected repetido).
+
+VERSION X1.06 — Retry automático en feroldi_pensante.py ante errores de red — 11-05-2026
+  call_pensante() ahora reintenta hasta 3 veces con backoff 10s/30s/60s cuando DeepSeek
+  cierra la conexión sin responder (RemoteDisconnected, ConnectionResetError, URLError,
+  HTTP 5xx). Errores HTTP 4xx (auth, bad request) no se reintentan — son del cliente.
+  Razón: en producción con el segundo bot apareció "RemoteDisconnected: Remote end closed
+  connection without response" que mató el pipeline en el primer intento sin ningún reintento.
+  DeepSeek cae esporádicamente bajo carga; 3 reintentos cubren la mayoría de los casos.
+
+VERSION X1.05 — Segundo bot de Telegram (feroldi-only, sin OpenClaw) — 11-05-2026
+  feroldi_telegram_router.py: agregados RE_TICKER_PLAIN y RE_SANKEY_PLAIN que aceptan
+  formato `NKE 235.40` o `$NKE SANKEY` (texto plano, sin máscara). handle_message() ahora
+  intenta el formato enmascarado N9K8E7 primero y cae a plain como fallback. Así el segundo
+  bot (token separado, sin OpenClaw) acepta comandos simples directamente sin el formato
+  ofuscado. La máscara sigue siendo necesaria solo en el primer bot (Kika/OpenClaw).
+  com.patonet.feroldi-router.plist: actualizado con nuevo bot token del segundo bot.
+  Daemon recargado con `launchctl unload/load`.
+
+VERSION X1.04 — Link del informe cambiado de blob URL a GitHub Pages URL — 11-05-2026
+  feroldi_pensante.py: el URL del informe `.md` que se envía por Telegram ahora apunta a
+  `patonet.github.io/informes/equities/informe_*.md` en lugar de
+  `github.com/patonet/informes/blob/main/equities/informe_*.md`. Misma conversión que ya
+  estaba aplicada a los Sankeys HTML. El link blob mostraba la interfaz de GitHub (navigation
+  bar, file tree, etc.) que el usuario prefiere evitar. El link Pages sirve el archivo directo.
+  Fix ortogonal al push idempotente de X1.03 (422→sha→retry), que ya estaba correcto.
+
+VERSION X1.03 — Suppression del trigger hacia el LLM + push idempotente. Dos fixes:
+  (1) handler.js + SOUL.md + FEROLDI.md: cuando el hook matchea el formato N9K8E7, ya NO se obfusca el body para Kika — se reemplaza por el token `NO_REPLY` (sentinel silencioso nativo de OpenClaw que suprime la respuesta del agente en la capa de delivery). El handler envía el mensaje de confirmación "⏳ Pipeline Feroldi corriendo para $TICKER — link en ~7 min." directamente vía sendTelegramMessage, sin pasar por el LLM. Razón: en producción de X1.02 se confirmó que DeepSeek decodifica cualquier obfuscación de texto que contenga las letras del ticker (`M P  P I P E L I N E` fue decodificado a "MP" y Kika hizo análisis financiero completo en paralelo, ignorando las instrucciones explícitas de SOUL.md de no analizar). La única defensa robusta es que el LLM nunca reciba el mensaje. SOUL.md y FEROLDI.md actualizados: se elimina toda la sección del "protocolo de triggers ofuscados" porque Kika ya no debe ver ningún trigger.
+  (2) feroldi_pensante.py: push idempotente — si la primera PUT a la API de GitHub devuelve 422 (file already exists), el script ahora hace un GET para leer el `sha` del archivo existente y reintenta PUT con el `sha` para hacer update en lugar de create. Razón: corridas múltiples del mismo ticker en el mismo día fallaban al actualizar porque la API de GitHub requiere `sha` para overwrite. El warning del handler "completado pero sin link" se eliminaba ahora que el push siempre devuelve URL en ambos casos (create 201 o update 200) — 11-05-2026 Cada letra del ticker va seguida de un dígito que comienza en 9 y decrece de uno en uno (ej. NKE → `N9K8E7`, AAPL → `A9A8P7L6`). Validación en `unmaskTicker()`: pares letra+dígito alternados, dígito en posición i debe ser exactamente `9-i`. Razón: test móvil de X1.01 reveló que el formato doble-letra "tampoco funcionó" — probable causa Telegram autocorrect intentando convertir secuencias alfabéticas tipo `NNKKEE` a palabras parecidas. Letra-dígito alternada quiebra el patrón puramente alfabético y es robusto contra autocorrect. Trade-off: más caracteres a tipear (6 vs 6 para NKE; igual largo en este caso, pero requiere alternar teclado letra-digit en mobile). Obfuscación bodyForAgent mantenida (letras separadas por espacios + keyword PIPELINE/SANKEY) — 11-05-2026
+
+VERSION X1.01 — handler.js + HOOK.md + SOUL.md + FEROLDI.md: trigger format cambiado de `//TICKER PRECIO` (doble slash prefix) a doble-letra (cada letra del ticker repetida dos veces). Razón: test móvil de X1.00 reveló que `//` no dispara el hook desde Telegram — el cliente o el gateway interpretan `//` como prefijo de comando bot y el mensaje no llega al handler como texto plano. La doble-letra es robusta porque: (a) no usa caracteres reservados de Telegram/Markdown; (b) trivial de tipear en mobile (cada letra dos veces); (c) ningún ticker real coincide con palabra natural en español. Ejemplos: `NNKKEE 235.40` → pipeline NKE; `MMRRSSHH SANKEY` → Sankey MRSH. El handler valida con `unmaskTicker()`: longitud par + cada par de caracteres idénticos; si falla la validación, el mensaje pasa al LLM sin trigger. Obfuscación bodyForAgent re-introducida (removida en X1.00) — Kika ve `N K E  P I P E L I N E` en lugar del ticker crudo para evitar análisis paralelo — 11-05-2026
+NOTA: X1.01 tampoco llegó a producción funcional. Test móvil reveló que el formato no dispara; sospecha principal es autocorrect de Telegram convirtiendo `NNKKEE` a palabras. Reemplazado por X1.02 (letra+dígito decreciente) en la misma sesión.
+
+VERSION X1.00 — Trigger format cambiado a `//TICKER PRECIO` y `//TICKER SANKEY` (doble slash). El `//` es un prefijo técnico que DeepSeek no asocia con análisis financiero — elimina el análisis paralelo de Kika. handler.js, feroldi_telegram_router.py (RE_TICKER, RE_SANKEY) y SOUL.md actualizados. Código de obfuscación bodyForAgent eliminado (innecesario con el nuevo formato). CHANGELOG y docstrings corregidos para reflejar el formato real — cierra violación P1/P6 reportada por sesión móvil — 11-05-2026
+NOTA: X1.00 nunca llegó a producción funcional. Telegram/gateway no entregan mensajes con prefijo `//` al handler como texto plano. Reemplazado por X1.01 (doble-letra) en la misma sesión.
+
+VERSION X0.99 — handler.js: GitHub Pages URL corregida (blob → pages URL para ver Sankey renderizado); ctx.bodyForAgent mutado en el hook para que Kika vea instrucción explícita en lugar del ticker crudo — elimina el análisis paralelo innecesario. feroldi_telegram_router.py: _find_sankey_file() reemplaza os.listdir() por os.path.isfile() con nombre exacto — soluciona bloqueo TCC de macOS en subprocesos de OpenClaw — 11-05-2026
+
+VERSION X0.98 — feroldi_telegram_router.py + handler.js + SOUL.md: comando "SANKEY $TICKER" implementado como trigger independiente. El router detecta el patrón vía RE_SANKEY, encuentra el datos JSON más reciente para ese ticker (campo meta.precio_usuario / market.precio_actual), corre feroldi_sankey.py con ruta completa del JSON, sube el HTML resultante a diagramas/equities/ en GitHub y manda el link por Telegram. El hook JS en handler.js intercepta "SANKEY $TICKER" y llama al router con --sankey TICKER (igual que el pipeline usa --ticker). SOUL.md actualizado para que Kika confirme recepción sin ejecutar nada. El Sankey es independiente del informe LIGHT: usa el JSON más reciente disponible sin importar si se generó informe previamente — 11-05-2026
+
+VERSION X0.97 — feroldi_telegram_router.py: pipeline automático ($TICKER PRECIO vía hook) ahora retorna dict {informe_url, sankey_url} en lugar de string; handle_message() y modo one-shot actualizados para imprimir GITHUB_URL= y SANKEY_URL= por separado; handler.js actualizado para parsear ambas líneas e incluirlas en el mensaje de Telegram. Paso 4 (Sankey) eliminado del pipeline automático — el Sankey solo se genera cuando el usuario escribe explícitamente "SANKEY"; funciones auxiliares _push_html_to_github() y _find_sankey_file() conservadas para uso bajo demanda — 11-05-2026
+
+VERSION X0.94 — feroldi_pensante.py: flag --push sube el informe MD a GitHub (patonet/informes/equities/) via API y devuelve el link blob para Telegram; requiere GH_TOKEN en entorno — 10-05-2026
+
+VERSION X0.93 — feroldi_pensante.py: system message expandido para que DeepSeek combine el JSON del recolector con su propio conocimiento de entrenamiento (ya no está limitado a analizar solo los datos pre-cargados); MAX_TOKENS subido de 12,000 a 32,000 para no estrangular la fase de razonamiento interno — validado que reasoning_tokens consumían presupuesto disponible para output. El modelo ahora actúa como ave libre: el JSON es una fuente más, no la única — 10-05-2026
+
+VERSION X0.92 — feroldi_recolectar.py y feroldi_prefetch.py: timing de ejecución reportado al final de cada corrida (segundos totales elapsed + desglose por fase) — el pipeline ahora muestra cuánto tardó cada script para benchmarking y detección de regresiones de rendimiento — 10-05-2026
+
+VERSION X0.91 — feroldi_prefetch.py: post-earnings fetch genérico (trigger por calendario, sin hardcoding sectorial) — si el trimestre más reciente fue reportado ≤ 30 días atrás, busca resultados de earnings en Google News RSS y extrae KPIs con etiqueta (EPS, márgenes, ratios) sin saber el sector; el PENSANTE recibe los datos frescos con aviso de prioridad sobre el JSON. feroldi_pensante.py: build_context muestra post_earnings data cuando existe — 10-05-2026
+
+VERSION X0.90 — feroldi_pensante.py: streaming SSE activado (el usuario ve el output a medida que llega, sin esperar el silencio de 6+ min del modelo de razonamiento), MAX_TOKENS reducido de 32,000 a 12,000 (el informe real usa ~12,500 tokens; el techo era innecesariamente alto) — 10-05-2026
+
+VERSION X0.89 — feroldi_prefetch.py: expansión PASO 2 con IPO date, forecast tab (PTs individuales), CEO quote vía RSS, Combined Ratio para aseguradoras, shares outstanding trend. feroldi_pensante.py: N/D destacados en contexto (detección automática de campos null) + fix bug noticias_b0 (noticias no llegaban al modelo). feroldi_pensante.py corregido a DeepSeek API directa (api.deepseek.com) — el gateway OpenClaw rechaza modelos externos — 10-05-2026
+
+VERSION X0.88 — feroldi_gemini_informe.py renombrado a feroldi_pensante.py: DeepSeek V4 Pro como PENSANTE vía API directa (api.deepseek.com), modelo configurable por argumento --modelo, test PGR 128.8/160 con SCAT y bear target calculado, 3-10× más barato que Sonnet — 10-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_gemini_informe.py → feroldi_pensante.py
+
+CAPACIDAD NUEVA:
+  El PENSANTE ya no está hardcodeado a Gemini. Cualquier modelo disponible en el
+  gateway OpenClaw (deepseek/deepseek-v4-pro, anthropic/claude-sonnet, etc.) se
+  activa con --modelo. Un solo script, cualquier LLM.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.87 — prompt_maestro BLOQUE G: sub-preguntas FEROLDI con blancos explícitos por línea — cualquier modelo responde ① ② ③ por separado en lugar de fusionarlas — 10-05-2026
+
+ARCHIVO MODIFICADO:
+  prompt_maestro_X0.50.txt
+
+CAPACIDAD NUEVA:
+  Los 16 puntos FEROLDI cambian de formato de una línea con `·` a bloques de 4 líneas
+  con ① ② ③ + `___` por sub-pregunta. El blank explícito actúa como señal de
+  completado: ningún modelo puede fusionar las 3 respuestas sin ignorar el formato.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.83 — [REVERTIDO] prompt_maestro sub-preguntas expandidas: test con 3.1-flash-lite demostró que modelo ignoró el nuevo formato y lo revertimos. prompt_maestro queda en estado original. TIER 4 yfinance expandido: lt_debt + st_debt separados, return_1y/3y/5y desde historial de precios, eps_forward (forwardEps), SBC multi-fallback (3 row names). ROIC calculado con fallback NI cuando op_income es null e IC neto de cash_real. Normalizer actualizado para preservar eps_proj, roic, return_1y/3y/5y. Resultado: Gemini X0.83 PGR → 118/160 (igual a Sonnet manual) — 10-05-2026
+
+VERSION X0.86 — Modelo Gemini corregido (3.1-flash-lite reemplaza 2.0-flash-lite que cierra Jun 1), escritura atómica de informes, caché prefetch movido de /tmp a workspace (sobrevive reinicios macOS), retry automático para 429/503 en prefetch, soporte tickers HK (detecta dígitos, omite fuentes incompatibles), print corregido — 10-05-2026
+
+VERSION X0.85 — Prefetcher web real: noticias Google News RSS (no DuckDuckGo), resolución N/D vía stockanalysis.com, competidores con datos reales, contexto de caída de precio, test Gemini con Google Search grounding — 10-05-2026
+
+VERSION X0.82 — Pipeline completo con análisis Gemini, campos de solvencia y pre-fetch web — 10-05-2026
+
+ARCHIVOS MODIFICADOS / CREADOS:
+  feroldi_recolectar.py   X0.77 → X0.82
+  feroldi_prefetch.py     (NUEVO)
+  feroldi_gemini_informe.py (NUEVO)
+
+CAPACIDADES NUEVAS (qué puede hacer el sistema ahora que antes no podía):
+
+  [C1 — CAMPOS EDGAR BALANCE SHEET]
+    · current_assets (AssetsCurrent) y current_liabilities (LiabilitiesCurrent)
+      se extraen del balance sheet XBRL — necesarios para Current Ratio real
+    · stockholders_equity (StockholdersEquity con fallback a variante non-controlling)
+      se extrae del balance sheet — base para D/E Ratio y ROIC
+    · depreciation_amortization (DepreciationDepletionAndAmortization / Depreciation)
+      se extrae del cash flow statement — necesario para EBITDA real
+    · revenue_prior_year — el sistema ahora busca el revenue del año fiscal anterior
+      en raw data XBRL para calcular YoY sin depender de AV (que frecuentemente falla)
+
+  [C2 — SECCIÓN "computed" EN EL JSON]
+    · current_ratio = current_assets / current_liabilities (null si falta alguno)
+    · de_ratio = deuda_total / stockholders_equity (null si equity ≤ 0)
+    · ebitda = operating_income + depreciation_amortization (null si falta D&A)
+    · revenue_yoy_calc = (revenue - revenue_prior_year) / revenue_prior_year
+    · roic_calc = operating_income × (1−0.25) / (stockholders_equity + lt_debt)
+    Sin estos cálculos el cuadro de cierre de Sección A siempre mostraba N/D
+    para Current Ratio, D/E y ROIC aunque los datos EDGAR estuviesen disponibles.
+
+  [C3 — next_earnings_date EN market{}]
+    · Se consulta yf.Ticker(ticker).calendar para obtener la próxima fecha de earnings
+    · null si yfinance no tiene el dato (sin excepción)
+
+  [C4 — feroldi_prefetch.py NUEVO]
+    · Dado ticker + precio: busca noticias recientes, datos de stockanalysis.com
+      (margen bruto, revenue YoY, P/E forward, PEG) y 5 competidores vía búsqueda web
+    · Output: /tmp/prefetch_{TICKER}.json — se consume en feroldi_gemini_informe.py
+    · Solo urllib.request + stdlib — sin dependencias externas
+
+  [C5 — feroldi_gemini_informe.py NUEVO]
+    · Orquestador: --ticker --precio --modo (light/heavy)
+    · Lee JSON de datos + prefetch (si existe) + prompt_maestro
+    · Llama Gemini API con rotación automática: gemini-2.5-pro → gemini-2.5-flash → gemini-2.0-flash-lite
+    · Guarda informe en ~/.openclaw/workspace/informe_{TICKER}_{FECHA}_{MODO}.md
+    · Reporta tokens usados y modelo respondiente
+
+VALIDACIÓN:
+  · Testeado con MELI @ $1532.52 usando datos_MELI_10052026.json (sin re-recolectar)
+  · Nuevos campos computed visibles en JSON de salida
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.72 — FX conversion para segmentos IFRS — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_recolectar.py  X0.71 → X0.72
+
+MOTIVACIÓN:
+  Con X0.71 Toyota ahora entrega 4 segmentos reales desde EDGAR (20-F).
+  Pero el bloque FX de recolectar() solo convertía campos escalares
+  (_EDGAR_MONETARY list). Los valores dentro de edgar.segmentos[].revenue
+  quedaban en JPY crudo → el Sankey mostraría segmentos en billones de JPY.
+
+CAMBIOS:
+
+  [F1 — FX SEGMENTOS] FX conversion sobre lista de segmentos
+    · Después de convertir campos escalares, itera edgar.segmentos
+    · Cada {nombre, revenue} → revenue × fx_rate si edgar_currency ≠ USD
+    · Misma tasa y mismo punto de conversión que los demás campos EDGAR
+    · Aplica a cualquier ticker IFRS con segmentos: TM, TSM, NVO, SAP
+
+  [V1 — VERSION] Bump X0.71 → X0.72
+
+PENDIENTES DOCUMENTADOS (X0.73+):
+  · Root cause FCF: TIER 4 yfinance fills en moneda local necesitan FX post-fill
+  · "Other Countries" duplicado en MELI — dedup case-insensitive
+  · Título primera columna desbordado en nombres largos
+  · Mostrar moneda original + tipo de cambio en Sankey (meta.fx_info ya existe)
+  · SAP revenue incompleto
+
+VALIDACIÓN PENDIENTE:
+  · TM: rerun X0.72 — confirmar segmentos en USD (no JPY) en el JSON
+  · Sankey de TM: confirmar segmentos visibles con valores razonables
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.71 — Fix 20-F: segmentos para filers extranjeros — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_recolectar.py  X0.70 → X0.71
+
+MOTIVACIÓN (root cause real de segmentos nulos en TM):
+  extract_segments_edgartools() llamaba company.get_filings(form="10-K").latest().
+  Toyota (TM), NVO, SAP, TSM y otros filers extranjeros presentan 20-F ante la SEC,
+  NO 10-K. La llamada retornaba None → código hacía "return None" inmediatamente →
+  ningún eje AXIS_PRIORITY llegaba a evaluarse nunca.
+  Los fixes IFRS de X0.70 eran correctos pero nunca se ejecutaban por este bloqueo.
+
+CAMBIOS:
+
+  [F1 — FILING TYPE] Fallback 20-F en extract_segments_edgartools()
+    · Primero intenta 10-K (empresas US: AAPL, MSFT, MELI, MCD, etc.)
+    · Si no hay 10-K, intenta 20-F (filers extranjeros: TM, NVO, SAP, TSM, etc.)
+    · Si ninguno → return None (comportamiento existente)
+    · Ejemplo: TM ahora encuentra su 20-F más reciente y extrae XBRL dimensional
+
+  [V1 — VERSION] Bump X0.70 → X0.71
+    · Docstring y constante VERSION actualizados
+
+PENDIENTES DOCUMENTADOS (X0.72+):
+  · Root cause FCF: TIER 4 yfinance fills en moneda local necesitan FX post-fill
+  · Header KPI muestra FCF raw aunque col5 muestre N/D
+  · "Other Countries" duplicado en MELI — dedup case-insensitive
+  · Título primera columna desbordado en nombres largos
+  · Mostrar moneda original + tipo de cambio en Sankey (meta.fx_info ya existe)
+  · SAP revenue incompleto
+
+VALIDACIÓN PENDIENTE:
+  · TM (Toyota): rerun pipeline — confirmar segmentos (Automotive, Financial, etc.)
+  · TSM, NVO, SAP: misma corrección aplica — verificar que segmentos aparecen
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.70 — Ejes IFRS en extracción de segmentos — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_recolectar.py  X0.68 → X0.70
+
+MOTIVACIÓN:
+  Toyota (TM), NVO y otros filers 20-F usan ejes XBRL IFRS para segmentos:
+    · ifrs-full_SegmentsAxis
+    · ifrs-full_ProductsAndServicesAxis
+  extract_segments_edgartools() solo tenía ejes US-GAAP en AXIS_PRIORITY.
+  Resultado: TM mostraba un único ingreso consolidado en lugar de sus
+  segmentos reales (Automotive, Financial Services, etc.).
+  REVENUE_CONCEPTS_SEG tampoco cubría conceptos ifrs-full_Revenue.
+
+CAMBIOS:
+
+  [S1 — AXIS_PRIORITY] Agrega ejes IFRS al dict de prioridad
+    · "ifrs-full_SegmentsAxis": 0       — prioridad igual a StatementBusinessSegmentsAxis
+    · "ifrs-full_ProductsAndServicesAxis": 1  — confirmado para TM via EDGAR XBRL
+    · Ejes US-GAAP existentes preservados sin cambios
+
+  [S2 — REVENUE_CONCEPTS_SEG] Agrega conceptos de revenue IFRS
+    · "ifrs-full_Revenue"                          — concepto base IFRS
+    · "ifrs-full_RevenueFromContractsWithCustomers" — IFRS 15 específico
+    · Conceptos US-GAAP existentes preservados
+
+  [V1 — VERSION] Bump X0.68 → X0.70
+    · Docstring y constante VERSION actualizados
+
+PENDIENTES DOCUMENTADOS (X0.71+):
+  · Root cause FCF: TIER 4 yfinance fills en moneda local necesitan FX post-fill
+  · Header KPI muestra FCF raw aunque col5 muestre N/D — investigar ruta
+  · "Other Countries" duplicado en MELI — dedup case-insensitive
+  · Título primera columna desbordado en nombres largos (TSM, TM)
+  · Mostrar moneda original + tipo de cambio en Sankey (meta.fx_info ya existe)
+  · SAP revenue incompleto — get_revenue() retorna sub-línea en lugar de total
+
+VALIDACIÓN PENDIENTE:
+  · TM (Toyota): rerun pipeline completo — confirmar segmentos aparecen en Sankey
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.69 — Guardianes de proporcionalidad en Sankey — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_sankey.py  X0.60 → X0.69
+
+MOTIVACIÓN:
+  Tickers IFRS con moneda local (TSM/TWD, TM/JPY): EDGAR no encuentra capex/deuda
+  via conceptos us-gaap_*. TIER 4 yfinance los llena con valores en moneda local
+  (sin conversión FX). Resultado: FCF = CFO_USD − CAPEX_JPY = número imposible
+  (ej. TM: FCF $-5,234B, TSM: FCF $-1,209B). El Sankey dibujaba cajas desbordadas
+  que colapsaban columnas 4 y 5 completamente.
+
+CAMBIOS:
+
+  [G1 — GUARDIANES] Bloque proporcionalidad post-carga, todas las columnas
+    · Aplica a TODOS los campos monetarios EDGAR que se renderizan en el Sankey
+    · Umbrales diferenciados por tipo de campo:
+        1× revenue → net_income, operating_income (nunca superan ventas)
+        2× revenue → fcf, capex, sbc, dividendos, cfo (flujos de caja)
+        5× revenue → deuda_total, cash_real, goodwill, total_assets
+                     (balance sheet puede ser muy grande en bancos/autos)
+    · Si abs(valor) > umbral → None → Sankey muestra N/D en esa caja
+    · Previene colapso visual en cols 3, 4 y 5 por datos en moneda local
+
+  [V1 — VERSION] Bump X0.60 → X0.69
+    · Docstring y constante VERSION actualizados
+
+PENDIENTES DOCUMENTADOS (X0.70+):
+  · Root cause FCF: TIER 4 yfinance fills en moneda local necesitan FX post-fill
+  · Header KPI muestra FCF raw aunque col5 muestre N/D — investigar ruta
+  · "Other Countries" duplicado en MELI — dedup case-insensitive
+  · Título primera columna desbordado en nombres largos (TSM, TM)
+  · Mostrar moneda original + tipo de cambio en Sankey (meta.fx_info ya existe)
+
+REGLA ESTABLECIDA — 08-05-2026:
+  Kika NO toca código. Solo Claude Code diseña y modifica .py.
+  Kika ejecuta, reporta bugs, no los corrige. Registrado en TOOLS.md de Kika.
+
+VALIDACIÓN:
+  · TM (Toyota, JPY): col5 FCF → N/D ✅, col4 Intereses pendiente retest
+  · TSM (TWD): mismo fix aplica
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.68 — FX dinámico en pipeline individual (feroldi_recolectar.py) — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_recolectar.py  X0.61 → X0.68
+
+MOTIVACIÓN:
+  X0.67 portó FX dinámico al batch (feroldi_batch_recolectar.py).
+  El pipeline individual de producción (feroldi_recolectar.py, disparado por
+  "$TICKER PRECIO" en Telegram) NO tenía conversión FX. Si AV fallaba para
+  un ticker como TSM y EDGAR tomaba el relevo, los valores XBRL en TWD
+  llegaban al Sankey ~32x inflados sin advertencia.
+
+CAMBIOS:
+
+  [F1 — INFRAESTRUCTURA] get_fx_rate() + FX_FALLBACK + _FX_CACHE
+    · Misma arquitectura que X0.67 — porta desde el batch
+    · Función get_fx_rate(currency) → (rate, pair, date)
+    · Cache de sesión _FX_CACHE por currency
+    · Fallback tabla FX_FALLBACK con fecha explícita
+
+  [F2 — DETECCIÓN] _detect_edgar_currency(raw_data)
+    · Nueva función helper que lee el campo 'unit' de los items XBRL
+    · Prueba conceptos de revenue y CFO para detectar moneda
+    · Retorna "USD" como fallback seguro si no detecta
+
+  [F3 — DETECCIÓN EN EDGAR] currency en get_edgar_edgartools()
+    · Llama _detect_edgar_currency() sobre raw_inc después de obtener financials
+    · Guarda result["currency"] — disponible para conversión en recolectar()
+    · Log de consola cuando moneda ≠ USD: "💱 EDGAR: moneda detectada = TWD"
+
+  [F4 — CONVERSIÓN] Bloque FX en recolectar()
+    · Después de await edgar_task, antes de ensamblar output
+    · Si currency ≠ USD y fx_rate disponible: convierte todos los campos
+      monetarios EDGAR (revenue, net_income, op_income, cfo, capex, sbc,
+      dividendos, lt_debt, st_debt, deuda_total, cash, sti, cash_real,
+      goodwill, total_assets, fcf) × fx_rate
+    · Si currency ≠ USD pero fx_rate no disponible: log de advertencia
+    · Log de consola: "💱 FX aplicado: TWD→USD via TWDUSD=X rate=0.031949"
+
+  [F5 — OUTPUT] fx_info en meta
+    · meta.fx_info: {currency_edgar, fx_applied, fx_pair, fx_rate_used,
+      fx_date, fx_source ("live"/"fallback"/"N/A")}
+    · Trazabilidad completa de si hubo conversión y con qué tasa
+
+BUGS ENCONTRADOS Y CORREGIDOS DURANTE TESTING:
+
+  [BUG-FX1] _detect_edgar_currency: campo 'units' es dict, no string
+    · Fallo inicial: item.get("units") devuelve dict {periodo→moneda}, no str
+    · Fix: next(iter(units_dict.values())) para extraer el primer valor del dict
+    · TSM devuelve 'twd' (lowercase simple) → corregido con .upper()
+
+  [BUG-FX2] _detect_edgar_currency: IFRS filers (TSM) usan ifrs-full_* concepts
+    · Fallo inicial: probe list solo tenía us-gaap_* → cero matches en TSM
+    · Fix: eliminar lista de concepts específicos, iterar TODOS los items
+      con has_values=True — agnóstico al namespace (US-GAAP e IFRS)
+
+  [BUG-FX3] _detect_edgar_currency: SAP usa unit refs compuestas
+    · Formato: 'Unit_Standard_EUR_DzninQPyI02xgP6HIeCj9A' (no 3 letras simples)
+    · Fix: regex re.search(r'(?:^|_)([A-Z]{3})(?:_|$)', unit) para extraer EUR
+    · Agregado import re al módulo
+
+BUG CONOCIDO (PRE-EXISTENTE, NO REGRESIÓN DE X0.68):
+  · SAP revenue incompleto: edgartools/get_revenue() retorna solo
+    sap_CloudSubscriptionsAndSupportRevenue (~EUR 21B) en vez de revenue total
+    (~EUR 35B). Existe desde X0.61. La conversión FX es correcta; el problema
+    es qué concepto XBRL usa edgartools como revenue para SAP. Pendiente X0.69+.
+
+VALIDACIÓN COMPLETADA — 08-05-2026:
+  · AAPL: $416B FY2025 USD nativo, fx_applied=false ✅
+  · TSM:  3.809T TWD → $121.7B USD via TWDUSD=X (0.031949)
+          TV Dec 2025 = $122.24B → delta 0.4% (ruido FX) ✅
+  · SAP:  EUR 21.02B → $24.79B USD via EURUSD=X (1.178967) ✅ FX correcto
+          (revenue parcial = bug pre-existente, no X0.68)
+
+ESTADO: ✅ APROBADO PARA PRODUCCIÓN
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.67 — FX dinámico + coverage split + status fix NO_EDGAR_FILING — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_batch_recolectar.py  X0.66 → X0.67
+
+MOTIVACIÓN:
+  X0.66 tenía FX rates hardcoded (FX_TABLE con fecha 2026-05-08).
+  Los datos financieros de TSM/NVO/SAP/ASML/BABA/RY/SNY/UL se convertían
+  a USD con tasas fijas que se desactualizan. fx_probe.py validó (45/45)
+  que yfinance entrega tasas FX precisas vía {FROM}USD=X pairs.
+
+CAMBIOS:
+
+  [F1 — ARQUITECTURA] FX dinámico via yfinance
+    · Eliminado FX_TABLE hardcoded y FX_DATE = "2026-05-08"
+    · Nueva función get_fx_rate(currency) → (rate, pair, date)
+    · Intenta yfinance ticker "{FROM}USD=X" (ej. TWDUSD=X, DKKUSD=X)
+    · Cache de sesión _FX_CACHE: evita llamadas duplicadas para mismo par
+    · Fallback: FX_FALLBACK dict con fecha explícita si yfinance falla
+    · fx_date ahora refleja la fecha real del dato (no hardcoded)
+
+  [F3 — STATUS FIX] NO_EDGAR_FILING excluido de "partial"
+    · NON_CRITICAL_WARNINGS centraliza todos los warnings informativos
+    · Agrega NO_EDGAR_FILING a ese set
+    · Si ticker no tiene EDGAR pero AV tiene datos completos → status "ok"
+
+  [F6 — OUTPUT] fx_pair en fx_info
+    · fx_info ahora incluye "fx_pair": "TWDUSD=X" (o "TWDUSD=FALLBACK")
+    · Permite auditar si la tasa vino de yfinance en tiempo real o del fallback
+
+  [F7 — COBERTURA] Split coverage_pct
+    · coverage_financial: % de campos financieros cubiertos (12 campos)
+    · coverage_market: % de campos de mercado cubiertos (5 campos)
+    · coverage_pct: cobertura total (backward compat, sin cambios)
+
+TICKERS VALIDACIÓN RECOMENDADA:
+  python3 feroldi_batch_recolectar.py --tickers TSM,NVO,ASML,SAP,MSFT,NVDA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.66 — Alpha Vantage TIER1 + FX conversion + status fix — 08-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_batch_recolectar.py  X0.65 → X0.66
+
+MOTIVACIÓN:
+  Batch X0.65 corrió sin AV financiero (solo EDGAR+yfinance). Resultado:
+  0/50 OK, 50/50 partial. Diagnóstico completo reveló 7 categorías de
+  problemas. X0.66 los ataca todos de raíz reactivando AV como TIER1 real.
+
+CAMBIOS:
+
+  [ARQUITECTURA] AV como TIER1 financiero
+    · Nuevo get_av_financials(): llama INCOME_STATEMENT + CASH_FLOW + BALANCE_SHEET
+    · Canonical priority: AV > EDGAR > yfinance
+    · Multi-key rotation con rate limiting por key (_av_last_call tracking)
+    · 3 AV calls/ticker × N keys = ~12/N segundos entre calls
+    · fuente_tier1 registrado en cada resultado ("AV" o "EDGAR")
+
+  [FEATURE] FX conversion automática para 20-F/40-F
+    · Detecta reportedCurrency desde AV response
+    · Tabla FX hardcoded (2026-05-08): TWD/DKK/EUR/GBP/CAD/CNY y 9 más
+    · Convierte todos los campos financieros a USD
+    · Almacena fx_info: {currency_original, fx_rate_used, fx_date}
+    · Resuelve TSM/NVO/SAP/SHEL/RY/SNY/UL/BABA (8 tickers 20-F/40-F)
+
+  [FIX] Status labeling incorrecto (P1 — 26 tickers mal clasificados)
+    · NON_CRITICAL_FIELDS = {sbc, goodwill, dividendos, fcf}
+    · Status "ok" cuando nulls son solo no-críticos + sin warnings críticos
+    · Status "partial" solo para nulls en campos financieros reales
+
+  [FIX] EDGAR_NO_FINANCIALS falso positivo (14 tickers afectados)
+    · Antes: disparaba cuando edgar.revenue era None
+    · Ahora: dispara solo cuando canonical no tiene NINGÚN campo financiero
+    · Resuelve JPM/NEE/RKT que tenían datos por yfinance/AV pero trigger igual
+
+  [FIX] EDGAR concept maps expandidos
+    · capex: +PaymentsToAcquireProductiveAssets$ (XOM), +PurchasesOfPropertyAndEquipment$
+    · operating_income: +IncomeLossFromContinuingOperations$ como variante
+
+  [FEATURE] --tickers flag
+    · python3 feroldi_batch_recolectar.py --tickers JPM,TSM,NVDA
+    · Permite correr subconjunto específico (tickers problema)
+    · Sufijo _SUBSET en nombre del archivo de salida
+
+  [FEATURE] --no-av flag
+    · Deshabilita AV para debug rápido (solo EDGAR+yfinance)
+
+  [FIX] SBC (P5 — 0/50 tickers)
+    · AV CASH_FLOW tiene stockBasedCompensation
+    · Confirmado: MSFT $11.97B, NVDA $6.39B — resuelve ~48/50 tickers
+
+  [MEJORA] Campos por fuente en resultado
+    · fuente_tier1: "AV" | "EDGAR" — auditable por ticker
+
+PROBLEMAS RESUELTOS EN X0.66:
+  P1: Status labeling (26 tickers → ok)      ✅
+  P2: 20-F/40-F sin P&L (8 tickers)          ✅ via AV + FX
+  P3: TSLA/ENVX/APLS 10-K/A                  ✅ via AV
+  P4a: operating_income null (16 tickers)    ✅ via AV
+  P4b: capex null (19 tickers)               ✅ via AV + concepto expandido
+  P4c: net_income null (CLOV, BOOT)          ✅ via AV
+  P4d: cfo null (SFIX)                       ✅ via AV
+  P5: SBC 0/50                               ✅ via AV stockBasedCompensation
+  P6: EDGAR_NO_FINANCIALS falso positivo     ✅ lógica refinada
+  P7: JPM CFO -$147B erróneo                 ✅ via AV ($100.87B correcto)
+
+LIMITACIONES CONOCIDAS:
+  · FX rates hardcoded — no se actualizan automáticamente
+  · SBC puede ser null en tickers pequeños sin cobertura AV completa
+  · BABA (CNY): AV puede no tener datos completos por estructura VIE
+
+USO RECOMENDADO PARA VALIDACIÓN:
+  python3 feroldi_batch_recolectar.py --tickers JPM,TSM,NVDA,XOM,TSLA,NVO,SFIX,CLOV,BOOT
+  export AV_API_KEY="tu_key"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.65 — SIGTERM handler + guardado limpio garantizado — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS MODIFICADOS:
+  feroldi_batch_recolectar.py  X0.64 → X0.65
+
+BUG CORREGIDO:
+
+  [BUG-B05] JSON no se escribe si SIGTERM llega durante json.dump (ticker 47/50)
+    CAUSA: X0.64 guardaba después de cada ticker, pero SIGTERM puede llegar
+      en medio del json.dump (~500KB con indent=2) y cortar la escritura.
+      os.replace() no llega a ejecutarse → el .tmp queda corrupto → sin JSON.
+    FIX: signal.signal(SIGTERM, handler) que atrapa la señal, espera a que
+      el write en curso termine, y sale limpiamente con sys.exit(0).
+      También atrapa SIGINT (Ctrl+C) con el mismo handler.
+    IMPORT: añadido `import signal`
+
+SEGUNDA CORRIDA PARCIAL (X0.64, SIGTERM en CERT ticker 48/50):
+  47 tickers procesados · cobertura promedio ~77.5%
+  EDGAR_NO_FINANCIALS x11 · FOREIGN_FILER_20F x8 · NEGATIVE_FCF x10
+  22 tickers sin warnings
+  JSON no generado (SIGTERM durante escritura del último _save_partial)
+
+VERSION X0.64 — Guardado progresivo anti-SIGTERM + sleep 1s — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS MODIFICADOS:
+  feroldi_batch_recolectar.py  X0.63 → X0.64
+
+BUG CORREGIDO:
+
+  [BUG-B04] SIGTERM en ticker 21/50 pierde todos los datos
+    CAUSA: el JSON se escribía UNA SOLA VEZ al final del loop. Si Kika
+      recibe SIGTERM (timeout de herramienta ~6 min), el archivo no existe.
+      Con 50 tickers × ~12s promedio = ~10 min → siempre excede el timeout.
+    FIX: guardado atómico (write tmp + os.replace) después de CADA ticker.
+      SIGTERM en ticker N → JSON tiene N tickers procesados, nada se pierde.
+    FIX2: SLEEP_SEC default: 3 → 1  (ahorra ~100s en el batch completo)
+
+RESULTADO: batch de 50 tickers tarda ~7-8 min en vez de ~12 min.
+  Con sleep=0 podría bajar a ~5 min (riesgo de rate-limit en EDGAR).
+
+PRIMERA CORRIDA PARCIAL (X0.63, SIGTERM en ASML ticker 21/50):
+  20 tickers procesados · todos OK · cobertura ~85.3%
+  Warnings: EDGAR_NO_FINANCIALS x3 (JPM, NEE, TSLA) · NEGATIVE_FCF x3 (BA, INTC, MRNA)
+  14 tickers sin warnings: WMT COST XOM PLD LLY UNH BLK MSFT NVDA META NFLX ADBE PYPL CSCO
+
+VERSION X0.63 — EDGAR fix edgartools API + regex anclado — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS MODIFICADOS:
+  feroldi_batch_recolectar.py  X0.62 → X0.63
+
+BUGS CORREGIDOS:
+
+  [BUG-B01] CFO N/D en todos los tickers
+    CAUSA: edgartools incluye filas "Abstract" (headers) con dimension=False
+      y valor NaN. `_extract_stmt` usaba `iloc[0]` → capturaba el header
+      abstracto antes del valor real. Para CFO: `...OperatingActivitiesAbstract`
+      (NaN) aparece antes de `...OperatingActivities` ($136B real).
+    FIX: Filtrar `df[df["abstract"] == False]` + iterar filas hasta non-NaN.
+
+  [BUG-B02] NetIncome incorrecto en XOM (capturó $920M en vez de $28.84B)
+    CAUSA: `str.contains("NetIncomeLoss", regex=False)` captura
+      `us-gaap_NetIncomeLossAttributableToNoncontrollingInterest` ($920M —
+      interés minoritario) ANTES de `us-gaap_NetIncomeLoss` ($28.84B — real).
+    FIX: Regex anclado `"_NetIncomeLoss$"` que solo coincide con el concepto
+      exacto, no con subclases. Aplicado a todos los conceptos ambiguos.
+
+  [BUG-B03] LongTermDebt no extraído (MSFT, y probablemente otros)
+    CAUSA: MSFT usa `LongTermDebtNoncurrent` y `LongTermDebtCurrent`, NO
+      `LongTermDebt` directamente. El regex `"LongTermDebt$"` no los capturaba.
+    FIX: Mapa expandido: LongTermDebt$ → LongTermDebtNoncurrent$ →
+      LongTermDebtCurrent$. EDGAR extrae noncurrent; yfinance fallback da total.
+
+CAMBIOS TÉCNICOS EN _extract_stmt():
+  · Añadido filtro `abstract == False` (elimina headers sin valor)
+  · `iloc[0]` reemplazado por iteración `for _, row in rows.iterrows()`
+    que busca primer valor no-NaN
+  · Soporte regex anclado: claves terminando en `$` usan regex=True
+    (e.g. `"_NetIncomeLoss$"` no captura NoncontrollingInterest)
+
+RESULTADOS POST-FIX (verificados localmente):
+  MSFT: rev=$281.72B  ni=$101.83B  cfo=$136.16B  cap=$64.55B  cov=94%  warns=[]
+  XOM:  rev=$332.24B  ni=$28.84B   cfo=$51.97B   cap=$28.36B  cov=83%  warns=[]
+  COST: rev=$275.24B  ni=$8.10B    cfo=$13.34B   cap=$5.50B   cov=88%  warns=[]
+  ARWR: rev=$829.4M   ni=-$1.6M    cfo=$179.6M   cap=$22.7M   cov=83%  warns=[]
+  JPM:  rev=$173.56B  ni=$57.05B   cfo=-$147.78B  (banco — CFO esperado neg.) cov=72%
+
+SIGUIENTE PASO: correr batch completo de 50 tickers vía Kika (GitHub Actions)
+
+VERSION X0.62 — feroldi_batch_recolectar.py (nuevo) — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS NUEVOS:
+  feroldi_batch_recolectar.py  (nuevo — v X0.62)
+  .github/workflows/feroldi_batch.yml  (nuevo)
+
+PROPÓSITO:
+  Stress-test del pipeline de datos con 50 tickers reales ANTES de construir
+  Light, Heavy, Infografía y PDF. "Si el alma está rota, todo lo que sigue
+  se cae." — @patonet
+
+UNIVERSO (50 tickers, excluidos GE/MCD/AAPL/AMZN/AUR/TM ya analizados):
+  10 S&P 500  : JPM WMT COST XOM PLD BA LLY NEE UNH BLK
+  10 NASDAQ   : MSFT NVDA META TSLA NFLX INTC MRNA ADBE PYPL CSCO
+  10 ADR      : ASML TSM BABA NVO SAP SHEL AZN RY SNY UL
+  20 Russell  : ARWR RXRX JOBY ENVX HIMS MRVI RKT CLOV ASAN ACVA
+                BOOT LCII PRCT SFIX APLS TASK SMPL CERT AGIO TFIN
+                (JAMF reemplazado por ASAN — JAMF se privó Jan 2024)
+
+FUENTES: EDGAR (edgartools) + yfinance  [SIN Alpha Vantage]
+
+DETECCIÓN AUTOMÁTICA DE ANOMALÍAS por ticker:
+  NO_REVENUE / PRE_REVENUE      — revenue null o < $10M
+  MARGIN_EXTREME                — |margen_bruto| > 5.0 (típico: empresa en JPY/EUR sin convertir)
+  CURRENCY_MISMATCH_SUSPECTED   — revenue / market_cap > 50x
+  FOREIGN_FILER_20F / 40F       — EDGAR puede no leer bien estos filings
+  NO_EDGAR_FILING               — edgartools no encontró 10-K/20-F/40-F
+  EDGAR_NO_FINANCIALS           — filing existe pero no extrajo datos financieros
+  NEGATIVE_FCF                  — informativo
+  YF_NO_MARGINS                 — yfinance no devolvió márgenes
+  FINANCIAL_SECTOR_SUSPECTED    — revenue > $1B pero sin márgenes (banco/aseguradora)
+  NULL_CRITICAL_X_OF_Y          — 3+ campos críticos nulos
+  TOTAL_FAILURE                 — EDGAR + yfinance fallaron ambos
+
+OUTPUT: ~/Downloads/batch_datos_DDMMYYYY.json (en Mac local)
+        batch_outputs/batch_datos_DDMMYYYY.json (en GitHub Actions)
+  Estructura: meta + tickers{} + resumen{warnings_por_tipo, filing_types, cobertura}
+
+GITHUB ACTIONS (Kika):
+  workflow_dispatch manual: dry_run(bool) + sleep(seg)
+  Dry run corre solo 5 tickers (~15 seg)
+  Resultado: artefacto descargable + commit a batch_outputs/ en el repo
+
+USO LOCAL:
+  python3 feroldi_batch_recolectar.py            # 50 tickers
+  python3 feroldi_batch_recolectar.py --dry-run  # 5 tickers
+TESTS PENDIENTES: primera corrida real vía Kika
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.61 — TIER 4 yfinance en feroldi_recolectar.py — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS MODIFICADOS:
+  feroldi_recolectar.py  X0.58 → X0.61
+
+CAMBIOS:
+  [NUEVO] TIER 4 yfinance — auditoría silenciosa siempre activa
+          · yfinance_tier4(ticker, canonical) — función sync, llamada via
+            asyncio.to_thread() desde recolectar()
+          · Compara todos los campos contra EDGAR+AV (canonical snapshot)
+          · Categorías: match / disagree / filled / null por campo
+          · Solo aplica fills donde canonical[field] era null
+          · audit completo en meta.tier4_audit del JSON de salida
+          · Log persistente ~/Downloads/tier4_audit_log.jsonl
+            campo "source": "feroldi_recolectar" para distinguir del log externo
+  [NUEVO] Flag --no-yfinance (argparse, igual que captura_externa.py)
+  [FIX]   main() migrado de sys.argv manual a argparse
+
+NOTA: Versión anterior era X0.58. Se saltó X0.59 (número asignado por error
+  en sesión anterior — nunca fue un release real). X0.60 fue el Sankey.
+  X0.61 es el siguiente número correcto.
+TESTS PENDIENTES: correr AAPL / GE con --no-yfinance y sin el flag
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.60 — Texto proporcional C2/C3 + captura_externa v2.1 — 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARCHIVOS MODIFICADOS:
+  feroldi_sankey.py      X0.599 → X0.60
+  captura_externa.py     v2.0   → v2.1
+
+CAMBIOS feroldi_sankey.py X0.60:
+  [FIX]   C2/C3 — texto proporcional usando mismos criterios que C1
+          · _txt_fs(h): fl=max(9,min(13,8+h/22)), fv=max(10,min(18,9+h/14)),
+            fs=max(8,min(11,7+h/35)) — igual que segmentos C1
+          · y-positions como fracción de h (0.28, 0.52, 0.77) en lugar de px fijos
+  [FIX]   COGS box — pre-computo de métricas con misma escala proporcional
+  [FIX]   Eliminado badge "S3: BUY" (no debía aparecer en Sankey)
+  [NUEVO] Hooks Light/Heavy: lee _light/_heavy del JSON si existen
+          feroldi_score, fair_value_mid, dcf_range, segments_refined
+  [NUEVO] KPI bar — Score Feroldi + Valor Intrínseco condicionales (si hay light/heavy)
+  [DOC]   Docstring actualizado: X0.57 → X0.60 (estaba desactualizado)
+
+CAMBIOS captura_externa.py v2.1:
+  [NUEVO] TIER 4 yfinance — auditoría silenciosa siempre activa
+          · Misma lógica que X0.61 de feroldi_recolectar.py
+          · Log persistente ~/Downloads/tier4_audit_log.jsonl
+            campo "source": "captura_externa" para distinguir del log local
+          · --no-yfinance flag
+  [FIX]   VERSION visible en argparse y en meta.fuente del JSON
+
+TESTS X0.60 08-05-2026:
+  GE  $180.50 → texto proporcional C2/C3 ✅  sin badge S3 ✅
+  AUR $6.89   → BUG-S13 confirmado (Sankey roto, pendiente guard)
+VERSIÓN X0.60 LIBERADA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUG-S13 (feroldi_sankey.py) — PENDIENTE — detectado 08-05-2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Empresa pre-revenue / quema extrema rompe el Sankey.
+CAUSA: cuando revenue < ~$10M o margen_bruto < -5.0, los cálculos de COGS
+  producen valores absurdos (ej: AUR revenue=$3M, margen_bruto=-254x → COGS=$766M).
+  El Sankey no está diseñado para este perfil.
+FIX PENDIENTE: agregar guard al inicio de generar_sankey():
+  - Si revenue < 10_000_000 → mostrar pantalla "Empresa pre-revenue: Sankey no aplica"
+  - Si abs(margen_bruto) > 5.0 → mismo warning
+  - Mostrar tabla de datos disponibles (cash runway, burn rate, SBC) en lugar del diagrama
+DETECTADO CON: $AUR (revenue=$3M, NI=-$816M, cash runway ~5 meses)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.599 — V1-V8 (Labels español) + captura_externa v2.0 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMBIOS feroldi_sankey.py X0.599:
+  V1: "REVENUE GAAP" → "INGRESOS GAAP" (nodo C2 + data-tip)
+  V2: EBIT box — añadir subtítulo "Util. Operativa" (cuando EBIT_H ≥ 55px)
+  V3: "FEO {s_cfo}" → "FCO {s_cfo}" (label sobre nodo FCF)
+  V4: "FCF LIBRE" → "FLUJO CAJA LIBRE" (nodo C5, font-size 9)
+  V5: KPI bar — "Revenue" → "Ingresos", "Net Income" → "Ut. Neta"
+  V7: Segmentos — traducción visual display-only via _translate_seg()
+       Ejemplos: "Revenues from franchised restaurants" → "Restaurantes Franquiciados"
+                 "Services" → "Servicios", "Wearables, Home and Accessories" → "Wearables y Accesorios"
+       Datos EDGAR intactos en JSON (nombre original preservado)
+  V8: Tabla auditoría completamente en español:
+       "Revenue GAAP" → "Ingresos GAAP", "COGS" → "Costo de Ventas"
+       "Gross Profit" → "Ganancia Bruta", "S&M" → "Ventas y Mktg"
+       "R&D" → "I+D / Ingeniería", "D&A" → "Deprec. y Amort."
+       "Other OpEx" → "Otros Gastos Op.", "EBIT" → "EBIT (Util. Operativa)"
+       "Interest Expense" → "Gasto Intereses", "Tax Provision" → "Provisión Impuestos"
+       "Net Income" → "Utilidad Neta", "CFO" → "Flujo Caja Operativo"
+       "FCF" → "Flujo Caja Libre", "SBC" → "SBC (Comp. Acciones)"
+       "Cash Real" → "Efectivo y Equiv.", "Shares" → "Acciones"
+  Leyenda: "Revenue" → "Ingresos", "COGS" → "Costo Ventas", etc.
+  RESPALDO: feroldi_sankey.py.bak_X0.598_pre_V1_V8
+
+CAMBIOS captura_externa.py v2.0:
+  C1: time.sleep(15) entre llamadas AV (antes 0.5s → causaba rate limit)
+  C2: detección temprana de rate limit via _av_rate_limited flag → aborta AV restante
+  C3: extracción EDGAR unificada (obj() primero, XBRL facts como fallback)
+       — misma lógica que feroldi_recolectar.py
+  C4: output canónico feroldi (edgar/market/ratios/margins/meta)
+       — compatible directo con feroldi_sankey.py sin merge manual
+       — output: ~/Downloads/datos_TICKER_DDMMYYYY.json
+  C5: nueva key por --key arg o AV_KEY env var (antes hardcoded)
+       USO: python3 captura_externa.py GE 180.50 --key J9PWEJAWZKJ7URMV
+       USO: AV_KEY=J9PWEJAWZKJ7URMV python3 captura_externa.py GE
+  RESPALDO: captura_externa.py.bak_pre_C1_C5
+
+TESTS X0.599 08-05-2026:
+  GE  $180.50 → viewBox 1400×692 · "INGRESOS GAAP" · "FLUJO CAJA LIBRE" · "FCO" ✅
+  MCD $283.70 → viewBox 1400×720 · "Restaurantes Franquiciados" · tabla español ✅
+  AAPL $287.46 → viewBox 1400×668 · "Servicios" · "Wearables y Accesorios" ✅
+VERSIÓN X0.599 LIBERADA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.597 — BUG-S11 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUG-S11 (feroldi_sankey.py): Distribución de cajas por columna no representa el flujo real del dinero
+
+DISEÑO APROBADO POR USUARIO — Layout redistribuido:
+  C1  Segmentos          → de dónde entra el dinero
+  C2  Revenue GAAP       → pool total disponible
+  C3  COGS + OpEx + EBIT → consumo operativo
+  C4  Tax↗ · Interest↗ · NET INCOME (centro, grande, proporcional)
+                         → resultado neto después de costos financieros
+  C5  FCF · Dividendos · Buybacks · Capex · SBC
+                         → destinos reales del capital
+
+CAMBIOS RESPECTO AL LAYOUT ANTERIOR:
+  - NET INCOME: sale de C5, va al CENTRO de C4, tamaño proporcional al valor
+  - Tax e Interest: salen hacia afuera desde C4 (son costos, no destinos)
+  - C5: queda exclusivamente con destinos del capital (FCF, Div, Buybacks, Capex, SBC)
+  - FCF: se mantiene en C5 como primer destino (medida de calidad del cash)
+
+RESPALDO: feroldi_sankey.py.bak_X0.596_pre_S11
+IMPLEMENTADO — 08-05-2026:
+  1. Se añaden box heights para COL4/COL5: tax_h, int_h, fcf_h, div_h, capex_h, sbc_h (via san_h)
+  2. tax_y = rev_y1+10, int_y = tax_y+tax_h+8 — Tax/Interest fijos en top de C4
+  3. ni_y = max(int_y+int_h+30, (H_prov-ni_h)//2) — NI centrado, sin piso BUG-S8
+  4. C5 stack dinámico: fcf_y, div_y, capex_y, sbc_y, bal_y centrados en ni_y+ni_h//2
+  5. H = max(H_prov, ni_y+ni_h+60, bal_y+90) — canvas se expande para contener todo
+  6. Flujo EBIT → ni_y+ni_h//2 (centro del NI en C4) en lugar de ni_y-82
+  7. Tax/Interest: flujos salen arriba/derecha desde C4r hacia W-5 (salen del canvas)
+  8. NI → C5: apunta a fcf_y+fcf_h//2 (centro FCF en C5)
+  9. NET INCOME: rect migrado de x=C5 a x=C4, width=NI_W (más ancho)
+ 10. FCF y demás nodos C5: posiciones dinámicas relativas a ni_y
+TEST APROBADO 08-05-2026:
+  MCD $283.70 → viewBox 1400×720
+    Tax:  x=1020 y=100  h=28   (top de C4 ✅)
+    NI:   x=1020 y=299  h=121  (centro C4, proporcional ✅)
+    FCF:  x=1255 y=193  h=101  (C5 dinámico ✅)
+  AAPL $287.46 → viewBox 1400×668 (sin errores, sin regresión ✅)
+VERSIÓN X0.597 LIBERADA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.596 — BUG-S10 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUG-S10 (feroldi_sankey.py): Columnas mal distribuidas + flow width desconectado de box height
+
+CAUSA:
+  1. Columnas comprimidas a la izquierda (C2=20%, C3=38%, C4=57%, C5=73% del ancho)
+     dejando 27% del canvas vacío a la derecha. Reference usa C2=28%, C3=53%, C4=73%, C5=90%.
+     Los gaps entre columnas eran casi cero (10–50px vs 70–140px del reference).
+  2. box heights y flow widths usaban escalas distintas:
+     - cogs_h usaba val/revenue × 280
+     - opex heights usaban min-max normalización entre ellos
+     - segment heights usaban min-max 50–250px
+     - flow widths (fsw) usaban val/revenue × 160
+     Resultado: una caja grande podía tener una banda fina y viceversa.
+
+FIX:
+  1. Columnas redistribuidas igual que reference (1000px→1400px):
+       C1=20, C2=390, C3=740, C4=1020, C5=1255
+       Widths: SEG_W=210, REV_W=195, COST_W=215, NI_W=170, OUT_W=130
+  2. san_h(val) — función unificada que usa val/revenue × REV_H=380
+     Aplica a: cogs_h, sm_h, rd_h, da_h, other_h, EBIT_H, ni_h, fw_*
+     Segmentos: h = max(30, san_h(sv)) → fw = h (flow = box height)
+  3. Revenue box: height=REV_H=380 (antes hardcoded 220)
+  4. Flow paths usan el borde DERECHO de los nodos fuente como punto de partida
+  5. RESPALDO: feroldi_sankey.py.bak_X0.595
+
+TESTS PASADOS:
+  GE  @ $302.63 — viewBox 0 0 1400 738  · CES 276px / DPT 87px proporcionales ✅
+  MCD @ $283.70 — viewBox 0 0 1400 851  · Franchised 234px / Company 137px / Otros 30px ✅
+  AAPL @ $287.46 — viewBox 0 0 1400 780 · iPhone proporcional al 50.4% de revenue ✅
+  Sin regresiones en datos ni en funcionalidad.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.595 — TESTS COMPLETOS (GE + MCD + AAPL) — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TESTS PASADOS con todas las correcciones X0.594:
+
+GE @ $302.63:
+  fy_year:    2025 ✅
+  Revenue:    $45.85B ✅
+  NET INCOME: $8.60B ✅
+  FCF:        $7.26B ✅
+  Segmentos (BUG-R4 resuelto ✅):
+    Commercial Engines & Services  $33.31B (72.7%)
+    Defense & Propulsion Tech.     $10.55B (23.0%)
+  BUG-S8 ✅: NET INCOME debajo de EBIT, flujos van hacia abajo/derecha.
+  BUG-S9 ✅: Flujos gruesos proporcionales con gradientes.
+  viewBox: 0 0 1400 1063
+
+MCD @ $283.70:
+  fy_year:    2025 ✅
+  Revenue:    $26.89B ✅ (sin regresión)
+  NET INCOME: $8.56B ✅
+  FCF:        $7.19B ✅
+  Segmentos: 3 (franchised $16.55B · company-ops $9.69B · Otros $0.65B) ✅
+  BUG-S9 ✅: flujos proporcionales visibles en Chrome.
+  viewBox: 0 0 1400 1111
+
+AAPL @ $287.46:
+  fy_year:    2025 ✅
+  Revenue:    $416.16B ✅ (sin regresión)
+  NET INCOME: $112.01B ✅
+  FCF:        $98.77B ✅
+  Segmentos: 5 (iPhone · Services · Wearables · Mac · iPad) ✅
+  BUG-S9 ✅: iPhone flow más grueso que resto (proporcional).
+  viewBox: 0 0 1400 1089
+
+CORRECCIÓN BUG-S9 TÉCNICA (complemento):
+  - fsw() movida antes del bloque de segmentos (evitaba NameError en seg_data loop)
+  - Paths del SVG actualizados con fw_* y url(#g*) gradientes
+  - Opacidad ajustada: 0.45-0.6 para flujos gruesos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.594 — BUG-R4 + BUG-N1 + BUG-S9 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUG-R4 (feroldi_recolectar.py): AXIS_PRIORITY invertido — segmentos de negocio vs tipo de producto
+  CAUSA: AXIS_PRIORITY ponía ProductOrServiceAxis=0 (máxima prioridad) sobre
+         StatementBusinessSegmentsAxis=1. Para GE (y similares), ProductOrServiceAxis
+         devuelve "Services/Equipment" (clasificación por tipo de ingreso), no los
+         segmentos reportables reales (CES, DPT). AAPL se salvaba porque sus segmentos
+         en StatementBusinessSegmentsAxis son geográficos y el filtro geo los descartaba.
+  FIX: Invertir prioridad: StatementBusinessSegmentsAxis=0 > ProductOrServiceAxis=1.
+       Cuando StatementBusinessSegmentsAxis da segmentos geográficos (ej. AAPL: Americas,
+       Europe, Greater China), el filtro geo los descarta y el código cae a
+       ProductOrServiceAxis automáticamente → iPhone, Services, etc. siguen funcionando.
+  GEO_KEYWORDS expandido: agregados "china", "japan", "canada", "korea", "india",
+       "brazil", "germany", "france", "united kingdom", "middle east", "africa",
+       "australia" para cubrir segmentos geográficos no detectados.
+  ARCHIVOS: feroldi_recolectar.py (línea ~370)
+
+BUG-N1 (feroldi_normalizar.py): Sin alarma cuando segmentos no cubren el revenue total
+  CAUSA: El normalizador no verificaba si sum(segmentos.revenue) ≈ edgar.revenue.
+         Para GE, los 2 segmentos XBRL (CES+DPT=$42.1B) cubren solo 91.9% del revenue
+         ($45.85B) sin que se disparara ninguna alarma.
+  FIX: Agregar validación post-normalización:
+       - Si coverage < 0.75: ⚠ ALERTA CRÍTICA (segmento probable faltante)
+       - Si coverage < 0.90: ⚠ ALERTA (cobertura baja)
+       - En ambos casos: imprimir warning + agregar a meta["warnings"]
+  ARCHIVOS: feroldi_normalizar.py (sección de validación de segmentos)
+
+BUG-S9 (feroldi_sankey.py): Flujos delgados (stroke-width 3-6px fijo) vs diseño de referencia
+  CAUSA: Todos los flujos usaban stroke-width fijo y pequeño (3-6px), sin relación
+         proporcional con los valores. La referencia usa bandas gruesas proporcionales
+         (stroke-width=55 para $26.8B, sw=160 para $36.76B) con gradientes lineales,
+         que es lo que da el aspecto visual Sankey real.
+  FIX:
+    1. FLOW_SCALE = 160: revenue → 160px de stroke-width máximo.
+       Cada flujo: sw = max(3, min(150, int(valor/revenue × 160)))
+    2. Segmentos col1→col2: sw proporcional + color del segmento (antes todos #00a8cc)
+    3. COGS, S&M, R&D, D&A, Otros, EBIT, NI, FCF, Tax, Interest: sw proporcional
+    4. Gradientes lineales por tipo de flujo: gCOGS, gSM, gRD, gDA, gOther,
+       gEBIT, gNI, gFCF, gTax, gInt (añadidos a <defs>)
+    5. Opacidad ajustada para bandas gruesas (0.45-0.65)
+  ARCHIVOS: feroldi_sankey.py (layout vars + defs + paths)
+  RESPALDOS: *.bak_X0.593
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.593 — BUG-S8 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUG-S8: Flujos EBIT→Tax/Interest/NET INCOME iban hacia arriba (feroldi_sankey.py)
+
+CAUSA:
+  ni_y se calculaba como max(rev_y1+130, ni_y_centered), centrado en H_prov.
+  Para diagramas con muchos gastos (ej. MCD), col3_bottom es grande y ebit_y
+  queda en ~787, pero ni_y_centered = (H_prov - ni_h)//2 ≈ 407.
+  Resultado: NET INCOME (407) queda ARRIBA de EBIT (787) → flujos invertidos.
+
+FIX:
+  Agregar restricción: ni_y ≥ ebit_y + EBIT_H + 30
+  Esto garantiza que NET INCOME (y Tax/Interest relativos a ni_y) siempre
+  queden DEBAJO de EBIT. Los flujos van naturalmente de izquierda-abajo
+  hacia derecha-abajo, no hacia arriba.
+
+  Antes: ni_y = max(rev_y1 + 130, ni_y_centered)
+  Ahora: ni_y = max(rev_y1 + 130, ni_y_centered, ebit_y + EBIT_H + 30)
+
+ARCHIVO MODIFICADO: feroldi_sankey.py (línea ~326)
+EFECTO COLATERAL: el viewBox crece cuando col3 es muy tall (correcto — sin clips)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.592 — VALIDACIÓN TESTS — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TESTS PASADOS: MCD + AAPL (X0.591 sobre feroldi_recolectar.py)
+
+MCD @ $283.70:
+  fy_year:    2025 ✅ (BUG-R2 resuelto)
+  Revenue:    $26.89B ✅
+  EBIT:       $12.39B ✅
+  NET INCOME: $8.56B ✅
+  FCF:        $7.19B ✅
+  Segmentos (producto ✅):
+    Revenues from franchised restaurants  $16.55B (61.6%)
+    Sales by Company-owned restaurants    $9.69B  (36.0%)
+    Otros                                 $0.65B  (2.4%)
+  BUG-R1 resuelto: segmentos ya no son geográficos.
+
+AAPL @ $287.46:
+  fy_year:    2025 ✅
+  Revenue:    $416.16B ✅
+  EBIT:       $133.05B ✅
+  NET INCOME: $112.01B ✅
+  FCF:        $98.77B ✅
+  Segmentos (producto ✅): iPhone · Services · Wearables · Mac · iPad
+  Sin regresión desde X0.581.
+
+PENDIENTE BAJO PRIORIDAD:
+  BUG-R3: Goodwill N/D con badge ✅ Verificado (cosmético — no afecta datos)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.592 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NUEVO SKILL: feroldi-verify (agente autoeval)
+
+UBICACIÓN: ~/.claude/skills/feroldi-verify/skill.md
+
+DESCRIPCIÓN:
+  Agente de validación visual que cierra el ciclo de desarrollo autónomo.
+  Ciclo: ejecuta pipeline → abre HTML → captura pantalla → evalúa → corrige → repite.
+  Máximo 5 iteraciones por sesión, con criterios de evaluación documentados.
+
+CRITERIOS DE EVALUACIÓN IMPLEMENTADOS:
+  Crítico: Revenue/NET INCOME/EBIT no N/D, Sankey generado sin errores
+  Importante: segmentos por producto/servicio (no geo salvo excepción),
+              nombres legibles, NET INCOME centrado, tabla auditoría formateada
+  Menor: animaciones, proporciones layout
+
+ARCHIVOS CLAVE: ~/.openclaw/workspace/ (recolectar/normalizar/sankey)
+USO: /feroldi-verify TICKER PRECIO
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.591 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIX ADICIONAL BUG-R1: SEGMENTOS PROPIETARIOS (FALLBACK INCOME STATEMENT)
+
+CONTEXTO:
+  Después del fix X0.59, MCD seguía mostrando 3 segmentos geográficos
+  (U.S., International Operated Markets, IDLM) porque MCD no usa
+  ProductOrServiceAxis en su XBRL — usa conceptos propietarios (mcd_*)
+  directamente en el income statement sin eje dimensional.
+
+BUG ADICIONAL DETECTADO:
+  Empresas como MCD reportan revenue por tipo de producto/servicio como
+  conceptos company-specific NO dimensionales:
+    mcd_Revenuesfromfranchisedrestaurants: $16.55B
+    mcd_SalesbyCompanyoperatedrestaurants: $9.69B
+    mcd_OtherRevenues: $0.65B
+  Estos no aparecen en ningún xbrl.facts.query().by_dimension() porque
+  no tienen eje dimensional asignado.
+
+Fix implementado — nueva función _extract_income_stmt_segs():
+  Cuando no hay non-geo dimensional candidates, busca en income statement
+  raw data conceptos con keywords de revenue/sales que:
+    1. NO son estándar us-gaap (no duplican el total)
+    2. Tienen valores positivos con período duration
+    3. Suman entre 88%-112% del total revenue
+    4. Son ≥2 segmentos
+  Si los encuentra, los retorna como segmentos producto/servicio.
+
+RESULTADO MCD @ $283.70:
+  Antes:  U.S. $10.82B · IOM $13.63B · IDLM $2.43B  (geográfico)
+  Ahora:  Revenues from franchised restaurants $16.55B ·
+          Sales by Company-owned restaurants $9.69B · Otros $0.65B  (producto ✅)
+
+REGLA IMPLEMENTADA (agnóstica al ticker):
+  producto/servicio > negocio > geográfico
+  Excepción: si no hay ≥2 segmentos producto disponibles → usar geográfico
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.59 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIXES DE PIPELINE: SEGMENTOS Y FY_YEAR (feroldi_recolectar.py)
+
+BUG-R1: extract_segments_edgartools devolvía null para tickers que usan
+        us-gaap_Revenues (ej. MCD) porque el query era by_concept("Revenue"),
+        que solo matchea empresas que usan ese concepto exacto.
+  Fix:  El bucle de query ahora prueba una lista de conceptos revenue en
+        orden: ["Revenues", "Revenue", "RevenueFromContractWithCustomer...",
+        "RevenueFromContractWithCustomerIncluding...", "SalesRevenueNet"].
+        El primer concepto que retorne datos para ese eje se usa.
+
+BUG-R2: fy_year = N/D para tickers que reportan revenue como us-gaap_Revenues
+        (ej. MCD, restaurantes, retail) porque la extracción de año solo
+        buscaba us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax.
+  Fix:  La extracción de fy_year prueba los mismos 4 conceptos revenue,
+        parando en el primero que tenga values con período duration.
+
+PRIORIDAD DE EJE (agnóstica al ticker):
+  Antes: selección por max_segs + cobertura (sin respetar orden de eje).
+  Ahora: AXIS_PRIORITY explícito: ProductOrServiceAxis(0) >
+         StatementBusinessSegmentsAxis(1) > ConsolidationItemsAxis(2).
+         En caso de empate: más segmentos primero, luego cobertura ≈ 100%.
+         La preferencia no-geo > geo se mantiene como filtro previo.
+
+ARCHIVO MODIFICADO: feroldi_recolectar.py
+
+PENDIENTE VALIDAR:
+  - MCD @ $283.70: verificar fy_year resuelto y "International Operated Markets"
+  - AAPL @ $287.46: verificar que no regresiona (ya pasaba con X0.581)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.581 — Mayo 2026 (post-deploy local, pre-push)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOTFIXES SOBRE feroldi_sankey.py DESPUÉS DE VALIDACIÓN VISUAL CON AAPL
+
+CONTEXTO:
+  Tras instalar X0.58 localmente y verificar el Sankey de AAPL en navegador,
+  surgieron 3 bugs visuales/de etiquetado en feroldi_sankey.py que se
+  corrigen antes de pushear al repo.
+
+BUG-S5: NET INCOME en COL5 quedaba pegado en la esquina inferior
+  Causa: ni_y se alineaba al centro vertical de EBIT (ebit_y + (EBIT_H - ni_h)//2),
+  pero COL5 incluye FCF/Capex/SBC/Div/Deuda arriba, así que NET INCOME aislado
+  abajo se veía visualmente desbalanceado.
+  Fix: ni_y se calcula ahora como (H_prov - ni_h) // 2 con H_prov estimada
+  antes de incluir NET INCOME. Tax e Interest siguen siendo relativos a ni_y
+  (ni_y - 82 y ni_y - 45) → se mueven con NET INCOME y la flecha
+  EBIT → Tax/Interest → NET INCOME se ajusta automáticamente.
+
+BUG-S6: tabla de auditoría mostraba números enteros sin abreviar
+  Síntoma: Revenue GAAP "$416,161,000,000" en vez de "$416.16B" — ilegible.
+  Causa: las variables s_*_raw usaban formato f"${valor:,.0f}".
+  Fix: reemplazadas por hr() (formato $X.XXB ya existente en el módulo).
+  Excepción: s_shares_raw usa "{shares/1e9:.2f}B" sin signo de dólar.
+
+BUG-S7: EBIT en tabla de auditoría siempre etiquetado como "Alpha Vantage"
+  Síntoma: con AV bloqueado y EBIT extraído de EDGAR.OperatingIncomeLoss,
+  la tabla seguía diciendo "Alpha Vantage (32.0%)" como fuente primaria.
+  Causa: hardcoded "Alpha Vantage ({op_margin})" en la fila EBIT.
+  Fix: nuevas variables ebit_source y ebit_status que reflejan la cadena
+  de prioridad real:
+    - margen_op de AV disponible → "Calculado: Rev × Margen Op AV (X.X%)" + ⚡ Estimado
+    - margen_op N/D pero operating_income de EDGAR → "EDGAR XBRL (10-K · OperatingIncomeLoss)" + ✅ Verificado
+    - ambos N/D → "N/D" + ⚡ Estimado
+
+VALIDACIÓN VISUAL X0.581:
+  AAPL @ $287.46 con AV bloqueado:
+    - EBIT $133.05B etiquetado correctamente como EDGAR XBRL
+    - Tabla auditoría con valores en $X.XB
+    - NET INCOME centrado verticalmente en el diagrama
+
+BUGS NUEVOS DETECTADOS (PENDIENTES PARA X0.59):
+  BUG-R1: feroldi_recolectar X0.58 devuelve raw_segments_all = []
+          Causa probable: extract_segments_edgartools no expone todos los
+          ejes XBRL como esperaba el diseño X0.58. Ej. MCD pierde segmento
+          "International Operated Markets" (~$13B de $26.89B).
+  BUG-R2: fy_year = N/D para MCD (debería ser 2025 o 2024 según calendario fiscal)
+  BUG-R3: tabla auditoría — Goodwill: N/D con badge ✅ Verificado se lee ambiguo;
+          considerar badge "ⓘ No reportado" cuando EDGAR responde y el campo
+          es null legítimo.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.58 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMBIO ARQUITECTURAL MAYOR: CAPA DE NORMALIZACIÓN
+
+MOTIVACIÓN:
+  X0.57 demostró que parchear feroldi_recolectar.py y feroldi_sankey.py
+  con lógica de negocio produce código frágil. Cada ticker nuevo (AMZN,
+  MSFT, UNH) requería un fix que rompía otro ticker. El problema de raíz:
+  la lógica de interpretación de datos estaba mezclada con la recolección
+  y el renderizado. X0.58 introduce una capa intermedia que separa las
+  responsabilidades definitivamente.
+
+NUEVA ARQUITECTURA:
+  feroldi_recolectar.py → [datos_TICKER_raw.json]
+         ↓
+  feroldi_normalizar.py → [datos_TICKER.json limpio]
+         ↓
+  feroldi_sankey.py     → [Diagrama_Sankey_TICKER.html]
+
+[NUEVO] feroldi_normalizar.py
+  Única responsabilidad: tomar datos crudos y producir JSON canónico limpio.
+  Principios de diseño:
+    1. Una cadena de prioridad explícita por campo (AV → EDGAR → calculado → null)
+    2. Nunca crashea — siempre devuelve JSON válido
+    3. null explícito con razón documentada, nunca [] vacío ni valor inventado
+    4. Idempotente — correr 2 veces da mismo resultado
+    5. Testeable — cada campo es independiente
+
+  Cadenas de prioridad:
+    revenue, net_income, cfo, capex, fcf, sbc, deuda, cash, goodwill, shares
+      → EDGAR primario (auditado, oficial SEC)
+    operating_income (EBIT)
+      → EDGAR.operating_income (OperatingIncomeLoss)
+      → AV: revenue * margen_op (si ambos disponibles)
+      → null
+    margen_bruto, margen_op, margen_neto, roe, roa
+      → Alpha Vantage (TTM ratios, más actualizados)
+      → Calculado desde financials EDGAR
+      → null
+    beta, pe_forward, peg, ev_ebitda, pb
+      → Alpha Vantage únicamente
+      → null
+    segmentos
+      → EDGAR edgartools raw_segments_all (todos los ejes)
+      → Limpieza: padres iterativa, geo vs producto, <3% → Otros
+      → null explícito (nunca [])
+
+[MODIFICADO] feroldi_recolectar.py
+  Simplificado: solo recolecta datos crudos, sin interpretación.
+  Cambios vs X0.57:
+    - extract_segments_edgartools() ya no hace parent detection
+      (se mueve a normalizar). Devuelve raw_segments_all con todos
+      los ejes disponibles para que normalizar elija.
+    - JSON output agrega sección edgar.raw_segments_all
+    - Elimina toda lógica de pick() para campos derivados
+      (normalizar los recalcula)
+
+[MODIFICADO] feroldi_sankey.py
+  Simplificado: renderer puro. Recibe JSON normalizado, solo dibuja.
+  Cambios vs X0.57:
+    - Eliminado: find_padre(), es_padre(), filtrado de segmentos
+    - Eliminado: estimación de EBIT cuando margen_op es None
+    - Eliminado: cálculo de márgenes desde revenue si faltan
+    - Confía en que el JSON de entrada ya está limpio (normalizar lo garantiza)
+    - Resultado: ~200 líneas menos, cero lógica de negocio
+
+FLUJO COMPLETO X0.58:
+  Kika recibe: $TICKER PRECIO
+  1. feroldi_recolectar.py TICKER PRECIO
+     → datos_TICKER_raw_FECHA.json
+  2. feroldi_normalizar.py datos_TICKER_raw_FECHA.json
+     → datos_TICKER_FECHA.json (limpio)
+  3. feroldi_sankey.py datos_TICKER_FECHA.json PRECIO
+     → Diagrama_Sankey_TICKER_PRECIO_FECHA.html
+
+ARCHIVOS X0.58 (15 archivos):
+  Python:   feroldi_recolectar_X0.58.py  (simplificado)
+            feroldi_normalizar_X0.58.py  (NUEVO — pieza central)
+            feroldi_sankey_X0.58.py      (simplificado)
+            feroldi_push_X0.58.py        (version bump)
+            feroldi_merge_X0.58.py       (version bump)
+            feroldi_setup_X0.58.py       (agrega normalizar al flujo)
+  Actions:  feroldi_X0.58.yml            (agrega paso normalizar)
+  Prompts:  prompt_nucleo_X0.58.txt · prompt_light_X0.58.txt
+            prompt_heavy_X0.58.txt · prompt_maestro_X0.58.txt
+  Archivados: prompt_generador_light/heavy/sankey_X0.58.txt
+  Docs:     CHANGELOG.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSION X0.57 — Mayo 2026
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMBIO ARQUITECTURAL: EDGAR RAW API → EDGARTOOLS + CORRECCIONES MASIVAS
+
+NOTA HISTÓRICA:
+  X0.57 fue una sesión de desarrollo intensiva que acumuló múltiples
+  correcciones iterativas. La arquitectura resultó en código funcional
+  pero frágil — cada ticker nuevo requería nuevos parches. Esta deuda
+  técnica motivó directamente el diseño de X0.58.
+
+BUGS CORREGIDOS:
+  BUG-9:  Directorio de salida ~/.openclaw/workspace/ → ~/Downloads/
+  BUG-10: Flujos Sankey casi invisibles en empresas mono-segmento
+  BUG-11: Animaciones CSS desaparecidas → flowAnim 12s restaurado
+  BUG-12: segmentos:[] silencioso → null cuando EDGAR no encuentra datos
+          Sankey bloquea generación si segmentos es null
+  BUG-13: SSL error en aiohttp desde Mac → ssl=False en TCPConnector
+  BUG-14: _extract_segments() basado en companyfacts API (pierde
+          dimensiones XBRL) → reemplazado con edgartools dimensional
+  BUG-15: Segmentos padre no eliminados (AMZN: Net service sales,
+          Net product sales) → heurística iterativa de cobertura
+  BUG-16: TDOC y otros tickers devolvían FY2022 → edgartools resuelve
+          año fiscal correcto automáticamente
+  BUG-A:  Texto largo en COL1 desborda caja → split en 2 líneas con tspan
+  BUG-B:  NET INCOME aparecía duplicado → eliminado
+  BUG-C:  AMZN mostraba segmentos geográficos en lugar de por producto
+          → preferencia de eje: ProductOrServiceAxis primero para AMZN
+  BUG-D:  Animaciones con pausa visible → stroke-dashoffset continuo
+
+FIXES ADICIONALES (descubiertos en testing con AAPL/UNH/MSFT/AMZN):
+  - CFO fallback a raw data cuando convenience method falla
+  - Balance sheet busca periodos 'instant' además de 'duration'
+  - cash_real incluye MarketableSecuritiesCurrent + Noncurrent
+  - operating_income extraído de EDGAR (OperatingIncomeLoss)
+  - Heurística de padres: iterativa, criterio de cobertura ≥70%
+  - Segmentos menores al 3% del revenue agrupados en "Otros"
+  - NET INCOME alineado verticalmente con EBIT (no centrado en COL3)
+  - Layout COL3 completamente dinámico (alturas proporcionales)
+  - Flujo COL4→COL5 conecta al centro de NET INCOME horizontalmente
+
+FEATURES X0.57:
+  F2: Multi-key AV con fallback automático
+      NOTA: resultó inútil — límite AV es por IP no por key.
+      Mantenido para GitHub Actions (IP distinta a Mac local).
+      Keys: AV_API_KEY (Mac) + AV_API_KEY_2 (GitHub Actions)
+  F3: Nuevo orden TIERs: Alpha Vantage → EDGAR → TradingView
+  F4: Preferencia de eje segmentos: ProductOrServiceAxis >
+      StatementBusinessSegmentsAxis > ConsolidationItemsAxis
+
+VALIDACIONES X0.57:
+  AAPL: $416B FY2025, 5 segmentos (iPhone $209B), 0 N/D cuando AV activo
+  UNH:  $447B FY2025, 4 segmentos + Eliminaciones (-$173B), 0 N/D
+  MSFT: $281B FY2025, 3 segmentos correctos, 5 N/D (AV bloqueado)
+  AMZN: $716B FY2025, 6 segmentos por producto, 5 N/D (AV bloqueado)
+  FSLY: $624M FY2025, 3 segmentos, 0 N/D
+  TDOC: $datos FY2025, 0 N/D
+
+ARCHIVOS X0.57 (14 archivos, misma estructura que X0.56):
+  Python:   feroldi_recolectar_X0.57.py · feroldi_sankey_X0.57.py
+            feroldi_push_X0.57.py · feroldi_merge_X0.57.py
+            feroldi_setup_X0.57.py
+  Actions:  feroldi_X0.57.yml
+  Prompts:  prompt_nucleo_X0.57.txt · prompt_light/heavy/maestro_X0.57.txt
+  Docs:     CHANGELOG.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NOTA DE RECONSTRUCCIÓN HISTÓRICA (09-05-2026)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Las entradas X0.58–X0.75 se reconstruyeron retroactivamente a partir de:
+  · Docstrings CAMBIOS X0.XX vs X0.YY embebidos en feroldi_recolectar.py
+  · Comentarios BUG-S y anotaciones de versión en feroldi_sankey.py
+  · Comentarios BUG-N en feroldi_normalizar.py
+  · Transcripts de sesiones Claude Code (sesiones daf5337d y 245b3e04)
+  · Archivos de memoria del proyecto (~/.claude/projects/.../memory/)
+
+Confianza de cada entrada marcada con:
+  [COD] = confirmado directamente del código fuente
+  [CTX] = reconstruido del contexto de sesiones / memoria
+  [INC] = incompleto — no se pudo recuperar el detalle
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.58 — Arquitectura 3 archivos
+Fecha: circa 2026-05-07
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTEXTO [CTX]:
+  Refactorización total post X0.57. X0.57 demostró que parchear un solo
+  archivo produce código frágil — cada ticker nuevo requería parches ad hoc.
+  X0.58 introduce feroldi_normalizar.py como archivo nuevo y redistribuye
+  responsabilidades entre los 3 archivos del pipeline.
+
+NUEVO ARCHIVO: feroldi_normalizar.py [COD]
+  VERSION = "X0.58" (no ha sido modificado desde esta versión)
+  Responsabilidad: tomar el JSON crudo de recolectar y producir JSON
+  canónico limpio para que sankey nunca reciba datos sucios.
+  Beneficio: sankey.py eliminó toda lógica de limpieza de datos.
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  · Segmentos entregados ya limpios por normalizar (sankey los usa directo)
+  · Base arquitectural para TIER 4 yfinance (implementado en X0.61)
+
+CAMBIOS feroldi_sankey.py [COD]:
+  · X0.58: segmentos ya limpios → eliminada lógica de limpieza inline
+  · BUG-N1 X0.58: alarma si segmentos no cubren el revenue total (normalizar)
+
+PIPELINE X0.58:
+  feroldi_recolectar.py → datos_{TICKER}.json (crudo)
+  feroldi_normalizar.py → datos_{TICKER}.json (canonizado, mismo archivo)
+  feroldi_sankey.py     → Diagrama_Sankey_{TICKER}_{PRECIO}_{FECHA}.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.581 — Fixes post-deploy Sankey
+Fecha: circa 2026-05-07
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUGS CORREGIDOS en feroldi_sankey.py [COD]:
+
+  BUG-S6 X0.581: Audit table mostraba valores sin formato
+    Síntoma: $416,161,000,000 en tabla (ilegible)
+    Fix: formato breve $X.XB / $X.XM para todos los valores numéricos
+
+  BUG-S7 X0.581: EBIT source siempre decía "Alpha Vantage"
+    Síntoma: aunque EDGAR entregara operating_income, label = "Alpha Vantage"
+    Fix: trackear fuente real del EBIT (EDGAR vs AV vs calculado)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIONES X0.59x — Serie de fixes visuales Sankey
+Fecha: circa 2026-05-07/08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTA: Las versiones X0.590–X0.593 no tienen detalle recuperable. [INC]
+Las X0.594–X0.599 están confirmadas por comentarios en feroldi_sankey.py.
+
+BUGS CORREGIDOS en feroldi_sankey.py:
+
+  BUG-S9 X0.594: Gradientes para flujos proporcionales [COD]
+    Fix: gradientes SVG para que el ancho del flujo represente el monto
+
+  BUG-N1 X0.594: Alarma en normalizar si segmentos < revenue total [COD]
+    Fix: feroldi_normalizar.py lanza warning cuando cobertura < 95%
+
+  BUG-S10 X0.596: SVG layout estático → layout completamente dinámico [COD]
+    Síntoma: sankey con layout fijo no escalaba para empresas con muchos segmentos
+    Fix: columnas redistribuidas dinámicamente (ratio 1%/28%/53%/73%/90%)
+         san_h() — función unificada de altura/banda proporcional a revenue
+         Flujo COL1→COL2: borde derecho del segmento → borde izquierdo de Revenue
+
+  BUG-S11 X0.597: Alturas COL4 (Tax/Interest) y COL5 incorrectas [COD]
+    Fix: Tax/Interest en TOP de COL4 (posición fija)
+         NET INCOME centrado en COL4 después de Tax/Interest
+         COL5 nodes apilados verticalmente, centrados en ni_y+ni_h//2
+         Flujo EBIT (COL3) → COL4 conecta al centro de NET INCOME
+
+  BUG-S12 X0.598: Sanity check EBIT ≈ NI [COD]
+    Problema: EDGAR puede entregar operating_income = net_income (algunos filers)
+    Fix: si EBIT ≈ NI (ratio < 1.05), marcar EBIT como N/D y usar cálculo fallback
+
+  V7 X0.599: Traducción visual de nombres de segmento [COD]
+    Feature: nombres EDGAR en inglés se traducen al español para display visual
+    Importante: JSON interno intacto — solo afecta la capa de presentación SVG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.60 — Texto proporcional COL3/4/5
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_sankey.py [COD]:
+  · Helper COL3: fuentes Y posiciones proporcionales a la altura del nodo
+  · Pre-compute de métricas de texto proporcional para TODAS las cajas
+  · COL3 (Costos), COL4 (Resultado Financiero) y COL5 (Destinos de Capital)
+    rediseñados con texto dinámico que escala con el tamaño del nodo
+  · Elimina pisos fijos (BUG-S8 anterior) que empujaban nodos hacia abajo
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.61 — TIER 4 yfinance Auditoría
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  TIER 4 = yfinance — auditoría silenciosa siempre activa:
+    · Compara TODOS los campos contra EDGAR + AV
+    · Categorías por campo: match / disagree / filled / null
+    · Solo se USAN fills (campos null en TIER 1+2+3 que yfinance puede llenar)
+    · Audit completo en meta.tier4_audit del JSON de salida
+    · Log persistente ~/Downloads/tier4_audit_log.jsonl (una línea por corrida)
+  Flag --no-yfinance para deshabilitar TIER 4
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIONES X0.62–X0.66 — DETALLE NO RECUPERADO [INC]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+No hay referencias a estas versiones en el código fuente ni en los
+transcripts de sesiones disponibles.
+
+Contexto probable [CTX]: versiones intermedias entre la introducción de
+yfinance TIER 4 (X0.61) y la arquitectura FX para batch/GitHub Actions
+(X0.67). Posiblemente incluían:
+  · Mejoras al pipeline de GitHub Actions
+  · Fixes de validación con más tickers (HIMS, WING, CELH, etc.)
+  · Iteraciones del layout visual del Sankey
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.67 — FX en batch / GitHub Actions [CTX]
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTEXTO [CTX]:
+  Mencionada en X0.68 como "arquitectura que se porta al pipeline individual".
+  Sugiere que X0.67 implementó la conversión FX (moneda local → USD) en el
+  contexto de GitHub Actions o procesamiento batch, antes de portarla al
+  pipeline por-ticker de X0.68.
+  Detalle exacto no recuperable de transcripts disponibles. [INC]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.68 — FX Dinámico en pipeline individual
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  FX dinámico en pipeline individual (porta arquitectura de X0.67):
+    · Detecta moneda de reporte XBRL desde datos edgartools (campo "unit")
+    · Si EDGAR reporta en moneda local (TWD, EUR, JPY, etc.) → convierte a USD
+    · Tasa de cambio en tiempo real vía yfinance (par CURRENCY/USD)
+    · Fallback: tabla hardcoded de tasas aproximadas
+    · fx_info en meta del JSON de salida: {par, rate, date, tag 🟢/🟡}
+    · Cache de sesión _FX_CACHE para evitar llamadas duplicadas a yfinance
+    · Detectar moneda de reporte XBRL desde datos edgartools (campo unit)
+
+  PROBLEMA RESUELTO:
+    Sin X0.68: TSM con AV caído y EDGAR en TWD producía revenue ~32x inflado
+    (1 TWD ≈ 0.031 USD → sin conversión, revenue aparecía en el Sankey como
+    ~32 veces el valor real en USD)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.69 — Guardianes de proporcionalidad Sankey
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_sankey.py [COD]:
+  Guardianes de proporcionalidad (GUARDIANES DE PROPORCIONALIDAD):
+    · Validan que las alturas y flujos SVG sean proporcionales al revenue
+    · Previenen que nodos con valores pequeños queden invisibles
+    · Previenen que nodos con valores grandes rompan el layout
+
+  Equivalentes IFRS para filers 20-F [COD]:
+    · Agrega conceptos IFRS faltantes en sankey (TM, TSM, NVO, SAP, etc.)
+    · Sin este fix, algunos 20-F mostraban N/D donde había datos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.70 — Ejes IFRS en AXIS_PRIORITY
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  · ifrs-full_SegmentsAxis agregado a AXIS_PRIORITY
+  · ifrs-full_ProductsAndServicesAxis agregado a AXIS_PRIORITY
+  · ifrs-full_Revenue a REVENUE_CONCEPTS_SEG
+  · ifrs-full_RevenueFromContractsWithCustomers a REVENUE_CONCEPTS_SEG
+
+  PROBLEMA RESUELTO:
+    Filers IFRS (NVO, TSM, SAP, etc.) no aparecían sus segmentos IFRS
+    porque el pipeline solo buscaba en ejes US-GAAP.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.71 — Fix 20-F fallback en extract_segments
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  Fix root cause real en extract_segments_edgartools():
+    · Problema: get_filings(form="10-K") retornaba None para filers 20-F
+    · Síntoma: Toyota/NVO/SAP/TSM mostraban 1 segmento (consolidado) en
+      lugar de sus segmentos reales
+    · Fix: fallback a form="20-F" si no hay 10-K disponible
+    · Impacto: Toyota pasó de 1 segmento consolidado a sus segmentos reales
+      (Automotive, Financial Services, Other)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.72 — FX conversion en segmentos array
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  FX conversion en segmentos:
+    · edgar.segmentos[].revenue ahora se convierte × fx_rate igual que
+      los campos escalares (revenue total, fcf, etc.)
+    · Sin X0.72: TSM/TM mostraban segmentos en miles de millones de JPY
+      en el Sankey en vez de USD (aunque el revenue total estaba convertido)
+    · Fix consistente: todos los valores monetarios, incluyendo el array de
+      segmentos, se convierten a USD antes de escribir el JSON
+
+  NOTA: feroldi_normalizar.py y feroldi_sankey.py actualizan sus cabeceras
+    a "Sistema: X0.72" aunque sus archivos no fueron modificados.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.73 — Fixes SBUX, bancos, deduplicación
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+
+  · Upper bound de coverage bajado 2.00 → 1.15
+    Problema: SBUX mezclaba ProductAxis + ChannelAxis → suma >120% revenue
+    Fix: descartar ejes donde la suma de segmentos supere 115% del revenue
+
+  · RevenuesNetOfInterestExpense como concepto revenue para bancos [COD]
+    Agrega: JPM, BAC y otros bancos US-GAAP que reportan revenue neto de interés
+
+  · Deduplicación case-insensitive de segmentos [COD]
+    Problema: MELI tenía "Other Countries" y "Other countries" como dos nodos
+    Fix: deduplicar usando key.lower().strip() antes de retornar
+
+  · Filtro de nombres genéricos + fallback [COD]
+    Problema: CELH reportaba "Reportable Segment", WING "Restaurants Segment"
+    Fix: lista _GENERIC_NAMES → si el único segmento tiene nombre genérico,
+         activar fallback a otro eje con nombres más informativos
+
+  · Umbral cobertura mínima: 0.30 para ejes sin consolidación [COD]
+    Para ejes con datos parciales (sin "is_elimination"), mínimo 30%
+
+  · ifrs-full_GeographicalAreasAxis bajado a prioridad 10 [COD]
+    Razón: geográficos producen desglose menos informativo y se mezclan con
+    ejes de producto causando doble conteo (SBUX, MELI)
+
+  · Validaciones del sistema X0.73 [CTX]:
+    SBUX: segmentos correctos (Americas, International, Channel) sin doble conteo
+    MELI: sin duplicados de países
+    JPM:  revenue correcto vía RevenuesNetOfInterestExpense
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.74 — IFRS bancos, ARS detection, amendments
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+
+  · amendments=False en get_filings() [COD]
+    Problema: SHOP usaba el 10-K/A (amended filing) que carecía de XBRL
+    dimensional. El 10-K/A de Shopify no tenía datos de segmentos.
+    Fix: preferir siempre el 10-K original sobre el 10-K/A
+
+  · ifrs-full_ProductsAndServicesAxis en AXIS_PRIORITY [COD]
+    Problema: VALE y otros filers IFRS reportan por producto en este eje
+    que no estaba listado. Segmentos de VALE no aparecían.
+    Fix: agregar eje a la lista de prioridad
+
+  · Coverage cap 3.0x para ifrs-full_SegmentsAxis [COD]
+    Problema: bancos IFRS (HSBC, ITUB) reportan revenue bruto por segmento
+    que puede superar el Net Interest Income hasta 3x.
+    Fix: _GENEROUS_COVERAGE_AXES = {"ifrs-full_SegmentsAxis"}, max_cov=3.0
+
+  · ifrs-full_RevenueAndOperatingIncome como concepto revenue [COD]
+    Problema: HSBC reporta segmentos en este concepto, no en ifrs-full_Revenue
+    Fix: agregar a REVENUE_CONCEPTS_SEG
+
+  · Limpieza " [member]" de nombres IFRS [COD]
+    Problema: edgartools devuelve "Entresto [member]" en lugar de "Entresto"
+    Fix: strip de " [member]", "Country Of X" → "X", etc.
+
+  · "Reportable segments [member]" como nombre genérico [COD]
+    Problema: NU reportaba un único segmento con nombre IFRS genérico
+    Fix: agregar a _GENERIC_NAMES → activar fallback
+
+  · _detect_edgar_currency mejorado: ARS vía balance sheet [COD]
+    Problema: LOMA (Loma Negra, empresa argentina) reportaba en ARS pero
+    yfinance indicaba currency="USD". El pipeline usaba valores en ARS
+    sin conversión, produciendo revenue inflado ~1000x.
+    Fix 1: si income statement solo tiene EPS (LOMA tiene solo EPS en USD),
+            buscar moneda en balance sheet
+    Fix 2: heurística revenue/mktcap > 50 → sospecha de moneda local
+
+  · Validaciones X0.74 [CTX]:
+    HSBC: segmentos correctos vía ifrs-full_SegmentsAxis con cap 3.0x
+    LOMA: revenue en USD correcto tras conversión ARS
+    ITUB: segmentos banco IFRS
+    SHOP: segmentos desde 10-K original (no 10-K/A)
+    NVS: "Entresto" limpio (sin "[member]")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.75 — Guard None cashflow / balance_sheet
+Fecha: circa 2026-05-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMBIOS feroldi_recolectar.py [COD]:
+  Guard None en cashflow_statement() y balance_sheet():
+    · VALE y otros filers 20-F IFRS retornan None en cashflow_statement()
+      porque edgartools no puede parsear la estructura IFRS del statement
+    · Sin este fix: la excepción NoneType interrumpía el pipeline ANTES de
+      llegar a extract_segments_edgartools() → segmentos siempre null
+    · Fix: raw_cf=[] y raw_bs=[] cuando el statement retorna None
+    · El pipeline continúa y extrae segmentos correctamente
+    · Impacto directo: VALE pasó de 0 segmentos a 6 segmentos correctos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSIÓN X0.76 — feroldi_recolectar.py
+Fecha: 2026-05-08 / 2026-05-09
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTEXTO:
+  Sesión intensiva de corrección del algoritmo de detección de segmentos
+  padre en jerarquías XBRL multi-nivel. Problema central: doble conteo
+  de segmentos cuando la jerarquía tiene tanto nivel padre como hijos.
+
+BUGS CORREGIDOS EN feroldi_recolectar.py:
+
+  BUG-X73: Segmento padre mayor que revenue total detectado como OK
+           Caso: SAP reporta segmento padre > revenue por eliminaciones
+           Fix: Regla 4 mejorada — tolerancia de cobertura dinámica
+
+  BUG-X74: Moneda ARS→USD no convertida (LOMA, bancos argentinos)
+           Fix: Conversión automática cuando exchange = "BA" o currency = "ARS"
+
+  BUG-X75: Doble conteo ETM + sub-segmentos en VALE (20-F IFRS)
+           Causa: ETM ($8.27B) no detectado como padre porque
+           cov_ratio=0.608 < umbral fijo 0.65 con tolerancia 1.5%
+           Fix X0.76 Layer 1: umbral dinámico _req_cov=0.50 si tol<2%
+
+  BUG-X76a: Nickel ($4.29B) falso padre por combinación Copper+OtherFerrous
+            ($3.75B + $0.72B = $4.47B, tol=4.2% dentro del umbral 5%)
+            Fix X0.76 Layer 1: tolerancia externa reducida de 5% → 3%
+
+  BUG-X76b: Iron Ore Pellets ($4.40B) marcado falso padre de Nickel ($4.29B)
+            por Regla 4 near-duplicate (ratio 97.6%)
+            Causa: no se verificaba similitud semántica de nombres
+            Fix X0.76 Layer 2: guard de similitud de nombres — near-duplicate
+            solo activa si etiquetas comparten ≥1 palabra significativa
+            (excluyendo stopwords: and, the, of, in, total, segment...)
+
+  BUG-X76c: HSBC IWPB falso padre del segmento UK
+            Fix X0.76 Layer 2: mismo guard de similitud — "IWPB" y "UK"
+            no comparten palabras → no se marca como padre
+
+DETALLE TÉCNICO X0.76 (3 capas):
+  Capa 1 — Rule 5 tolerancia y cov_ratio dinámico:
+    tolerancia externa: 5% → 3%
+    _req_cov = 0.50 si tol < 2%  (match muy ajustado → umbral permisivo)
+    _req_cov = 0.65 si tol < 3%  (match mediano → umbral estricto)
+
+  Capa 2 — Rule 4 name similarity guard:
+    _ND_STOPWORDS = {and, the, of, in, or, for, to, a, an,
+                     inc, ltd, corp, other, total, segment, segments}
+    near-duplicate solo activa si intersección de palabras significativas ≠ {}
+
+  Capa 3 — cov_ratio calculado sobre todos los valores menores, no solo combo:
+    sum_smaller = sum(all_values < parent_value)
+    cov_ratio = match_sum / sum_smaller
+
+VALIDACIONES X0.76:
+  VALE:  $38.40B — Iron Solutions $30.13B + ETM $8.27B = 100% ✅
+         Sub-segmentos correctamente excluidos (Iron Ore, Pellets, Nickel, Copper)
+  NVO:   Segmentos farmacéuticos con [member] IFRS danés ✅
+  SAP:   $1.18B eliminaciones inter-segmento correctamente neteadas → 100% ✅
+  LOMA:  IAS 29 "Re-expression Effect" excluido (ajuste inflación, no segmento) ✅
+  HSBC:  IWPB ya no es falso padre del segmento UK ✅
+
+NOTA IAS 29 (LOMA):
+  El elemento "Reconciliation - Re-expression Effect" es un ajuste contable
+  de reexpresión por hiperinflación (IAS 29), no un segmento de negocio.
+  Decisión de diseño: excluirlo del Sankey es correcto.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INFRAESTRUCTURA — feroldi_batch_corrida.py
+Fecha: 2026-05-09
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTEXTO:
+  Primer batch internacional de 45 tickers (9 países). Desarrollo de
+  infraestructura de batch con loop automático fix→run→analyze.
+  Kika (agente OpenClaw) ejecuta las corridas; Claude solo corrige código.
+
+NUEVO ARCHIVO: feroldi_batch_corrida.py
+  Ubicación: ~/.openclaw/workspace/ y ~/
+
+FEATURES IMPLEMENTADAS:
+
+  F-BATCH-1: Resolución automática de exchange sin sufijo
+    Arquitectura: usuario escribe símbolo puro ("601899", "GRUMAB", "S68")
+    Función resolve_yf_ticker(symbol, country) detecta el exchange:
+      - Números 4 dígitos              → .HK (Hong Kong)
+      - Números 5-6 dígitos (0/2/3)   → .SZ (Shenzhen)
+      - Números 5-6 dígitos (6/9)     → .SS (Shanghai)
+      - Country code "MX"             → .MX (BMV México)
+      - Country code "ES"             → .MC (Bolsa Madrid)
+      - Country code "SG"             → .SI (SGX Singapur)
+      - Country code "FR"             → .PA (Euronext París)
+      - Country code ""/"US"          → sin sufijo (NYSE/OTC ADR)
+    TICKERS como lista de tuplas (símbolo, country_code)
+    Rationale: usuarios nunca escriben sufijos de exchange manualmente
+
+  F-BATCH-2: Skip automático de tickers ya procesados
+    Función already_done(symbol) escanea CORRIDA_*_FEROLDI/
+    buscando Diagrama_Sankey_{symbol}_*.html
+    NOTA: no funcionó en corridas de esta sesión por restricción macOS TCC
+    que impide glob cross-directory desde subproceso de Kika
+
+  F-BATCH-3: Parsing de stdout de feroldi_sankey para ubicar HTML
+    Problema: find_html() con glob fallaba sistemáticamente
+    Causa raíz: la función dependía de ventana de 15 min que expiraba,
+    y el path de búsqueda no siempre coincidía con el ticker resuelto
+    Fix: feroldi_sankey imprime "Archivo: /path/to/html"
+    El batch parsea esa línea directamente → infalible
+    Fallback: find_html() como segundo intento
+
+  F-BATCH-4: Detección correcta de sankey sin datos
+    Problema: feroldi_sankey.py retorna exit code 0 incluso cuando
+    imprime "❌ Error: no hay Revenue en el JSON"
+    Fix: verificar que stdout contenga "✅ SANKEY GENERADO"
+    Si no → marcar como error "sankey_no_data" en lugar de ok_no_html
+
+  F-BATCH-5: Auto-incremento de número de corrida
+    next_corrida_number() busca primer N libre en ~/Downloads/CORRIDA_N_FEROLDI/
+
+  F-BATCH-6: Reporte detallado con errores agrupados por step
+    Incluye yf_ticker resuelto, precio, status, html path, error detail
+
+BUGS DE INFRAESTRUCTURA DESCUBIERTOS:
+
+  BUG-BATCH-1: HTMLs huérfanos en ~/Downloads/ (nunca movidos a CORRIDA dir)
+    Causa: find_html() buscaba por glob que no matcheaba
+    Fix: F-BATCH-3 (parsing stdout)
+    Acción correctiva: 34 HTMLs movidos manualmente a sus CORRIDA dirs
+
+  BUG-BATCH-2: Falso OK para tickers sin datos EDGAR
+    Causa: feroldi_sankey retorna 0 aunque falle
+    Fix: F-BATCH-4
+
+CORRECCIONES DE TICKERS DESCUBIERTAS:
+
+  CRES   → CRESY   (Cresud; ticker "CRES" devuelve 404 en yfinance)
+  DPSGY  → DHLGY   (DHL Group; DPSGY es ticker obsoleto de Deutsche Post)
+  TEF    → TEFOF   (Telefónica; TEF se delistó de NYSE en 2019,
+                    TEF.BA existe en Bolsa Buenos Aires a 340 ARS →
+                    falso precio en USD, trampa del fallback automático)
+
+LIMITACIÓN DE DATOS DESCUBIERTA:
+  12 tickers sin 20-F en EDGAR (comentados en TICKERS):
+    México BMV (no ADR):  GRUMAB (Grupo Bimbo), ELEKTRA (Grupo Elektra)
+    China A-shares SSE:   601899, 600673
+    China A-shares SZSE:  002050, 002475, 000938
+    Singapur SGX:         S68, Z74, V03, A17U, C38U
+  El pipeline requiere 20-F/10-K con XBRL en EDGAR.
+  Empresas que solo cotizan en bolsas locales no tienen datos de segmentos.
+  Hong Kong (HKEX) SÍ funciona porque algunas empresas presentan 20-F (ICBC,
+  CNOOC, Ping An, etc. listadas también en NYSE como ADRs).
+
+RESULTADO FINAL (09-05-2026):
+  CORRIDA_13_FEROLDI: 33/33 tickers OK — todos con Sankey generado ✅
+  Países cubiertos: Argentina, México, España, Canadá, Alemania, Francia, HK
+  Países sin cobertura EDGAR: China A-shares, Singapur, empresas BMV puras
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.77 — Option C + 40-F + Sanity Check + already_done fix — 09-05-2026
+
+ARCHIVOS MODIFICADOS:
+  feroldi_recolectar.py     X0.76 → X0.77
+  feroldi_batch_corrida.py  X0.76 → X0.77
+
+MOTIVACIÓN:
+  Análisis post-CORRIDA_13 descubrió tres categorías de problemas en calidad
+  de datos. El más crítico: 5 tickers HK (1398, 0805, 0883, 2318, 2378) mostraban
+  Sankeys con datos de empresas US aleatorias porque edgartools interpreta un
+  ticker numérico como CIK directo (ej: "1398" → CIK 0000001398 = entidad random).
+  También: already_done() nunca funcionó en producción por restricción macOS TCC
+  con glob de dos niveles desde proceso hijo.
+
+CAMBIOS:
+
+  [F1 — OPTION C] Resolución de tickers numéricos (HK/China) — feroldi_recolectar.py
+    · Nueva función _is_numeric_ticker(): detecta tickers puramente dígitos
+    · Nueva función _resolve_edgar_company(): reemplaza Company(ticker) directo
+      para tickers numéricos. Flujo:
+        1. Detectar ticker numérico (solo dígitos)
+        2. Obtener longName real via yfinance (con sufijos .HK, .SS, .SZ)
+        3. Buscar en EDGAR por nombre con edgar_find()
+        4. Validar: score ≥ 80 AND similitud difflib ≥ 0.50 (evita falsos positivos:
+           "Industrial and Commercial Bank of China" → "Canadian Imperial Bank of
+           Commerce" tenía score=60.3 → rechazado correctamente)
+        5. Si match válido → usar ese CIK (ej: Prudential plc score=100, sim=1.00)
+        6. Si no hay match → CIK=N/D, nombre desde yfinance, NO llamar a
+           Company(ticker) que daría datos de empresa equivocada
+    · get_edgar_edgartools() y extract_segments_edgartools() usan la nueva función
+    · Impacto validado (09-05-2026):
+        1398 (ICBC): antes "Entity 1398" datos US random →
+                     ahora "Industrial and Commercial Bank of China Limited"
+                     revenue $86B desde yfinance (nombre y datos correctos)
+        2378 (Prudential plc): antes "Entity 2378" →
+                     ahora CIK=0001116578 (EDGAR real), 3 segmentos detectados ✅
+        0883/2318/0805: CIK=N/D, nombre correcto desde yfinance
+
+  [F2 — 40-F] Soporte para filers canadienses — feroldi_recolectar.py
+    · extract_segments_edgartools() reemplaza la cadena secuencial de ifs por
+      un loop sobre todos los tipos de filing en orden de prioridad:
+        10-K (no-amend) → 10-K → 20-F (no-amend) → 20-F → 40-F (no-amend) → 40-F
+    · FIX CRÍTICO en la lógica: antes, si se encontraba un filing SIN XBRL
+      (ej: BN/Brookfield tiene 20-F de 2002 sin XBRL) se retornaba None inmediatamente
+      sin intentar el 40-F que sí tiene XBRL. Ahora: si xbrl() retorna None,
+      se continúa con el siguiente tipo de filing.
+    · Empresas canadienses afectadas: BN (Brookfield), BNS, CM, CNQ, AEM
+    · Nota: BN tiene 7 segmentos en el 40-F pero bajo concepto no-estándar
+      (ifrs-full:InterestRevenueExpense); el framework dimensional no los captura.
+      Fix arquitectónico para ese concepto queda pendiente.
+
+  [F3 — SANITY CHECK] Detección de CIK incorrecto — feroldi_recolectar.py
+    · Después de asignar company_name desde EDGAR, si el nombre coincide con
+      regex ^Entity\s+\d+$ → log 🚨 SANITY FAIL + cik_sanity_warning=True en JSON
+    · No bloquea el pipeline: es un flag de auditoría para detección post-hoc
+    · Con Fix 1 activo, este caso no debería ocurrir para tickers numéricos,
+      pero protege contra otros escenarios donde edgartools devuelva nombres genéricos
+
+  [F4 — ALREADY_DONE] Fix macOS TCC — feroldi_batch_corrida.py
+    · already_done() usaba glob.glob() con wildcard de dos niveles:
+        glob("Downloads/CORRIDA_*_FEROLDI/Diagrama_Sankey_TICKER_*.html")
+      Esto falla silenciosamente desde proceso hijo en macOS (TCC restriction)
+      → función siempre retornaba False → todos los tickers reprocessados en cada corrida
+    · Fix: reemplazar glob por enumeración explícita:
+        os.listdir(DOWNLOADS) filtrando CORRIDA_*_FEROLDI + os.listdir(corrida_dir)
+    · Verificado: already_done('BMA') = True (confirmado por CORRIDA_14 test:
+      primer ticker muestra "⏭ ya procesado" correctamente)
+
+LIMITACIONES QUE PERMANECEN (documentadas, no resueltas en X0.77):
+  · BN, BNS, CM, CNQ, AEM: segmentos no disponibles en XBRL 40-F con formato estándar
+  · BBVA: solo datos geográficos en 20-F EDGAR (no segmentos de negocio)
+  · IFNNY (Infineon): último filing en EDGAR es de 2009 (sin XBRL actual)
+  · Europeos OTC (IBDRY, MURGY, RNMBY, DHLGY, LRLCY, LVMUY, PPRUY, CABK):
+    CIK=N/D, datos desde yfinance únicamente, sin segmentos
+  · Sin QA automatizado de rangos de revenue entre versiones
+  · Año fiscal inconsistente entre tickers (se toma "filing más reciente" siempre)
+
+ANÁLISIS DE PRODUCCIÓN (argumentos contra — documentados 09-05-2026):
+  RESUELTOS con X0.77:
+    🟢 5 Sankeys mostraban datos de empresa equivocada (HK tickers) → corregido
+    🟢 already_done() nunca funcionó → corregido
+  PENDIENTES:
+    🔴 Sin QA automatizado de sanidad de datos (rangos, year consistency)
+    🟠 BN, BNS, CM: sin breakdown de segmentos (datos TV no disponibles en XBRL)
+    🟡 Europeos OTC: datos de yfinance sin auditoría cruzada EDGAR
+    🟡 Año fiscal: no garantizado que todos los tickers muestren mismo período
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.78 — Fix texto overflow + traducciones en Sankey sin segmentos — 09-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_sankey.py  X0.69 → X0.78
+
+MOTIVACIÓN:
+  Revisión visual de CORRIDA_14 (tickers HK) detectó dos bugs en el bloque
+  "sin segmentos" del Sankey (el recuadro izquierdo cuando no hay breakdown):
+  1. Nombres de empresa largos (ej: "New Gonow Recreational Vehicles Inc.")
+     se salían del recuadro porque se renderizan en una sola línea con font-size=16
+  2. Dos strings en inglés hardcodeados: "100% Revenue" y "Revenue YoY"
+
+CAMBIOS:
+
+  [F1 — TEXT OVERFLOW] Auto-wrap y auto-escala del nombre de empresa
+    · Usa la función _split_name() ya existente (usada para nombres de segmentos)
+      para partir el nombre en 2 líneas cuando supera 20 caracteres
+    · Font-size reducido de 16 → 14 cuando el nombre se parte en 2 líneas
+    · Si el nombre no tiene espacios y es muy largo: font-size se reduce
+      linealmente (max(9, 16 - (len-22)//2))
+    · y-position ajustado: 185 (1 línea) vs 178 (2 líneas) para centrado visual
+
+  [F2 — TRADUCCIÓN] Strings en inglés → español
+    · "FY{año} · 100% Revenue"  →  "FY{año} · 100% Ingresos"
+    · "Revenue YoY: ..."        →  "Ing. YoY: ..."
+
+VALIDACIÓN:
+  Regenerados los 5 HTMLs de CORRIDA_14_FEROLDI post-fix.
+  Verificado en HTML de 0805: strings "100% Ingresos" e "Ing. YoY" presentes,
+  nombre "New Gonow" / "Recreational Vehicles Inc." en líneas separadas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.79 — Cabeceras de columna + fix caja negra en Prudential — 09-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_sankey.py  X0.78 → X0.79
+
+MOTIVACIÓN:
+  1. Revisión visual de 2378 (Prudential plc, CORRIDA_14) mostró una caja negra
+     en la columna INGRESOS GAAP. Cobertura de segmentos = 22% → ribbons no
+     cubren el área visible del box → el fondo oscuro del SVG queda expuesto.
+  2. Las 5 columnas del Sankey no tienen etiquetas — el usuario no sabe qué
+     representa cada columna sin leer los boxes internos.
+
+CAMBIOS:
+
+  [F1 — COLUMN HEADERS] Etiquetas fijas encima de cada columna
+    · 5 etiquetas en y≈28, por encima de todos los boxes del Sankey
+    · Estilo: font-size=9, mayúsculas, color #1e4060 (sutil, no compite con datos)
+    · Etiquetas: SEGMENTOS | INGRESOS | EGRESOS | RESULTADOS | CAJA
+
+  [F2 — CAJA NEGRA] Fix visual en Sankeys con baja cobertura de segmentos
+    · Cuando cobertura < 100%, el área no cubierta del revenue box quedaba
+      expuesta mostrando el fondo negro del SVG
+    · Fix: añadir rectángulo de fondo del mismo color que el box (#0d1f35)
+      detrás de los ribbons para que el área vacía se vea como parte del box
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.80 — Cabeceras de columna visibles + advertencia de cobertura — 09-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_sankey.py  X0.79 → X0.80
+
+CAMBIOS:
+
+  [F1 — HEADERS] Cabeceras de columna legibles
+    · font-size: 9 → 32 (antes eran invisibles a zoom normal)
+    · color: #1e4a6a → #e8f0f5 (blanco roto, contrasta con fondo oscuro SVG)
+
+  [F2 — COBERTURA] Advertencia de cobertura baja dentro del revenue box
+    · Cuando cobertura < 95%: mostrar "⚠️ X% sin datos XBRL" en el área
+      vacía del revenue box (la zona oscura no cubierta por ribbons)
+    · Posición: centrada verticalmente en el área vacía del box
+    · Visible para el lector — explica visualmente por qué hay espacio oscuro
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION X0.81 — Advertencia cobertura en C1 + font dinámico + limpieza — 09-05-2026
+
+ARCHIVO MODIFICADO:
+  feroldi_sankey.py  X0.80 → X0.81
+
+CAMBIOS:
+
+  [F1 — ADVERTENCIA] Reubicación a C1 (recuadro SEGMENTOS) y texto revisado
+    · La advertencia de cobertura parcial se muestra en el área vacía del
+      recuadro punteado de SEGMENTOS (C1), no en el revenue box (C2)
+    · Texto: "⚠️ XX% no disponible" + "sin datos en XBRL"
+    · Razón: el lector mira C1 cuando ve segmentos incompletos; C2 no era visible
+
+  [F2 — FONT DINÁMICO] Font-size de advertencia proporcional al espacio disponible
+    · _fs_pct = min(22, max(12, espacio_vacío_C1 // 8))
+    · _fs_label = max(9, _fs_pct - 8)
+    · Evita desbordamiento cuando el área vacía es chica (alta cobertura parcial)
+
+  [F3 — LIMPIEZA] Eliminado código muerto de advertencia en C2
+    · La advertencia duplicada en el revenue box (C2) nunca era visible
+    · Se eliminan las líneas _cov_warn_svg / {_cov_warn_svg} del bloque C2
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STABLE RELEASE — 09-05-2026
+Repositorio: github.com/patonet/informes/stable/09-05-2026/
+
+ARCHIVOS PUBLICADOS:
+  feroldi_recolectar.py   X0.77  (88KB) — recolector principal, AV intacto
+  feroldi_normalizar.py   —      (20KB) — normalizador de JSON
+  feroldi_sankey.py       X0.81  (60KB) — generador de Sankeys
+  feroldi_batch_corrida.py X0.77 (18KB) — orquestador batch (referencia futura)
+
+ESTADO AL CIERRE:
+  · CORRIDA_13: 33/33 tickers OK (pipeline completo)
+  · CORRIDA_14: 5/5 tickers HK OK (fix nombres + datos)
+  · Alpha Vantage: integrado con multi-key fallback; --no-av disponible para batch
+  · already_done(): funcional con os.listdir() (fix macOS TCC)
+  · Tickers HK numéricos: Option C activa (score≥80 + difflib≥0.50)
+  · 40-F canadienses: loop sobre todos los form types
+  · Advertencia cobertura parcial: ⚠️ XX% no disponible en C1, font dinámico
+  · Cabeceras de columna: font-size=32, color blanco roto #e8f0f5
+  · DECISIONS.md + CLAUDE.md: documentación arquitectónica creada
+
+
+─────────────────────────────────────────────────────────────
+[X0.95] 2026-05-11 | Pipeline Feroldi ahora corre automáticamente desde Telegram sin intervención de Claude
+─────────────────────────────────────────────────────────────
+
+CAMBIO: Automatización completa del trigger $TICKER PRECIO desde Telegram.
+
+Se creó un hook de gateway OpenClaw (message:preprocessed) que:
+  · Detecta el patrón $TICKER PRECIO en mensajes entrantes de Telegram
+  · Lanza feroldi_telegram_router.py --ticker X --precio Y en background
+  · Cuando termina (~7 min), envía el link GitHub directamente al usuario
+  · El LLM recibe el mensaje pero ya no necesita ejecutar scripts
+
+Archivos creados/modificados:
+  · ~/.openclaw/workspace/hooks/feroldi-trigger/HOOK.md — definición del hook
+  · ~/.openclaw/workspace/hooks/feroldi-trigger/handler.js — lógica de intercepción
+  · ~/.openclaw/agents/telegram/agent/SOUL.md — actualizado: solo confirmar "⏳ pipeline corriendo"
+  · ~/.openclaw/workspace/telegram/FEROLDI.md — sección $TICKER PRECIO como trigger prioritario
+
+Estado: hook habilitado y gateway reiniciado. Pendiente de test con mensaje real desde Telegram.
+
+
+─────────────────────────────────────────────────────────────
+[X0.96] 2026-05-11 | Pipeline agrega Sankey automático + segundo link en Telegram
+─────────────────────────────────────────────────────────────
+
+CAMBIO: feroldi_telegram_router.py — Paso 4 agregado al pipeline.
+
+Después de feroldi_pensante.py (paso 3), el router ahora:
+  · Corre feroldi_sankey.py con la ruta completa del JSON (evita depender de ~/Downloads/)
+  · Encuentra el Diagrama_Sankey_*.html generado en ~/Downloads/
+  · Lo sube a GitHub bajo diagramas/equities/
+  · Manda dos links por Telegram: informe MD + Sankey HTML
+
+No se modificó feroldi_sankey.py.
