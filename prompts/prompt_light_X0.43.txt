@@ -67,6 +67,10 @@ FORMATO POR PUNTO — SIN LÍMITE DE PALABRAS:
     N/D si no existe — explicar por qué importa.
 (3) Score [emoji] X.X/10 + justificación 1-2 líneas.
 
+REGLA CRÍTICA — LAS 3 SUB-PREGUNTAS SON SEPARADAS:
+Cada → debe tener su propia respuesta de mínimo 2 oraciones + dato verificado.
+PROHIBIDO fusionar las 3 → en un párrafo único. El Score cierra siempre las 3.
+
 1. INDUSTRY
 → **¿Es el sector atractivo estructuralmente?** TAM, tendencias seculares, barreras de entrada, ciclo.
 → **¿El mercado está creciendo?** CAGR histórico y proyectado con cifras.
