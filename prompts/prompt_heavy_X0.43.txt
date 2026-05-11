@@ -86,6 +86,9 @@ BLOQUE G — FEROLDI 16 PUNTOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Si hubo Light: copiar íntegro + añadir [Actualizado Heavy: ...] donde aplique.
 Si no hubo Light: ejecutar con mismo formato del Light (preguntas + respuestas + score).
+REGLA CRÍTICA — LAS 3 SUB-PREGUNTAS SON SEPARADAS:
+Cada → debe tener su propia respuesta de mínimo 2 oraciones + dato verificado.
+PROHIBIDO fusionar las 3 → en un párrafo único. El Score cierra siempre las 3.
 Repetir verificación aritmética y score total.
 Umbrales: 🟢 >60% · 🟡 50-60% · 🔴 <50%.
 
